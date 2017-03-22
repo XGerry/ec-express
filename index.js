@@ -31,7 +31,7 @@ app.post('/contact', jsonParser, function (req, res) {
   console.log('Email: ' + req.body.email);
 
   createContactHubspot(req.body);
-  res.send('Sent request to hubspot.');
+  res.send('Creating contact in hubspot');
 });
 
 app.get('/create/contact', function (req, res) {
@@ -55,7 +55,8 @@ function createContactHubspot(contact) {
   request.post(options, function (error, response) {
     if (error) {
       console.log(error);
+      console.log(response);
     }
-    console.log(response);
+    console.log("Done.");
   });
 }
