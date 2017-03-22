@@ -12,6 +12,9 @@ app.use(cors({
 // application/json parser
 var jsonParser = bodyParser.json();
 
+// application/x-www-form-urlencoded
+var formParser = bodyParser.urlencoded();
+
 app.get('/', function (req, res) {
   res.send('EC-Express');
 });
@@ -20,7 +23,7 @@ app.listen(process.env.PORT || 3000, function() {
   console.log('EC-Express running on port 3000');
 });
 
-app.post('/contact', jsonParser, function (req, res) {
+app.post('/contact', formParser, function (req, res) {
   if (!req.body) {
     return res.sendStatus(400);
   }
