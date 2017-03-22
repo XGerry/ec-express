@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 
 var app = express();
 app.use(cors({
-  origin : 'https://ecstasycrafts.com',
+  origin : 'https://www.ecstasycrafts.com',
   optionsSuccessStatus : 200
 }));
 
