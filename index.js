@@ -16,7 +16,7 @@ app.get('/', function (req, res) {
   res.send('EC-Express');
 });
 
-app.listen(3000, function() {
+app.listen(process.env.PORT || 3000, function() {
   console.log('EC-Express running on port 3000');
 });
 
