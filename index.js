@@ -26,6 +26,7 @@ app.post('/contact', jsonParser, function (req, res) {
   }
 
   console.log('Creating a new contact to send to Hubspot.');
+  console.log(req.body);
   console.log('Firstname: ' + req.body.firstname);
   console.log('Lastname: ' + req.body.lastname);
   console.log('Email: ' + req.body.email);
