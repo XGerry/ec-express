@@ -1,7 +1,8 @@
-*/
-/*
+!node_modules/
+/node_modules/*
 !/node_modules/qbws/
-/node_modules
+/node_modules/qbws/*
+!/node_modules/qbws/lib
 npm-debug.log
 .DS_Store
 /*.env
