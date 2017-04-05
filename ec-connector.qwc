@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" ?><QBWCXML>
+  <AppName>EC Connector</AppName>
+  <AppID />
+  <AppURL>http://localhost:3000</AppURL>
+  <AppDescription>Web service for Quickbooks</AppDescription>
+  <AppSupport></AppSupport>
+  <UserName>ECCONNECTOR</UserName>
+  <OwnerID></OwnerID>
+  <FileID></FileID>
+  <QBType>QBFS</QBType>
+</QBWCXML>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<QBXML>
+  <?qbxml version="4.0"?>
+  <QBXMLMsgsRq onError="stopOnError">
+    <InvoiceQueryRq requestID="1">
+      <MaxReturned>1</MaxReturned>
+    </InvoiceQueryRq>
+  </QBXMLMsgsRq>
+</QBXML>
