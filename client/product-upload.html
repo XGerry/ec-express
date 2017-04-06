@@ -125,11 +125,92 @@
           </div>
         </div>
 
-        
+        <!-- INVENTORY -->
+        <div class="form-group row">
+          <div class="col-lg-6">
+            <label for="stock">Stock Level</label>
+            <input class="form-control" id="stock" type="number">
+          </div>
+          <div class="col-lg-2">
+            <label for="area">Area</label>
+            <input class="form-control" id="area" type="text">
+          </div>
+          <div class="col-lg-2">
+            <label for="aisle">Aisle</label>
+            <input class="form-control" id="aisle" type="number">
+          </div>
+          <div class="col-lg-2">
+            <label for="bin">Bin</label>
+            <input class="form-control" id="bin" type="number">
+          </div>
+        </div>
+
+        <!-- MANUFACTURER -->
+        <div class="form-group row">
+          <div class="col-lg-6">
+            <label for="manufacturer">Manufacturer</label>
+            <div class="input-group">
+              <select class="form-control" id="manufacturer">
+                <option>Joy Craft</option>
+                <option>Nellie</option>
+                <option>Pergamano</option>
+              </select>
+              <div class="input-group-btn">
+                <button class="btn btn-success" id="newManufacturerButton" type="button">+</button>
+              </div>
+            </div>  
+          </div>
+          <div class="col-lg-3">
+            <label for="origin">Country of Origin</label>
+            <input class="form-control" id="origin" type="text">
+          </div>
+          <div class="col-lg-3">
+            <label for="hst">HST Code</label>
+            <input class="form-control" id="hst" type="text">
+          </div>
+        </div>
+
+        <!-- SHIPPING -->
+        <div class="form-group row">
+          <div class="col-lg-4">
+            <label for="shipping">Shipping Price</label>
+            <div class="input-group">
+              <div class="input-group-addon">$</div>
+              <input class="form-control" id="shipping" type="number">
+            </div>
+          </div>
+          <div class="col-lg-2">
+              <label for="area">Length</label>
+              <input class="form-control" id="length" type="number">
+          </div>
+          <div class="col-lg-2">
+            <label for="aisle">Wdith</label>
+            <input class="form-control" id="width" type="number">
+          </div>
+          <div class="col-lg-2">
+            <label for="bin">Height</label>
+            <input class="form-control" id="height" type="number">
+          </div>
+          <div class="col-lg-2">
+            <label for="bin">Weight</label>
+            <input class="form-control" id="weight" type="number">
+          </div>
+        </div>
+
+        <!-- IMAGES -->
+        <div class="form-group row">
+          <div class="col-lg-6">
+            <label for="image-select">Images</label>
+            <input type="file" id="image-select" multiple>
+          </div>
+        </div>
 
       </form>
+      <button class="btn btn-primary">Send to All</button>
+      <button class="btn btn-default">Send to Quickbooks</button>
+      <button class="btn btn-default">Send to 3D Cart</button>
+      <button class="btn btn-default">Send to Amazon</button>
     </div>
-
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
