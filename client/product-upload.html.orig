@@ -128,6 +128,21 @@
         <!-- INVENTORY -->
         <div class="form-group row">
           <div class="col-lg-6">
+<<<<<<< HEAD
+            <label for="cost">On-Hand Quantity</label>
+            <div class="input-group">
+              <div class="input-group-addon">$</div>
+              <input class="form-control" id="cost" type="number">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <label for="price">Location</label>
+            <div class="input-group">
+              <div class="input-group-addon">$</div>
+              <input class="form-control" id="price" type="number">
+            </div>
+          </div>
+=======
             <label for="stock">Stock Level</label>
             <input class="form-control" id="stock" type="number">
           </div>
@@ -203,6 +218,7 @@
             <label for="image-select">Images</label>
             <input type="file" id="image-select" multiple>
           </div>
+>>>>>>> 3ed2df93cd1be30924fa50fa74ad60ba35dbffd9
         </div>
 
       </form>
