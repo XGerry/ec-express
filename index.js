@@ -86,7 +86,12 @@ app.get('/api/orders', function (req, res) {
       responseObject.success = true;
       responseObject.message = 'Received ' + jsonBody.length + ' orders from 3D Cart.'
       responseObject.response = jsonBody;
-      addOrderToQuickBooks(jsonBody[1], 1);
+
+      requestNumber = 0;
+      jsonBody.forEach(function (order) {
+        addCustomerToQuickBooks(order, requestNumber++);
+        addOrderToQuickBooks(order, requestNumber++);
+      });
     }
 
     res.send(responseObject);
@@ -164,14 +169,59 @@ function createContactHubspot(contact) {
 
 function getXMLRequest(request) {
   var xmlDoc = builder.create('QBXML', { version: '1.0'})
-        .instructionBefore('qbxml', 'version="4.0"')
+        .instructionBefore('qbxml', 'version="13.0"')
         .ele('QBXMLMsgsRq', { 'onError': 'continueOnError' });
   xmlDoc.ele(request);
   return xmlDoc;
 }
 
+function createShippingAddress(order) {
+  var shippingAddress = {};
+  shippingAddress.Addr1 = order.ShipmentList[0].ShipmentFirstName + " " + order.ShipmentList[0].ShipmentLastName;
+  shippingAddress.Addr2 = order.ShipmentList[0].ShipmentCompany;
+  shippingAddress.Addr3 = order.ShipmentList[0].ShipmentAddress;
+  shippingAddress.Addr4 = order.ShipmentList[0].ShipmentAddress2;
+  shippingAddress.City = order.ShipmentList[0].ShipmentCity;
+  shippingAddress.State = order.ShipmentList[0].ShipmentState;
+  shippingAddress.PostalCode = order.ShipmentList[0].ShipmentZipCode;
+  shippingAddress.Country = order.ShipmentList[0].ShipmentCountry;
+  return shippingAddress;
+}
+
+function addCustomerToQuickBooks(order, requestID) {
+  console.log('Creating customer ' + order.BillingFirstName);
+
+  var obj = {
+    CustomerAddRq : {
+      CustomerAdd : {
+        Name : order.BillingLastName + ' ' + order.BillingFirstName,
+        CompanyName : order.BillingCompany,
+        FirstName : order.BillingFirstName,
+        LastName : order.BillingLastName,
+        BillAddress : {
+          Addr1 : order.BillingLastName + ' ' + order.BillingFirstName,
+          Addr2 : order.BillingCompany,
+          Addr3 : order.BillingAddress,
+          Addr4 : order.BillingAddress2,
+          City : order.BillingCity,
+          State : order.BillingState,
+          PostalCode : order.BillingZipCode,
+          Country : order.BillingCountry
+        },
+        ShipAddress : createShippingAddress(order),
+        Phone : order.BillingPhoneNumber,
+        Email : order.BillingEmail
+      }
+    }
+  }
+
+  var xmlDoc = getXMLRequest(obj);
+  qbws.addRequest(xmlDoc);
+}
+
 function addOrderToQuickBooks(order, requestID) {
   console.log('Creating invoice for ' + order.BillingFirstName + ' ' + order.BillingLastName);
+  
   // generate the json object for the line orders
   var invoiceAdds = [];
   order.OrderItemList.forEach(function (item) {
@@ -183,6 +233,46 @@ function addOrderToQuickBooks(order, requestID) {
       Rate : item.ItemUnitPrice
     });
   });
+
+  // look for any discounts in the order
+  order.PromotionList.forEach(function (item) {
+    invoiceAdds.push({
+      ItemRef : {
+        FullName : "DISC"
+      },
+      Desc : item.PromotionName,
+      Rate: item.DiscountAmount
+    });
+  });  
+
+  // add the shipping cost as a line item
+  invoiceAdds.push({
+    ItemRef : {
+      FullName : "Shipping & Handling"
+    },
+    Quantity : order.ShipmentList[0].ShipmentCost
+  });
+
+  // we need to add a surcharge if they are a Canadian customer
+  var country = order.ShipmentList[0].ShipmentCountry;
+  if (country === "CA" || country === "Canada") {
+    invoiceAdds.push({
+      ItemRef : {
+        FullName : "Subtotal"
+      }
+    });
+    invoiceAdds.push({
+      ItemRef : {
+        FullName : "Surcharge"
+      },
+      Quantity : 10
+    });
+  }
+
+  var shippingMethod = order.ShipmentList[0].ShipmentMethodName.slice(0,15);
+  console.log('SHIPPING METHOD: ' + shippingMethod);
+  shippingMethod = shippingMethod != '' ? shippingMethod : 'cheapest way'; // default for now
+
   var obj = {
     InvoiceAddRq : {
       '@requestID' : requestID,
@@ -192,8 +282,12 @@ function addOrderToQuickBooks(order, requestID) {
         },
         TxnDate : order.OrderDate.slice(0,10), // had to remove the T from the DateTime - maybe this is dangerous?
         RefNumber : order.InvoiceNumberPrefix + order.InvoiceNumber,
+        ShipAddress : createShippingAddress(order),
         TermsRef : {
           FullName : 'Online Credit Card' // order.BillingPaymentMethod
+        },
+        ShipMethodRef : {
+          FullName : order.ShipmentList[0].ShipmentMethodName.slice(0,15)
         },
         Memo : 'This is a test import from the API',
         InvoiceLineAdd : invoiceAdds
@@ -203,4 +297,3 @@ function addOrderToQuickBooks(order, requestID) {
   var xmlDoc = getXMLRequest(obj);
   qbws.addRequest(xmlDoc);
 }
-

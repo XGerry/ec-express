@@ -17,6 +17,8 @@ $('#getOrdersButton').click(function (event) {
       break;
   }
 
+  $('#getOrdersButton').addProperty('disabled');
+
   $.get("/api/orders", {
     limit : $('#limit').val(),
     status : status,

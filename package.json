@@ -11,11 +11,15 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.17.1",
+    "bootstrap": "^3.3.7",
     "cors": "^2.8.1",
     "express": "^4.15.2",
-    "request": "^2.81.0"
+    "qbws": "^0.2.1",
+    "request": "^2.81.0",
+    "xml2js": "^0.4.17",
+    "xmlbuilder": "^8.2.2"
   },
-  "engines" : {
-    "node" : "7.7.3"
+  "engines": {
+    "node": "7.7.3"
   }
 }
