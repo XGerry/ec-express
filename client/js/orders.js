@@ -17,7 +17,7 @@ $('#getOrdersButton').click(function (event) {
       break;
   }
 
-  $('#getOrdersButton').addProperty('disabled');
+  $('#getOrdersButton').prop('disabled', 'disabled');
 
   $.get("/api/orders", {
     limit : $('#limit').val(),
@@ -25,6 +25,7 @@ $('#getOrdersButton').click(function (event) {
     startDate : $('#startDate').val(),
     endDate : $('#endDate').val()
   }).done(function(response) {
+    $('#getOrdersButton').prop('disabled', '');
     if (response.success) {
       $('#notifications').addClass('alert-success').html(response.message);
     } else {

@@ -250,11 +250,11 @@ function addOrderToQuickBooks(order, requestID) {
     ItemRef : {
       FullName : "Shipping & Handling"
     },
-    Quantity : order.ShipmentList[0].ShipmentCost
+    Rate : order.ShipmentList[0].ShipmentCost
   });
 
   // we need to add a surcharge if they are a Canadian customer
-  var country = order.ShipmentList[0].ShipmentCountry;
+  var country = order.BillingCountry;
   if (country === "CA" || country === "Canada") {
     invoiceAdds.push({
       ItemRef : {
@@ -270,8 +270,7 @@ function addOrderToQuickBooks(order, requestID) {
   }
 
   var shippingMethod = order.ShipmentList[0].ShipmentMethodName.slice(0,15);
-  console.log('SHIPPING METHOD: ' + shippingMethod);
-  shippingMethod = shippingMethod != '' ? shippingMethod : 'cheapest way'; // default for now
+  shippingMethod = (shippingMethod !== '') ? shippingMethod : 'cheapest way'; // default for now
 
   var obj = {
     InvoiceAddRq : {
@@ -287,7 +286,7 @@ function addOrderToQuickBooks(order, requestID) {
           FullName : 'Online Credit Card' // order.BillingPaymentMethod
         },
         ShipMethodRef : {
-          FullName : order.ShipmentList[0].ShipmentMethodName.slice(0,15)
+          FullName : shippingMethod
         },
         Memo : 'This is a test import from the API',
         InvoiceLineAdd : invoiceAdds
