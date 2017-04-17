@@ -1,253 +1,96 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <InvoiceAddRq requestID="1">
+    <InvoiceAddRq requestID="5">
       <InvoiceAdd>
         <CustomerRef>
-          <FullName>Michele's Designs</FullName>
+          <FullName>Verret Lorraine</FullName>
         </CustomerRef>
-        <TxnDate>2017-04-11</TxnDate>
-        <RefNumber>AB-29035</RefNumber>
+        <TxnDate>2017-04-15</TxnDate>
+        <RefNumber>AB-29121</RefNumber>
         <ShipAddress>
-          <Addr1>Michele Emerson-Roberts</Addr1>
-          <Addr2>Michele's Designs</Addr2>
-          <Addr3>4530 E Vista Grande Rd</Addr3>
-          <Addr4>none</Addr4>
-          <City>Hereford</City>
-          <State>AZ</State>
-          <PostalCode>85615</PostalCode>
-          <Country>US</Country>
+          <Addr1>Lorraine Verret</Addr1>
+          <Addr2/>
+          <Addr3>2626 boul Bastien</Addr3>
+          <Addr4/>
+          <City>Québec</City>
+          <State>QC</State>
+          <PostalCode>G2B 1A6</PostalCode>
+          <Country>CA</Country>
         </ShipAddress>
         <TermsRef>
           <FullName>Online Credit Card</FullName>
         </TermsRef>
         <ShipMethodRef>
-          <FullName>USPS Priority M</FullName>
+          <FullName>US/Canada order</FullName>
         </ShipMethodRef>
         <Memo>This is a test import from the API</Memo>
         <InvoiceLineAdd>
           <ItemRef>
-            <FullName>CR1294</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>6</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1310</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4.5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1335</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1336</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1363</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1364</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1367</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1368</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>LR0229</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>6.5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>LR0416</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>8</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1373</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>8</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>60020477</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>TTLMAG38</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>12.5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>TTLMAG39</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>12.5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>60020580</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>4.6</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>VIND002</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>7.35</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>SIL002</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>2.25</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>SIL003</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>2.25</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>TTLMAG40</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>12.5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>MFD092</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>8</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>MFD090</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>8</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>MFD093</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>8</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CR1354</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>3.75</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>LR0418</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>6.5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>LR0419</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>EF074</FullName>
+            <FullName>UMS767</FullName>
           </ItemRef>
           <Quantity>2</Quantity>
-          <Rate>4.5</Rate>
+          <Rate>7</Rate>
         </InvoiceLineAdd>
         <InvoiceLineAdd>
           <ItemRef>
-            <FullName>60020654</FullName>
+            <FullName>CED13004</FullName>
           </ItemRef>
           <Quantity>1</Quantity>
-          <Rate>6.25</Rate>
+          <Rate>20</Rate>
         </InvoiceLineAdd>
         <InvoiceLineAdd>
           <ItemRef>
-            <FullName>CG1108</FullName>
+            <FullName>UMS595</FullName>
           </ItemRef>
           <Quantity>1</Quantity>
-          <Rate>4.4</Rate>
+          <Rate>10</Rate>
         </InvoiceLineAdd>
         <InvoiceLineAdd>
           <ItemRef>
-            <FullName>CSMT006</FullName>
+            <FullName>UMS596</FullName>
           </ItemRef>
           <Quantity>1</Quantity>
-          <Rate>2.2</Rate>
+          <Rate>10</Rate>
         </InvoiceLineAdd>
         <InvoiceLineAdd>
           <ItemRef>
-            <FullName>SD124</FullName>
+            <FullName>CSF01</FullName>
           </ItemRef>
           <Quantity>1</Quantity>
-          <Rate>2</Rate>
+          <Rate>5</Rate>
         </InvoiceLineAdd>
         <InvoiceLineAdd>
           <ItemRef>
-            <FullName>FRA9506</FullName>
+            <FullName>UMS713</FullName>
           </ItemRef>
           <Quantity>1</Quantity>
-          <Rate>4.95</Rate>
+          <Rate>10</Rate>
+        </InvoiceLineAdd>
+        <InvoiceLineAdd>
+          <ItemRef>
+            <FullName>CED4310</FullName>
+          </ItemRef>
+          <Quantity>1</Quantity>
+          <Rate>16.5</Rate>
         </InvoiceLineAdd>
         <InvoiceLineAdd>
           <ItemRef>
             <FullName>Shipping &amp; Handling</FullName>
           </ItemRef>
-          <Quantity>15</Quantity>
+          <Rate>0</Rate>
+        </InvoiceLineAdd>
+        <InvoiceLineAdd>
+          <ItemRef>
+            <FullName>Subtotal</FullName>
+          </ItemRef>
+        </InvoiceLineAdd>
+        <InvoiceLineAdd>
+          <ItemRef>
+            <FullName>Surcharge</FullName>
+          </ItemRef>
+          <Quantity>10</Quantity>
         </InvoiceLineAdd>
       </InvoiceAdd>
     </InvoiceAddRq>

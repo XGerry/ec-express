@@ -57,7 +57,31 @@ app.get('/api/create/contact', function (req, res) {
   res.send('Sent request to hubspot');
 });
 
+app.post('/api/orders', jsonParser, function (req, res) {
+  console.log('Updating ' + req.body.length + ' orders in 3D Cart.');
+
+  // send the orders to 3D cart
+  var options = {
+    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : 'de3facfbc2253b63736cf0511306f8f0',
+      Token : '1f1a413aee6e983c616b0af7921f2afe'
+    },
+    'body' : req.body,
+    json : true
+  };
+  
+  request.put(options, function(error, response, body) {
+    console.log(body);
+    res.send(response);
+  });
+});
+
 app.get('/api/orders', function (req, res) {
+  // clear the requests in qbws
+  qbws.clearRequests();
+
   var options = {
     url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
     headers : {
@@ -75,6 +99,13 @@ app.get('/api/orders', function (req, res) {
 
   request.get(options, function (error, response, body) {
     var responseObject = {};
+    if (body == '') {
+      responseObject.success = true;
+      responseObject.message = 'No orders found';
+      responseObject.response = [];
+      res.send(responseObject);
+      return;
+    }
 
     if (error) {
       console.log(error + response);
@@ -168,7 +199,7 @@ function createContactHubspot(contact) {
 }
 
 function getXMLRequest(request) {
-  var xmlDoc = builder.create('QBXML', { version: '1.0'})
+  var xmlDoc = builder.create('QBXML', { version: '1.0', encoding: 'ISO-8859-1'})
         .instructionBefore('qbxml', 'version="13.0"')
         .ele('QBXMLMsgsRq', { 'onError': 'continueOnError' });
   xmlDoc.ele(request);
@@ -191,6 +222,30 @@ function createShippingAddress(order) {
 function addCustomerToQuickBooks(order, requestID) {
   console.log('Creating customer ' + order.BillingFirstName);
 
+  // figure out what tax code they will get based on their billing address
+  var shippingAddress = createShippingAddress(order);
+  var taxCode = 'NON';
+  if (shippingAddress.Country == 'CA') {
+    if (shippingAddress.State == 'ON' || 
+      shippingAddress.State == 'NL' || 
+      shippingAddress.State == 'NB') {
+      taxCode = 'H';
+    } else if (shippingAddress.State == 'AB' ||
+      shippingAddress.State == 'SK' ||
+      shippingAddress.State == 'QC' ||
+      shippingAddress.State == 'BC' ||
+      shippingAddress.State == 'YT' ||
+      shippingAddress.State == 'NU' ||
+      shippingAddress.State == 'NT' ||
+      shippingAddress.State == 'MB') {
+      taxCode = 'G';
+    } else if (shippingAddress.State == 'NS') {
+      taxCode = 'NS';
+    } else if (shippingAddress.State == 'PE') {
+      taxCode = 'PEI';
+    }
+  }
+
   var obj = {
     CustomerAddRq : {
       CustomerAdd : {
@@ -208,7 +263,7 @@ function addCustomerToQuickBooks(order, requestID) {
           PostalCode : order.BillingZipCode,
           Country : order.BillingCountry
         },
-        ShipAddress : createShippingAddress(order),
+        ShipAddress : shippingAddress,
         Phone : order.BillingPhoneNumber,
         Email : order.BillingEmail
       }
@@ -277,7 +332,7 @@ function addOrderToQuickBooks(order, requestID) {
       '@requestID' : requestID,
       InvoiceAdd : {
         CustomerRef : {
-          FullName : order.BillingCompany != '' ? order.BillingCompany : order.BillingLastName + ' ' + order.BillingFirstName 
+          FullName : order.BillingLastName + ' ' + order.BillingFirstName 
         },
         TxnDate : order.OrderDate.slice(0,10), // had to remove the T from the DateTime - maybe this is dangerous?
         RefNumber : order.InvoiceNumberPrefix + order.InvoiceNumber,
