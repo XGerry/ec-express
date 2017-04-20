@@ -101,6 +101,7 @@ function showOrders(orderList) {
     selectedRows.each(function (index) {
       var id = $(this).attr('id');
       orderMap[id].OrderStatusID = 2; // processing
+      orderMap[id].ShipmentList[0].ShipmentOrderStatus = 2; // processing
       orderMap[id].InternalComments = 'This order was processed by EC-Express';
       ordersToSave.push(orderMap[id]);
     });
