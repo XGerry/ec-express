@@ -16,7 +16,7 @@ module.exports = function(app, passport, qbws) {
 
   // for downloading the qwc file to hook up the web connector
   app.get('/connector', function(req, res) {
-    res.sendFile(path.join(__dirname, '../qbws/ec-connector.qwc'))
+    res.download(path.join(__dirname, '../qbws/ec-connector.qwc'), 'ec-connector.qwc')
   });
 
   // signup page - disabled for now
