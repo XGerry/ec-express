@@ -2,7 +2,7 @@
 <QBWCXML>
 	<AppName>EC-Express</AppName>
 	<AppID></AppID>
-	<AppURL>http://localhost:3000/wsdl</AppURL>
+	<AppURL>https://ec-express.herokuapp.com/wsdl</AppURL>
 	<AppDescription>Connecting to QB through ec-express</AppDescription>
 	<AppSupport>http://localhost:3000/wsdl</AppSupport>
 	<UserName>username</UserName>
