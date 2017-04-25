@@ -109,8 +109,8 @@ module.exports = function(app, passport, qbws) {
       url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
       headers : {
         SecureUrl : 'https://www.ecstasycrafts.com',
-        PrivateKey : 'de3facfbc2253b63736cf0511306f8f0',
-        Token : '1f1a413aee6e983c616b0af7921f2afe'
+        PrivateKey : process.env.CART_PRIVATE_KEY,
+        Token : process.end.CART_TOKEN
       },
       body : req.body,
       json : true
@@ -130,8 +130,8 @@ module.exports = function(app, passport, qbws) {
       url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
       headers : {
         SecureUrl : 'https://www.ecstasycrafts.com',
-        PrivateKey : 'de3facfbc2253b63736cf0511306f8f0',
-        Token : '1f1a413aee6e983c616b0af7921f2afe'
+        PrivateKey : process.env.CART_PRIVATE_KEY,
+        Token : process.env.CART_TOKEN
       },
       qs : {
         limit : req.query.limit != '' ? req.query.limit : 200,
