@@ -1,7 +1,6 @@
 var express = require('express');
 var cors = require('cors');
 var qbws = require('./qbws/qbws'); // my modified qbws
-var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var session = require('express-session');
 var passport = require('passport');
@@ -10,7 +9,7 @@ var flash = require('connect-flash');
 var app = express();
 
 // prepare DB
-var uriString = process.env.MONGOLAB_URI || 
+var uriString = process.env.MONGODB_URI || 
                 process.env.MONGOHQ_URL ||
                 'mongodb://localhost/db';
 
