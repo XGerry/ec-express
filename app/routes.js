@@ -47,12 +47,18 @@ module.exports = function(app, passport, qbws) {
           success : false,
           message : info
         });
+      } else {
+        req.login(user, function(error) {
+          if (error) {
+            return next(error);
+          }
+          console.log('Request should have logged in successfully');
+          return res.send({
+            success : true,
+            redirect : '/'
+          });
+        });
       }
-
-      return res.send({
-        success : true,
-        redirect : '/'
-      });
     })(req, res, next);
   });
 
@@ -81,7 +87,7 @@ module.exports = function(app, passport, qbws) {
     });
   });
 
-  app.post('/api/orders', function (req, res) {
+  app.post('/api/orders', authenticate, function (req, res) {
     console.log('Updating ' + req.body.length + ' orders in 3D Cart.');
 
     // send the orders to 3D cart
@@ -102,7 +108,7 @@ module.exports = function(app, passport, qbws) {
     });
   });
 
-  app.get('/api/orders', function (req, res) {
+  app.get('/api/orders', authenticate, function (req, res) {
     // clear the requests in qbws
     qbws.clearRequests();
 
@@ -153,7 +159,7 @@ module.exports = function(app, passport, qbws) {
     });
   });
 
-  app.get('/api/invoices', function (req, res) {
+  app.get('/api/invoices', authenticate, function (req, res) {
     console.log('Sending a query to QBWC');
     var invoiceQuery = {
       InvoiceQueryRq : {
@@ -180,7 +186,7 @@ module.exports = function(app, passport, qbws) {
     res.send('Now run the QBWC on your machine.');
   });
 
-  app.get('/api/buildManifest', function (req, res) {
+  app.get('/api/buildManifest', authenticate, function (req, res) {
     var responseObject = {
       response : '',
       success : false,
@@ -206,6 +212,7 @@ module.exports = function(app, passport, qbws) {
     if (req.isAuthenticated()) {
       return next();
     }
-    res.redirect('/'); // redirect them to login
+    console.log('not logged in.');
+    res.status(401).send('Please login before trying to perform this request.');
   }
 }

@@ -40,6 +40,11 @@ $('#getOrdersButton').click(function (event) {
     $('#message').text(response.message);
     console.log(response.response);
     showOrders(response.response);
+  }).error(function(response) {
+    console.log('error');
+    if (response.status == 401) {
+      window.location.replace('/login');
+    }
   });
 });
 
@@ -100,10 +105,13 @@ function showOrders(orderList) {
     var ordersToSave = [];
     selectedRows.each(function (index) {
       var id = $(this).attr('id');
-      orderMap[id].OrderStatusID = 2; // processing
-      orderMap[id].ShipmentList[0].ShipmentOrderStatus = 2; // processing
-      orderMap[id].InternalComments = 'This order was processed by EC-Express';
-      ordersToSave.push(orderMap[id]);
+      var order = {};
+      order.ShipmentList = [{}];
+      order.OrderID = orderMap[id].OrderID;
+      order.OrderStatusID = 2; // processing
+      order.ShipmentList[0].ShipmentOrderStatus = 2; // processing
+      order.InternalComments = 'This order was processed by EC-Express';
+      ordersToSave.push(order);
     });
 
     $.ajax('/api/orders', {

@@ -68,7 +68,7 @@ function addCustomerRq(order, requestID) {
         ShipAddress : shippingAddress,
         Phone : order.BillingPhoneNumber,
         Email : order.BillingEmail,
-        SalesTaxCode : {
+        SalesTaxCodeRef : {
           FullName : taxCode
         }
       }
@@ -137,6 +137,8 @@ console.log('Creating invoice for ' + order.BillingFirstName + ' ' + order.Billi
     paymentMethod = 'call for payment';
   } else if (paymentMethod.includes('PayPal')) {
     paymentMethod = 'PayPal';
+  } else if (paymentMethod.includes('Check or Money Order')) {
+    paymentMethod = 'cheque';
   }
 
   var obj = {

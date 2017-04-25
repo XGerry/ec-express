@@ -1,98 +1,39 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <InvoiceAddRq requestID="5">
-      <InvoiceAdd>
-        <CustomerRef>
-          <FullName>Verret Lorraine</FullName>
-        </CustomerRef>
-        <TxnDate>2017-04-15</TxnDate>
-        <RefNumber>AB-29121</RefNumber>
-        <ShipAddress>
-          <Addr1>Lorraine Verret</Addr1>
+    <CustomerAddRq>
+      <CustomerAdd>
+        <Name>Charest Micheline</Name>
+        <CompanyName/>
+        <FirstName>Micheline</FirstName>
+        <LastName>Charest</LastName>
+        <BillAddress>
+          <Addr1>Charest Micheline</Addr1>
           <Addr2/>
-          <Addr3>2626 boul Bastien</Addr3>
+          <Addr3>53 Stevenson</Addr3>
           <Addr4/>
-          <City>Québec</City>
+          <City>Danville</City>
           <State>QC</State>
-          <PostalCode>G2B 1A6</PostalCode>
+          <PostalCode>J0A 1A0</PostalCode>
+          <Country>CA</Country>
+        </BillAddress>
+        <ShipAddress>
+          <Addr1>Micheline Charest</Addr1>
+          <Addr2/>
+          <Addr3>53 Stevenson</Addr3>
+          <Addr4/>
+          <City>Danville</City>
+          <State>QC</State>
+          <PostalCode>J0A1A0</PostalCode>
           <Country>CA</Country>
         </ShipAddress>
-        <TermsRef>
-          <FullName>Online Credit Card</FullName>
-        </TermsRef>
-        <ShipMethodRef>
-          <FullName>US/Canada order</FullName>
-        </ShipMethodRef>
-        <Memo>This is a test import from the API</Memo>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>UMS767</FullName>
-          </ItemRef>
-          <Quantity>2</Quantity>
-          <Rate>7</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CED13004</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>20</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>UMS595</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>10</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>UMS596</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>10</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CSF01</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>UMS713</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>10</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CED4310</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>16.5</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>Shipping &amp; Handling</FullName>
-          </ItemRef>
-          <Rate>0</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>Subtotal</FullName>
-          </ItemRef>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>Surcharge</FullName>
-          </ItemRef>
-          <Quantity>10</Quantity>
-        </InvoiceLineAdd>
-      </InvoiceAdd>
-    </InvoiceAddRq>
+        <Phone>819-642-0108</Phone>
+        <Email>michelinecharest1@gmail.com</Email>
+        <SalesTaxCode>
+          <FullName>G</FullName>
+        </SalesTaxCode>
+      </CustomerAdd>
+    </CustomerAddRq>
   </QBXMLMsgsRq>
 </QBXML>
