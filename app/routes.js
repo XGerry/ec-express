@@ -116,7 +116,7 @@ module.exports = function(app, passport, qbws) {
       headers : {
         SecureUrl : 'https://www.ecstasycrafts.com',
         PrivateKey : process.env.CART_PRIVATE_KEY,
-        Token : process.end.CART_TOKEN
+        Token : process.env.CART_TOKEN
       },
       body : req.body,
       json : true
