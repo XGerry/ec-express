@@ -2,13 +2,19 @@ var helpers = require('./helpers.js');
 var xmlParser = require('xml2js').parseString; 
 var request = require('request');
 var path = require('path');
+var bodyParser = require('body-parser');
 
 var ordersFromQuickbooks = {}; // do it this way for now
 
-module.exports = function(app, passport, qbws) {
+// application/json parser
+var jsonParser = bodyParser.json({limit : '50mb'});
 
+// application/x-www-form-urlencoded
+var formParser = bodyParser.urlencoded({limit : '50mb'});
+
+module.exports = function(app, passport, qbws) {
   // signup page
-  app.post('/signup', function(req, res, next) {
+  app.post('/signup', formParser, function(req, res, next) {
     passport.authenticate('local-signup', function(err, user, info) {
       if (err) {
         return next(err);
@@ -36,7 +42,7 @@ module.exports = function(app, passport, qbws) {
     res.sendFile(path.join(__dirname,'../client', 'login.html'));
   });
 
-  app.post('/login', function(req, res, next) {
+  app.post('/login', formParser, function(req, res, next) {
     passport.authenticate('local-login', function(err, user, info) {
       if (err) {
         return next(err);
@@ -62,7 +68,7 @@ module.exports = function(app, passport, qbws) {
     })(req, res, next);
   });
 
-  app.post('/contact', function(req, res) {
+  app.post('/contact', formParser, function(req, res) {
     if (!req.body) {
       return res.sendStatus(400);
     }
@@ -87,7 +93,7 @@ module.exports = function(app, passport, qbws) {
     });
   });
 
-  app.post('/api/orders', authenticate, function (req, res) {
+  app.post('/api/orders', jsonParser, authenticate, function (req, res) {
     console.log('Updating ' + req.body.length + ' orders in 3D Cart.');
 
     // send the orders to 3D cart
