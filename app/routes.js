@@ -13,7 +13,8 @@ var jsonParser = bodyParser.json({limit : '50mb'});
 var formParser = bodyParser.urlencoded({limit : '50mb'});
 
 module.exports = function(app, passport, qbws) {
-  // signup page
+  // signup page - disabled for now
+  /*
   app.post('/signup', formParser, function(req, res, next) {
     passport.authenticate('local-signup', function(err, user, info) {
       if (err) {
@@ -25,14 +26,21 @@ module.exports = function(app, passport, qbws) {
           success : false,
           message : 'That username already exists.'
         });
+      } else {
+        req.login(user, function(error) {
+          if (error) {
+            return next(error);
+          }
+          console.log('Request should have logged in successfully');
+          return res.send({
+            success : true,
+            redirect : '/'
+          });
+        });
       }
-
-      return res.send({
-        success : true,
-        redirect : '/'
-      });
     })(req, res, next);
   });
+  */
 
   app.get('/signup', function(req, res) {
     res.sendFile(path.join(__dirname,'../client', 'signup.html'));
