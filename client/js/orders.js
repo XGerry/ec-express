@@ -52,7 +52,7 @@ $('#getOrdersButton').click(function (event) {
 function showInstructions() {
   $('#instructions').empty();
   $('#instructions').append($('<p></p>').text('If there were orders returned from 3D cart please run the "EC-Express" app in the Quickbooks Web Connector on your computer. Select the checkbox next to EC-Express app and click "Update Selected".'));
-  $('#instructions').append($('<p></p>').text('After the process is completed click the button below to verify the orders were completed successfully.'));
+  $('#instructions').append($('<p></p>').text('After the process is completed, click the button below to verify the orders were completed successfully.'));
   var continueButton = $('<button></button>').addClass('btn btn-primary').text('Continue');
   continueButton.click(function(e) {
     $('#confirm-orders').click();
@@ -109,6 +109,8 @@ function showOrders(orderList) {
   itemTable.append(tableBody);
 
   resultsDiv.append(itemTable);
+  $('#resultTable').DataTable();
+  console.log('tried to add the data table');
 
   // add buttons for the table
   var selectAll = $('<button></button>').addClass('btn btn-success').text('Select All');
