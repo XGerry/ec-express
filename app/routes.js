@@ -82,6 +82,10 @@ module.exports = function(app, passport, qbws) {
     })(req, res, next);
   });
 
+  app.get('/user', function(req, res) {
+    return res.send(req.user);
+  });
+
   app.post('/contact', formParser, function(req, res) {
     if (!req.body) {
       return res.sendStatus(400);

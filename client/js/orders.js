@@ -40,6 +40,7 @@ $('#getOrdersButton').click(function (event) {
     $('#message').text(response.message);
     console.log(response.response);
     showOrders(response.response);
+    showInstructions();
   }).error(function(response) {
     console.log('error');
     if (response.status == 401) {
@@ -48,6 +49,18 @@ $('#getOrdersButton').click(function (event) {
   });
 });
 
+function showInstructions() {
+  $('#instructions').empty();
+  $('#instructions').append($('<p></p>').text('If there were orders returned from 3D cart please run the "EC-Express" app in the Quickbooks Web Connector on your computer. Select the checkbox next to EC-Express app and click "Update Selected".'));
+  $('#instructions').append($('<p></p>').text('After the process is completed click the button below to verify the orders were completed successfully.'));
+  var continueButton = $('<button></button>').addClass('btn btn-primary').text('Continue');
+  continueButton.click(function(e) {
+    $('#confirm-orders').click();
+  });
+  $('#instructions').append($('<div></div>').addClass('row text-center').append(continueButton));
+  $('#run-connector').click();
+}
+
 function showOrders(orderList) {
   orderMap = {};
   var resultsDiv = $('#results').empty();
@@ -55,6 +68,10 @@ function showOrders(orderList) {
   var itemHeader = $('<thead></thead>');
   var itemHeaderRow = $('<tr></tr>');
   var tableBody = $('<tbody></tbody>');
+
+  // Instructions
+  var instructions = $('<p></p>').text('Please confirm the orders that were successfully imported into Quickbooks by selecting the row. After the orders are confirmed, mark them as "Processing" in 3D cart by clicking the button below.');
+  $('#results').append(instructions);
 
   // Headers
   itemHeaderRow.append($('<th></th>').text('Order Number'));
@@ -100,7 +117,9 @@ function showOrders(orderList) {
   });
 
   var processingButton = $('<button></button>').addClass('btn btn-primary').text('Mark as Processing');
+
   processingButton.click(function() {
+    processingButton.addClass('disabled');
     var selectedRows = $('#resultTable .selected');
     var ordersToSave = [];
     selectedRows.each(function (index) {
@@ -121,10 +140,10 @@ function showOrders(orderList) {
       contentType : 'application/json',
       success : function(response) {
         console.log(response);
+        processingButton.removeClass('disabled');
       }
     });
   });
 
-  resultsDiv.append(selectAll);
-  resultsDiv.append(processingButton);
+  resultsDiv.append($('<div></div>').addClass('row text-center btn-toolbar').append(selectAll).append(processingButton));
 }
