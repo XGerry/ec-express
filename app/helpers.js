@@ -166,9 +166,47 @@ console.log('Creating invoice for ' + order.BillingFirstName + ' ' + order.Billi
   return xmlDoc;
 }
 
+function buildAmazonXML(orders) {
+  var obj = '';
+}
+
+function addProperty(propertyName, value) {
+  var prop = {
+    "property" : propertyName,
+    "value" : value
+  };
+  return prop;
+}
+
+function getCustomerFromOrder(order) {
+  var customer = {
+    email : order.BillingEmail,
+    properties : []
+  };
+
+  customer.properties.push(addProperty('firstname', order.BillingFirstName));
+  customer.properties.push(addProperty('lastname', order.BillingLastName));
+  customer.properties.push(addProperty('country', order.BillingCountry));
+  customer.properties.push(addProperty('company', order.BillingCompany));
+  var orderDate = new Date(order.OrderDate);
+  var utcDate = Date.UTC(orderDate.getUTCFullYear(), orderDate.getUTCMonth(), orderDate.getUTCDate());
+  customer.properties.push(addProperty('last_order_date', utcDate));
+  
+  var cottonCandy = false;
+  order.OrderItemList.forEach(function (item) {
+    if (item.ItemID == 'ECProj01') { // this means they ordered the Cotton Candy Essentials Pack
+      cottonCandy = true;
+    }
+  });
+
+  customer.properties.push(addProperty('purchased_cotton_candy', cottonCandy));
+  return customer;
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   createShippingAddress : createShippingAddress,
   addCustomerRq : addCustomerRq,
   addInvoiceRq : addInvoiceRq,
+  getCustomer : getCustomerFromOrder
 }

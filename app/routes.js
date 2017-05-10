@@ -3,6 +3,8 @@ var xmlParser = require('xml2js').parseString;
 var request = require('request');
 var path = require('path');
 var bodyParser = require('body-parser');
+var mws = require('mws-nodejs');
+var config = require('../config/mws.json');
 
 var ordersFromQuickbooks = {}; // do it this way for now
 
@@ -153,6 +155,8 @@ module.exports = function(app, passport, qbws) {
 
     request.get(options, function (error, response, body) {
       var responseObject = {};
+      var contacts = [];
+
       if (body == '') {
         responseObject.success = true;
         responseObject.message = 'No orders found';
@@ -176,10 +180,23 @@ module.exports = function(app, passport, qbws) {
         jsonBody.forEach(function (order) {
           qbws.addRequest(helpers.addCustomerRq(order, requestNumber++));
           qbws.addRequest(helpers.addInvoiceRq(order, requestNumber++));
+          contacts.push(helpers.getCustomer(order)); // hubspot integration
         });
       }
 
-      res.send(responseObject);
+      var options = {
+        url : 'https://api.hubapi.com/contacts/v1/contact/batch/?hapikey='+ process.env.HAPI_KEY,
+        body : contacts,
+        json : true
+      };
+      console.log('sending the contacts to hubspot:');
+      console.log(JSON.stringify(contacts));
+      console.log('\n');
+      request.post(options, function(error, response, body) {
+        console.log(JSON.stringify(body));
+        responseObject.hubspot = body;
+        res.send(responseObject);
+      });
     });
   });
 
@@ -239,4 +256,50 @@ module.exports = function(app, passport, qbws) {
     console.log('not logged in.');
     res.status(401).send('Please login before trying to perform this request.');
   }
+
+  app.get('/api/amazon', function(req, res) {
+    /*
+    var now = new Date();
+
+    var formData = {
+      AWSAccessKeyId : 'AKIAIOKE3I3CIQ7KLTIQ',
+      Action : 'GetMatchingProductForId',
+      MarketplaceId : 'ATVPDKIKX0DER',
+      IdList : ['5055305927700'],
+      IdType : 'ASIN',
+      SellerId : 'A1AG76L8PLY85T',
+      Signature : '',
+      SignatureMethod : 'HmacSHA256',
+      SignatureVersion : '2',
+      Timestamp : now.toISOString()
+    };
+
+    var stringToSign = 'POST' + '\n' +
+      'mws.amazonservices.com' + '\n' +
+      ''
+
+    request.post()
+    */
+    console.log(mws);
+
+    /*
+    mws.products.GetServiceStatus(config, true, function (err, data) {
+        console.log("GetServiceStatus:");
+        console.log(data.GetServiceStatusResponse.GetServiceStatusResult);
+        console.log("\n");
+    });
+
+    var params = {
+      MarketplaceId : 'ATVPDKIKX0DER',
+      IdType : 'ASIN',
+      IdList : {
+        'IdList.Id.1' : '5055305927700'
+      }
+    };
+
+    mws.Products.GetMatchingProductForId(config, params, false, function(err, data) {
+        console.log(data);
+      });
+      */
+  });
 }

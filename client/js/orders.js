@@ -88,7 +88,7 @@ function showOrders(orderList) {
     var customerName = $('<td></td>').text(order.BillingFirstName + ' ' + order.BillingLastName);
     var companyName = $('<td></td>').text(order.BillingCompany);
     var shippingCountry = $('<td></td>').text(order.ShipmentList[0].ShipmentCountry);
-    var total = $('<td></td>').text('$' + order.OrderAmount);
+    var total = $('<td></td>').text('$' + (order.OrderAmount + order.SalesTax2));
 
     row.append(numberCol);
     row.append(customerName);
