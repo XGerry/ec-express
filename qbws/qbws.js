@@ -152,12 +152,12 @@ var addRequest = function(xmlDoc) {
     var str = xmlDoc.end({'pretty' : true});
     console.log(str);
     req.push(str);
-
 }
 
 var clearRequests = function() {
     req = [];
     callback = defaultCallback;
+    connectionErrCounter = 0; // reset this too
 }
 
 var setCallback = function(fnc) {
@@ -526,7 +526,7 @@ function (args) {
             serviceLog('    HRESULT = ' + hresult);
             serviceLog('    Message = ' + message);
             serviceLog('    Sending DONE to stop.');
-            retVal = 'DONE';
+            retVal = '';
         }
     }
 
