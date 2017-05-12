@@ -194,6 +194,7 @@ module.exports = function(app, passport, qbws) {
       console.log('\n');
       request.post(options, function(error, response, body) {
         console.log(JSON.stringify(body));
+        console.log(response.statusCode);
         responseObject.hubspot = body;
         res.send(responseObject);
       });
@@ -301,5 +302,40 @@ module.exports = function(app, passport, qbws) {
         console.log(data);
       });
       */
+  });
+
+  app.get('/api/feeds/facebook', function(req, res) {
+
+  });
+
+  app.get('/api/generate/feed', function(req, res) {
+
+    var products = [];
+
+    // get the products from 3d cart
+    var options = {
+      url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/skuinfo',
+      headers : {
+        SecureUrl : 'https://www.ecstasycrafts.com',
+        PrivateKey : process.env.CART_PRIVATE_KEY,
+        Token : process.env.CART_TOKEN
+      },
+      qs : {
+        limit : 200 // max items
+      }
+    }
+
+    request.get(options, function (error, response, body) {
+      console.log('Products from 3D Cart: \n');
+      console.log(body);
+      products = products.concat(JSON.parse(body));
+
+      options.qs.offset = 200;
+      request.get(options, function(error2, response2, body2) {
+        products = products.concat(JSON.parse(body2));
+        console.log(products.length);
+        res.send(products);
+      });
+    });
   });
 }

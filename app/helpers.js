@@ -1,4 +1,5 @@
 var builder = require('xmlbuilder');
+var request = require('request');
 
 function getXMLRequest(request) {
   var xmlDoc = builder.create('QBXML', { version: '1.0', encoding: 'ISO-8859-1'})
@@ -80,7 +81,7 @@ function addCustomerRq(order, requestID) {
 }
 
 function addInvoiceRq(order, requestID) {
-console.log('Creating invoice for ' + order.BillingFirstName + ' ' + order.BillingLastName);
+  console.log('Creating invoice for ' + order.BillingFirstName + ' ' + order.BillingLastName);
 
   // generate the json object for the line orders
   var invoiceAdds = [];
@@ -132,12 +133,13 @@ console.log('Creating invoice for ' + order.BillingFirstName + ' ' + order.Billi
   var shippingMethod = order.ShipmentList[0].ShipmentMethodName.slice(0,15); // max 15 characters
   shippingMethod = (shippingMethod !== '') ? shippingMethod : 'cheapest way'; // default for now
 
-  var paymentMethod = order.BillingPaymentMethod;
-  if (paymentMethod == 'Credit card on file - Please call') {
-    paymentMethod = 'call for payment';
-  } else if (paymentMethod.includes('PayPal')) {
+  var paymentMethod3DCart = order.BillingPaymentMethod;
+  var paymentMethod = 'Online Credit Card';
+  if (paymentMethod3DCart.includes('Credit card on file')) {
+    paymentMethod = 'On Account';
+  } else if (paymentMethod3DCart.includes('PayPal')) {
     paymentMethod = 'PayPal';
-  } else if (paymentMethod.includes('Check or Money Order')) {
+  } else if (paymentMethod3DCart.includes('Check or Money Order')) {
     paymentMethod = 'cheque';
   }
 
