@@ -26,14 +26,14 @@ module.exports = function(qbws) {
 
   var checkForErrorsJob = schedule.scheduleJob({
     hour: 8,
-    minute: 30,
+    minute: 00,
     dayOfWeek: [1, 2, 3, 4, 5]
   }, updateCompletedOrders);
 
   // prepare scheduler
   var getOrdersJob = schedule.scheduleJob({
     hour: 7,
-    minute: 45,
+    minute: 00,
     dayOfWeek: [1, 2, 3, 4, 5]
   }, getOrders);
 }
