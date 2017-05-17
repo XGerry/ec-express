@@ -21,6 +21,8 @@
     "mongodb": "^2.2.25",
     "mongoose": "^4.9.5",
     "mws-nodejs": "^0.4.0",
+    "node-schedule": "^1.2.1",
+    "nodemailer": "^4.0.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "qbws": "^0.2.1",

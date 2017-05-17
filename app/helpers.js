@@ -1,5 +1,6 @@
 var builder = require('xmlbuilder');
 var request = require('request');
+var Order = require('./model/order');
 
 function getXMLRequest(request) {
   var xmlDoc = builder.create('QBXML', { version: '1.0', encoding: 'ISO-8859-1'})
@@ -51,6 +52,7 @@ function addCustomerRq(order, requestID) {
 
   var obj = {
     CustomerAddRq : {
+      '@requestID' : requestID,
       CustomerAdd : {
         Name : order.BillingLastName + ' ' + order.BillingFirstName,
         CompanyName : order.BillingCompany,
@@ -77,7 +79,8 @@ function addCustomerRq(order, requestID) {
   }
 
   var xmlDoc = getXMLRequest(obj);
-  return xmlDoc;
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
 }
 
 function addInvoiceRq(order, requestID) {
@@ -160,12 +163,14 @@ function addInvoiceRq(order, requestID) {
           FullName : shippingMethod
         },
         Memo : order.CustomerComments + ' - API Import',
+        IsToBePrinted : true,
         InvoiceLineAdd : invoiceAdds
       }
     }
   };
   var xmlDoc = getXMLRequest(obj);
-  return xmlDoc;
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
 }
 
 function buildAmazonXML(orders) {
@@ -205,10 +210,92 @@ function getCustomerFromOrder(order) {
   return customer;
 }
 
+function getProducts(options, callback) {
+  var products = getProductsRequest(options, 0, callback);
+}
+
+function getProductsRequest(options, count, callback) {
+  var products = [];
+  request.get(options, function(err, response, body) {
+    if (err) {
+      console.log('Error: ' + body);
+      return products;
+    }
+
+    var productArray = JSON.parse(body);
+    products = products.concat(productArray);
+
+    if (productArray.length > 0 && productArray[0].Key != 'Error') { // we still have items to get
+      options.qs.offset += productArray.length;
+      console.log('retrieved ' + productArray.length + ' products from 3D cart.');
+      if (count > 50) {
+        products.concat(setTimeout(getProductsRequest(options, count++), 2000));
+      } else {
+        products.concat(getProductsRequest(options, count++));
+      }
+    } else {
+      callback(products);
+    }
+  });
+}
+
+function updateContacts(contacts, callback) {
+  var options = {
+    url : 'https://api.hubapi.com/contacts/v1/contact/batch/?hapikey='+ process.env.HAPI_KEY,
+    body : contacts,
+    json : true
+  };
+
+  request.post(options, function(error, response, body) {
+    callback(body);
+  });
+}
+
+function updateOrders(orders, callback) {
+  // send the orders to 3D cart
+  var options = {
+    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : process.env.CART_PRIVATE_KEY,
+      Token : process.env.CART_TOKEN
+    },
+    body : orders,
+    json : true
+  };
+
+  request.put(options, callback);
+}
+
+function markCompletedOrdersAsProcessing(callback) {
+  Order.find({imported: true}, function (err, docs) {
+    if (err) {
+      console.log('Error getting the results');
+    } else {
+      var orders = [];
+      docs.forEach(function (doc) {
+        var order = doc.cartOrder;
+        order.OrderStatusID = 2; // processing
+        order.ShipmentList[0].ShipmentOrderStatus = 2; // processing
+        order.InternalComments = "This order was automatically updated by EC-Express";
+        orders.push(order);
+      });
+
+      console.log('updating ' + orders.length + ' orders.');
+
+      updateOrders(orders, callback);
+    }
+  });
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   createShippingAddress : createShippingAddress,
   addCustomerRq : addCustomerRq,
   addInvoiceRq : addInvoiceRq,
-  getCustomer : getCustomerFromOrder
+  getCustomer : getCustomerFromOrder,
+  getProducts : getProducts,
+  updateContacts : updateContacts,
+  updateOrders : updateOrders,
+  markCompletedOrdersAsProcessing : markCompletedOrdersAsProcessing
 }

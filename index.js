@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var session = require('express-session');
 var passport = require('passport');
 var flash = require('connect-flash');
+var routes = require('./app/routes');
 
 var app = express();
 
@@ -47,5 +48,6 @@ app.listen(process.env.PORT || 3000, function() {
   qbws.run(app);
 });
 
-require('./app/routes')(app, passport, qbws);
+routes.route(app, passport, qbws);
 require('./config/passport')(passport);
+require('./app/schedule')(qbws);

@@ -4,11 +4,15 @@ var chalk = require('chalk');
 var fs = require('fs');
 var builder = require('xmlbuilder');
 var uuid = require('uuid');
+var xmlParser = require('xml2js').parseString; 
+var Order = require('../app/model/order.js');
 
 var qbws,
     server,
     counter = null,
     connectionErrCounter = null,
+    errors = [],
+    requests = {},
     username = 'username',
     password = 'password',
     // Change companyFile to an empty string to use the company file
@@ -147,10 +151,7 @@ function buildRequest() {
     return request;
 }
 
-var addRequest = function(xmlDoc) {
-    console.log('Adding a request to the queue.');
-    var str = xmlDoc.end({'pretty' : true});
-    console.log(str);
+var addRequest = function(str) {
     req.push(str);
 }
 
@@ -166,6 +167,26 @@ var setCallback = function(fnc) {
 
 var defaultCallback = function (response) {
     console.log(response);
+}
+
+function checkError(response) {
+    xmlParser(response, {explicitArray: false}, function(err, result) {
+        var invoiceRs = result.QBXML.QBXMLMsgsRs.InvoiceAddRs;
+        console.log(invoiceRs);
+        if (invoiceRs) {
+            var requestID = invoiceRs.$.requestID;
+            Order.findOne({ requestId : requestID }, function(err, doc) {
+                if (invoiceRs.$.statusCode == '3140') { // error
+                    doc.imported = false;
+                    doc.errorMessage = invoiceRs.$.statusMessage;
+                    console.log('found an error: ' + doc.errorMessage);
+                } else {
+                    doc.imported = true;
+                }
+                doc.save();
+            });
+        }
+    });
 }
 
 /**
@@ -354,7 +375,6 @@ function (args) {
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.authenticate =
 function (args) {
     var authReturn = [];
-
     announceMethod('authenticate', args);
 
     // Code below uses a random GUID to use as a session ticket
@@ -369,8 +389,6 @@ function (args) {
     serviceLog('    Password locally stored = ' + password);
 
     if (args.strUserName.trim() === username && args.strPassword.trim() === password) {
-        // req = buildRequest(); // we add these requests as we go now
-
         if (req.length === 0) {
             authReturn[1] = 'NONE';
         } else {
@@ -381,7 +399,6 @@ function (args) {
     } else {
         authReturn[1] = 'nvu';
     }
-
 
     serviceLog('    Return values: ');
     serviceLog('        string[] authReturn[0] = ' + authReturn[0]);
@@ -677,6 +694,7 @@ function (args) {
     serviceLog('        Number retVal = ' + retVal);
 
     callback(response);
+    checkError(response);
 
     return {
         receiveResponseXMLResult: { string: retVal }
@@ -713,6 +731,6 @@ module.exports = {
     addRequest : addRequest,
     clearRequests : clearRequests,
     buildRequest : buildRequest,
-    setCallback : setCallback
+    setCallback : setCallback,
 };
 
