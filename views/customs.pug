@@ -1,0 +1,38 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Custom Tools
+	body
+		+navbar("customs")
+		.container
+			.starter-template
+				h1 Customs
+				p.lead Generate the customs manifest using the buttons below.
+		.container.panel.with-nav-tabs
+			.panel-heading
+				ul.nav.nav-tabs
+					li.active
+						a(data-toggle="tab" href="#step1") Get Invoices
+					li
+						a(data-toggle="tab" href="#step2") Get Items
+					li
+						a(data-toggle="tab" href="#step3") Generate Manifest
+
+			.panel-body.tab-content
+				.tab-pane.fade.in.active#step1
+					form#customsForm.form-horizontal
+						.form-group
+							.col-lg-6
+								label(for="startDate") Start Date
+								input.form-control#startDate(type="date", name="startDate")
+							.col-lg-6
+								label(for="endDate") End Date
+								input.form-control#endDate(type="date", name="endDate")
+					button.btn.btn-default#generateRequest(type="button") Generate Request for Orders
+				.tab-pane.fade.in#step2
+					button.btn.btn-default#generateRequestForItems(type="button") Generate Request for Items
+				.tab-pane.fade.in#step3
+					button.btn.btn-default#generateManifest(type="button") Generate Manifest
+		include includes/end
+			script(src="js/customs.js")

@@ -8,6 +8,7 @@ var flash = require('connect-flash');
 var routes = require('./app/routes');
 
 var app = express();
+app.set('view engine', 'pug');
 
 // prepare DB
 var uriString = process.env.MONGODB_URI || 

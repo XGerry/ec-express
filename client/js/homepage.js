@@ -11,8 +11,15 @@ $('#generateInvoiceButton').click(function (event) {
   });
 });
 
+$('#getItemsButton').click(function(e) {
+  $.get('/api/items', function(invoices) {
+    console.log(invoices);
+  });
+});
+
 $('#generateManifestButton').click(function(event) {
-  $.get('/api/buildManifest', function (responseObject) {
+  $.get('/api/generate/manifest', function (responseObject) {
+    console.log(responseObject);
     if (responseObject.success) {
       $('#customs-notifications').addClass('alert-success');
 

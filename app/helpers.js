@@ -2,6 +2,8 @@ var builder = require('xmlbuilder');
 var request = require('request');
 var Order = require('./model/order');
 
+var timecode = + new Date();
+
 function getXMLRequest(request) {
   var xmlDoc = builder.create('QBXML', { version: '1.0', encoding: 'ISO-8859-1'})
   .instructionBefore('qbxml', 'version="13.0"')
@@ -80,6 +82,62 @@ function addCustomerRq(order, requestID) {
 
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
+function queryItemRq(items, limit) {
+  // build an array of all the item names we want the information on
+  var itemNames = [];
+  if (items) {
+    items.forEach(function(item) {
+      if (item.ItemRef) {
+        var itemName = item.ItemRef.FullName;
+        if (itemName && (!itemName.includes('Shipping') || 
+          !itemName.includes('Subtotal') || 
+          !itemName.includes('Surcharge') ||
+          !itemName.includes('DISC'))) {
+          itemNames.push(item.ItemRef.FullName);
+        }
+      }
+    });   
+  }
+
+  var qbRq = {
+    ItemInventoryQueryRq : {
+      '@requestID' : 'itemRequest',
+    }
+  };
+
+  if (itemNames.length > 0) {
+    qbRq.ItemInventoryQueryRq.FullName = itemNames
+  }
+
+  if (limit) {
+    qbRq.ItemInventoryQueryRq.MaxReturned = limit;
+  }
+
+  qbRq.ItemInventoryQueryRq.OwnerID = 0;
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
+function queryInvoiceRq(orders) {
+  var orderNumbers = [];
+  orders.forEach(function(order) {
+    orderNumbers.push(order.InvoiceNumberPrefix + order.InvoiceNumber);
+  });
+
+  var invoiceQuery = {
+    InvoiceQueryRq : {
+      '@requestID' : 'invoiceCheck',
+      RefNumber : orderNumbers
+    }
+  };
+  
+  var xmlDoc = getXMLRequest(invoiceQuery);
+  var str = xmlDoc.end({'pretty': true});
   return str;
 }
 
@@ -162,7 +220,7 @@ function addInvoiceRq(order, requestID) {
         ShipMethodRef : {
           FullName : shippingMethod
         },
-        Memo : order.CustomerComments + ' - API Import',
+        Memo : order.CustomerComments + ' - API Import ('+timecode+')',
         IsToBePrinted : true,
         InvoiceLineAdd : invoiceAdds
       }
@@ -288,6 +346,74 @@ function markCompletedOrdersAsProcessing(callback) {
   });
 }
 
+function addItemForManifest(lineItem, doc, itemArray) {
+  if (lineItem.ItemRef && lineItem.ItemRef.FullName) {
+    var item = {
+      htcCode : '',
+      countryOfOrigin : '',
+      quantity : +lineItem.Quantity,
+      amount : +lineItem.Amount
+    }
+
+    doc.items.forEach(function(itemDoc) { // maybe don't use forEach here
+      if (lineItem.ItemRef && lineItem.ItemRef.FullName == itemDoc.FullName) {
+        if (itemDoc.DataExtRet) {
+          if (itemDoc.DataExtRet instanceof Array) {
+            itemDoc.DataExtRet.forEach(function(customField) {
+              if (customField.DataExtName == 'C Origin') {
+                item.countryOfOrigin = customField.DataExtValue;
+              } else if (customField.DataExtName == 'HTC Code') {
+                item.htcCode = customField.DataExtValue;
+              }
+            });
+            item.name = itemDoc.FullName;
+            itemArray.push(item);
+          } else {
+            var customField = itemDoc.DataExtRet;
+            if (customField.DataExtName == 'C Origin') {
+              item.countryOfOrigin = customField.DataExtValue;
+            } else if (customField.DataExtName == 'HTC Code') {
+              item.htcCode = customField.DataExtValue;
+            }
+            item.name = itemDoc.FullName;
+            itemArray.push(item);
+          }
+        }
+      }
+
+      if (item.countryOfOrigin == '') {
+        item.countryOfOrigin = 'CHINA';
+      }
+
+      item.countryOfOrigin = item.countryOfOrigin.toUpperCase();
+    });
+  }
+}
+
+function isCanadian(address) {
+  return (address.State == 'ON' || 
+    address.State == 'NL' || 
+    address.State == 'NB' ||
+    address.State == 'AB' ||
+    address.State == 'SK' ||
+    address.State == 'QC' ||
+    address.State == 'BC' ||
+    address.State == 'YT' ||
+    address.State == 'NU' ||
+    address.State == 'NT' ||
+    address.State == 'MB' ||
+    address.State == 'NS' ||
+    address.State == 'PE');
+}
+
+function safePrint(value) {
+  if (value) {
+    return value;
+  } else {
+    return '';
+  }
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   createShippingAddress : createShippingAddress,
@@ -297,5 +423,11 @@ module.exports = {
   getProducts : getProducts,
   updateContacts : updateContacts,
   updateOrders : updateOrders,
-  markCompletedOrdersAsProcessing : markCompletedOrdersAsProcessing
+  markCompletedOrdersAsProcessing : markCompletedOrdersAsProcessing,
+  queryItemRq : queryItemRq,
+  addItemForManifest : addItemForManifest,
+  isCanadian : isCanadian,
+  safePrint: safePrint,
+  timecode: timecode,
+  queryInvoiceRq: queryInvoiceRq
 }

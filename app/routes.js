@@ -1,11 +1,16 @@
 var helpers = require('./helpers.js');
 var xmlParser = require('xml2js').parseString; 
 var request = require('request');
+var pixl = require('pixl-xml')
 var path = require('path');
+var fs = require('fs');
 var bodyParser = require('body-parser');
 var mws = require('mws-nodejs');
 var config = require('../config/mws.json');
-var Order = require('./model/order.js');
+var Order = require('./model/order');
+var Report = require('./model/report');
+var Settings = require('./model/settings');
+var async = require('async');
 
 var ordersFromQuickbooks = {}; // do it this way for now
 
@@ -19,13 +24,16 @@ function getOrders(options, qbws, callback) {
   // clear the requests in qbws
   qbws.clearRequests();
   // clear our database of all requests
-    Order.remove({}, function (err) {
-        if (err) {
-            console.log('error removing the orders');
-        } else {
-            console.log('removed the orders');
-        }
-    })
+  Order.remove({}, function (err) {
+      if (err) {
+          console.log('error removing the orders');
+      } else {
+          console.log('removed the orders');
+      }
+  });
+
+  // set a new timecode
+  helpers.timecode = + new Date();
 
   var options = {
     url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
@@ -58,23 +66,70 @@ function getOrders(options, qbws, callback) {
       responseObject.message = 'Received ' + jsonBody.length + ' orders from 3D Cart.';
       responseObject.response = jsonBody;
 
-      // build requests and save this to the database
-      requestNumber = 0;
-      jsonBody.forEach(function (order) {
-        qbws.addRequest(helpers.addCustomerRq(order, requestNumber++));
-        var invoiceRqId = requestNumber++;
-        var xmlInvoiceRequest = helpers.addInvoiceRq(order, invoiceRqId);
-        qbws.addRequest(xmlInvoiceRequest); // we have to do this because SOAP runs synchronously
-        contacts.push(helpers.getCustomer(order)); // hubspot integration
+      // first request is a check to see if there are duplicate invoices
+      var invoiceRq = helpers.queryInvoiceRq(jsonBody);
+      qbws.addRequest(invoiceRq);
+      qbws.setCallback(function(response) {
+        var doc = pixl.parse(response);
+        var invoiceRs = doc.QBXMLMsgsRs.InvoiceQueryRs;
+        if (invoiceRs) {
+          if (invoiceRs.requestID == 'invoiceCheck') {
+            var orders = qbws.getOrders();
+            if (invoiceRs.InvoiceRet instanceof Array) {
+              console.log(invoiceRs.InvoiceRet.length + ' duplicates found.');
+              invoiceRs.InvoiceRet.forEach(function(invoice) {
+                var index = -1;
+                for (var i = 0; i < orders.length; i++) {
+                  var order = orders[i];
+                  var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+                  if (invoice.RefNumber == orderId) {
+                    index = i;
+                    break;
+                  }
+                }
+                // remove the order from the import list
+                qbws.removeOrder(index);
+                Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
+                  savedOrder.errorMessage = 'Duplicate order. Skipping import.';
+                  savedOrder.save();
+                });
+              });
+            } else {
+              console.log('not an array');
+              var invoice = invoiceRs.InvoiceRet;
+              var index = -1;
+              for (var i = 0; i < orders.length; i++) {
+                var order = orders[i];
+                var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+                if (invoice.RefNumber == orderId) {
+                  index = i;
+                  break;
+                }
+              }
+              qbws.removeOrder(index);
+              Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
+                savedOrder.errorMessage = 'Duplicate order. Skipping import.';
+                savedOrder.save();
+              });
+            }
+            // now all the orders should only contain the ones we want to import
+            qbws.generateOrderRequest();
+          }
+        }
+      });
 
+      // build requests and save this to the database
+      jsonBody.forEach(function (order) {
+        console.log('adding order to quickbooks');
+        qbws.addOrder(order);
+
+        contacts.push(helpers.getCustomer(order)); // hubspot integration
         // create the order in our database
         var newOrder = new Order();
         newOrder.cartOrder = order;
         newOrder.name = order.BillingFirstName + ' ' + order.BillingLastName;
         newOrder.orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-        newOrder.requestId = invoiceRqId;
         newOrder.imported = false;
-        newOrder.qbRequest = xmlInvoiceRequest;
         newOrder.save(function(err) {
           if (err) {
             console.log('error saving the order');
@@ -156,6 +211,12 @@ module.exports = {
               return next(error);
             }
             console.log('Request should have logged in successfully');
+            // load the default settings
+            Settings.findOne({account: user}, function(err, doc) {
+              if (doc) {
+                qbws.companyFile = doc.companyFile;
+              }
+            });
             return res.send({
               success : true,
               redirect : '/'
@@ -163,6 +224,10 @@ module.exports = {
           });
         }
       })(req, res, next);
+    });
+
+    app.get('/customs', function(req, res) {
+      res.render('customs');
     });
 
     app.get('/user', function(req, res) {
@@ -215,51 +280,194 @@ module.exports = {
     });
 
     app.get('/api/invoices', authenticate, function (req, res) {
-      console.log('Sending a query to QBWC');
+
+      if (!req.query.startDate || !req.query.endDate) {
+        res.send('Error. You must supply a start and an end date.');
+        return;
+      }
+
+      var name = req.query.name;
+
+      if (!name) {
+        name = 'default';
+      }
+
       var invoiceQuery = {
         InvoiceQueryRq : {
-          '@requestID' : '1',
-          MaxReturned : '2',
+          '@requestID' : 'manifest',
           TxnDateRangeFilter : {
-            FromTxnDate : '2017-03-01',
-            ToTxnDate : '2017-03-10'
+            FromTxnDate : req.query.startDate,
+            ToTxnDate : req.query.endDate
           },
-          IncludeLineItems : true
+          IncludeLineItems : true,
+          OwnerID : 0
         }
       };
 
       var request = helpers.getXMLRequest(invoiceQuery);
-      qbws.addRequest(request);
+      var str = request.end({'pretty': true});
+      qbws.addRequest(str);
       qbws.setCallback(function (response) {
-        console.log('received response');
-
         xmlParser(response, {explicitArray: false}, function(err, result) {
+          if (err) {
+            console.log('There was an error parsing the response.');
+          }
           ordersFromQuickbooks = result;
-          res.send('Now run the QBWC on your machine.');
+          var invoiceQueryRs = result.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
+          if (invoiceQueryRs) {
+            Report.findOne({name : name}, function (err, doc) {
+              if (doc) {
+                doc.invoices = invoiceQueryRs.InvoiceRet;
+                doc.save();
+              } else {
+                var newReport = new Report();
+                newReport.name = name;
+                newReport.invoices = invoiceQueryRs.InvoiceRet;
+                newReport.save();
+              }
+            });
+          }
         });
       });
 
+      res.send('Run the Web Connector to generate the invoices on the server.');
     });
 
-    app.get('/api/buildManifest', authenticate, function (req, res) {
-      var responseObject = {
-        response : '',
-        success : false,
-        message : ''
-      };
-
-      if (!ordersFromQuickbooks) {
-        responseObject.success = false;
-        responseObject.response = '';
-        responseObject.message = 'Error getting the orders from QuickBooks. Make sure you run the WebConnector.';
-        res.send(responseObject);
-        return;
+    // Pass in the name of the report you want to build the manifest for
+    app.get('/api/generate/manifest', function (req, res) {
+      var name = req.query.name;
+      if (!name) {
+        name = 'default';
       }
 
-      responseObject.success = true;
-      responseObject.response = ordersFromQuickbooks;
-      responseObject.message = 'Successfully got the orders from QuickBooks.';
-      res.send(responseObject);
+      var manifest = '';
+      var now = new Date();
+      manifest += now.toISOString() + '\n\n';
+      var headers = 'HTC Code, Country Of Origin, Quantity, Value';
+
+      Report.findOne({name: name}, function(err, doc) {
+        if (err) {
+          res.send('Error generating the request.');
+        }
+
+        // Now we generate the manifest
+        doc.invoices.forEach(function(invoice) {
+          // gather the info we need
+          var isCanadian = helpers.isCanadian(invoice.ShipAddress);
+
+          if (!isCanadian) {
+            var address = invoice.ShipAddress;
+            var addr1 = helpers.safePrint(address.Addr1);
+            var addr2 = helpers.safePrint(address.Addr2);
+            var addr3 = helpers.safePrint(address.Addr3);
+            var city = address.City;
+            var state = address.State;
+            var postalCode = address.PostalCode;
+            var totalAmount, totalQuantity = 0;
+
+            var itemArray = [];
+
+            if (invoice.InvoiceLineRet instanceof Array) {
+              invoice.InvoiceLineRet.forEach(function(lineItem) {
+                helpers.addItemForManifest(lineItem, doc, itemArray);
+              });
+            } else {
+              helpers.addItemForManifest(invoice.InvoiceLineRet, doc, itemArray);
+            }
+
+            manifest += invoice.RefNumber + '\n';
+            manifest += '"'+addr1+'\n'+addr2+'\n'+addr3+'"\n"'+city+', '+state+', '+postalCode+'"\n';
+            manifest += headers+'\n';
+
+            var htcMap = {};
+            itemArray.forEach(function(item) {
+              if (!htcMap.hasOwnProperty(item.htcCode)) {
+                htcMap[item.htcCode] = {};
+              }
+
+              htcObj = htcMap[item.htcCode];
+
+              if (!htcObj.hasOwnProperty(item.countryOfOrigin)) {
+                htcObj[item.countryOfOrigin] = {
+                  value : 0,
+                  quantity : 0
+                };
+              }
+              cooObj = htcObj[item.countryOfOrigin];
+
+              cooObj.quantity += +item.quantity;
+              cooObj.value += +item.amount;
+            });
+
+            totalAmount = 0;
+
+            for (var htc in htcMap) {
+              if (htcMap.hasOwnProperty(htc)) {
+                for (var coo in htcMap[htc]) {
+                  if (htcMap[htc].hasOwnProperty(coo)) {
+                    var line = '';
+                    var quantity = +htcMap[htc][coo].quantity;
+                    var value = +htcMap[htc][coo].value;
+                    line += htc + ',' + coo + ',' + quantity + ',' + value + '\n';
+                    totalQuantity += +quantity;
+                    totalAmount += +value;
+                    manifest += line;
+                  }
+                }
+              }
+            }
+
+            manifest += 'Total,,' + totalQuantity + ',' + totalAmount;
+            manifest += '\n';
+          }
+        });
+
+        fs.writeFile('manifest.csv', manifest, function (err) {
+          if (err) {
+            res.send('Error creating the file.');
+            console.log(err);
+          } else {
+            res.send(manifest);
+          }
+
+        });
+      });
+    });
+
+    // Gets the items from quickbooks based on the invoices (or not) and saves them to a report
+    app.get('/api/items', function(req, res) {
+      // req should pass in a name
+      var name = req.query.name;
+
+      if (!name) {
+        name = 'default';
+      }
+
+      Report.findOne({name: name}, function(err, doc) {
+        if (!doc) {
+          res.send('No invoices found. Make sure you run the Web Connector.');
+          return;
+        }
+        var items = [];
+        doc.invoices.forEach(function(invoice) {
+          items = items.concat(invoice.InvoiceLineRet);
+        });
+
+        var str = helpers.queryItemRq(items);
+        qbws.addRequest(str);
+
+        qbws.setCallback(function(response) {
+          xmlParser(response, {explicitArray: false}, function(err, result) {
+            var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+            if (itemInventoryRs) {
+              doc.items = itemInventoryRs.ItemInventoryRet;
+              doc.save();
+            }
+          });
+        });
+
+        res.send(doc.invoices);
+      });
     });
 
     // middleware
@@ -272,50 +480,8 @@ module.exports = {
     }
 
     app.get('/api/amazon', function(req, res) {
-      /*
-      var now = new Date();
-
-      var formData = {
-        AWSAccessKeyId : 'AKIAIOKE3I3CIQ7KLTIQ',
-        Action : 'GetMatchingProductForId',
-        MarketplaceId : 'ATVPDKIKX0DER',
-        IdList : ['5055305927700'],
-        IdType : 'ASIN',
-        SellerId : 'A1AG76L8PLY85T',
-        Signature : '',
-        SignatureMethod : 'HmacSHA256',
-        SignatureVersion : '2',
-        Timestamp : now.toISOString()
-      };
-
-      var stringToSign = 'POST' + '\n' +
-        'mws.amazonservices.com' + '\n' +
-        ''
-
-      request.post()
-      */
-      console.log(mws);
-
-      /*
-      mws.products.GetServiceStatus(config, true, function (err, data) {
-          console.log("GetServiceStatus:");
-          console.log(data.GetServiceStatusResponse.GetServiceStatusResult);
-          console.log("\n");
-      });
-
-      var params = {
-        MarketplaceId : 'ATVPDKIKX0DER',
-        IdType : 'ASIN',
-        IdList : {
-          'IdList.Id.1' : '5055305927700'
-        }
-      };
-
-      mws.Products.GetMatchingProductForId(config, params, false, function(err, data) {
-          console.log(data);
-        });
-        */
-      });
+      
+    });
 
     app.get('/api/orders/errors', function(req, res) {
       Order.find({ imported: false }, function(err, errors) {
@@ -409,7 +575,156 @@ module.exports = {
       });
 
       res.end();
+    });
 
+    app.get('/api/settings', authenticate, function(req, res) {
+      Settings.findOne({account : req.user}, function(err, doc) {
+        if (doc) {
+          res.send(doc);
+        } else {
+          var newSettings = new Settings();
+          newSettings.companyFile = '';
+          newSettings.save();
+          res.send(newSettings);
+        }
+      });
+    });
+
+    app.post('/api/settings', authenticate, formParser, function(req, res) {
+      Settings.findOne({account : req.user}, function(err, doc) {
+        if (err) {
+          res.send(false);
+        }
+        if (doc) {
+          doc.companyFile = req.body.companyFile;
+          doc.save();
+          qbws.companyFile = req.body.companyFile;
+          res.send(true);
+        } else {
+          var newSettings = new Settings();
+          newSettings.companyFile = req.body.companyFile;
+          newSettings.save();
+          qbws.companyFile = newSettings.companyFile;
+          res.send(true);
+        }
+      });
+    });
+
+    app.get('/api/inventory', function(req, res) {
+      var reportName = req.query.reportName;
+      if (!reportName) {
+        reportName = 'default'
+      }
+
+      qbws.addRequest(helpers.queryItemRq());
+      qbws.setCallback(function(message) {
+        xmlParser(message, {explicitArray: false}, function(err, result) {
+          var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+          if (itemInventoryRs) {
+            Report.findOne({name: reportName}, function(err, doc) {
+              console.log(itemInventoryRs.ItemInventoryRet);
+              if (doc) {
+                doc.inventory = itemInventoryRs.ItemInventoryRet;
+                doc.save(function (err, updatedReport) {
+                  if (err) {
+                    console.log('Error saving report.');
+                    console.log(err);
+                  }
+                  console.log(updatedReport);
+                });
+              } else {
+                var newReport = new Report();
+                newReport.name = reportName;
+                newReport.inventory = itemInventoryRs.ItemInventoryRet;
+                newReport.save();
+              }
+            });
+          }
+        });
+      });
+
+      res.send('Inventory Query saved. Please run the Web Connector.');
+    });
+
+    app.get('/api/sync/inventory', function(req, res) {
+      var reportName = req.query.reportName;
+      if (!reportName)
+        reportName = 'default';
+
+      Report.findOne({name: reportName}, function(err, report) {
+        if (err) {
+          res.send('Error getting report.');
+        }
+
+        if (!report) {
+          res.send('The report doesn\'t exist yet. Please generate a query for the items and run the Web Connector.');
+        }
+
+        if (!(report.inventory.constructor === Array)) {
+          report.inventory = [report.inventory];
+        }
+
+        var maxItems = 100; // maximum number of items allowed to update
+
+        var numOfRequests = Math.ceil(report.inventory.length/maxItems);
+        console.log('Need to do ' + numOfRequests + ' requests.');
+        var bodies = [];
+
+        for (var i = 0; i < numOfRequests; i++) {
+          var products = [];
+          for (var j = 0; j < maxItems; j++) {
+            var index = i*maxItems + j;
+            var qbItem = report.inventory[index];
+            if (qbItem) {
+              var product = {
+                mfgid: qbItem.FullName,
+                SKUInfo: {
+                  SKU : qbItem.FullName,
+                  Stock: qbItem.QuantityOnHand
+                }
+              }
+              products.push(product);
+            }
+          }
+          bodies.push(products);
+        }
+
+        async.map(bodies, function(body, callback) {
+          var options = {
+            url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+            method : 'PUT',
+            headers : {
+              SecureUrl : 'https://www.ecstasycrafts.com',
+              PrivateKey : process.env.CART_PRIVATE_KEY,
+              Token : process.env.CART_TOKEN
+            },
+            body : body,
+            json : true
+          }
+          console.log('sending request.');
+          request(options, callback);
+        }, function(err, response, body) {
+          res.send(response);
+        });        
+      });
+    });
+
+    app.get('/api/3dcart/inventory', function(req, res) {
+      var options = {
+        url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+        headers : {
+          SecureUrl : 'https://www.ecstasycrafts.com',
+          PrivateKey : process.env.CART_PRIVATE_KEY,
+          Token : process.env.CART_TOKEN
+        },
+        qs : {
+          sku : 'APA12'
+        }
+      };
+
+      request.get(options, function(err, response, body) {
+        res.send(body);
+      });
     });
   }
 }

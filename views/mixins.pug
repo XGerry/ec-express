@@ -1,0 +1,31 @@
+mixin navbar(active)
+	nav(class="navbar navbar-inverse navbar-fixed-top")
+			div(class="container")
+				div(class="navbar-header")
+					button(type="button", class="navbar-toggle collapsed", data-toggle="collapse", data-target="#navbar", aria-expanded="false", aria-controls="navbar")
+						span(class="sr-only") Toggle navigation
+						span(class="icon-bar")
+						span(class="icon-bar")
+						span(class="icon-bar")
+					a(class="navbar-brand", href="/") EC-Express
+				div(id="navbar", class="collapse navbar-collapse")
+					ul(class="nav navbar-nav")
+						if active == "home"
+							li(class="active")
+								a(href="/") Home
+						else
+							li
+								a(href="/") Home
+						if active == "customs"
+							li(class="active")
+								a(href="/customs") Customs
+						else
+							li
+								a(href="/customs") Customs
+						li
+							a(href="/product-upload.html") Product Upload
+						li
+							a(href="/orders.html") Order Sync
+						li
+							a(href="/setup") Inventory Sync
+					ul.nav.navbar-nav.navbar-right#nav-right

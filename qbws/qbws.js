@@ -5,7 +5,9 @@ var fs = require('fs');
 var builder = require('xmlbuilder');
 var uuid = require('uuid');
 var xmlParser = require('xml2js').parseString; 
-var Order = require('../app/model/order.js');
+var Order = require('../app/model/order');
+var Settings = require('../app/model/settings');
+var helpers = require('../app/helpers.js');
 
 var qbws,
     server,
@@ -17,8 +19,9 @@ var qbws,
     password = 'password',
     // Change companyFile to an empty string to use the company file
     //     currently open in Quickbooks
-    companyFile = ' ', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
+    companyFile = '\\\\DESKTOP-1DLOLHU\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2014A.QBW', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
     req = [],
+    orders = [],
     callback = function(response) {
         console.log(response);
     }
@@ -43,7 +46,7 @@ function buildRequest() {
     strRequestXML = inputXMLDoc.end({ 'pretty': false });
     request.push(strRequestXML);
     */
-    // clean up
+    // clean up1
     strRequestXML = '';
     inputXMLDoc = null;
 
@@ -155,8 +158,18 @@ var addRequest = function(str) {
     req.push(str);
 }
 
+var addOrder = function(order) {
+    orders.push(order);
+}
+
+function removeOrder(index) {
+    if (index > -1)
+        orders.splice(index, 1);
+}
+
 var clearRequests = function() {
     req = [];
+    orders = [];
     callback = defaultCallback;
     connectionErrCounter = 0; // reset this too
 }
@@ -169,21 +182,44 @@ var defaultCallback = function (response) {
     console.log(response);
 }
 
+function getOrders() {
+    return orders;
+}
+
+function generateOrderRequest() {
+    console.log('generating requests for ' + orders.length) + ' orders.';
+    var requestNumber = 1;
+    orders.forEach(function(order) {
+        addRequest(helpers.addCustomerRq(order, requestNumber++));
+        var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+        var invoiceRqId = orderId;
+        var xmlInvoiceRequest = helpers.addInvoiceRq(order, invoiceRqId); // make the request ID the order ID!
+        addRequest(xmlInvoiceRequest);
+        console.log('adding request: ' + orderId);
+        Order.findOne({orderId: orderId}, function(err, savedOrder) {
+            savedOrder.requestID = invoiceRqId;
+            savedOrder.save();
+        });
+    });
+}
+
 function checkError(response) {
     xmlParser(response, {explicitArray: false}, function(err, result) {
         var invoiceRs = result.QBXML.QBXMLMsgsRs.InvoiceAddRs;
-        console.log(invoiceRs);
         if (invoiceRs) {
+            console.log(invoiceRs);
             var requestID = invoiceRs.$.requestID;
-            Order.findOne({ requestId : requestID }, function(err, doc) {
-                if (invoiceRs.$.statusCode == '3140') { // error
-                    doc.imported = false;
-                    doc.errorMessage = invoiceRs.$.statusMessage;
-                    console.log('found an error: ' + doc.errorMessage);
-                } else {
-                    doc.imported = true;
+            Order.findOne({ orderId : requestID }, function(err, doc) {
+                if (doc) {
+                    if (invoiceRs.$.statusCode == '3140') { // error
+                        doc.imported = false;
+                        doc.errorMessage = invoiceRs.$.statusMessage;
+                        console.log('found an error: ' + doc.errorMessage);
+                    } else {
+                        doc.imported = true;
+                    }
+                    doc.save();
                 }
-                doc.save();
             });
         }
     });
@@ -438,6 +474,10 @@ function (args) {
 
     announceMethod('sendRequestXML', args);
 
+    if (counter == 0) {
+        serviceLog('    Sending first request');
+    }
+
     total = req.length;
     console.log('Sending ' + total + ' requests to QBWC.');
 
@@ -671,6 +711,9 @@ function (args) {
 
     announceMethod('receiveResponseXML', args);
 
+    callback(response); // this method may end up adding requests
+    checkError(response);
+
     // TODO: Create method for Object testing and property names length
     if (typeof hresult === 'object' && Object.getOwnPropertyNames(hresult).length !== 0) {
         // If there is an error with response received,
@@ -692,9 +735,6 @@ function (args) {
 
     serviceLog('    Return values: ');
     serviceLog('        Number retVal = ' + retVal);
-
-    callback(response);
-    checkError(response);
 
     return {
         receiveResponseXMLResult: { string: retVal }
@@ -732,5 +772,10 @@ module.exports = {
     clearRequests : clearRequests,
     buildRequest : buildRequest,
     setCallback : setCallback,
+    companyFile : companyFile,
+    addOrder : addOrder,
+    removeOrder: removeOrder,
+    getOrders: getOrders,
+    generateOrderRequest: generateOrderRequest
 };
 

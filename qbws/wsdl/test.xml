@@ -2,38 +2,17 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <CustomerAddRq>
-      <CustomerAdd>
-        <Name>Charest Micheline</Name>
-        <CompanyName/>
-        <FirstName>Micheline</FirstName>
-        <LastName>Charest</LastName>
-        <BillAddress>
-          <Addr1>Charest Micheline</Addr1>
-          <Addr2/>
-          <Addr3>53 Stevenson</Addr3>
-          <Addr4/>
-          <City>Danville</City>
-          <State>QC</State>
-          <PostalCode>J0A 1A0</PostalCode>
-          <Country>CA</Country>
-        </BillAddress>
-        <ShipAddress>
-          <Addr1>Micheline Charest</Addr1>
-          <Addr2/>
-          <Addr3>53 Stevenson</Addr3>
-          <Addr4/>
-          <City>Danville</City>
-          <State>QC</State>
-          <PostalCode>J0A1A0</PostalCode>
-          <Country>CA</Country>
-        </ShipAddress>
-        <Phone>819-642-0108</Phone>
-        <Email>michelinecharest1@gmail.com</Email>
-        <SalesTaxCode>
-          <FullName>G</FullName>
-        </SalesTaxCode>
-      </CustomerAdd>
-    </CustomerAddRq>
+    <InvoiceQueryRq requestID="invoiceCheck">
+      <RefNumber>AB-30220</RefNumber>
+      <RefNumber>AB-30216</RefNumber>
+      <RefNumber>AB-30215</RefNumber>
+      <RefNumber>AB-30219</RefNumber>
+      <RefNumber>AB-30224</RefNumber>
+      <RefNumber>AB-30217</RefNumber>
+      <RefNumber>AB-30218</RefNumber>
+      <RefNumber>AB-30221</RefNumber>
+      <RefNumber>AB-30222</RefNumber>
+      <RefNumber>AB-30223</RefNumber>
+    </InvoiceQueryRq>
   </QBXMLMsgsRq>
 </QBXML>
