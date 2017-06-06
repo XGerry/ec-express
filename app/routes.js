@@ -97,20 +97,22 @@ function getOrders(options, qbws, callback) {
             } else {
               console.log('not an array');
               var invoice = invoiceRs.InvoiceRet;
-              var index = -1;
-              for (var i = 0; i < orders.length; i++) {
-                var order = orders[i];
-                var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-                if (invoice.RefNumber == orderId) {
-                  index = i;
-                  break;
+              if (invoice) { // if there was no invoice then all the orders are new
+                var index = -1;
+                for (var i = 0; i < orders.length; i++) {
+                  var order = orders[i];
+                  var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+                  if (invoice.RefNumber == orderId) {
+                    index = i;
+                    break;
+                  }
                 }
+                qbws.removeOrder(index);
+                Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
+                  savedOrder.errorMessage = 'Duplicate order. Skipping import.';
+                  savedOrder.save();
+                });
               }
-              qbws.removeOrder(index);
-              Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
-                savedOrder.errorMessage = 'Duplicate order. Skipping import.';
-                savedOrder.save();
-              });
             }
             // now all the orders should only contain the ones we want to import
             qbws.generateOrderRequest();
