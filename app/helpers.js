@@ -12,6 +12,11 @@ function getXMLRequest(request) {
   return xmlDoc;
 }
 
+function getXMLDoc(doc) {
+  var xmlDoc = builder.create(doc);
+  return xmlDoc.end({pretty: true});
+}
+
 function createShippingAddress(order) {
   var shippingAddress = {};
   shippingAddress.Addr1 = order.ShipmentList[0].ShipmentFirstName + " " + order.ShipmentList[0].ShipmentLastName;
@@ -196,7 +201,7 @@ function addInvoiceRq(order, requestID) {
 
   var paymentMethod3DCart = order.BillingPaymentMethod;
   var paymentMethod = 'Online Credit Card';
-  if (paymentMethod3DCart.includes('Credit card on file')) {
+  if (paymentMethod3DCart.includes('card is on file')) {
     paymentMethod = 'On Account';
   } else if (paymentMethod3DCart.includes('PayPal')) {
     paymentMethod = 'PayPal';
@@ -340,7 +345,6 @@ function markCompletedOrdersAsProcessing(callback) {
       });
 
       console.log('updating ' + orders.length + ' orders.');
-
       updateOrders(orders, callback);
     }
   });
@@ -416,6 +420,7 @@ function safePrint(value) {
 
 module.exports = {
   getXMLRequest : getXMLRequest,
+  getXMLDoc: getXMLDoc,
   createShippingAddress : createShippingAddress,
   addCustomerRq : addCustomerRq,
   addInvoiceRq : addInvoiceRq,

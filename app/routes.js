@@ -10,7 +10,10 @@ var config = require('../config/mws.json');
 var Order = require('./model/order');
 var Report = require('./model/report');
 var Settings = require('./model/settings');
+var Item = require('./model/item');
 var async = require('async');
+var crypto = require('crypto');
+var queryString = require('query-string');
 
 var ordersFromQuickbooks = {}; // do it this way for now
 
@@ -481,10 +484,6 @@ module.exports = {
       res.status(401).send('Please login before trying to perform this request.');
     }
 
-    app.get('/api/amazon', function(req, res) {
-      
-    });
-
     app.get('/api/orders/errors', function(req, res) {
       Order.find({ imported: false }, function(err, errors) {
         Order.find({ imported: true }, function(err, successes) {
@@ -525,8 +524,191 @@ module.exports = {
       });
     });
 
-    app.get('/api/feeds/facebook', function(req, res) {
+    app.get('/api/feeds/amazon/inventory', function(req, res) {
+      var options = {
+        url: 'https://mws.amazonservices.com/',
+        qs: {
+          AWSAccessKeyId: 'AKIAIOKE3I3CIQ7KLTIQ',
+          Action: 'SubmitFeed',
+          ContentMD5Value: '',
+          FeedType: '_POST_INVENTORY_AVAILABILITY_DATA_',
+          Merchant: 'A1AG76L8PLY85T',
+          PurgeAndReplace: false,
+          SignatureMethod: 'HmacSHA256',
+          SignatureVersion: '2',
+          Timestamp: '',
+          Version: '2009-01-01',
+        },
+        headers: {
+          'Content-Type': 'text/xml'
+        }
+      };
 
+      var xmlDoc = {
+        AmazonEnvelope : {
+          Header: {
+            DocumentVersion: 1.01,
+            MerchantIdentifier: 'M_ECSTASYCRA_1118417'
+          },
+          MessageType: 'Inventory',
+          Message: {
+            MessageID: '1',
+            Inventory: {
+              SKU: 'CED14002',
+              Quantity: 10
+            }
+          }
+        }
+      };
+
+      var body = helpers.getXMLDoc(xmlDoc);
+      options.body = body;
+      var now = new Date();
+      options.qs.Timestamp = now.toISOString();
+      options.qs.ContentMD5Value = crypto.createHash('md5').update(body).digest('base64');
+
+      var qString = queryString.stringify(options.qs);
+      
+      var stringToSign = 'POST\n' + 
+        'mws.amazonservices.com\n' +
+        '/\n' +
+        qString;
+
+      options.qs.Signature = crypto.createHmac('sha256', '2bHczom1cYmxClNSiBbqxkCM7gnHnMPiyBu6S+qP')
+        .update(stringToSign)
+        .digest('base64');
+
+      request.post(options, function(err, response, body) {
+        console.log(err);
+        res.send(body);
+      });
+    });
+
+    app.get('/api/feeds/amazon/price', function(req, res) {
+      var options = {
+        url: 'https://mws.amazonservices.com/',
+        qs: {
+          AWSAccessKeyId: 'AKIAIOKE3I3CIQ7KLTIQ',
+          Action: 'SubmitFeed',
+          ContentMD5Value: '',
+          FeedType: '_POST_PRODUCT_PRICING_DATA_',
+          Merchant: 'A1AG76L8PLY85T',
+          PurgeAndReplace: false,
+          SignatureMethod: 'HmacSHA256',
+          SignatureVersion: '2',
+          Timestamp: '',
+          Version: '2009-01-01',
+        },
+        headers: {
+          'Content-Type': 'text/xml'
+        }
+      };
+
+      var xmlDoc = {
+        AmazonEnvelope : {
+          Header: {
+            DocumentVersion: 1.01,
+            MerchantIdentifier: 'M_ECSTASYCRA_1118417'
+          },
+          MessageType: 'Price',
+          Message: {
+            MessageID: '1',
+            Price: {
+              SKU: 'CED14002',
+              StandardPrice: {
+                '@currency': 'USD',
+                '#text': '26.50',
+              }
+            }
+          }
+        }
+      };
+
+      var body = helpers.getXMLDoc(xmlDoc);
+      options.body = body;
+      var now = new Date();
+      options.qs.Timestamp = now.toISOString();
+      options.qs.ContentMD5Value = crypto.createHash('md5').update(body).digest('base64');
+
+      var qString = queryString.stringify(options.qs);
+      
+      var stringToSign = 'POST\n' + 
+        'mws.amazonservices.com\n' +
+        '/\n' +
+        qString;
+
+      options.qs.Signature = crypto.createHmac('sha256', '2bHczom1cYmxClNSiBbqxkCM7gnHnMPiyBu6S+qP')
+        .update(stringToSign)
+        .digest('base64');
+
+      request.post(options, function(err, response, body) {
+        console.log(err);
+        res.send(body);
+      });
+    });
+
+    app.get('/api/feeds/amazon/data', function(req, res) {
+      var options = {
+        url: 'https://mws.amazonservices.com/',
+        qs: {
+          AWSAccessKeyId: 'AKIAIOKE3I3CIQ7KLTIQ',
+          Action: 'SubmitFeed',
+          ContentMD5Value: '',
+          FeedType: '_POST_PRODUCT_DATA_',
+          Merchant: 'A1AG76L8PLY85T',
+          PurgeAndReplace: false,
+          SignatureMethod: 'HmacSHA256',
+          SignatureVersion: '2',
+          Timestamp: '',
+          Version: '2009-01-01',
+        },
+        headers: {
+          'Content-Type': 'text/xml'
+        }
+      };
+
+      var xmlDoc = {
+        AmazonEnvelope : {
+          Header: {
+            DocumentVersion: 1.01,
+            MerchantIdentifier: 'M_ECSTASYCRA_1118417'
+          },
+          MessageType: 'Product',
+          PurgeAndReplace: 'false',
+          Message: {
+            MessageID: '1',
+            Product: {
+              SKU: 'CED14003',
+              StandardProductID: {
+                Type: 'UPC',
+                Value: '5055305927717'
+              }
+            }
+          }
+        }
+      };
+
+      var body = helpers.getXMLDoc(xmlDoc);
+      options.body = body;
+      var now = new Date();
+      options.qs.Timestamp = now.toISOString();
+      options.qs.ContentMD5Value = crypto.createHash('md5').update(body).digest('base64');
+
+      var qString = queryString.stringify(options.qs);
+      
+      var stringToSign = 'POST\n' + 
+        'mws.amazonservices.com\n' +
+        '/\n' +
+        qString;
+
+      options.qs.Signature = crypto.createHmac('sha256', '2bHczom1cYmxClNSiBbqxkCM7gnHnMPiyBu6S+qP')
+        .update(stringToSign)
+        .digest('base64');
+
+      request.post(options, function(err, response, body) {
+        console.log(err);
+        res.send(body);
+      });
     });
 
     app.get('/api/generate/feed', function(req, res) {
