@@ -223,6 +223,8 @@ function addInvoiceRq(order, requestID) {
     paymentMethod = 'PayPal';
   } else if (paymentMethod3DCart.includes('Check or Money Order')) {
     paymentMethod = 'cheque';
+  } else if (paymentMethod3DCart.includes('On Account')) {
+    paymentMethod = 'On Account';
   }
 
   var obj = {
