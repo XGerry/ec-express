@@ -2,6 +2,12 @@ var selectedProducts = [];
 var allProducts = [];
 
 $(document).ready(function() {
+	$('#productTable').DataTable({
+		bDestroy: true,
+		pageLength: 100,
+		order: [[0, 'asc']]
+	});
+
 	$(".dropdown-toggle").dropdown();
 	$('#getProductsButton').click(function(e) {
 		$.get('/api/3dcart/inventory', $('#productForm').serialize()).done(function(result) {
@@ -30,13 +36,18 @@ $(document).ready(function() {
 });
 
 function buildProductTable(products) {
+	$('#productTable').dataTable().fnDestroy();
 	$('#productTableBody').empty();
+	if (!Array.isArray(products)) {
+		console.log('nope.');
+		return;
+	}
 	products.forEach(function(product) {
 		var row = $('<tr></tr>');
 		var sku = $('<td></td>').text(product.SKUInfo.SKU);
 		var name = $('<td></td>').text(product.SKUInfo.Name);
 		var manufacturer = $('<td></td>').text(product.ManufacturerID);
-		var price = $('<td></td>').text(product.SKUInfo.Price);
+		var price = $('<td></td>').text(product.SKUInfo.Price.toFixed(2));
 		var stock = $('<td></td>').text(product.SKUInfo.Stock);
 
 		row.append(sku);
@@ -59,6 +70,7 @@ function buildProductTable(products) {
 	});
 
 	$('#productTable').DataTable({
+		bDestroy: true,
 		pageLength: 100,
 		order: [[0, 'asc']]
 	});
