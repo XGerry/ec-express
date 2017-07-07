@@ -1,0 +1,64 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Custom Tools
+	body
+		+navbar("3dcart")
+		.container
+			.starter-template
+				h1 3D Cart Tools
+				p.lead Quick and Easy tools to help with the common things we do in 3D Cart.
+		.container.panel.with-nav-tabs
+			.panel-heading
+				ul.nav.nav-tabs
+					li.active
+						a(data-toggle="tab" href="#step1") Product Editor
+
+			.panel-body.tab-content
+				.tab-pane.fade.in.active#step1
+					form#productForm.form-horizontal
+						.form-group
+							.col-lg-6
+								label(for="category") Category
+								input.form-control#category(type="number", name="category")
+							.col-lg-6
+								label(for="endDate") SKU
+								input.form-control#endDate(type="text", name="sku")
+					button.btn.btn-default#getProductsButton(type="button") Get Products
+					
+					h3 Bulk Actions
+					form#productEditForm.form-horizontal
+						.form-group
+							.col-lg-6
+								label(for="addCategory") Add Category
+								input.form-control#addCategory(type="number", name="addCategory")
+							.col-lg-6
+								label(for="removeCategory") Remove Category
+								input.form-control#removeCategory(type="number", name="removeCategory")
+					.btn-toolbar
+						button.btn.btn-default#bulkSaveButton(type="button") Bulk Save
+						.btn-group
+							button.btn.btn-success.dropdown-toggle(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Select #[span.caret]
+							ul.dropdown-menu
+								li 
+									a(href="#")#selectAllButton All
+								li
+									a#selectNoneButton None
+
+					table.table.table-striped.table-hover#productTable
+						thead
+							tr
+								th SKU
+								th Name
+								th Manufacturer
+								th Price
+								th Stock
+						tbody#productTableBody
+
+				.tab-pane.fade.in#step2
+					p todo
+				.tab-pane.fade.in#step3
+					p todo
+		include includes/end
+			script(src="js/3dcart.js")

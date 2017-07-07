@@ -235,6 +235,10 @@ module.exports = {
       res.render('customs');
     });
 
+    app.get('/3dcart', function(req, res) {
+      res.render('3dcart');
+    });
+
     app.get('/user', function(req, res) {
       return res.send(req.user);
     });
@@ -893,7 +897,30 @@ module.exports = {
       });
     });
 
+    app.post('/api/3dcart/inventory', formParser, function(req, res) {
+      var products = req.body.products;
+      var options = {
+        url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+        method: 'PUT',
+        headers : {
+          SecureUrl : 'https://www.ecstasycrafts.com',
+          PrivateKey : process.env.CART_PRIVATE_KEY,
+          Token : process.env.CART_TOKEN
+        },
+        body : req.body.products,
+        json : true
+      };
+
+      request(options, function(err, response, body) {
+        res.send(body);
+      });
+    });
+
     app.get('/api/3dcart/inventory', function(req, res) {
+      var sku = req.query.sku;
+      var category = req.query.category;
+      var qbxml = req.query.qbxml;
+      var csv = req.query.csv;
       var options = {
         url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
         headers : {
@@ -902,12 +929,113 @@ module.exports = {
           Token : process.env.CART_TOKEN
         },
         qs : {
-          sku : 'APA12'
+          limit: 500
         }
       };
 
+      if (sku) {
+        options.qs.sku = sku;
+      }
+      if (category) {
+        options.url = "https://apirest.3dcart.com/3dCartWebAPI/v1/Categories/" + category + "/Products";
+      }
+
       request.get(options, function(err, response, body) {
-        res.send(body);
+        if (!body) {
+          res.send('No products found');
+          return;
+        }
+        var products = JSON.parse(body);
+        var getItemsRq = helpers.queryItemRq(products);
+        if (qbxml) {
+          qbws.addRequest(getItemsRq);
+          qbws.setCallback(function(response) {
+            xmlParser(response, {explicitArray: false}, function(err, result) {
+              var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+              if (itemInventoryRs) {
+                itemInventoryRs.ItemInventoryRet.forEach(function(item) {
+                  var itemMod = {
+                    ListID: item.ListID,
+                    EditSequence: item.EditSequence,
+                    SalesPrice: item.SalesPrice
+                  };
+
+                  for (var i = 0; i < products.length; i++) {
+                    if (products[i].SKUInfo.SKU == item.FullName) {
+                      itemMod.SalesPrice = products[i].SKUInfo.Price
+                    }
+                  }
+
+                  var modRequest = helpers.modifyItemRq(itemMod);
+                  qbws.addRequest(modRequest);
+                });
+              }
+            });
+          });
+        }
+        
+        if (csv) {
+          var doc = '';
+          var headers = 'id, name, categories, mfgid, manufacturer, price, price2, price3, price4, stock, weight, image1, hide, keywords'
+          products.forEach(function(product) {
+            doc+=''
+          });
+        }
+        res.send(products);
+      });
+    });
+
+    app.get('/api/3dcart/category', function(req, res) {
+      // for now, all this does is sets the category sorting level
+      var sort = req.query.sort;
+      var id = req.query.id;
+
+      var options = {
+        url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Categories',
+        headers : {
+          SecureUrl : 'https://www.ecstasycrafts.com',
+          PrivateKey : process.env.CART_PRIVATE_KEY,
+          Token : process.env.CART_TOKEN
+        },
+        qs: {
+          limit: 500,
+          offset: 0
+        }
+      }
+
+      if (id !== undefined) {
+        options.url += '/' + id;
+      }
+
+      request.get(options, function(err, response, body) {
+        if (err) {
+          console.log(err);
+          console.log(response);
+          console.log('error');
+          res.send(err);
+        } else {
+          // body should contain all the categories in an array
+          console.log('success');
+          
+          var cats = JSON.parse(body);
+          console.log(cats.length);
+          res.send(cats);
+          if (sort) {
+            cats.forEach(function(category) {
+            category.DefaultProductsSorting = 4;
+            console.log(category.CategoryName);
+            });
+
+            options.method = 'PUT';
+            options.body = cats;
+            options.json = true;
+
+            request(options, function(err, response, body) {
+              console.log(body);
+            });
+          }
+          
+        }
       });
     });
   }

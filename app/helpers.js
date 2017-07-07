@@ -103,6 +103,8 @@ function queryItemRq(items, limit) {
           !itemName.includes('DISC'))) {
           itemNames.push(item.ItemRef.FullName);
         }
+      } else if (item.SKUInfo) {
+          itemNames.push(item.SKUInfo.SKU);
       }
     });   
   }
@@ -125,6 +127,20 @@ function queryItemRq(items, limit) {
 
   var xmlDoc = getXMLRequest(qbRq);
   var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
+function modifyItemRq(item) {
+  // can only do this one at a time
+  var qbRq = {
+    ItemInventoryModRq: {
+      '@requestID': 'itemModify-'+item.ListID,
+      ItemInventoryMod : item
+    }
+  }
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({'pretty': true});
   return str;
 }
 
@@ -434,5 +450,6 @@ module.exports = {
   isCanadian : isCanadian,
   safePrint: safePrint,
   timecode: timecode,
-  queryInvoiceRq: queryInvoiceRq
+  queryInvoiceRq: queryInvoiceRq,
+  modifyItemRq: modifyItemRq
 }

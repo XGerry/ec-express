@@ -22,6 +22,12 @@ mixin navbar(active)
 						else
 							li
 								a(href="/customs") Customs
+						if active == "3dcart"
+							li(class="active")
+								a(href="/3dcart") 3D Cart Tools
+						else
+							li
+								a(href="/3dcart") 3D Cart Tools
 						li
 							a(href="/product-upload.html") Product Upload
 						li
