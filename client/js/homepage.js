@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+  $(".dropdown-toggle").dropdown();
 });
 
 $('#generateInvoiceButton').click(function (event) {

@@ -23,6 +23,70 @@ var jsonParser = bodyParser.json({limit : '50mb'});
 // application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
 
+function inventorySyncCallback(response) {
+  xmlParser(response, {explicitArray: false}, function(err, result) {
+    var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+    if (itemInventoryRs) {
+      itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
+        Item.findOne({sku: qbItem.FullName}, function(err, item) {
+          if (err) {
+            console.log('Error finding the item');
+          } else {
+            if (!item) {
+              console.log('Unable to find item ' + qbItem.FullName);
+            }
+            else {
+              if (item.stock != qbItem.QuantityOnHand) {
+                item.stock = qbItem.QuantityOnHand
+                item.updated = true;
+              } else {
+                item.updated = false;
+              }
+              
+              if (qbItem.DataExtRet) {
+                if (qbItem.DataExtRet instanceof Array) {
+                  qbItem.DataExtRet.forEach(function(data) {
+                    addItemProperties(data, item);
+                  });
+                } else {
+                  addItemProperties(qbItem.DataExtRet, item);
+                }
+              }
+
+              item.listId = qbItem.ListID;
+              item.editSequence = qbItem.EditSequence;
+              if (item.inactive != !qbItem.IsActive) {
+                item.inactive = !qbItem.IsActive;
+                item.updated = true;
+              }
+              item.save();
+            }
+          }
+        });
+      });
+    }
+  });
+}
+
+function addItemProperties(data, item) {
+  if (data.DataExtName == 'barcode') {
+    if (item.barcode != data.DataExtValue) {
+      item.barcode = data.DataExtValue;
+      item.updated = true && !item.isOption;
+    }
+  } else if (data.DataExtName == 'Location') {
+    if (item.location != data.DataExtValue) {
+      item.location = data.DataExtValue;
+      item.updated = true && !item.isOption;
+    }
+  } else if (data.DataExtName == 'Country') {
+    if (item.countryOfOrigin != data.DataExtValue) {
+      item.countryOfOrigin = data.DataExtValue;
+      item.updated = true && !item.isOption;
+    }
+  }
+}
+
 function getOrders(options, qbws, callback) {
   // clear the requests in qbws
   qbws.clearRequests();
@@ -280,11 +344,29 @@ module.exports = {
         limit : req.query.limit != '' ? req.query.limit : 200,
         orderstatus : req.query.status, // Status of New = 1
         datestart : req.query.startDate,
-        dateend : req.query.endDate
+        dateend : req.query.endDate,
+        invoicenumber : req.query.number
       };
 
       getOrders(options, qbws, function(responseObject) {
         res.send(responseObject);
+      });
+    });
+
+    app.get('/api/order/id', function(req, res) {
+      var id = res.query.id;
+      var options = {
+        url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+id,
+        headers : {
+          SecureUrl : 'https://www.ecstasycrafts.com',
+          PrivateKey : process.env.CART_PRIVATE_KEY,
+          Token : process.env.CART_TOKEN
+        }
+      };
+
+      // first do a request to see how many products there are
+      request.get(options, function(error, response, body) {
+        res.send(body);
       });
     });
 
@@ -835,65 +917,429 @@ module.exports = {
     });
 
     app.get('/api/sync/inventory', function(req, res) {
-      var reportName = req.query.reportName;
-      if (!reportName)
-        reportName = 'default';
-
-      Report.findOne({name: reportName}, function(err, report) {
-        if (err) {
-          res.send('Error getting report.');
+      // get the product list from 3D Cart first
+      var options = {
+        url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/skuinfo',
+        headers : {
+          SecureUrl : 'https://www.ecstasycrafts.com',
+          PrivateKey : process.env.CART_PRIVATE_KEY,
+          Token : process.env.CART_TOKEN
+        },
+        qs: {
+          countonly: 1
         }
+      }
 
-        if (!report) {
-          res.send('The report doesn\'t exist yet. Please generate a query for the items and run the Web Connector.');
-        }
+      request(options, function(err, response, body) {
+        console.log(body);
+        var responseObject = JSON.parse(body);
+        var totalItems = responseObject.TotalCount;
 
-        if (!(report.inventory.constructor === Array)) {
-          report.inventory = [report.inventory];
-        }
-
-        var maxItems = 100; // maximum number of items allowed to update
-
-        var numOfRequests = Math.ceil(report.inventory.length/maxItems);
-        console.log('Need to do ' + numOfRequests + ' requests.');
-        var bodies = [];
+        var numOfRequests = Math.ceil(totalItems / 200);
+        console.log('We need to send '+numOfRequests+' requests to get all the items.');
+        var requests = [];
 
         for (var i = 0; i < numOfRequests; i++) {
-          var products = [];
-          for (var j = 0; j < maxItems; j++) {
-            var index = i*maxItems + j;
-            var qbItem = report.inventory[index];
-            if (qbItem) {
-              var product = {
-                mfgid: qbItem.FullName,
-                SKUInfo: {
-                  SKU : qbItem.FullName,
-                  Stock: qbItem.QuantityOnHand
+          options.qs.countonly = 0;
+          options.qs.offset = i * 200;
+          options.qs.limit = 200;
+          requests.push(JSON.parse(JSON.stringify(options)));
+        }
+        var counter = 0;
+        async.mapSeries(requests, function(option, callback) {
+          request(option, function(err, response, body) {
+            if (err) {
+              callback(err);
+            } else {
+              callback(null, JSON.parse(body));
+            }
+            counter++;
+            console.log(((counter / numOfRequests) * 100).toFixed(0));
+          });
+        }, function(err, responses) {
+          var merged = [].concat.apply([], responses);
+          var qbRq = {
+            ItemInventoryQueryRq: {
+              '@requestID' : 'inventoryRq',
+              FullName: []
+            }
+          };
+
+          merged.forEach(function(skuInfo) {
+            var sku = skuInfo.SKU.trim();
+            Item.findOne({sku: sku}, function(err, item) {
+              if (err) {
+                console.log('error!');
+              } else {
+                if (item) {
+                  item.name = skuInfo.Name;
+                  item.stock = skuInfo.Stock;
+                  item.usPrice = skuInfo.Price;
+                  item.updated = false;
+                  item.catalogId = skuInfo.CatalogID;
+                  item.isOption = false;
+                  item.save();
+                } else {
+                  var newItem = new Item();
+                  newItem.sku = sku;
+                  newItem.name = skuInfo.Name;
+                  newItem.stock = skuInfo.Stock;
+                  newItem.usPrice = skuInfo.Price;
+                  newItem.updated = false;
+                  newItem.catalogId = skuInfo.CatalogID;
+                  newItem.isOption = false;
+                  newItem.save();
                 }
               }
-              products.push(product);
+            });
+
+            // build a qbxml
+            qbRq.ItemInventoryQueryRq.FullName.push(sku);
+          });
+
+          qbRq.ItemInventoryQueryRq.OwnerID = 0;
+          var xmlDoc = helpers.getXMLRequest(qbRq);
+          var str = xmlDoc.end({pretty:true});
+          qbws.addRequest(str);
+          qbws.setCallback(inventorySyncCallback);
+          res.send(merged);
+        });
+      });
+    });
+
+    /**
+     * This function doesn't do the request to 3D cart and just takes the last
+     * information about items to convert to a QBXML
+     */
+    app.get('/api/sync/inventory/qbxml', function(req, res) {
+      var qbRq = {
+        ItemInventoryQueryRq: {
+          '@requestID' : 'inventoryRq',
+          FullName: []
+        }
+      };
+
+      Item.find({}, function(err, items) {
+        if (err) {
+          console.log('An error occurred finding the items in Mongo.');
+        } else {
+          console.log('Found ' + items.length + ' items in the database.');
+          items.forEach(function(item) {
+            qbRq.ItemInventoryQueryRq.FullName.push(item.sku);
+          });
+        }
+      });
+
+      qbRq.ItemInventoryQueryRq.OwnerID = 0;
+      var xmlDoc = helpers.getXMLRequest(qbRq);
+      var str = xmlDoc.end({pretty:true});
+      qbws.addRequest(str);
+
+      qbws.setCallback(inventorySyncCallback);
+      res.send('Run the Web Connector.');
+    });
+
+    app.get('/api/test/sync', function(req, res) {
+      var id = req.query.id;
+
+      var options = {
+        url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+        method: 'PUT',
+        headers : {
+          SecureUrl : 'https://www.ecstasycrafts.com',
+          PrivateKey : process.env.CART_PRIVATE_KEY,
+          Token : process.env.CART_TOKEN
+        },
+        body: body,
+        json: true
+      };
+
+      request(options, function(err, response, body) {
+        res.send(response);
+      });
+    });
+
+    /**
+     * This route will find and record all items that have options.
+     * Then we know what options to query and save.
+     */
+    app.get('/api/find/options', function(req, res) {
+      // get the product list from 3D Cart first
+      var options = {
+        url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+        headers : {
+          SecureUrl : 'https://www.ecstasycrafts.com',
+          PrivateKey : process.env.CART_PRIVATE_KEY,
+          Token : process.env.CART_TOKEN
+        },
+        qs: {
+          countonly: 1
+        }
+      }
+
+      request(options, function(err, response, body) {
+        var responseObject = JSON.parse(body);
+        var totalItems = responseObject.TotalCount;
+
+        var numOfRequests = Math.ceil(totalItems / 200);
+        console.log('We need to send '+numOfRequests+' requests to get all the items.');
+        var requests = [];
+
+        for (var i = 0; i < numOfRequests; i++) {
+          options.qs.countonly = 0;
+          options.qs.offset = i * 200;
+          options.qs.limit = 200;
+          requests.push(JSON.parse(JSON.stringify(options)));
+        }
+        var counter = 0;
+        async.mapSeries(requests, function(option, callback) {
+          request(option, function(err, response, body) {
+            if (err) {
+              callback(err);
+            } else {
+              callback(null, JSON.parse(body));
             }
+            counter++;
+            console.log((counter / numOfRequests) * 100);
+          });
+        }, function(err, responses) {
+          var merged = [].concat.apply([], responses);
+
+          var optionedItems = [];
+
+          merged.forEach(function(skuInfo) {
+            var sku = skuInfo.SKUInfo.SKU.trim();
+
+            Item.findOne({sku: sku}, function(err, item) {
+              if (err) {
+                console.log('Error finding the item.');
+              } else {
+                if (item) {
+                  if (skuInfo.OptionSetList.length > 0) {
+                    item.hasOptions = true;
+                    item.save();
+                    optionedItems.push(item);
+                    console.log('found option');
+                  } else {
+                    item.hasOptions = false;
+                    item.save();
+                  }
+                }
+              }
+            });
+          });
+
+          res.send(optionedItems);
+        });
+      });
+    });
+
+    /**
+     * This route gets the advaced options for all items that have options and then
+     * saves their options as items
+     */
+    app.get('/api/items/advancedoptions', function(req, res) {
+      Item.find({hasOptions: true}, function(err, items) {
+        if (err) {
+          console.log('Error getting the items.');
+        } else {
+          var requests = [];
+          console.log(items.length + ' items have options.');
+
+          for (var i = 0; i < items.length; i++) {
+            var options = {
+              url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+items[i].catalogId+'/AdvancedOptions',
+              headers : {
+                SecureUrl : 'https://www.ecstasycrafts.com',
+                PrivateKey : process.env.CART_PRIVATE_KEY,
+                Token : process.env.CART_TOKEN
+              },
+              itemId: items[i].catalogId
+            };
+            requests.push(JSON.parse(JSON.stringify(options)));
           }
-          bodies.push(products);
+
+          var counter = 0;
+          console.log('Starting the mapping');
+
+          async.mapLimit(requests, 3, function(option, callback) {
+            function doRequest() {
+              var itemId = option.itemId;
+              request(option, function(err, response, body) {
+                if (err) {
+                  callback(err);
+                } else {
+                  console.log(counter++);
+                  if (body) {
+                    var modified = JSON.parse(body);
+                    modified.forEach(function(optionItem) {
+                      optionItem.itemId = itemId;
+                    });
+                    callback(null, modified);
+                  } else {
+                    callback(body);
+                  }
+                }
+              });
+            }
+            setTimeout(doRequest, 1000);
+          }, function(err, responses) {
+            console.log('done');
+            console.log(err);
+            var merged = [].concat.apply([], responses);
+            var toSend = [];
+
+            merged.forEach(function(optionItem) {
+              if (optionItem && optionItem.AdvancedOptionSufix != "" && optionItem.AdvancedOptionSufix != undefined) {
+                Item.findOne({sku: optionItem.AdvancedOptionSufix}, function(err, item) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    if (item) {
+                      item.name = optionItem.AdvancedOptionName;
+                      item.isOption = true;
+                      item.usPrice = optionItem.AdvancedOptionPrice;
+                      item.stock = optionItem.AdvancedOptionStock;
+                      item.optionId = optionItem.AdvancedOptionCode;
+                      item.catalogId = optionItem.itemId;
+                      item.save();
+                    } else {
+                      var newItem = new Item();
+                      newItem.sku = optionItem.AdvancedOptionSufix;
+                      newItem.name = optionItem.AdvancedOptionName;
+                      newItem.isOption = true;
+                      newItem.usPrice = optionItem.AdvancedOptionPrice;
+                      newItem.stock = optionItem.AdvancedOptionStock;
+                      newItem.optionId = optionItem.AdvancedOptionCode;
+                      newItem.catalogId = optionItem.itemId;
+                      newItem.save();
+                    }
+                  }
+                });
+                toSend.push(optionItem);
+              }
+            });
+            res.send(toSend);
+          });
+        }
+      });
+    });
+
+    app.post('/api/sync/inventory', function(req, res) {
+      // send the items back to 3D Cart
+      Item.find({updated: true, isOption: false}, function(err, items) {
+        console.log('There are ' + items.length + ' items that need inventory synced.');
+        var body = [];
+        var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
+        console.log('We need to send ' + numOfRequests + ' requests.');
+        items.forEach(function(item) {
+          var cartItem = {
+            SKUInfo: {
+              SKU: item.sku,
+              Stock: item.stock,
+              CatalogID: item.catalogId
+            },
+            MFGID: item.sku,
+            WarehouseLocation: item.location,
+            ExtraField8: item.barcode,
+            ExtraField9: item.countryOfOrigin
+          };
+
+          if (item.inactive) {
+            cartItem.SKUInfo.Stock = 0;
+          }
+
+          if (item.hasOptions) {
+            cartItem.SKUInfo.Stock = 100;
+          }
+
+          body.push(cartItem);
+        });
+
+        var options = {
+          url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+          method: 'PUT',
+          headers : {
+            SecureUrl : 'https://www.ecstasycrafts.com',
+            PrivateKey : process.env.CART_PRIVATE_KEY,
+            Token : process.env.CART_TOKEN
+          },
+          body : body,
+          json : true
+        };
+
+        var requests = [];
+        for (var i = 0; i < numOfRequests; i++) {
+          options.body = body.slice(i*100, (i+1)*100);
+          requests.push(JSON.parse(JSON.stringify(options)));
         }
 
-        async.map(bodies, function(body, callback) {
+        var counter = 0;
+        async.mapSeries(requests, function(option, callback) {
+          request(option, function(err, response, body) {
+            if (err) {
+              callback(err);
+            } else {
+              callback(null, body);
+              counter++;
+              console.log(((counter / numOfRequests) * 100).toFixed(0));
+            }
+          });
+        }, function(err, responses) {
+          var merged = [].concat.apply([], responses);
+          res.send(merged);
+        });
+      });
+    });
+
+    app.post('/api/sync/inventory/options', function(req, res) {
+      Item.find({isOption: true, updated: true, inactive: false}, function(err, items) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('There are ' + items.length + ' options that need updating.');
+          
+          var requests = [];
+
           var options = {
-            url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-            method : 'PUT',
+            url: '',
+            method: 'PUT',
             headers : {
               SecureUrl : 'https://www.ecstasycrafts.com',
               PrivateKey : process.env.CART_PRIVATE_KEY,
               Token : process.env.CART_TOKEN
             },
-            body : body,
-            json : true
-          }
-          console.log('sending request.');
-          request(options, callback);
-        }, function(err, response, body) {
-          res.send(response);
-        });        
+            json: true
+          };
+
+          items.forEach(function(item) {
+            options.body = {
+              AdvancedOptionStock: item.stock
+            }
+            var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+
+              item.catalogId+'/AdvancedOptions/'+item.optionId;
+            options.url = url;
+            requests.push(JSON.parse(JSON.stringify(options)));
+          });
+
+          async.mapLimit(requests, 2, function(option, callback) {
+            function doRequest() {
+              request(option, function(err, response, body) {
+                if (err) {
+                  callback(err);
+                } else {
+                  console.log(body);
+                  callback(null, body);
+                }
+              });
+            }
+
+            setTimeout(doRequest, 1000);
+          }, function(err, responses) {
+            var merged = [].concat.apply([], responses);
+            res.send(merged);
+          });
+        }
       });
     });
 
@@ -913,6 +1359,31 @@ module.exports = {
 
       request(options, function(err, response, body) {
         res.send(body);
+      });
+    });
+
+    /**
+     * This route creates a QBxml based on the mongo state of our items
+     * to update the inventory in quickbooks.
+     */
+    app.get('/api/qb/inventory', function(req, res) {
+      Item.find({}, function(err, items) {
+        if (err) {
+          console.log('error finding the items.');
+        } else {
+          items.forEach(function(item) {
+            var itemMod = {
+              ListID: item.listId,
+              EditSequence: item.editSequence,
+              SalesPrice: item.usPrice
+            }
+
+            var modRequest = helpers.modifyItemRq(itemMod);
+            qbws.addRequest(modRequest);
+          });  
+
+          res.send('Run the Web Connector.');        
+        }
       });
     });
 
@@ -936,6 +1407,7 @@ module.exports = {
       if (sku) {
         options.qs.sku = sku;
       }
+
       if (category) {
         options.url = "https://apirest.3dcart.com/3dCartWebAPI/v1/Categories/" + category + "/Products";
       }
@@ -983,6 +1455,14 @@ module.exports = {
         }
         res.send(products);
       });
+    });
+
+    app.get('/inventory', function(req, res) {
+      res.render('inventory');
+    });
+
+    app.get('/', function(req, res) {
+      res.render('home');
     });
 
     app.get('/api/3dcart/category', function(req, res) {
@@ -1034,7 +1514,6 @@ module.exports = {
               console.log(body);
             });
           }
-          
         }
       });
     });

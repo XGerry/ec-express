@@ -111,7 +111,7 @@ function queryItemRq(items, limit) {
 
   var qbRq = {
     ItemInventoryQueryRq : {
-      '@requestID' : 'itemRequest',
+      '@requestID' : 'itemRequest'
     }
   };
 

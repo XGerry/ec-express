@@ -1,0 +1,13 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Custom Tools
+	body
+		+navbar("home")
+		.container
+			.starter-template
+				h1 Welcome
+				p.lead Have a good day at work!
+		include includes/end
+			script(src="js/homepage.js")

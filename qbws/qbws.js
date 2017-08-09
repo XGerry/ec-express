@@ -211,7 +211,7 @@ function checkError(response) {
             var requestID = invoiceRs.$.requestID;
             Order.findOne({ orderId : requestID }, function(err, doc) {
                 if (doc) {
-                    if (invoiceRs.$.statusCode == '3140') { // error
+                    if (invoiceRs.$.statusCode == '3140' || invoiceRs.$.statusCode == '3205') { // error
                         doc.imported = false;
                         doc.errorMessage = invoiceRs.$.statusMessage;
                         console.log('found an error: ' + doc.errorMessage);

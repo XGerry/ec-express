@@ -1,0 +1,54 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Custom Tools
+	body
+		+navbar("inventory")
+		.container
+			.starter-template
+				h1 Inventory Sync
+				p.lead Synchronize the inventory in Quickbooks with 3D Cart
+		.container.panel.with-nav-tabs
+			.panel-heading
+				ul.nav.nav-tabs
+					li.active
+						a(data-toggle="tab", href="#quickSync") Quick Sync
+					li
+						a(data-toggle="tab", href="advancedSync") Advanced Sync
+			.tab-content.panel-body.list-group
+				#quickSync.tab-pane.fade.in.active
+					.list-group-item
+						.row
+							.col-lg-8
+								#step1 First, let's determine how many items we have to query for in Quickbooks.
+							.col-lg-4.text-right
+								button.btn.btn-success(type="button")#getInventoryButton Get Items
+					.list-group-item
+						.row
+							.col-lg-8
+								#optionsStep Sometimes we have to find out what products have options.
+							.col-lg-4.text-right
+								button.btn.btn-default(type="button")#buildOptionItems Create Option Items
+					.list-group-item
+						.row
+							.col-lg-8
+								#step2 Now run the Web Connector on your desktop to load in the inventory from Quickbooks.
+							.col-lg-4.form-group.text-right
+								label.checkbox-inline #[input.input-md(type="checkbox")] I ran the Web Connector.
+					.list-group-item
+						.row
+							.col-lg-8
+								#step3 Lastly, we will distribute the inventory to the various EC stores.
+							.col-lg-4.text-right
+								button.btn.btn-danger(type="button")#saveInventoryButton Save Inventory
+								button.btn.btn-danger(type="button")#saveOptionsButton Save Options
+				#advancedSync.tab-pane.fade.in
+					.list-group-item
+						.row
+							.col-lg-8
+								#advancedStep1 Get all items and determine which items have options.
+							.col-lg-4.text-right
+								button.btn.btn-default(type="button")#getOptionsButton Find Items and Options
+		include includes/end
+			script(src="js/inventory.js")

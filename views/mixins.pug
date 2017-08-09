@@ -11,27 +11,34 @@ mixin navbar(active)
 				div(id="navbar", class="collapse navbar-collapse")
 					ul(class="nav navbar-nav")
 						if active == "home"
-							li(class="active")
+							li.active
 								a(href="/") Home
 						else
 							li
 								a(href="/") Home
 						if active == "customs"
-							li(class="active")
+							li.active
 								a(href="/customs") Customs
 						else
 							li
 								a(href="/customs") Customs
-						if active == "3dcart"
-							li(class="active")
-								a(href="/3dcart") 3D Cart Tools
-						else
-							li
-								a(href="/3dcart") 3D Cart Tools
+						li.dropdown
+							a.dropdown-toggle(href="#", data-toggle="dropdown",role="button",aria-haspopup="true",aria-expanded="false") 3D Cart Tools #[span.caret]
+							ul.dropdown-menu
+								if active == "3dcart"
+									li.active
+										a(href="/3dcart") Item Manager
+								else
+									li
+										a(href="/3dcart") Item Manager
+								if active == "inventory"
+									li.active
+										a(href="/inventory") Inventory
+								else
+									li
+										a(href="/inventory") Inventory
 						li
 							a(href="/product-upload.html") Product Upload
 						li
 							a(href="/orders.html") Order Sync
-						li
-							a(href="/setup") Inventory Sync
 					ul.nav.navbar-nav.navbar-right#nav-right
