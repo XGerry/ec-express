@@ -23,6 +23,7 @@ function doneLoading(buttonId, iconId, progressBarId) {
 	}
 	if (progressBarId) {
 		$('#'+progressBarId).removeClass('active');
+		$('#'+progressBarId).removeClass('progress-bar-striped');
 	}
 }
 
@@ -31,20 +32,18 @@ $(document).ready(function() {
 
 	$('#getInventoryButton').click(function(e) {
 		showLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
-		$.get('/api/sync/inventory').done(function(response) {
-			console.log(response);
-			$('#step1').text('Found ' + response.length + ' items in 3D Cart and created a query.');
-			doneLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
-		});
+		socket.emit('getItems');
+	});
+
+	$('#getItemsAdvancedButton').click(function(e) {
+		showLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
+		socket.emit('getItems');
 	});
 
 	$('#saveInventoryButton').click(function(e) {
 		showLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
 		$('#step3').text('This will save both the items and their options. Depending on how many options need to be updated, this could take a while.');
-		$.post('/api/sync/inventory').done(function(response) {
-			console.log(response);
-			doneLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
-		});
+		socket.emit('saveItems');
 	});
 
 	$('#getOptionsButton').click(function(e) {
@@ -88,4 +87,17 @@ socket.on('saveOptionItemsProgress', function(data) {
 	var percentageComplete = (data.progress / data.total) * 50;
 	percentageComplete+= 50;
 	$('#saveInventoryProgressBar').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
+});
+
+socket.on('getItemsFinished', function(data) {
+	doneLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
+	console.log(data);
+});
+
+socket.on('saveItemsFinished', function(data) {
+	console.log('Finished saving the items');
+});
+
+socket.on('saveOptionItemsFinished', function(data) {
+	doneLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
 });

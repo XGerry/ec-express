@@ -7,6 +7,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var api = require('./app/api');
 var routes = require('./app/routes');
+var events = require('./app/events');
 
 var app = express();
 app.set('view engine', 'pug');
@@ -54,6 +55,7 @@ var server = app.listen(process.env.PORT || 3000, function() {
 var io = require('socket.io')(server);
 
 api.route(app, passport, qbws, io);
+events(io, qbws);
 routes(app, passport);
 require('./config/passport')(passport);
 require('./app/schedule')(qbws);

@@ -2,7 +2,6 @@ var helpers = require('./helpers.js');
 var xmlParser = require('xml2js').parseString; 
 var request = require('request');
 var pixl = require('pixl-xml')
-var path = require('path');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var mws = require('mws-nodejs');
@@ -14,6 +13,7 @@ var Item = require('./model/item');
 var async = require('async');
 var crypto = require('crypto');
 var queryString = require('query-string');
+var cart3d = require('./3dcart');
 
 var ordersFromQuickbooks = {}; // do it this way for now
 
@@ -22,179 +22,6 @@ var jsonParser = bodyParser.json({limit : '50mb'});
 
 // application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
-
-function inventorySyncCallback(response) {
-  xmlParser(response, {explicitArray: false}, function(err, result) {
-    var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-    if (itemInventoryRs) {
-      itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
-        Item.findOne({sku: qbItem.FullName}, function(err, item) {
-          if (err) {
-            console.log('Error finding the item');
-          } else {
-            if (!item) {
-              console.log('Unable to find item ' + qbItem.FullName);
-            }
-            else {
-              if (item.stock != qbItem.QuantityOnHand && !item.hasOptions) {
-                item.stock = qbItem.QuantityOnHand
-                item.updated = true;
-              } else {
-                item.updated = false;
-              }
-              
-              if (qbItem.DataExtRet) {
-                if (qbItem.DataExtRet instanceof Array) {
-                  qbItem.DataExtRet.forEach(function(data) {
-                    addItemProperties(data, item);
-                  });
-                } else {
-                  addItemProperties(qbItem.DataExtRet, item);
-                }
-              }
-
-              item.listId = qbItem.ListID;
-              item.editSequence = qbItem.EditSequence;
-              if (item.inactive != !qbItem.IsActive) {
-                item.inactive = !qbItem.IsActive;
-                item.updated = true;
-              }
-              item.save();
-            }
-          }
-        });
-      });
-    }
-  });
-}
-
-function saveOptionItems(io, finalCallback) {
-  Item.find({isOption: true, updated: true, inactive: false}, function(err, items) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('There are ' + items.length + ' options that need updating.');
-      
-      var requests = [];
-
-      var options = {
-        url: '',
-        method: 'PUT',
-        headers : {
-          SecureUrl : 'https://www.ecstasycrafts.com',
-          PrivateKey : process.env.CART_PRIVATE_KEY,
-          Token : process.env.CART_TOKEN
-        },
-        json: true
-      };
-
-      items.forEach(function(item) {
-        options.body = {
-          AdvancedOptionStock: item.stock
-        }
-        var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+
-          item.catalogId+'/AdvancedOptions/'+item.optionId;
-        options.url = url;
-        requests.push(JSON.parse(JSON.stringify(options)));
-      });
-
-      var total = requests.length;
-      var counter = 0;
-
-      async.mapLimit(requests, 2, function(option, callback) {
-        function doRequest() {
-          request(option, function(err, response, body) {
-            if (err) {
-              callback(err);
-            } else {
-              callback(null, body);
-              counter++;
-              io.emit('saveOptionItemsProgress', {
-                progress: counter,
-                total: total
-              });
-            }
-          });
-        }
-
-        setTimeout(doRequest, 1000);
-      }, function(err, responses) {
-        var merged = [].concat.apply([], responses);
-        finalCallback(merged);
-      });
-    }
-  });
-}
-
-function saveItems(io, finalCallback) {
-  Item.find({updated: true, isOption: false}, function(err, items) {
-    console.log('There are ' + items.length + ' items that need inventory synced.');
-    var body = [];
-    var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
-    console.log('We need to send ' + numOfRequests + ' requests.');
-    items.forEach(function(item) {
-      var cartItem = {
-        SKUInfo: {
-          SKU: item.sku,
-          Stock: item.stock,
-          CatalogID: item.catalogId
-        },
-        MFGID: item.sku,
-        WarehouseLocation: item.location,
-        ExtraField8: item.barcode,
-        ExtraField9: item.countryOfOrigin
-      };
-
-      if (item.inactive) {
-        cartItem.SKUInfo.Stock = 0;
-      }
-
-      if (item.hasOptions) {
-        cartItem.SKUInfo.Stock = 100;
-      }
-
-      body.push(cartItem);
-    });
-
-    var options = {
-      url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-      method: 'PUT',
-      headers : {
-        SecureUrl : 'https://www.ecstasycrafts.com',
-        PrivateKey : process.env.CART_PRIVATE_KEY,
-        Token : process.env.CART_TOKEN
-      },
-      body : body,
-      json : true
-    };
-
-    var requests = [];
-    for (var i = 0; i < numOfRequests; i++) {
-      options.body = body.slice(i*100, (i+1)*100);
-      requests.push(JSON.parse(JSON.stringify(options)));
-    }
-
-    var counter = 0;
-    async.mapSeries(requests, function(option, callback) {
-      request(option, function(err, response, body) {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, body);
-          counter++;
-          console.log(((counter / numOfRequests) * 100).toFixed(0));
-          io.emit('saveItemsProgress', {
-            progress: counter,
-            total: numOfRequests
-          });
-        }
-      });
-    }, function(err, responses) {
-      var merged = [].concat.apply([], responses);
-      finalCallback(merged);
-    });
-  });
-}
 
 function addItemProperties(data, item) {
   if (data.DataExtName == 'barcode') {
@@ -215,7 +42,7 @@ function addItemProperties(data, item) {
   }
 }
 
-function getOrders(options, qbws, callback) {
+function getOrders(query, qbws, callback) {
   // clear the requests in qbws
   qbws.clearRequests();
   // clear our database of all requests
@@ -237,7 +64,7 @@ function getOrders(options, qbws, callback) {
       PrivateKey : process.env.CART_PRIVATE_KEY,
       Token : process.env.CART_TOKEN
     },
-    qs : options
+    qs : query
   }
 
   request.get(options, function (error, response, body) {
@@ -378,7 +205,7 @@ module.exports = {
     app.post('/api/orders', jsonParser, authenticate, function (req, res) {
       console.log('Updating ' + req.body.length + ' orders in 3D Cart.');
       helpers.updateOrders(req.body, function(err, response, body) {
-        res.send(response);
+        res.send(body);
       });
     });
 
@@ -960,109 +787,12 @@ module.exports = {
     });
 
     app.get('/api/sync/inventory', function(req, res) {
-      // get the product list from 3D Cart first
-      var options = {
-        url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/skuinfo',
-        headers : {
-          SecureUrl : 'https://www.ecstasycrafts.com',
-          PrivateKey : process.env.CART_PRIVATE_KEY,
-          Token : process.env.CART_TOKEN
-        },
-        qs: {
-          countonly: 1
-        }
-      }
-
-      request(options, function(err, response, body) {
-        var responseObject = JSON.parse(body);
-        var totalItems = responseObject.TotalCount;
-
-        var numOfRequests = Math.ceil(totalItems / 200);
-        console.log('We need to send '+numOfRequests+' requests to get all the items.');
-        var requests = [];
-
-        for (var i = 0; i < numOfRequests; i++) {
-          options.qs.countonly = 0;
-          options.qs.offset = i * 200;
-          options.qs.limit = 200;
-          requests.push(JSON.parse(JSON.stringify(options)));
-        }
-        var counter = 0;
-        async.mapSeries(requests, function(option, callback) {
-          request(option, function(err, response, body) {
-            if (err) {
-              callback(err);
-            } else {
-              callback(null, JSON.parse(body));
-            }
-            counter++;
-            var progress = ((counter / numOfRequests) * 100).toFixed(0);
-            io.emit('getItemsProgress', {
-              progress: counter,
-              total: numOfRequests
-            });
-            console.log(progress);
-          });
-        }, function(err, responses) {
-          var merged = [].concat.apply([], responses);
-          var qbRq = {
-            ItemInventoryQueryRq: {
-              '@requestID' : 'inventoryRq',
-              FullName: []
-            }
-          };
-
-          merged.forEach(function(skuInfo) {
-            var sku = skuInfo.SKU.trim();
-            Item.findOne({sku: sku}, function(err, item) {
-              if (err) {
-                console.log('error!');
-              } else {
-                if (item) {
-                  item.name = skuInfo.Name;
-                  item.stock = skuInfo.Stock;
-                  item.usPrice = skuInfo.Price;
-                  item.updated = false;
-                  item.catalogId = skuInfo.CatalogID;
-                  item.isOption = false;
-                  item.save();
-                } else {
-                  var newItem = new Item();
-                  newItem.sku = sku;
-                  newItem.name = skuInfo.Name;
-                  newItem.stock = skuInfo.Stock;
-                  newItem.usPrice = skuInfo.Price;
-                  newItem.updated = false;
-                  newItem.catalogId = skuInfo.CatalogID;
-                  newItem.isOption = false;
-                  newItem.save();
-                }
-              }
-            });
-
-            // build a qbxml
-            qbRq.ItemInventoryQueryRq.FullName.push(sku);
-          });
-
-          // also, always include the options
-          Item.find({isOption:true}, function(err, items) {
-            if (err) {
-              console.log(err);
-            } else {
-              items.forEach(function(item) {
-                qbRq.ItemInventoryQueryRq.FullName.push(item.sku);
-              });
-
-              qbRq.ItemInventoryQueryRq.OwnerID = 0;
-              var xmlDoc = helpers.getXMLRequest(qbRq);
-              var str = xmlDoc.end({pretty:true});
-              qbws.addRequest(str);
-              qbws.setCallback(inventorySyncCallback);
-              res.send(merged);
-            }
-          });
-        });
+      cart3d.getItems(qbws, function(progress, total) {
+        console.log(Math.floor(progress/total*100));
+      }, function(items) {
+        console.log('Found ' + items.length + ' items.');
       });
+      res.send('Getting all the items from 3D Cart.');
     });
 
     /**
@@ -1292,20 +1022,17 @@ module.exports = {
       var savedItems = [];
 
       // non-options
-      saveItems(io, function(items) {
+      cart3d.saveItems(function(progress, total) {
+        console.log(Math.floor(progress/total*100));
+      }, function(items) {
         savedItems.push(items);
         // options
-        saveOptionItems(io, function(options) {
+        cart3d.saveOptionItems(function(progress, total) {
+          console.log(Math.floor(progress/total*100));
+        }, function(options) {
           savedItems.push(options);
           res.json(savedItems);
         });
-      });
-    });
-
-    app.post('/api/sync/inventory/options', function(req, res) {
-      res.writeContinue();
-      saveOptionItems(function(responses) {
-        res.json(responses);
       });
     });
 

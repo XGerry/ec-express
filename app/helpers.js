@@ -1,6 +1,11 @@
+/**
+ * Generic helper class
+ */
+
 var builder = require('xmlbuilder');
 var request = require('request');
 var Order = require('./model/order');
+var async = require('async');
 
 var timecode = + new Date();
 
@@ -334,6 +339,10 @@ function updateContacts(contacts, callback) {
 
 function updateOrders(orders, callback) {
   // send the orders to 3D cart
+  var numOfRequests = Math.ceil(orders.length / 100); // can only update 100 orders at a time
+  console.log('We need to send ' + numOfRequests + ' requests to update all the orders.');
+  var requests = [];
+
   var options = {
     url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
     headers : {
@@ -345,7 +354,20 @@ function updateOrders(orders, callback) {
     json : true
   };
 
-  request.put(options, callback);
+  for (var i = 0; i < numOfRequests; i++) {
+    options.body = orders.slice(i*100, (i+1)*100);
+    requests.push(JSON.parse(JSON.stringify(options)));
+  }
+
+  var counter = 0;
+  async.mapSeries(requests, function(option, callbackAsync) {
+    request.put(option, function(err, response, body) {
+      callbackAsync(err, body);
+    });
+  }, function(err, body) {
+    var merged = [].concat.apply([], body);
+    callback(err, merged);
+  });
 }
 
 function markCompletedOrdersAsProcessing(callback) {
@@ -436,6 +458,51 @@ function safePrint(value) {
   }
 }
 
+function inventorySyncCallback(response) {
+  xmlParser(response, {explicitArray: false}, function(err, result) {
+    var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+    if (itemInventoryRs) {
+      itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
+        Item.findOne({sku: qbItem.FullName}, function(err, item) {
+          if (err) {
+            console.log('Error finding the item');
+          } else {
+            if (!item) {
+              console.log('Unable to find item ' + qbItem.FullName);
+            }
+            else {
+              if (item.stock != qbItem.QuantityOnHand && !item.hasOptions) {
+                item.stock = qbItem.QuantityOnHand
+                item.updated = true;
+              } else {
+                item.updated = false;
+              }
+              
+              if (qbItem.DataExtRet) {
+                if (qbItem.DataExtRet instanceof Array) {
+                  qbItem.DataExtRet.forEach(function(data) {
+                    addItemProperties(data, item);
+                  });
+                } else {
+                  addItemProperties(qbItem.DataExtRet, item);
+                }
+              }
+
+              item.listId = qbItem.ListID;
+              item.editSequence = qbItem.EditSequence;
+              if (item.inactive != !qbItem.IsActive) {
+                item.inactive = !qbItem.IsActive;
+                item.updated = true;
+              }
+              item.save();
+            }
+          }
+        });
+      });
+    }
+  });
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -453,5 +520,6 @@ module.exports = {
   safePrint: safePrint,
   timecode: timecode,
   queryInvoiceRq: queryInvoiceRq,
-  modifyItemRq: modifyItemRq
+  modifyItemRq: modifyItemRq,
+  inventorySyncCallback: inventorySyncCallback
 }

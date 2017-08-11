@@ -7,7 +7,8 @@ var orderSchema = new mongoose.Schema({
 	imported : Boolean,
 	requestId : Number,
 	errorMessage : String,
-	qbRequest : String
+	qbRequest : String,
+	completed: Boolean
 });
 
 module.exports = mongoose.model('Order', orderSchema);
