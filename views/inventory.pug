@@ -2,53 +2,111 @@ doctype html
 include mixins
 html
 	include includes/head
-		title Custom Tools
+		title Inventory Sync
 	body
 		+navbar("inventory")
 		.container
 			.starter-template
 				h1 Inventory Sync
 				p.lead Synchronize the inventory in Quickbooks with 3D Cart
+
 		.container.panel.with-nav-tabs
-			.panel-heading
-				ul.nav.nav-tabs
-					li.active
-						a(data-toggle="tab", href="#quickSync") Quick Sync
-					li
-						a(data-toggle="tab", href="advancedSync") Advanced Sync
-			.tab-content.panel-body.list-group
+			ul.nav.nav-tabs#myTab(role="tablist")
+				li.active
+					a(data-toggle="tab", href="#quickSync") Quick Sync
+				li
+					a(data-toggle="tab", href="#advancedSync") Advanced Sync
+			
+			.tab-content.list-group
 				#quickSync.tab-pane.fade.in.active
 					.list-group-item
 						.row
-							.col-lg-8
-								#step1 First, let's determine how many items we have to query for in Quickbooks.
+							.col-lg-1.text-center
+								i#quickStep1.fa.fa-square-o.fa-2x
+							.col-lg-7
+								p First, let's determine how many items we have to query for in Quickbooks.
+								p#step1
 							.col-lg-4.text-right
-								button.btn.btn-success(type="button")#getInventoryButton Get Items
+								button.btn.btn-success.bottom-10(type="button")#getInventoryButton Get Items
+						.row
+							.col-lg-12
+								.progress
+									#getInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+
 					.list-group-item
 						.row
-							.col-lg-8
-								#optionsStep Sometimes we have to find out what products have options.
-							.col-lg-4.text-right
-								button.btn.btn-default(type="button")#buildOptionItems Create Option Items
-					.list-group-item
-						.row
-							.col-lg-8
+							.col-lg-1.text-center
+								i#quickStep2.fa.fa-square-o.fa-2x
+							.col-lg-7
 								#step2 Now run the Web Connector on your desktop to load in the inventory from Quickbooks.
 							.col-lg-4.form-group.text-right
-								label.checkbox-inline #[input.input-md(type="checkbox")] I ran the Web Connector.
+								label#webConnectorCheckbox.checkbox-inline #[input.input-md(type="checkbox")] I ran the Web Connector.
 					.list-group-item
 						.row
-							.col-lg-8
-								#step3 Lastly, we will distribute the inventory to the various EC stores.
+							.col-lg-1.text-center
+								i#quickStep3.fa.fa-square-o.fa-2x
+							.col-lg-7
+								p Lastly, we will distribute the inventory to the various EC stores.
+								p#step3
 							.col-lg-4.text-right
-								button.btn.btn-danger(type="button")#saveInventoryButton Save Inventory
-								button.btn.btn-danger(type="button")#saveOptionsButton Save Options
-				#advancedSync.tab-pane.fade.in
+								button.btn.btn-danger.bottom-10(type="button")#saveInventoryButton Save Inventory
+						.row
+							.col-lg-12
+								.progress
+									#saveInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+
+				#advancedSync.tab-pane.fade
 					.list-group-item
 						.row
-							.col-lg-8
-								#advancedStep1 Get all items and determine which items have options.
+							.col-lg-1.text-center
+								i#quickStep1.fa.fa-square-o.fa-2x
+							.col-lg-7
+								p Find all the items we have in 3D Cart.
 							.col-lg-4.text-right
-								button.btn.btn-default(type="button")#getOptionsButton Find Items and Options
+								button.btn.btn-success.bottom-10(type="button")#getInventoryButton Get Items
+						.row
+							.col-lg-12
+								.progress
+									#getInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+					.list-group-item
+						.row
+							.col-lg-1.text-center
+								#advancedStep2.fa.fa-square-o.fa-2x
+							.col-lg-8
+								p Determine which items have options.
+								p #[strong Note:] This action will take a long time to run. Only run this when you have added a #[strong new item] that has #[strong options]. 
+							.col-lg-3.text-right
+								button.btn.btn-default(type="button")#getOptionsButton Find Options
+						.row
+							.col-lg-12
+								.progress
+									#findOptionsProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+					.list-group-item
+						.row
+							.col-lg-1.text-center
+								#advancedStep3.fa.fa-square-o.fa-2x
+							.col-lg-8
+								p Bring down all the options for any item that has them. Then save them to our database.
+								p #[strong Note:] Only perform this action when you have added a #[strong new] option to an existing item. This will take a long time to complete.
+							.col-lg-3.text-right
+								button.btn.btn-default(type="button")#buildOptionItems Create Option Items
+						.row
+							.col-lg-12
+								.progress
+									#buildOptionsProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+					.list-group-item
+						.row
+							.col-lg-1.text-center
+								i#quickStep3.fa.fa-square-o.fa-2x
+							.col-lg-7
+								p Lastly, we will distribute the inventory to the various EC stores.
+								p#step3
+							.col-lg-4.text-right
+								button.btn.btn-danger.bottom-10(type="button")#saveInventoryButton Save Inventory
+						.row
+							.col-lg-12
+								.progress
+									#saveInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+
 		include includes/end
-			script(src="js/inventory.js")
+			script(src="/js/inventory.js")

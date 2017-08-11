@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var session = require('express-session');
 var passport = require('passport');
 var flash = require('connect-flash');
+var api = require('./app/api');
 var routes = require('./app/routes');
 
 var app = express();
@@ -44,11 +45,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-app.listen(process.env.PORT || 3000, function() {
+var server = app.listen(process.env.PORT || 3000, function() {
   console.log('EC-Express running on port 3000');
   qbws.run(app);
 });
 
-routes.route(app, passport, qbws);
+// socket.io
+var io = require('socket.io')(server);
+
+api.route(app, passport, qbws, io);
+routes(app, passport);
 require('./config/passport')(passport);
 require('./app/schedule')(qbws);

@@ -13,3 +13,7 @@ body {
 .selected {
 	background-color: rgba(108, 183, 51, 0.52) !important;
 }
+
+.bottom-10 {
+	margin-bottom: 10px;
+}

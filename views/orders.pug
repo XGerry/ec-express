@@ -1,0 +1,18 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Custom Tools
+	body
+		+navbar("orders")
+		.container
+			.starter-template
+				h1 Orders
+				p.lead Use these controls to synchronize orders from 3D cart to Quickbooks and Hubspot.
+		.container.panel.with-nav-tabs
+			.panel-heading
+				ul.nav.nav-tabs
+					li.active
+						a(data-toggle="tab", href="#step1") Get Orders
+					li
+						a(data-toggle="tab", href="#step1") Run Connector
