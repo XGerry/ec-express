@@ -271,7 +271,7 @@ function saveOptionItems(progressCallback, finalCallback) {
   });
 }
 
-function doSaveAdvancedOptions(cartItems, finalCallback) {
+function doSaveAdvancedOptions(canadian, cartItems, finalCallback) {
 	var options = {
     url: '',
     method: 'PUT',
@@ -282,6 +282,11 @@ function doSaveAdvancedOptions(cartItems, finalCallback) {
     },
     json: true
   };
+
+  if (canadian) {
+    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+  }
 
   var requests = [];
   console.log('saving options');
@@ -305,19 +310,58 @@ function doSaveAdvancedOptions(cartItems, finalCallback) {
 	});
 }
 
-function saveAdvancedOptions(cartItems, finalCallback, rebuild) {
+function saveAdvancedOptions(canadian, cartItems, finalCallback, rebuild) {
 	if (rebuild) {
-		doRebuild(cartItems, function(items) {
-			doSaveAdvancedOptions(items, finalCallback);
+		doRebuild(canadian, cartItems, function(items) {
+			doSaveAdvancedOptions(canadian, items, finalCallback);
 		});
 	} else {
-		doSaveAdvancedOptions(cartItems, finalCallback);
+		doSaveAdvancedOptions(canadian, cartItems, finalCallback);
 	}
 }
 
-function doRebuild(cartItems, callback) {
-	async.map(cartItems, rebuildOptions, function(err, results) {
-		callback(results);
+function doRebuild(canadian, cartItems, finalCallback) {
+	async.map(cartItems, function(cartItem, callback) {
+    var newOptions = [];
+
+    Item.find({catalogId: cartItem.SKUInfo.CatalogID, isOption: true}, function(err, options) {
+      if (err) {
+        console.log(err);
+      } else {
+        options.forEach(function(option) {
+          // go through the options on 3D Cart to match up the ids
+          // The only thing that remains the same is the name
+          var optionId = option.optionId;
+
+          cartItem.AdvancedOptionList.forEach(function(advancedOption) {
+            if (advancedOption.AdvancedOptionName == option.name) {
+              optionId = advancedOption.AdvancedOptionCode;
+              if (canadian) {
+                option.optionIdCan = optionId;
+              } else {
+                option.optionId = optionId;
+              }
+              option.save();
+            }
+          });
+
+          var newOption = {
+            AdvancedOptionSufix: option.sku,
+            AdvancedOptionStock: option.stock,
+            AdvancedOptionName: option.name,
+            AdvancedOptionPrice: option.usPrice,
+            AdvancedOptionCode: optionId
+          };
+          console.log(newOption);
+          newOptions.push(newOption);
+        });
+
+        cartItem.AdvancedOptionList = newOptions;
+        callback(null, cartItem);
+      }
+    });
+  }, function(err, results) {
+		finalCallback(results);
 	});
 }
 
@@ -580,18 +624,27 @@ function getItemsFull(query, finalCallback) {
 		delete query.onsale;
 	}
 
-	console.log(query);
-	console.log(url);
-	var options = {
+  var options = {
     url: url,
     method: 'GET',
     headers : {
       SecureUrl : 'https://www.ecstasycrafts.com',
       PrivateKey : process.env.CART_PRIVATE_KEY,
       Token : process.env.CART_TOKEN
-    },
-    qs: query
+    }
   };
+
+  if (query.canadian != 'undefined' && query.canadian == true) {
+    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+  }
+  delete query.canadian;
+
+  options.qs = query;
+  
+  console.log(url);
+  console.log(options.headers.SecureUrl);
+	console.log(query);
 
   request(options, function(err, response, body) {
   	if (!body) {
@@ -653,44 +706,6 @@ function getItemsFull(query, finalCallback) {
 	  	});
   	}
   });
-}
-
-// helper function to rebuild the advanced option list
-function rebuildOptions(cartItem, callback) {
-	var newOptions = [];
-
-	Item.find({catalogId: cartItem.SKUInfo.CatalogID, isOption: true}, function(err, options) {
-		if (err) {
-			console.log(err);
-		}	else {
-			options.forEach(function(option) {
-				// go through the options on 3D Cart to match up the ids
-				// The only thing that remains the same is the name
-				var optionId = option.optionId;
-
-				cartItem.AdvancedOptionList.forEach(function(advancedOption) {
-					if (advancedOption.AdvancedOptionName == option.name) {
-						optionId = advancedOption.AdvancedOptionCode;
-						option.optionId = optionId;
-						option.save();
-					}
-				});
-
-				var newOption = {
-					AdvancedOptionSufix: option.sku,
-					AdvancedOptionStock: option.stock,
-					AdvancedOptionName: option.name,
-					AdvancedOptionPrice: option.usPrice,
-					AdvancedOptionCode: optionId
-				};
-				console.log(newOption);
-				newOptions.push(newOption);
-			});
-
-			cartItem.AdvancedOptionList = newOptions;
-			callback(null, cartItem);
-		}
-	});
 }
 
 /**

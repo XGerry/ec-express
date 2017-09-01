@@ -25,6 +25,7 @@ var itemSchema = new mongoose.Schema({
 	inactive: Boolean,
 	hasOptions: Boolean,
 	optionId: Number,
+	optionIdCan: Number,
 	onSale: Boolean,
 	salePrice: Number,
 });

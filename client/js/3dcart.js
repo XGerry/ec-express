@@ -61,7 +61,7 @@ $(document).ready(function() {
 	});
 
 	$('#saveAdvancedOptions').click(function(e) {
-		socket.emit('saveAdvancedOptions', selectedProducts);
+		socket.emit('saveAdvancedOptions', selectedProducts, $('#canadianStore').is(':checked'));
 	});
 
 	$('#sendToQB').click(function(e) {

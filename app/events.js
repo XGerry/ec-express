@@ -141,8 +141,8 @@
  			});
  		});
 
- 		socket.on('saveAdvancedOptions', function(items) {
- 			cart3d.saveAdvancedOptions(items, function(responses) {
+ 		socket.on('saveAdvancedOptions', function(items, canadian) {
+ 			cart3d.saveAdvancedOptions(canadian, items, function(responses) {
  				socket.emit('saveAdvancedOptionsFinished', responses);
  			}, true);
  		});
