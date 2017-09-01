@@ -598,6 +598,7 @@ function addSalesReceipts(qbws) {
 
 function getItemsFull(query, finalCallback) {
 	query.countonly = 1;
+  var canadian = false;
 	var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products';
 	
 	if (query.categoryid != undefined && query.categoryid != '') { 
@@ -637,6 +638,7 @@ function getItemsFull(query, finalCallback) {
   if (query.canadian != 'undefined' && query.canadian == true) {
     options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
     options.headers.Token = process.env.CART_TOKEN_CANADA;
+    canadian = true;
   }
   delete query.canadian;
 
@@ -686,17 +688,11 @@ function getItemsFull(query, finalCallback) {
 	  					console.log(err);
 	  				} else {
 	  					if (item) { // do some updates
-	  						item.onSale = cartItem.SKUInfo.OnSale;
-	  						item.price = cartItem.SKUInfo.Price;
-
-	  						if (cartItem.AdvancedOptionList.length > 0) {
-	  							item.hasOptions = true;
-	  							// save the options
-	  						}
-
-	  						item.save();
+	  						updateItemFields(item, cartItem, canadian);
 	  					} else {
-	  						console.log('No item found');
+	  						var newItem = new Item();
+                newItem.sku = cartItem.SKUInfo.SKU;
+                updateItemFields(newItem, cartItem, canadian);
 	  					}
 	  				}
 	  			});
@@ -706,6 +702,57 @@ function getItemsFull(query, finalCallback) {
 	  	});
   	}
   });
+}
+
+function updateItemFields(item, cartItem, canadian) {
+  item.onSale = cartItem.SKUInfo.OnSale;
+  if (canadian)
+    item.canPrice = cartItem.SKUInfo.Price;
+  else 
+    item.usPrice = cartItem.SKUInfo.Price;
+
+  if (cartItem.AdvancedOptionList.length > 0) {
+    item.hasOptions = true;
+    // save the options
+    cartItem.AdvancedOptionList.forEach(function(optionItem) {
+      Item.findOne({sku:optionItem.AdvancedOptionSufix}, function(err, advancedOption) {
+        if (err) {
+          console.log(err);
+        } else {
+          if (advancedOption) {
+            advancedOption.name = optionItem.AdvancedOptionName;
+            if (canadian) {
+              advancedOption.optionIdCan = optionItem.AdvancedOptionCode;
+              advancedOption.canPrice = optionItem.AdvancedOptionPrice;
+            }
+            else {
+              advancedOption.usPrice = optionItem.AdvancedOptionPrice;
+              advancedOption.optionId = optionItem.AdvancedOptionCode;
+            }
+            advancedOption.stock = optionItem.AdvancedOptionStock;
+            advancedOption.isOption = true;
+            advancedOption.save();
+          } else {
+            var newOption = new Item();
+            newOption.sku = optionItem.AdvancedOptionSufix;
+            newOption.name = optionItem.AdvancedOptionName;
+            if (canadian) {
+              newOption.optionIdCan = optionItem.AdvancedOptionCode;
+              newOption.canPrice = optionItem.AdvancedOptionPrice;
+            }
+            else {
+              newOption.usPrice = optionItem.AdvancedOptionPrice;
+              newOption.optionId = optionItem.AdvancedOptionCode;
+            }
+            newOption.stock = optionItem.AdvancedOptionStock;
+            newOption.isOption = true;
+            newOption.save();
+          }
+        }
+      });
+    });
+  }
+  item.save();
 }
 
 /**
