@@ -37,8 +37,18 @@ mixin navbar(active)
 								else
 									li
 										a(href="/inventory") Inventory
+						if active == "database"
+							li
+								a(href="/database") Database
+						else
+							li
+								a(href="/database") Database
 						li
 							a(href="/product-upload.html") Product Upload
-						li
-							a(href="/orders.html") Order Sync
+						if active == "orders"
+							li.active
+								a(href="/orders") Order Sync
+						else
+							li
+								a(href="/orders") Order Sync
 					ul.nav.navbar-nav.navbar-right#nav-right

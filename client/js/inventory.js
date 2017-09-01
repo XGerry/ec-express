@@ -1,4 +1,8 @@
-var socket = io.connect('http://localhost:3000');
+var socket = io();
+
+socket.on('testFinished', function(data) {
+	console.log(data);
+});
 
 function showLoading(buttonId, iconId, progressBarId) {
 	if (buttonId) {
@@ -36,14 +40,24 @@ $(document).ready(function() {
 	});
 
 	$('#getItemsAdvancedButton').click(function(e) {
-		showLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
+		showLoading('getInventoryAdvancedButton', 'quickStep1', 'getInventoryProgressBar');
 		socket.emit('getItems');
 	});
 
 	$('#saveInventoryButton').click(function(e) {
 		showLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
 		$('#step3').text('This will save both the items and their options. Depending on how many options need to be updated, this could take a while.');
-		socket.emit('saveItems');
+		var query = {
+			us: $('#usStore').val(),
+			canada: $('#canStore').val()
+		};
+		socket.emit('saveItems', query);
+	});
+
+	$('#generateQBXMLButton').click(function(e) {
+		$.get('/api/sync/inventory/qbxml').done(function(response) {
+			console.log(response);
+		});
 	});
 
 	$('#getOptionsButton').click(function(e) {
@@ -65,11 +79,8 @@ $(document).ready(function() {
 		});
 	});
 
-	$('#saveOptionsButton').click(function(e) {
-		var time = 1000 * 60 * 10;
-		$.post({url: '/api/sync/inventory/options', timeout: time}).done(function(response) {
-			console.log(response);
-		});
+	$('#saveOptionsOverride').click(function(e) {
+		socket.emit('saveOptionsOverride');
 	});
 });
 

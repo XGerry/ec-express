@@ -99,4 +99,12 @@ module.exports = function(app, passport) {
   app.get('/', function(req, res) {
     res.render('home');
   });
+
+  app.get('/orders', function(req, res) {
+    res.render('orders');
+  });
+
+  app.get('/database', function(req, res) {
+    res.render('database');
+  });
 }

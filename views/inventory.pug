@@ -46,6 +46,18 @@ html
 							.col-lg-1.text-center
 								i#quickStep3.fa.fa-square-o.fa-2x
 							.col-lg-7
+								.form-group.row
+									.col-lg-6.col-md-6
+										label(for="usStore") US Distribution
+										.input-group
+											input#usStore.form-control(type="number", value="80")
+											.input-group-addon %
+									.col-lg-6.col-md-6
+										label(for="canStore") Canadian Distribution
+										.input-group
+											input#canStore.form-control(type="number", value="20")
+											.input-group-addon %
+
 								p Lastly, we will distribute the inventory to the various EC stores.
 								p#step3
 							.col-lg-4.text-right
@@ -60,10 +72,12 @@ html
 						.row
 							.col-lg-1.text-center
 								i#advancedStep1.fa.fa-square-o.fa-2x
-							.col-lg-7
+							.col-lg-8
 								p Find all the items we have in 3D Cart.
-							.col-lg-4.text-right
-								button.btn.btn-success.bottom-10(type="button")#getItemsAdvancedButton Get Items
+							.col-lg-3.text-right
+								.btn-toolbar.text-right
+									button.btn.btn-success.bottom-10(type="button")#getItemsAdvancedButton Get Items
+									button.btn.btn-default.bottom-10(type="button")#generateQBXMLButton Generate QBXML
 						.row
 							.col-lg-12
 								.progress
@@ -103,6 +117,7 @@ html
 								p#step3
 							.col-lg-4.text-right
 								button.btn.btn-danger.bottom-10(type="button")#saveInventoryButton Save Inventory
+								button.btn.btn-danger.bottom-10(type="button")#saveOptionsOverride Save Options Override
 						.row
 							.col-lg-12
 								.progress

@@ -23,158 +23,7 @@ var jsonParser = bodyParser.json({limit : '50mb'});
 // application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
 
-function addItemProperties(data, item) {
-  if (data.DataExtName == 'barcode') {
-    if (item.barcode != data.DataExtValue) {
-      item.barcode = data.DataExtValue;
-      item.updated = true && !item.isOption;
-    }
-  } else if (data.DataExtName == 'Location') {
-    if (item.location != data.DataExtValue) {
-      item.location = data.DataExtValue;
-      item.updated = true && !item.isOption;
-    }
-  } else if (data.DataExtName == 'Country') {
-    if (item.countryOfOrigin != data.DataExtValue) {
-      item.countryOfOrigin = data.DataExtValue;
-      item.updated = true && !item.isOption;
-    }
-  }
-}
-
-function getOrders(query, qbws, callback) {
-  // clear the requests in qbws
-  qbws.clearRequests();
-  // clear our database of all requests
-  Order.remove({}, function (err) {
-      if (err) {
-          console.log('error removing the orders');
-      } else {
-          console.log('removed the orders');
-      }
-  });
-
-  // set a new timecode
-  helpers.timecode = + new Date();
-
-  var options = {
-    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    qs : query
-  }
-
-  request.get(options, function (error, response, body) {
-    var responseObject = {};
-    var contacts = [];
-
-    if (body == '') {
-      responseObject.success = true;
-      responseObject.message = 'No orders found';
-      responseObject.response = [];
-      callback(responseObject);
-      return;
-    }
-
-    if (error) {
-      responseObject.success = false;
-      responseObject.message = error;
-    } else {
-      var jsonBody = JSON.parse(body);
-      responseObject.success = true;
-      responseObject.message = 'Received ' + jsonBody.length + ' orders from 3D Cart.';
-      responseObject.response = jsonBody;
-
-      // first request is a check to see if there are duplicate invoices
-      var invoiceRq = helpers.queryInvoiceRq(jsonBody);
-      qbws.addRequest(invoiceRq);
-      qbws.setCallback(function(response) {
-        var doc = pixl.parse(response);
-        var invoiceRs = doc.QBXMLMsgsRs.InvoiceQueryRs;
-        if (invoiceRs) {
-          if (invoiceRs.requestID == 'invoiceCheck') {
-            var orders = qbws.getOrders();
-            if (invoiceRs.InvoiceRet instanceof Array) {
-              console.log(invoiceRs.InvoiceRet.length + ' duplicates found.');
-              invoiceRs.InvoiceRet.forEach(function(invoice) {
-                var index = -1;
-                for (var i = 0; i < orders.length; i++) {
-                  var order = orders[i];
-                  var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-                  if (invoice.RefNumber == orderId) {
-                    index = i;
-                    break;
-                  }
-                }
-                // remove the order from the import list
-                qbws.removeOrder(index);
-                Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
-                  savedOrder.errorMessage = 'Duplicate order. Skipping import.';
-                  savedOrder.save();
-                });
-              });
-            } else {
-              console.log('not an array');
-              var invoice = invoiceRs.InvoiceRet;
-              if (invoice) { // if there was no invoice then all the orders are new
-                var index = -1;
-                for (var i = 0; i < orders.length; i++) {
-                  var order = orders[i];
-                  var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-                  if (invoice.RefNumber == orderId) {
-                    index = i;
-                    break;
-                  }
-                }
-                qbws.removeOrder(index);
-                Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
-                  savedOrder.errorMessage = 'Duplicate order. Skipping import.';
-                  savedOrder.save();
-                });
-              }
-            }
-            // now all the orders should only contain the ones we want to import
-            qbws.generateOrderRequest();
-          }
-        }
-      });
-
-      // build requests and save this to the database
-      jsonBody.forEach(function (order) {
-        console.log('adding order to quickbooks');
-        qbws.addOrder(order);
-
-        contacts.push(helpers.getCustomer(order)); // hubspot integration
-        // create the order in our database
-        var newOrder = new Order();
-        newOrder.cartOrder = order;
-        newOrder.name = order.BillingFirstName + ' ' + order.BillingLastName;
-        newOrder.orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-        newOrder.imported = false;
-        newOrder.save(function(err) {
-          if (err) {
-            console.log('error saving the order');
-          } else {
-            console.log('order was saved successfully');
-          }
-        });
-      });
-
-      helpers.updateContacts(contacts, function(message) {
-        console.log(message);
-        responseObject.hubspot = message;
-      });
-      
-      callback(responseObject); // moved this out of hubspot because it was taking way too long
-    }
-  });
-}
-
 module.exports = {
-  getOrders : getOrders,
   route : function(app, passport, qbws, io) {
 
     app.post('/contact', formParser, function(req, res) {
@@ -218,7 +67,7 @@ module.exports = {
         invoicenumber : req.query.number
       };
 
-      getOrders(options, qbws, function(responseObject) {
+      cart3d.getOrders(options, qbws, function(responseObject) {
         res.send(responseObject);
       });
     });
@@ -292,6 +141,16 @@ module.exports = {
       });
 
       res.send('Run the Web Connector to generate the invoices on the server.');
+    });
+
+    app.get('/api/quickbooks/salesreceipts', function(req, res) {
+      cart3d.getSalesReceipts(qbws);
+      res.send('Run Connector');
+    });
+
+    app.get('/api/quickbooks/add/salesreceipts', function(req, res) {
+      cart3d.addSalesReceipts(qbws);
+      res.send('Run Connector Again');
     });
 
     // Pass in the name of the report you want to build the manifest for
@@ -823,7 +682,7 @@ module.exports = {
       var str = xmlDoc.end({pretty:true});
       qbws.addRequest(str);
 
-      qbws.setCallback(inventorySyncCallback);
+      qbws.setCallback(helpers.inventorySyncCallback);
       res.send('Run the Web Connector.');
     });
 
@@ -832,14 +691,15 @@ module.exports = {
 
       var options = {
         url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-        method: 'PUT',
+        method: 'GET',
         headers : {
           SecureUrl : 'https://www.ecstasycrafts.com',
           PrivateKey : process.env.CART_PRIVATE_KEY,
           Token : process.env.CART_TOKEN
         },
-        body: body,
-        json: true
+        qs: {
+          onsale: 1
+        }
       };
 
       request(options, function(err, response, body) {

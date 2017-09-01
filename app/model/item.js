@@ -14,6 +14,7 @@ var itemSchema = new mongoose.Schema({
 	canPrice: Number,
 	stock: Number,
 	catalogId: Number, // this is for 3D Cart, this is the options item number
+	catalogIdCan: Number,
 	updated: Boolean,
 	location: String,
 	barcode: String,
@@ -23,7 +24,9 @@ var itemSchema = new mongoose.Schema({
 	isOption: Boolean,
 	inactive: Boolean,
 	hasOptions: Boolean,
-	optionId: Number
+	optionId: Number,
+	onSale: Boolean,
+	salePrice: Number,
 });
 
 module.exports = mongoose.model('Item', itemSchema);

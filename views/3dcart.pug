@@ -13,51 +13,85 @@ html
 			.panel-heading
 				ul.nav.nav-tabs
 					li.active
-						a(data-toggle="tab" href="#step1") Product Editor
+						a(data-toggle="tab" href="#products") Product Editor
+					li
+						a(data-toggle="tab" href="#categories") Category Editor
 
 			.panel-body.tab-content
-				.tab-pane.fade.in.active#step1
+				.tab-pane.fade.in.active#products
 					form#productForm.form-horizontal
 						.form-group
 							.col-lg-6
 								label(for="category") Category
 								input.form-control#category(type="number", name="category")
 							.col-lg-6
-								label(for="endDate") SKU
-								input.form-control#endDate(type="text", name="sku")
-					button.btn.btn-default#getProductsButton(type="button") Get Products
-					
-					h3 Bulk Actions
-					form#productEditForm.form-horizontal
+								label(for="sku") SKU
+								input.form-control#sku(type="text", name="sku")
 						.form-group
 							.col-lg-6
-								label(for="addCategory") Add Category
-								input.form-control#addCategory(type="number", name="addCategory")
-							.col-lg-6
-								label(for="removeCategory") Remove Category
-								input.form-control#removeCategory(type="number", name="removeCategory")
-					.btn-toolbar
-						button.btn.btn-default#bulkSaveButton(type="button") Bulk Save
-						.btn-group
-							button.btn.btn-success.dropdown-toggle(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Select #[span.caret]
-							ul.dropdown-menu
-								li 
-									a(href="#")#selectAllButton All
-								li
-									a#selectNoneButton None
+								label(for="manufacturer") Manufacturer
+								input.form-control#manufacturer(type="number", name="manufacturer")
+							.col-lg-3
+								label(for="onSaleCheckbox")
+									input#onSaleCheckbox(type="checkbox", name="onsale")
+									|  On Sale
+							.col-lg-3
+								label(for="canadianStore")
+									input#canadianStore(type="checkbox", name="canadianStore")
+									|  Canadian
+					.btn-toolbar.bottom-10
+						button.btn.btn-default#getProductsButton(type="button") Get Products
+						button.btn.btn-success#getProductsButton(type="button", data-toggle="collapse", data-target="#bulk") Bulk Updates
+					
+					#bulk.collapse
+						form#productEditForm.form-horizontal
+							.form-group
+								.col-lg-6
+									label(for="addCategory") Add Category
+									input.form-control#addCategory(type="number", name="addCategory")
+								.col-lg-6
+									label(for="removeCategory") Remove Category
+									input.form-control#removeCategory(type="number", name="removeCategory")
+							.form-group
+								.col-lg-6
+									label(for="increasePrice") Increase Price
+									.input-group
+										input.form-control#increasePrice(type="number", name="increasePrice")
+										.input-group-addon %
+								.col-lg-6
+									label(for="wholesaleDiscount") Wholesale Discount
+									.input-group
+										input.form-control#wholesaleDiscount(type="number", name="wholesaleDiscount")
+										.input-group-addon %
+						.btn-toolbar.bottom-10
+							button.btn.btn-default#bulkSaveButton(type="button") Bulk Save
+							.btn-group
+								button.btn.btn-success.dropdown-toggle(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Select #[span.caret]
+								ul.dropdown-menu
+									li 
+										a(href="#")#selectAllButton All
+									li
+										a#selectNoneButton None
+							button.btn.btn-default#saveAdvancedOptions(type="button") Fix Advanced Options
+							button.btn.btn-default#sendToQB(type="button") Send to QB
+							button.btn.btn-danger#updateAll(type="button") Update All Products
 
 					table.table.table-striped.table-hover#productTable
 						thead
 							tr
+								th.text-center
+									input(type="checkbox").lg-box
 								th SKU
 								th Name
 								th Manufacturer
-								th Price
+								th Retail Price
 								th Stock
 						tbody#productTableBody
 
-				.tab-pane.fade.in#step2
-					p todo
+				.tab-pane.fade.in#categories
+					.btn-toolbar
+						button.btn.btn-success#getCategoriesButton(type="button") Get Categories
+						button.btn.btn-default#saveCategoriesButton(type="button") Get Categories
 				.tab-pane.fade.in#step3
 					p todo
 		include includes/end

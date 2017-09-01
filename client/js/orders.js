@@ -1,3 +1,5 @@
+var socket = io();
+
 $(document).ready(function() {
   $('#last-import').click(function (e) {
     $.get("/api/orders/errors").done(function(response) {
@@ -6,7 +8,16 @@ $(document).ready(function() {
   });
 });
 
-$('#getOrdersButton').click(function (event) {
+socket.on('getOrdersFinished', function(orders) {
+  console.log(orders);
+  showInstructions();
+  $('#notifications').addClass('alert-success');
+  $('#message').text('Received ' + orders.length + ' orders from 3D Cart.');
+  $('#notifications').removeClass('hidden');
+  $('#getOrdersButton').removeClass('disabled');
+});
+
+$('#getOrdersButton').click(function(e) {
   var status = 1;
   var orderStatus = $('#orderStatus').val();
   switch (orderStatus) {
@@ -24,30 +35,14 @@ $('#getOrdersButton').click(function (event) {
       break;
   }
 
-  $('#getOrdersButton').prop('disabled', 'disabled');
+  var query = {
+    status: status,
+    startDate: $('#startDate').val(),
+    endDate: $('#endDate').val()
+  };
 
-  $.get("/api/orders", {
-    limit : $('#limit').val(),
-    status : status,
-    startDate : $('#startDate').val(),
-    endDate : $('#endDate').val()
-  }).done(function(response) {
-    $('#getOrdersButton').prop('disabled', '');
-    if (response.success) {
-      $('#notifications').addClass('alert-success');
-    } else {
-      $('#notifications').addClass('alert-error');
-    }
-    $('#notifications').removeClass('hidden');
-    $('#message').text(response.message);
-    console.log(response.response);
-    showInstructions();
-  }).error(function(response) {
-    console.log('error');
-    if (response.status == 401) {
-      window.location.replace('/login');
-    }
-  });
+  socket.emit('getOrders', query);
+  $('#getOrdersButton').addClass('disabled');
 });
 
 function showInstructions() {

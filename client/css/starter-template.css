@@ -17,3 +17,12 @@ body {
 .bottom-10 {
 	margin-bottom: 10px;
 }
+
+.top-10 {
+	margin-top: 10px;
+}
+
+.lg-box {
+	width: 20px;
+	height: 20px;
+}

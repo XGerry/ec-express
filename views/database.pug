@@ -1,0 +1,46 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Database
+	body
+		+navbar("database")
+		.container
+			.starter-template
+				h1 Database
+				p.lead This represents the state of our database which ends up getting synced with 3D Cart and Amazon
+		.container
+			form#databaseForm
+				.form-group.bottom-10.row
+					.col-lg-6
+						label(for="sku") SKU
+						input.form-control#sku(type="text", name="sku")
+					.col-lg-6
+						label(for="catalogId") Catalog Id
+						input.form-control#catalogId(type="text", name="catalogId")
+				.checkbox.row
+					.col-lg-4
+						label(for="updated")
+							input#updated(type="checkbox", name="updated")
+							| Updated
+					.col-lg-4
+						label(for="isOption")
+							input#isOption(type="checkbox", name="isOption")
+							| Is Option
+					.col-lg-4
+						label(for="hasOptions")
+							input#hasOptions(type="checkbox", name="hasOptions")
+							| Has Options
+			button.btn.btn-default.bottom-10#searchButton(type="button") Search
+
+			table.table.table-striped.table-hover#databaseTable
+				thead
+					tr
+						th SKU
+						th Name
+						th US Price
+						th Can Price
+						th Stock
+				tbody#databaseTableBody
+	include includes/end
+		script(src="/js/database.js")

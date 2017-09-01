@@ -5,7 +5,9 @@
 var builder = require('xmlbuilder');
 var request = require('request');
 var Order = require('./model/order');
+var Item = require('./model/item');
 var async = require('async');
+var xmlParser = require('xml2js').parseString; 
 
 var timecode = + new Date();
 
@@ -135,14 +137,21 @@ function queryItemRq(items, limit) {
   return str;
 }
 
+// Item is a DB item
 function modifyItemRq(item) {
   // can only do this one at a time
+  var modRq = {
+    ListID: item.listId,
+    EditSequence: item.editSequence,
+    SalesPrice: item.usPrice
+  };
+
   var qbRq = {
     ItemInventoryModRq: {
-      '@requestID': 'itemModify-'+item.ListID,
-      ItemInventoryMod : item
+      '@requestID': 'itemModify-'+item.listId,
+      ItemInventoryMod : modRq
     }
-  }
+  };
 
   var xmlDoc = getXMLRequest(qbRq);
   var str = xmlDoc.end({'pretty': true});
@@ -164,6 +173,23 @@ function queryInvoiceRq(orders) {
   
   var xmlDoc = getXMLRequest(invoiceQuery);
   var str = xmlDoc.end({'pretty': true});
+  return str;
+}
+
+function querySalesReceiptRq(start, end) {
+  var salesReceiptQuery = {
+    SalesReceiptQueryRq: {
+      '@requestID': 'salesQuery',
+      TxnDateRangeFilter: {
+        FromTxnDate: start,
+        ToTxnDate: end
+      },
+      IncludeLineItems: true
+    }
+  };
+
+  var xmlDoc = getXMLRequest(salesReceiptQuery);
+  var str = xmlDoc.end({pretty:true});
   return str;
 }
 
@@ -327,13 +353,16 @@ function getProductsRequest(options, count, callback) {
 
 function updateContacts(contacts, callback) {
   var options = {
-    url : 'https://api.hubapi.com/contacts/v1/contact/batch/?hapikey='+ process.env.HAPI_KEY,
-    body : contacts,
-    json : true
+    url: 'https://api.hubapi.com/contacts/v1/contact/batch/',
+    body: contacts,
+    json: true,
+    qs: {
+      hapikey: process.env.HAPI_KEY,
+    }
   };
 
   request.post(options, function(error, response, body) {
-    callback(body);
+    callback(response);
   });
 }
 
@@ -503,6 +532,25 @@ function inventorySyncCallback(response) {
   });
 }
 
+function addItemProperties(data, item) {
+  if (data.DataExtName == 'barcode') {
+    if (item.barcode != data.DataExtValue) {
+      item.barcode = data.DataExtValue;
+      item.updated = true && !item.isOption;
+    }
+  } else if (data.DataExtName == 'Location') {
+    if (item.location != data.DataExtValue) {
+      item.location = data.DataExtValue;
+      item.updated = true && !item.isOption;
+    }
+  } else if (data.DataExtName == 'Country') {
+    if (item.countryOfOrigin != data.DataExtValue) {
+      item.countryOfOrigin = data.DataExtValue;
+      item.updated = true && !item.isOption;
+    }
+  }
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -520,6 +568,7 @@ module.exports = {
   safePrint: safePrint,
   timecode: timecode,
   queryInvoiceRq: queryInvoiceRq,
+  querySalesReceiptRq: querySalesReceiptRq,
   modifyItemRq: modifyItemRq,
   inventorySyncCallback: inventorySyncCallback
 }
