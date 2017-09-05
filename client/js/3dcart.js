@@ -122,15 +122,14 @@ function buildProductTable(products) {
 
 		row.click(function(e) {
 			if (e.target.type == "checkbox") {
-				console.log('clicked checkbox');
-			} else {
-				if (row.hasClass('selected')) {
-					// remove from list
-					selectedProducts.splice($.inArray(product, selectedProducts), 1);
-				} else {
+				if (e.target.checked) {
 					selectedProducts.push(product);
+				} else {
+					selectedProducts.splice($.inArray(product, selectedProducts), 1);
 				}
 				row.toggleClass('selected');
+			} else {
+				console.log('open modal box');
 			}
 		});
 	});

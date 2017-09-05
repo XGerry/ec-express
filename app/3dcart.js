@@ -443,6 +443,7 @@ function getOrders(query, qbws, callback) {
                 qbws.removeOrder(index);
                 Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
                   savedOrder.errorMessage = 'Duplicate order. Skipping import.';
+                  savedOrder.imported = true;
                   savedOrder.save();
                 });
               });
@@ -489,6 +490,7 @@ function getOrders(query, qbws, callback) {
               dbOrder.name = order.BillingFirstName + ' ' + order.BillingLastName;
               dbOrder.timecode = helpers.timecode;
               dbOrder.retry = true;
+              dbOrder.canadian = order.InvoiceNumberPrefix == 'CA-';
               dbOrder.save();
             } else {
               // create the order in our database
@@ -499,6 +501,7 @@ function getOrders(query, qbws, callback) {
               newOrder.imported = false;
               newOrder.timecode = helpers.timecode;
               newOrder.retry = false;
+              newOrder.canadian = order.InvoiceNumberPrefix == 'CA-';
               newOrder.save();
             }
           }

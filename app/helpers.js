@@ -228,22 +228,24 @@ function addInvoiceRq(order, requestID) {
     Rate : order.ShipmentList[0].ShipmentCost
   });
 
-  // we need to add a surcharge if they are a Canadian customer
-  var country = order.BillingCountry;
-  if (country === "CA" || country === "Canada") {
-    invoiceAdds.push({
-      ItemRef : {
-        FullName : "Subtotal"
-      }
-    });
-    invoiceAdds.push({
-      ItemRef : {
-        FullName : "Surcharge"
-      },
-      Quantity : 10
-    });
+  // we need to add a surcharge if they are a Canadian customer (only when coming from the US website)
+  if (order.InvoiceNumberPrefix == 'AB-') {
+    var country = order.BillingCountry;
+    if (country === "CA" || country === "Canada") {
+      invoiceAdds.push({
+        ItemRef : {
+          FullName : "Subtotal"
+        }
+      });
+      invoiceAdds.push({
+        ItemRef : {
+          FullName : "Surcharge"
+        },
+        Quantity : 10
+      });
+    }
   }
-
+  
   var shippingMethod = order.ShipmentList[0].ShipmentMethodName.slice(0,15); // max 15 characters
   shippingMethod = (shippingMethod !== '') ? shippingMethod : 'cheapest way'; // default for now
 
@@ -367,8 +369,10 @@ function updateContacts(contacts, callback) {
   });
 }
 
-function updateOrders(orders, callback) {
+function updateOrders(orders, callback, canadian) {
   // send the orders to 3D cart
+  var usOrders, canOrders = [];
+
   var numOfRequests = Math.ceil(orders.length / 100); // can only update 100 orders at a time
   console.log('We need to send ' + numOfRequests + ' requests to update all the orders.');
   var requests = [];
@@ -383,6 +387,11 @@ function updateOrders(orders, callback) {
     body : orders,
     json : true
   };
+
+  if (canadian) {
+    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+  }
 
   for (var i = 0; i < numOfRequests; i++) {
     options.body = orders.slice(i*100, (i+1)*100);
@@ -401,23 +410,42 @@ function updateOrders(orders, callback) {
 }
 
 function markCompletedOrdersAsProcessing(callback) {
-  Order.find({imported: true}, function (err, docs) {
+  Order.find({imported: true, canadian: false}, function (err, docs) {
     if (err) {
       console.log('Error getting the results');
     } else {
-      var orders = [];
-      docs.forEach(function (doc) {
-        var order = doc.cartOrder;
-        order.OrderStatusID = 2; // processing
-        order.ShipmentList[0].ShipmentOrderStatus = 2; // processing
-        order.InternalComments = "This order was automatically updated by EC-Express";
-        orders.push(order);
-      });
-
-      console.log('updating ' + orders.length + ' orders.');
-      updateOrders(orders, callback);
+      var orders = setOrderAsProcessing(docs);
+      updateOrders(orders, function(err, results) {
+        Order.find({imported: true, canadian: true}, function(err, docs) {
+          if (err) {
+            console.log(err);
+          } else {
+            var orders = setOrderAsProcessing(docs);
+            updateOrders(orders, function(err, canResults) {
+              var merged = results.concat(canResults);
+              callback(err, merged);
+            }, true)
+          }
+        });
+      }, false);
     }
   });
+
+  
+}
+
+function setOrderAsProcessing(docs) {
+  var orders = [];
+  docs.forEach(function (doc) {
+    var order = doc.cartOrder;
+    order.OrderStatusID = 2; // processing
+    order.ShipmentList[0].ShipmentOrderStatus = 2; // processing
+    order.InternalComments = "This order was automatically updated by EC-Express";
+    orders.push(order);
+  });
+
+  console.log('updating ' + orders.length + ' orders.');
+  return orders;
 }
 
 function addItemForManifest(lineItem, doc, itemArray) {

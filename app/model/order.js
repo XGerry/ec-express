@@ -10,7 +10,8 @@ var orderSchema = new mongoose.Schema({
 	qbRequest : String,
 	completed: Boolean,
 	timecode: Number,
-	retry: Boolean
+	retry: Boolean,
+	canadian: Boolean
 });
 
 module.exports = mongoose.model('Order', orderSchema);
