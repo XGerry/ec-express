@@ -16,6 +16,8 @@ html
 					a(data-toggle="tab", href="#quickSync") Quick Sync
 				li
 					a(data-toggle="tab", href="#advancedSync") Advanced Sync
+				li
+					a(data-toggle="tab", href="#settings") Inventory Settings
 			
 			.tab-content.list-group
 				#quickSync.tab-pane.fade.in.active
@@ -46,18 +48,6 @@ html
 							.col-lg-1.text-center
 								i#quickStep3.fa.fa-square-o.fa-2x
 							.col-lg-7
-								.form-group.row
-									.col-lg-6.col-md-6
-										label(for="usStore") US Distribution
-										.input-group
-											input#usStore.form-control(type="number", value="80")
-											.input-group-addon %
-									.col-lg-6.col-md-6
-										label(for="canStore") Canadian Distribution
-										.input-group
-											input#canStore.form-control(type="number", value="20")
-											.input-group-addon %
-
 								p Lastly, we will distribute the inventory to the various EC stores.
 								p#step3
 							.col-lg-4.text-right
@@ -122,6 +112,21 @@ html
 							.col-lg-12
 								.progress
 									#saveInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+				#settings.tab-pane.fade
+					.list-group-item
+						.form-group.row
+							.col-lg-6.col-md-6
+								label(for="usStore") US Distribution
+								.input-group
+									input#usStore.form-control(type="number", value="60")
+									.input-group-addon %
+							.col-lg-6.col-md-6
+								label(for="canStore") Canadian Distribution
+								.input-group
+									input#canStore.form-control(type="number", value="40")
+									.input-group-addon %
+						button#saveSettingsButton.btn.btn-primary(type="button") Save Settings
+
 
 		include includes/end
 			script(src="/js/inventory.js")

@@ -5,6 +5,7 @@
 var builder = require('xmlbuilder');
 var request = require('request');
 var Order = require('./model/order');
+var Settings = require('./model/settings');
 var Item = require('./model/item');
 var async = require('async');
 var xmlParser = require('xml2js').parseString; 
@@ -488,47 +489,58 @@ function safePrint(value) {
 }
 
 function inventorySyncCallback(response) {
-  xmlParser(response, {explicitArray: false}, function(err, result) {
-    var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-    if (itemInventoryRs) {
-      itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
-        Item.findOne({sku: qbItem.FullName}, function(err, item) {
-          if (err) {
-            console.log('Error finding the item');
-          } else {
-            if (!item) {
-              console.log('Unable to find item ' + qbItem.FullName);
-            }
-            else {
-              if (item.stock != qbItem.QuantityOnHand && !item.hasOptions) {
-                item.stock = qbItem.QuantityOnHand
-                item.updated = true;
-              } else {
-                item.updated = false;
+  Settings.findOne({}, function(err, settings) {
+    xmlParser(response, {explicitArray: false}, function(err, result) {
+      var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+      if (itemInventoryRs) {
+        itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
+          Item.findOne({sku: qbItem.FullName}, function(err, item) {
+            if (err) {
+              console.log('Error finding the item');
+            } else {
+              if (!item) {
+                console.log('Unable to find item ' + qbItem.FullName);
               }
-              
-              if (qbItem.DataExtRet) {
-                if (qbItem.DataExtRet instanceof Array) {
-                  qbItem.DataExtRet.forEach(function(data) {
-                    addItemProperties(data, item);
-                  });
+              else {
+                var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
+                var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
+                console.log(canStock);
+                if (((item.stock != qbItem.QuantityOnHand) || 
+                  (item.usStock != usStock) ||
+                  (item.canStock != canStock)) && !item.hasOptions) {
+                  item.stock = qbItem.QuantityOnHand
+                  item.usStock = usStock;
+                  item.canStock = canStock;
+                  item.updated = true;
                 } else {
-                  addItemProperties(qbItem.DataExtRet, item);
+                  item.updated = false;
                 }
-              }
+                
+                if (qbItem.DataExtRet) {
+                  if (qbItem.DataExtRet instanceof Array) {
+                    qbItem.DataExtRet.forEach(function(data) {
+                      addItemProperties(data, item);
+                    });
+                  } else {
+                    addItemProperties(qbItem.DataExtRet, item);
+                  }
+                }
 
-              item.listId = qbItem.ListID;
-              item.editSequence = qbItem.EditSequence;
-              if (item.inactive != !qbItem.IsActive) {
-                item.inactive = !qbItem.IsActive;
-                item.updated = true;
+                item.listId = qbItem.ListID;
+                item.editSequence = qbItem.EditSequence;
+
+                if (item.inactive != !qbItem.IsActive) {
+                  item.inactive = !qbItem.IsActive;
+                  item.updated = true;
+                }
+
+                item.save();
               }
-              item.save();
             }
-          }
+          });
         });
-      });
-    }
+      }
+    });
   });
 }
 

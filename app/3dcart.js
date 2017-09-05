@@ -126,9 +126,9 @@ function saveItems(query, progressCallback, finalCallback) {
       var cartItem = {
         SKUInfo: {
           SKU: item.sku,
-          Stock: (item.stock * (query.us/100)).toFixed(),
+          Stock: item.usStock,
           CatalogID: item.catalogId,
-          CanadaStock: (item.stock * (query.canada/100)).toFixed()
+          CanadaStock: item.canStock
         },
         MFGID: item.sku,
         WarehouseLocation: item.location,
@@ -399,7 +399,10 @@ function getOrders(query, qbws, callback) {
         if (error) {
           asyncCallback(err);
         } else {
-          asyncCallback(null, JSON.parse(body));
+          if (body)
+            asyncCallback(null, JSON.parse(body));
+          else
+            asyncCallback(null, []);
         }
       });
     }, function(err, bodies) {

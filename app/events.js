@@ -2,6 +2,7 @@
  * For use with socket.io and the api
  */
  var cart3d = require('./3dcart');
+ var Settings = require('./model/settings');
 
  module.exports = function(io, qbws) {
  	io.on('connection', function(socket) {
@@ -131,6 +132,19 @@
  		socket.on('saveToQuickbooks', function() {
  			cart3d.updateQuickbooks(qbws, function() {
  				socket.emit('quickbooksFinished');
+ 			});
+ 		});
+
+ 		/**
+ 		 * Saves the settings about inventory distribution
+ 		 */
+ 		socket.on('saveSettings', function(data) {
+ 			Settings.findOne({}, function(err, settings) {
+ 				console.log(data);
+ 				settings.canadianDistribution = (data.canada / 100);
+ 				settings.usDistribution = (data.us / 100);
+ 				settings.save();
+ 				console.log('Saved settings');
  			});
  		});
 

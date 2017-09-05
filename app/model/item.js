@@ -12,7 +12,9 @@ var itemSchema = new mongoose.Schema({
 	htc : String,
 	usPrice: Number,
 	canPrice: Number,
-	stock: Number,
+	stock: Number, // the total stock from quickbooks
+	usStock: Number, // the stock in the us site
+	canStock: Number, // the stock in the canadian site
 	catalogId: Number, // this is for 3D Cart, this is the options item number
 	catalogIdCan: Number,
 	updated: Boolean,

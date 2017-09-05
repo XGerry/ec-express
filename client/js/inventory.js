@@ -47,11 +47,7 @@ $(document).ready(function() {
 	$('#saveInventoryButton').click(function(e) {
 		showLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
 		$('#step3').text('This will save both the items and their options. Depending on how many options need to be updated, this could take a while.');
-		var query = {
-			us: $('#usStore').val(),
-			canada: $('#canStore').val()
-		};
-		socket.emit('saveItems', query);
+		socket.emit('saveItems');
 	});
 
 	$('#generateQBXMLButton').click(function(e) {
@@ -81,6 +77,14 @@ $(document).ready(function() {
 
 	$('#saveOptionsOverride').click(function(e) {
 		socket.emit('saveOptionsOverride');
+	});
+
+	$('#saveSettingsButton').click(function(e) {
+		var data = {
+			us: $('#usStore').val(),
+			canada: $('#canStore').val()
+		};
+		socket.emit('saveSettings', data)
 	});
 });
 
