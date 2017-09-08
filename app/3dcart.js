@@ -68,9 +68,8 @@ function getItems(qbws, notifyCallback, finalCallback) {
           } else {
             if (item) {
               item.name = skuInfo.Name;
-              item.stock = skuInfo.Stock;
+              item.usStock = skuInfo.Stock;
               item.usPrice = skuInfo.Price;
-              //item.updated = false;
               item.catalogId = skuInfo.CatalogID;
               item.isOption = false;
               item.save();
@@ -78,9 +77,8 @@ function getItems(qbws, notifyCallback, finalCallback) {
               var newItem = new Item();
               newItem.sku = sku;
               newItem.name = skuInfo.Name;
-              newItem.stock = skuInfo.Stock;
+              newItem.usStock = skuInfo.Stock;
               newItem.usPrice = skuInfo.Price;
-              //newItem.updated = false;
               newItem.catalogId = skuInfo.CatalogID;
               newItem.isOption = false;
               newItem.save();
@@ -122,12 +120,12 @@ function saveItems(query, progressCallback, finalCallback) {
     var body = [];
     var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
     console.log('We need to send ' + numOfRequests + ' requests.');
+
     items.forEach(function(item) {
       var cartItem = {
         SKUInfo: {
           SKU: item.sku,
           Stock: item.usStock,
-          CatalogID: item.catalogId,
           CanadaStock: item.canStock
         },
         MFGID: item.sku,
@@ -140,9 +138,9 @@ function saveItems(query, progressCallback, finalCallback) {
         cartItem.SKUInfo.Stock = 0;
       }
 
-      if (item.hasOptions) {
-        cartItem.SKUInfo.Stock = 100;
-      }
+      var control = 3;
+      if (item.usStock > 0)
+        cartItem.InventoryControl = control;
 
       body.push(cartItem);
     });
@@ -161,30 +159,37 @@ function saveItems(query, progressCallback, finalCallback) {
 
     var requests = [];
     for (var i = 0; i < numOfRequests; i++) {
+      // us
+      options.headers.SecureUrl = 'https://www.ecstasycrafts.com';
+      options.headers.Token = process.env.CART_TOKEN_CANADA;
       options.body = body.slice(i*100, (i+1)*100);
       requests.push(JSON.parse(JSON.stringify(options)));
 
-      // also update the canadian store
+      // canadian store
       options.body.forEach(function(item) {
         item.SKUInfo.Stock = item.SKUInfo.CanadaStock;
       });
       options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
       options.headers.Token = process.env.CART_TOKEN_CANADA;
-      
       requests.push(JSON.parse(JSON.stringify(options)));
     }
 
     var counter = 0;
-    async.mapSeries(requests, function(option, callback) {
-      request(option, function(err, response, body) {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, body);
-          counter++;
-          progressCallback(counter, numOfRequests*2);
-        }
-      });
+    async.mapLimit(requests, 2, function(option, callback) {
+      function doRequest() {
+        request(option, function(err, response, body) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, body);
+            counter++;
+            console.log(body);
+            progressCallback(counter, numOfRequests*2);
+          }
+        });
+      };
+
+      setTimeout(doRequest, 1000);
     }, function(err, responses) {
       var merged = [].concat.apply([], responses);
       finalCallback(merged);
@@ -365,6 +370,30 @@ function doRebuild(canadian, cartItems, finalCallback) {
 	});
 }
 
+/**
+ * Just get the order information
+ */
+function getOrdersFull(query, callback) {
+  query.countonly = 1;
+
+  var options = {
+    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : process.env.CART_PRIVATE_KEY,
+      Token : process.env.CART_TOKEN
+    },
+    qs : query
+  };
+
+  request(options, function(err, response, body) {
+    console.log(body);
+  });
+}
+
+/**
+ * For importing orders into quickbooks
+ */ 
 function getOrders(query, qbws, callback) {
   // clear the requests in qbws
   qbws.clearRequests();
@@ -712,10 +741,14 @@ function getItemsFull(query, finalCallback) {
 
 function updateItemFields(item, cartItem, canadian) {
   item.onSale = cartItem.SKUInfo.OnSale;
-  if (canadian)
+  if (canadian) {
     item.canPrice = cartItem.SKUInfo.Price;
-  else 
+    item.catalogIdCan = cartItem.SKUInfo.CatalogID;
+  }
+  else {
     item.usPrice = cartItem.SKUInfo.Price;
+    item.catalogId = cartItem.SKUInfo.CatalogID;
+  }
 
   if (cartItem.AdvancedOptionList.length > 0) {
     item.hasOptions = true;
@@ -729,10 +762,12 @@ function updateItemFields(item, cartItem, canadian) {
             advancedOption.name = optionItem.AdvancedOptionName;
             if (canadian) {
               advancedOption.optionIdCan = optionItem.AdvancedOptionCode;
+              advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID;
               advancedOption.canPrice = optionItem.AdvancedOptionPrice;
             }
             else {
               advancedOption.usPrice = optionItem.AdvancedOptionPrice;
+              advancedOption.catalogId = cartItem.SKUInfo.CatalogID;
               advancedOption.optionId = optionItem.AdvancedOptionCode;
             }
             advancedOption.stock = optionItem.AdvancedOptionStock;
@@ -744,10 +779,12 @@ function updateItemFields(item, cartItem, canadian) {
             newOption.name = optionItem.AdvancedOptionName;
             if (canadian) {
               newOption.optionIdCan = optionItem.AdvancedOptionCode;
+              newOption.catalogIdCan = cartItem.SKUInfo.catalogId;
               newOption.canPrice = optionItem.AdvancedOptionPrice;
             }
             else {
               newOption.usPrice = optionItem.AdvancedOptionPrice;
+              newOption.catalogId = cartItem.SKUInfo.catalogId;
               newOption.optionId = optionItem.AdvancedOptionCode;
             }
             newOption.stock = optionItem.AdvancedOptionStock;
@@ -758,6 +795,7 @@ function updateItemFields(item, cartItem, canadian) {
       });
     });
   }
+
   item.save();
 }
 
@@ -972,6 +1010,7 @@ function updateItemsFromDB(progressCallback, finalCallback) {
 
 /**
  * Takes all the updated items in our database and writes them to Quickbooks
+ * Pricing only
  */
 function updateQuickbooks(qbws, callback) {
   Item.find({updated: true}, function(err, items) {
@@ -982,10 +1021,7 @@ function updateQuickbooks(qbws, callback) {
   
       items.forEach(function(item) {
         qbws.addRequest(helpers.modifyItemRq(item));
-        //item.updated = false; // we saved the request
-        //item.save();
       });
-
       callback();
     }
   });
@@ -1086,6 +1122,112 @@ function updateCategories(categories, finalCallback) {
   });
 }
 
+function saveItem(item, qbws) {
+  helpers.saveItem(item, qbws);
+
+  if (!item.isOption) {
+    // save to us website
+    var options = {
+      url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+      method: 'PUT',
+      headers : {
+        SecureUrl : 'https://www.ecstasycrafts.com',
+        PrivateKey : process.env.CART_PRIVATE_KEY,
+        Token : process.env.CART_TOKEN
+      }
+    };
+
+    var control = 3;
+
+    var body = [{
+      SKUInfo: {
+        Price: item.usPrice,
+        SKU: item.sku,
+        RetailPrice: item.usPrice,
+        Name: item.name,
+        Stock: item.usStock
+      },
+      PriceLevel1: item.usPrice,
+      PriceLevel2: (item.usPrice/2).toFixed(2),
+      PriceLevel7: (item.usPrice/2).toFixed(2),
+      MFGID: item.sku,
+      WarehouseLocation: item.location,
+      ExtraField8: item.barcode,
+      ExtraField9: item.countryOfOrigin,
+      InventoryControl: control
+    }];
+
+    if (item.inactive == true) {
+      body[0].SKUInfo.Stock = 0;
+    }
+
+    options.body = body;
+    options.json = true;
+
+    request(options, function(err, response, body) {
+      console.log('US Site:');
+      console.log(body);
+    });
+
+    // save to canadian site
+    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+    options.body[0].SKUInfo.Price = item.canPrice;
+    options.body[0].SKUInfo.RetailPrice = item.canPrice;
+    options.body[0].SKUInfo.Stock = item.canStock;
+    options.body[0].PriceLevel1 = item.canPrice;
+    options.body[0].PriceLevel2 = (item.canPrice/2).toFixed(2);
+    options.body[0].PriceLevel7 = (item.canPrice/2).toFixed(2);
+
+    if (item.canStock > 0) {
+      options.body[0].InventoryControl = 3;
+    }
+
+    request(options, function(err, response, body) {
+      console.log('CAN Site:');
+      console.log(body);
+    });
+  } else {
+    // save the option
+    var options = {
+      url: '',
+      method: 'PUT',
+      headers : {
+        SecureUrl : 'https://www.ecstasycrafts.com',
+        PrivateKey : process.env.CART_PRIVATE_KEY,
+        Token : process.env.CART_TOKEN
+      },
+      json: true
+    };
+
+    options.body = {
+      AdvancedOptionStock: item.usStock,
+      AdvancedOptionSufix: item.sku,
+      AdvancedOptionPrice: item.usPrice,
+      AdvancedOptionName: item.name
+    }
+
+    var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogId+'/AdvancedOptions/'+item.optionId;
+    options.url = url;
+
+    request(options, function(err, response, body) {
+      console.log('US Site:')
+      console.log(body);
+    });
+
+    options.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
+    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+    options.body.AdvancedOptionPrice = item.canPrice;
+    options.body.AdvancedOptionStock = item.canStock;
+
+    request(options, function(err, response, body) {
+      console.log('CAN Site:');
+      console.log(body);
+    });
+  }
+}
+
 module.exports = {
  	getItems: getItems,
  	saveItems: saveItems, // for inventory
@@ -1100,5 +1242,6 @@ module.exports = {
   updateQuickbooks: updateQuickbooks,
   getCategories: getCategories,
   updateItemsFromDB: updateItemsFromDB,
-  saveCategories: updateCategories
+  saveCategories: updateCategories,
+  saveItem: saveItem
 }

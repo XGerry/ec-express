@@ -29,7 +29,7 @@ var itemSchema = new mongoose.Schema({
 	optionId: Number,
 	optionIdCan: Number,
 	onSale: Boolean,
-	salePrice: Number,
+	salePrice: Number
 });
 
 module.exports = mongoose.model('Item', itemSchema);

@@ -138,13 +138,39 @@ function queryItemRq(items, limit) {
   return str;
 }
 
+function modifyInventoryRq(item) {
+  var qbRq = {
+    InventoryAdjustmentAddRq : {
+      InventoryAdjustmentAdd: {
+        AccountRef: {
+          FullName: 'inventory changes'
+        },
+        Memo: 'Updated through EC-Express',
+        InventoryAdjustmentLineAdd: {
+          ItemRef: {
+            FullName: item.sku
+          },
+          QuantityAdjustment: {
+            NewQuantity: item.stock
+          }
+        }
+      }
+    }
+  };
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({'pretty': true});
+  return str;
+}
+
 // Item is a DB item
 function modifyItemRq(item) {
   // can only do this one at a time
   var modRq = {
     ListID: item.listId,
     EditSequence: item.editSequence,
-    SalesPrice: item.usPrice
+    SalesPrice: item.usPrice,
+    IsActive: !item.inactive
   };
 
   var qbRq = {
@@ -591,6 +617,38 @@ function addItemProperties(data, item) {
   }
 }
 
+function search(query, callback) {
+  Item.find(query, callback);
+}
+
+function saveItem(item, qbws) {
+  // save the item in our db
+  Item.findOne({sku: item.sku}, function(err, theItem) {
+    if (err) {
+      console.log(err);
+    } else if (theItem) {
+      // update the fields
+      theItem.name = item.name;
+      theItem.usPrice = item.usPrice;
+      theItem.canPrice = item.canPrice;
+      theItem.stock = item.stock;
+      theItem.usStock = item.usStock;
+      theItem.canStock = item.canStock;
+      theItem.location = item.location;
+      theItem.barcode = item.barcode;
+      theItem.countryOfOrigin = item.countryOfOrigin;
+      theItem.isOption = item.isOption;
+      theItem.hasOptions = item.hasOptions;
+      theItem.inactive = item.inactive;
+      theItem.save();
+    }
+  });
+
+  // create request in qb
+  qbws.addRequest(modifyItemRq(item));
+  qbws.addRequest(modifyInventoryRq(item));
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -610,5 +668,7 @@ module.exports = {
   queryInvoiceRq: queryInvoiceRq,
   querySalesReceiptRq: querySalesReceiptRq,
   modifyItemRq: modifyItemRq,
-  inventorySyncCallback: inventorySyncCallback
+  inventorySyncCallback: inventorySyncCallback,
+  search: search,
+  saveItem: saveItem
 }

@@ -2,6 +2,7 @@
  * For use with socket.io and the api
  */
  var cart3d = require('./3dcart');
+ var helpers = require('./helpers');
  var Settings = require('./model/settings');
 
  module.exports = function(io, qbws) {
@@ -159,6 +160,19 @@
  			cart3d.saveAdvancedOptions(canadian, items, function(responses) {
  				socket.emit('saveAdvancedOptionsFinished', responses);
  			}, true);
+ 		});
+
+ 		socket.on('searchDB', function(query) {
+ 			helpers.search(query, function(err, items) {
+ 				socket.emit('searchFinished', items);
+ 			});
+ 		});
+
+ 		/**
+ 		 * Updates the item in our db, qb, and 3d cart (us and can)
+ 		 */
+ 		socket.on('saveItem', function(item) {
+ 			cart3d.saveItem(item, qbws);
  		});
  	});
  }
