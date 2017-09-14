@@ -573,7 +573,6 @@ function inventorySyncCallback(response) {
               else {
                 var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
                 var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
-                console.log(canStock);
                 if ((item.stock != qbItem.QuantityOnHand) || 
                   (item.usStock != usStock) ||
                   (item.canStock != canStock)) {
@@ -676,6 +675,29 @@ function saveToQuickbooks(item, qbws) {
         }
       }
     });
+  });
+}
+
+/**
+ * Go through all the items in the database and clean up the fields and documents
+ */
+function cleanDatabase(callback) {
+  Item.find({}, function(err, items) {
+    if (err) {
+      console.log(err);
+    } else {
+      items.forEach(function(item) {
+        item.usPrice = item.usPrice.toFixed(2);
+        item.canPrice = item.canPrice.toFixed(2);
+        var name = item.name.toLowerCase();
+        name = name.replace(/(^|\s)[a-z]/g, function(f) {
+          return f.toUpperCase();
+        });
+        item.name = name;
+        item.barcode = item.barcode.replace(/a/gi, '');
+        item.save();
+      });
+    }
   });
 }
 

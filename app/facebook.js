@@ -15,34 +15,45 @@ function generateFacebookFeed(callback) {
 		if (err) {
 			console.log(err);
 		} else {
-			var headers = 'id\tavailability\tcondition\tdescription\timage_link\tlink\ttitle\tprice\tgtin';
+			var headers = 'id\tavailability\tcondition\tdescription\timage_link\tlink\ttitle\tprice\tgtin\tmpn\titem_group_id';
 			var feed = '';
 			feed += headers+'\n';
 			items.forEach(function(item) {
-				if (item.barcode != undefined && item.barcode != '') {
-					var line = '';
-					line = addCol(line, item.sku);
-					if (item.stock > 0) {
-						line = addCol(line, 'in stock');
-					} else if (item.inactive) {
-						line = addCol(line, 'out of stock');
-					} else {
-						line = addCol(line, 'available for order');
-					}
-					line = addCol(line, 'new');
-					if (item.description) {
-						var cleanDescription = item.description.replace(/<br[^>]*>/gi, ' ');
-						line = addCol(line, cleanDescription);
-					} else {
-						line = addCol(line, item.name);
-					}
-					line = addCol(line, 'https://www.ecstasycrafts.com/'+item.imageURL);
-					line = addCol(line, item.usLink+','+item.canLink);
-					line = addCol(line, item.name);
-					line = addCol(line, item.usPrice.toFixed(2) + ' USD');
-					line += item.barcode.replace(/a/gi, '');
-					feed = addRow(feed, line);
+				var line = '';
+				line = addCol(line, item.sku);
+				if (item.stock > 0) {
+					line = addCol(line, 'in stock');
+				} else if (item.inactive) {
+					line = addCol(line, 'out of stock');
+				} else {
+					line = addCol(line, 'available for order');
 				}
+				line = addCol(line, 'new');
+				if (item.description) {
+					var cleanDescription = item.description.replace(/<br[^>]*>/gi, ' ');
+					var cleanDescription = cleanDescription.replace(/(&nbsp;|<([^>]+)>)/gi, ' ');
+					line = addCol(line, cleanDescription);
+				} else {
+					line = addCol(line, item.name);
+				}
+				line = addCol(line, 'https://www.ecstasycrafts.com/'+item.imageURL);
+				line = addCol(line, item.usLink+','+item.canLink);
+				line = addCol(line, item.name);
+				line = addCol(line, item.usPrice.toFixed(2) + ' USD');
+				if (item.barcode) {
+					var barcode = item.barcode.replace(/a/gi, '');
+					line = addCol(line, barcode);
+					line = addCol(line, ''); // no mpn
+				} else {
+					line = addCol(line, ''); // no barcode
+					line = addCol(line, item.sku);
+				}
+				if (item.isOption) {
+					line += line + item.catalogId; // add the parent to the group Id
+				} else {
+					line += '';
+				}
+				feed = addRow(feed, line);
 			});
 
 			fs.writeFile('facebook_us.tsv', feed, function(err) {

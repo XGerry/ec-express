@@ -11,7 +11,7 @@ function addProducts(callback) {
       AWSAccessKeyId: process.env.AWS_ACCESS_KEY,
       Action: 'SubmitFeed',
       ContentMD5Value: '',
-      FeedType: '_POST_PRODUCT_DATA_',
+      FeedType: '_POST_FLAT_FILE_LISTINGS_DATA_',
       Merchant: 'A1AG76L8PLY85T',
       PurgeAndReplace: false,
       SignatureMethod: 'HmacSHA256',
@@ -48,6 +48,10 @@ function addProducts(callback) {
 	  				StandardProductID: {
 	  					Type: 'UPC',
 	  					Value: item.barcode
+	  				},
+	  				DescriptionData: {
+	  					Title: item.name,
+	  					ItemType: '8090710011'
 	  				}
 	  			}
 	  		}

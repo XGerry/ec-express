@@ -153,13 +153,6 @@
  			});
  		});
 
- 		socket.on('test', function() {
- 			cart3d.testAPICall(19152, function(response) {
- 				console.log(response);
- 				socket.emit('testFinished', response);
- 			});
- 		});
-
  		socket.on('saveAdvancedOptions', function(items, canadian) {
  			cart3d.saveAdvancedOptions(canadian, items, function(responses) {
  				socket.emit('saveAdvancedOptionsFinished', responses);

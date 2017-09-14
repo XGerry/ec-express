@@ -199,31 +199,12 @@ function saveItems(query, progressCallback, finalCallback) {
   });
 }
 
-function testAPICall(id, callback) {
-	var options = {
-    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+id+'/AdvancedOptions',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    qs: {
-    	limit: 200
-    }
-  };
-
-  request(options, function(err, response, body) {
-  	console.log(response);
-  	callback(body);
-  });
-}
-
 /**
- * Takes the current state of the db (for items that are options)
+ * Takes the current state of the db (for items that are options and that are updated)
  * and saves it to 3D Cart.
  */
 function saveOptionItems(progressCallback, finalCallback) {
-  Item.find({isOption: true, inactive: false}, function(err, items) {
+  Item.find({isOption: true, inactive: false, updated: true}, function(err, items) {
     if (err) {
       console.log(err);
     } else {
@@ -243,12 +224,26 @@ function saveOptionItems(progressCallback, finalCallback) {
       }
 
       items.forEach(function(item) {
+        options.headers.SecureUrl = 'https://www.ecstasycrafts.com';
+        options.headers.Token = process.env.CART_TOKEN;
         options.body = {
-          AdvancedOptionStock: item.stock,
+          AdvancedOptionStock: item.usStock,
           AdvancedOptionSufix: item.sku
         }
         var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+
           item.catalogId+'/AdvancedOptions/'+item.optionId;
+        options.url = url;
+        requests.push(JSON.parse(JSON.stringify(options)));
+
+        // now for the canadian site
+        options.headers.SecureUrl = 'https://www.ecstasycrafts.ca';
+        options.headers.Token = process.env.CART_TOKEN_CANADA;
+        options.body = {
+          AdvancedOptionStock: item.canStock,
+          AdvancedOptionSufix: item.sku
+        };
+        url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+
+          item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
         options.url = url;
         requests.push(JSON.parse(JSON.stringify(options)));
       });
@@ -256,7 +251,7 @@ function saveOptionItems(progressCallback, finalCallback) {
       var total = requests.length;
       var counter = 0;
 
-      async.mapLimit(requests, 2, function(option, callback) {
+      async.mapLimit(requests, 4, function(option, callback) {
         function doRequest() {
           request(option, function(err, response, body) {
             if (err) {
@@ -264,6 +259,7 @@ function saveOptionItems(progressCallback, finalCallback) {
             } else {
               callback(null, body);
               counter++;
+              console.log(body);
               progressCallback(counter, total);
             }
           });
@@ -731,7 +727,7 @@ function getItemsFull(query, progressCallback, finalCallback) {
 	  						updateItemFields(item, cartItem, canadian);
 	  					} else {
 	  						var newItem = new Item();
-                newItem.sku = cartItem.SKUInfo.SKU;
+                newItem.sku = cartItem.SKUInfo.SKU.trim();
                 updateItemFields(newItem, cartItem, canadian);
 	  					}
 	  				}
@@ -776,37 +772,11 @@ function updateItemFields(item, cartItem, canadian) {
           console.log(err);
         } else {
           if (advancedOption) {
-            advancedOption.name = optionItem.AdvancedOptionName;
-            if (canadian) {
-              advancedOption.optionIdCan = optionItem.AdvancedOptionCode;
-              advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID;
-              advancedOption.canPrice = optionItem.AdvancedOptionPrice;
-            }
-            else {
-              advancedOption.usPrice = optionItem.AdvancedOptionPrice;
-              advancedOption.catalogId = cartItem.SKUInfo.CatalogID;
-              advancedOption.optionId = optionItem.AdvancedOptionCode;
-            }
-            advancedOption.stock = optionItem.AdvancedOptionStock;
-            advancedOption.isOption = true;
-            advancedOption.save();
+            updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian);
           } else if (optionItem.AdvancedOptionSufix != '') {
             var newOption = new Item();
-            newOption.sku = optionItem.AdvancedOptionSufix;
-            newOption.name = optionItem.AdvancedOptionName;
-            if (canadian) {
-              newOption.optionIdCan = optionItem.AdvancedOptionCode;
-              newOption.catalogIdCan = cartItem.SKUInfo.catalogId;
-              newOption.canPrice = optionItem.AdvancedOptionPrice;
-            }
-            else {
-              newOption.usPrice = optionItem.AdvancedOptionPrice;
-              newOption.catalogId = cartItem.SKUInfo.catalogId;
-              newOption.optionId = optionItem.AdvancedOptionCode;
-            }
-            newOption.stock = optionItem.AdvancedOptionStock;
-            newOption.isOption = true;
-            newOption.save();
+            newOption.sku = optionItem.AdvancedOptionSufix.trim();
+            updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian);
           }
         }
       });
@@ -814,6 +784,25 @@ function updateItemFields(item, cartItem, canadian) {
   }
 
   item.save();
+}
+
+function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian) {
+  advancedOption.name = optionItem.AdvancedOptionName;
+  if (canadian) {
+    advancedOption.optionIdCan = optionItem.AdvancedOptionCode;
+    advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID; // Parent Item
+    advancedOption.canPrice = optionItem.AdvancedOptionPrice;
+    advancedOption.canLink = cartItem.ProductLink;
+  }
+  else {
+    advancedOption.usPrice = optionItem.AdvancedOptionPrice;
+    advancedOption.catalogId = cartItem.SKUInfo.CatalogID; // Parent Item
+    advancedOption.optionId = optionItem.AdvancedOptionCode;
+    advancedOption.usLink = cartItem.ProductLink;
+  }
+  // advancedOption.stock = optionItem.AdvancedOptionStock; // We don't actually want to do this. Stock comes from us.
+  advancedOption.isOption = true;
+  advancedOption.save();
 }
 
 /**
@@ -1257,7 +1246,6 @@ module.exports = {
  	addSalesReceipts: addSalesReceipts,
  	getItemsFull: getItemsFull,
  	updateItems: updateItems,
- 	testAPICall: testAPICall,
   updateQuickbooks: updateQuickbooks,
   getCategories: getCategories,
   updateItemsFromDB: updateItemsFromDB,
