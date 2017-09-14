@@ -15,6 +15,7 @@ socket.on('updateItemsFinished', function(data) {
 socket.on('getItemsFinished', function(items) {
 	console.log(items);
 	buildProductTable(items);
+	$('#getProductsProgress').removeClass('active');
 	allProducts = items;
 });
 
@@ -28,6 +29,12 @@ socket.on('getCategoriesFinished', function(responses) {
 
 socket.on('updateAllItemsFinished', function(responses) {
 	console.log(responses);
+});
+
+socket.on('getItemsProgress', function(progress, total) {
+	var percentage = (progress / total) * 100;
+	$('#getProductsProgress').css("width", percentage + '%');
+	$('#getProductsProgress').text(percentage.toFixed(0) + '%');
 });
 
 $(document).ready(function() {
@@ -89,8 +96,21 @@ function getItems() {
 		sku: $('#sku').val(),
 		onsale: $('#onSaleCheckbox').is(':checked'),
 		manufacturer: $('#manufacturer').val(),
-		canadian: $('#canadianStore').is(':checked')
+		canadian: $('#canadianStore').is(':checked'),
 	};
+
+	var priceFrom = $('#priceFrom').val();
+	if (priceFrom != '') {
+		query.pricefrom = priceFrom;
+	}
+
+	var priceTo = $('#priceTo').val();
+	if (priceTo != '') {
+		query.priceTo = priceTo;
+	}
+
+	$('#getItemsProgress').css('width', '0%');
+	$('#getItemsProgress').addClass('active');
 
 	socket.emit('getItemsFull', query);
 }

@@ -466,7 +466,7 @@ module.exports = {
       var options = {
         url: 'https://mws.amazonservices.com/',
         qs: {
-          AWSAccessKeyId: 'AKIAIOKE3I3CIQ7KLTIQ',
+          AWSAccessKeyId: process.env.AWS_ACCESS_KEY,
           Action: 'SubmitFeed',
           ContentMD5Value: '',
           FeedType: '_POST_PRODUCT_DATA_',
@@ -516,7 +516,7 @@ module.exports = {
         '/\n' +
         qString;
 
-      options.qs.Signature = crypto.createHmac('sha256', '2bHczom1cYmxClNSiBbqxkCM7gnHnMPiyBu6S+qP')
+      options.qs.Signature = crypto.createHmac('sha256', process.env.AMAZON_SECRET_KEY)
         .update(stringToSign)
         .digest('base64');
 

@@ -63,6 +63,8 @@ html
 			.btn-toolbar.bottom-10
 				button.btn.btn-default#searchButton(type="button") Search
 				button.btn.btn-info#advancedButton(type="button", data-toggle="collapse", data-target="#advancedSearch") Advanced
+				button.btn.btn-danger#amazonButton(type="button") Send To Amazon
+				button.btn.btn-primary#facebookButton(type="button") Generate Facebook
 
 			table.table.table-striped.table-hover#databaseTable
 				thead
@@ -144,14 +146,14 @@ html
 											label(for="catalogIdUS") US Catalog ID
 											input#catalogIdUS.form-control(type="text", readonly)
 										.col-lg-6
-											label(for="catalogIdCan") Canadian Catalog ID
-											input#catalogIdCan.form-control(type="text", readonly)
+											label(for="catalogIdCanModal") Canadian Catalog ID
+											input#catalogIdCanModal.form-control(type="text", readonly)
 									.row.form-group
 										.col-lg-6
 											label(for="optionId") US Option ID
 											input#optionId.form-control(type="text", readonly)
 										.col-lg-6
-											label(for="optionIdCan") Canadian Catalog ID
+											label(for="optionIdCan") Canadian Option ID
 											input#optionIdCan.form-control(type="text", readonly) 		
 						.modal-footer
 							button#saveItemButton.btn.btn-success(type="button") Save

@@ -2,45 +2,21 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <SalesReceiptAddRq>
-      <SalesReceiptAdd>
-        <TxnDate>2017-08-10</TxnDate>
-        <RefNumber>14</RefNumber>
-        <SalesReceiptLineAdd>
+    <InventoryAdjustmentAddRq>
+      <InventoryAdjustmentAdd>
+        <AccountRef>
+          <FullName>inventory changes</FullName>
+        </AccountRef>
+        <Memo>Updated through EC-Express</Memo>
+        <InventoryAdjustmentLineAdd>
           <ItemRef>
-            <FullName>ECEF002</FullName>
+            <FullName>PC0917</FullName>
           </ItemRef>
-          <Quantity>2</Quantity>
-        </SalesReceiptLineAdd>
-        <SalesReceiptLineAdd>
-          <ItemRef>
-            <FullName>60020023</FullName>
-          </ItemRef>
-          <Quantity>2</Quantity>
-        </SalesReceiptLineAdd>
-      </SalesReceiptAdd>
-      <SalesReceiptAdd>
-        <TxnDate>2017-08-10</TxnDate>
-        <RefNumber>18</RefNumber>
-        <SalesReceiptLineAdd>
-          <ItemRef>
-            <FullName>RB2236</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-        </SalesReceiptLineAdd>
-        <SalesReceiptLineAdd>
-          <ItemRef>
-            <FullName>RB2234</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-        </SalesReceiptLineAdd>
-        <SalesReceiptLineAdd>
-          <ItemRef>
-            <FullName>Misc Charge</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-        </SalesReceiptLineAdd>
-      </SalesReceiptAdd>
-    </SalesReceiptAddRq>
+          <QuantityAdjustment>
+            <NewQuantity>31</NewQuantity>
+          </QuantityAdjustment>
+        </InventoryAdjustmentLineAdd>
+      </InventoryAdjustmentAdd>
+    </InventoryAdjustmentAddRq>
   </QBXMLMsgsRq>
 </QBXML>

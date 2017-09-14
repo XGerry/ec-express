@@ -163,14 +163,29 @@ function modifyInventoryRq(item) {
   return str;
 }
 
+function getItemRq(item) {
+  var qbRq = {
+    ItemInventoryQueryRq : {
+      '@requestID' : 'itemRequest-'+item.sku
+    }
+  };
+
+  qbRq.ItemInventoryQueryRq.FullName = item.sku;
+  qbRq.ItemInventoryQueryRq.OwnerID = 0;
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
 // Item is a DB item
 function modifyItemRq(item) {
   // can only do this one at a time
   var modRq = {
     ListID: item.listId,
     EditSequence: item.editSequence,
-    SalesPrice: item.usPrice,
-    IsActive: !item.inactive
+    IsActive: !item.inactive,
+    SalesPrice: item.usPrice
   };
 
   var qbRq = {
@@ -559,9 +574,9 @@ function inventorySyncCallback(response) {
                 var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
                 var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
                 console.log(canStock);
-                if (((item.stock != qbItem.QuantityOnHand) || 
+                if ((item.stock != qbItem.QuantityOnHand) || 
                   (item.usStock != usStock) ||
-                  (item.canStock != canStock)) && !item.hasOptions) {
+                  (item.canStock != canStock)) {
                   item.stock = qbItem.QuantityOnHand
                   item.usStock = usStock;
                   item.canStock = canStock;
@@ -599,20 +614,17 @@ function inventorySyncCallback(response) {
 }
 
 function addItemProperties(data, item) {
-  if (data.DataExtName == 'barcode') {
+  if (data.DataExtName == 'barcode' || data.DataExtName == 'Barcode') {
     if (item.barcode != data.DataExtValue) {
       item.barcode = data.DataExtValue;
-      item.updated = true && !item.isOption;
     }
   } else if (data.DataExtName == 'Location') {
     if (item.location != data.DataExtValue) {
       item.location = data.DataExtValue;
-      item.updated = true && !item.isOption;
     }
   } else if (data.DataExtName == 'Country') {
     if (item.countryOfOrigin != data.DataExtValue) {
       item.countryOfOrigin = data.DataExtValue;
-      item.updated = true && !item.isOption;
     }
   }
 }
@@ -641,12 +653,30 @@ function saveItem(item, qbws) {
       theItem.hasOptions = item.hasOptions;
       theItem.inactive = item.inactive;
       theItem.save();
+
+      qbws.addRequest(modifyInventoryRq(item));
+      saveToQuickbooks(theItem, qbws);
     }
   });
+}
 
+function saveToQuickbooks(item, qbws) {
   // create request in qb
-  qbws.addRequest(modifyItemRq(item));
-  qbws.addRequest(modifyInventoryRq(item));
+  qbws.addRequest(getItemRq(item));
+  qbws.setCallback(function(response) {
+    xmlParser(response, {explicitArray: false}, function(err, result) {
+      var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+      if (itemInventoryRs) {
+        if (itemInventoryRs.$.requestID == 'itemRequest-'+item.sku) {
+          item.editSequence = itemInventoryRs.ItemInventoryRet.EditSequence;
+          item.listId = itemInventoryRs.ItemInventoryRet.ListID;
+          item.editSequence = theItem.editSequence;
+          item.save();
+          qbws.addRequest(modifyItemRq(item));
+        }
+      }
+    });
+  });
 }
 
 module.exports = {
@@ -670,5 +700,6 @@ module.exports = {
   modifyItemRq: modifyItemRq,
   inventorySyncCallback: inventorySyncCallback,
   search: search,
-  saveItem: saveItem
+  saveItem: saveItem,
+  saveToQuickbooks: saveToQuickbooks
 }

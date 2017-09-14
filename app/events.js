@@ -2,6 +2,8 @@
  * For use with socket.io and the api
  */
  var cart3d = require('./3dcart');
+ var amazon = require('./amazon');
+ var facebook = require('./facebook');
  var helpers = require('./helpers');
  var Settings = require('./model/settings');
 
@@ -74,7 +76,9 @@
  		 * Get all the information on the items based on a query
  		 */
  		socket.on('getItemsFull', function(query) {
- 			cart3d.getItemsFull(query, function(items) {
+ 			cart3d.getItemsFull(query, function(progress, total) {
+ 				socket.emit('getItemsProgress', progress, total);
+ 			}, function(items) {
  				socket.emit('getItemsFinished', items);
  			});
  		});
@@ -173,6 +177,21 @@
  		 */
  		socket.on('saveItem', function(item) {
  			cart3d.saveItem(item, qbws);
+ 		});
+
+ 		socket.on('sendProductsToAmazon', function() {
+ 			amazon.addProducts(function(response) {
+ 				// do something here.
+ 			});
+ 		});
+
+ 		socket.on('generateFacebookFeed', function() {
+ 			facebook.generateFacebookFeed(function(err) {
+ 				if (err) {
+ 					console.log(err);
+ 				}
+ 				socket.emit('facebookFeedFinished');
+ 			});
  		});
  	});
  }

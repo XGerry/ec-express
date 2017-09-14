@@ -97,6 +97,8 @@ function getItems(qbws, notifyCallback, finalCallback) {
         } else {
           items.forEach(function(item) {
             qbRq.ItemInventoryQueryRq.FullName.push(item.sku);
+            item.updated = false;
+            item.save();
           });
 
           qbRq.ItemInventoryQueryRq.OwnerID = 0;
@@ -238,7 +240,7 @@ function saveOptionItems(progressCallback, finalCallback) {
           Token : process.env.CART_TOKEN
         },
         json: true
-      };
+      }
 
       items.forEach(function(item) {
         options.body = {
@@ -631,7 +633,7 @@ function addSalesReceipts(qbws) {
 	});
 }
 
-function getItemsFull(query, finalCallback) {
+function getItemsFull(query, progressCallback, finalCallback) {
 	query.countonly = 1;
   var canadian = false;
 	var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products';
@@ -704,6 +706,7 @@ function getItemsFull(query, finalCallback) {
 	  		options.qs.limit = 200;
 	  		requests.push(JSON.parse(JSON.stringify(options)));
 	  	}
+      var counter = 0;
 
 	  	async.mapSeries(requests, function(option, callback) {
 	  		request(option, function(err, response, body) {
@@ -711,6 +714,8 @@ function getItemsFull(query, finalCallback) {
 	  				callback(err);
 	  			} else {
 	  				callback(null, JSON.parse(body));
+            counter++;
+            progressCallback(counter, numOfRequests);
 	  				console.log('Received Response');
 	  			}
 	  		});
@@ -740,14 +745,26 @@ function getItemsFull(query, finalCallback) {
 }
 
 function updateItemFields(item, cartItem, canadian) {
+  // common attributes
   item.onSale = cartItem.SKUInfo.OnSale;
+  item.description = cartItem.Description;
+  item.imageURL = cartItem.MainImageFile;
+  item.name = cartItem.SKUInfo.Name;
+
+  if (item.ExtraField8 != '' && item.ExtraField8 != undefined) {
+    item.barcode = item.ExtraField8;
+  }
+
   if (canadian) {
     item.canPrice = cartItem.SKUInfo.Price;
     item.catalogIdCan = cartItem.SKUInfo.CatalogID;
+    item.canLink = cartItem.ProductLink;
   }
   else {
     item.usPrice = cartItem.SKUInfo.Price;
     item.catalogId = cartItem.SKUInfo.CatalogID;
+    item.usLink = cartItem.ProductLink;
+    item.manufacturerId = cartItem.ManufacturerID;
   }
 
   if (cartItem.AdvancedOptionList.length > 0) {
@@ -773,7 +790,7 @@ function updateItemFields(item, cartItem, canadian) {
             advancedOption.stock = optionItem.AdvancedOptionStock;
             advancedOption.isOption = true;
             advancedOption.save();
-          } else {
+          } else if (optionItem.AdvancedOptionSufix != '') {
             var newOption = new Item();
             newOption.sku = optionItem.AdvancedOptionSufix;
             newOption.name = optionItem.AdvancedOptionName;
@@ -1013,15 +1030,16 @@ function updateItemsFromDB(progressCallback, finalCallback) {
  * Pricing only
  */
 function updateQuickbooks(qbws, callback) {
-  Item.find({updated: true}, function(err, items) {
+  Item.find({}, function(err, items) {
     if (err) {
       console.log(err);
     } else {
       console.log('Modifying ' + items.length + ' items in quickbooks.');
   
       items.forEach(function(item) {
-        qbws.addRequest(helpers.modifyItemRq(item));
+        helpers.saveToQuickbooks(item, qbws);
       });
+
       callback();
     }
   });
@@ -1115,7 +1133,7 @@ function updateCategories(categories, finalCallback) {
       });
     }
 
-    setTimeout(doRequest, 1000);
+    setTimeout(doRequest, 500);
   }, function(err, responses) {
     console.log(responses);
     finalCallback(responses);
@@ -1152,6 +1170,7 @@ function saveItem(item, qbws) {
       PriceLevel7: (item.usPrice/2).toFixed(2),
       MFGID: item.sku,
       WarehouseLocation: item.location,
+      GTIN: item.barcode,
       ExtraField8: item.barcode,
       ExtraField9: item.countryOfOrigin,
       InventoryControl: control

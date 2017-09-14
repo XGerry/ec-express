@@ -32,13 +32,26 @@ html
 								label(for="manufacturer") Manufacturer
 								input.form-control#manufacturer(type="number", name="manufacturer")
 							.col-lg-3
+								label(for="priceFrom") Price From
+								.input-group
+									span.input-group-addon $
+									input.form-control#priceFrom(type="number")
+							.col-lg-3
+								label(for="priceTo") Price To
+								.input-group
+									span.input-group-addon $
+									input.form-control#priceTo(type="number")
+						.form-group.row.checkbox
+							.col-lg-3
 								label(for="onSaleCheckbox")
+									.input-group
 									input#onSaleCheckbox(type="checkbox", name="onsale")
 									|  On Sale
 							.col-lg-3
 								label(for="canadianStore")
 									input#canadianStore(type="checkbox", name="canadianStore")
 									|  Canadian
+
 					.btn-toolbar.bottom-10
 						button.btn.btn-default#getProductsButton(type="button") Get Products
 						button.btn.btn-success#getProductsButton(type="button", data-toggle="collapse", data-target="#bulk") Bulk Updates
@@ -79,7 +92,10 @@ html
 							button.btn.btn-default#saveAdvancedOptions(type="button") Fix Advanced Options
 							button.btn.btn-default#sendToQB(type="button") Send to QB
 							button.btn.btn-danger#updateAll(type="button") Update All Products
-
+					.row
+						.col-lg-12
+							.progress
+								#getProductsProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
 					table.table.table-striped.table-hover#productTable
 						thead
 							tr

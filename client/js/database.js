@@ -51,8 +51,7 @@ $(document).ready(function() {
 			delete query.hasOptions
 		}
 
-		if (queries)
-
+		console.log(query);
 		socket.emit('searchDB', query);
 	});
 
@@ -75,6 +74,14 @@ $(document).ready(function() {
 
 		console.log(field + ' ' + operator + ' ' + value);
 	});
+
+	$('#amazonButton').click(function(e) {
+		socket.emit('sendProductsToAmazon');
+	});
+
+	$('#facebookButton').click(function(e) {
+		socket.emit('generateFacebookFeed');
+	});
 });
 
 socket.on('searchFinished', function(data) {
@@ -92,15 +99,16 @@ socket.on('getSettingsFinished', function(data) {
 function buildItemTable(items) {
 	items.forEach(function(item) {
 		var row = $('<tr></tr>');
-		var sku = $('<td></td>').text(item.sku);
-		var name = $('<td></td>').text(item.name);
+		var sku = $('<td></td>').text(item.sku+'');
+		var name = $('<td></td>').text(item.name+'');
 		if (item.usPrice)
 			var usPrice = $('<td></td>').text('$'+item.usPrice.toFixed(2));
-		canadaPrice = '-';
-		if (item.canPrice)
+		var canadaPrice = '-';
+		if (item.canPrice != undefined)
 			canadaPrice = '$'+item.canPrice.toFixed(2);
+
 		var canPrice = $('<td></td>').text(canadaPrice);
-		var stock = $('<td></td>').text(item.stock);
+		var stock = $('<td></td>').text(item.stock+'');
 
 		row.append(sku);
 		row.append(name);
@@ -108,13 +116,30 @@ function buildItemTable(items) {
 		row.append(canPrice);
 		row.append(stock);
 
+		$('#saveItemButton').click(function(e) {
+			item.name = $('#itemName').val();
+			item.usPrice = parseFloat($('#usPrice').val());
+			item.canPrice = parseFloat($('#canPrice').val());
+			item.stock = $('#stock').val();
+			item.usStock = $('#usStock').val();
+			item.canStock = $('#canStock').val();
+			item.location = $('#location').val();
+			item.barcode = $('#barcode').val();
+			item.countryOfOrigin = $('#country').val();
+			item.isOption = $('#itemIsOption').is(':checked');
+			item.hasOptions = $('#itemHasOptions').is(':checked');
+			item.inactive = $('#itemInactive').is(':checked');
+			socket.emit('saveItem', item);
+			$('#itemModal').modal('hide');
+		});
+
 		row.click(function(e) {
 			console.log(item);
 			$('#itemNameTitle').text(item.name);
 			$('#itemSKU').val(item.sku);
 			$('#itemName').val(item.name);
 			$('#usPrice').val(item.usPrice.toFixed(2));
-			if (item.canPrice)
+			if (item.canPrice != undefined)
 				$('#canPrice').val(item.canPrice.toFixed(2));
 			$('#stock').val(item.stock);
 			$('#usStock').val(item.usStock);
@@ -126,27 +151,10 @@ function buildItemTable(items) {
 			$('#itemIsOption').prop('checked', item.isOption === true);
 			$('#itemHasOptions').prop('checked', item.hasOptions === true);
 			$('#catalogIdUS').val(item.catalogId);
-			$('#catalogIdCan').val(item.catalogIdCan);
+			console.log(item.catalogIdCan);
+			$('#catalogIdCanModal').val(item.catalogIdCan);
 			$('#optionId').val(item.optionId);
 			$('#optionIdCan').val(item.optionIdCan);
-
-			$('#saveItemButton').click(function(e) {
-				item.name = $('#itemName').val();
-				item.usPrice = parseFloat($('#usPrice').val());
-				item.canPrice = parseFloat($('#canPrice').val());
-				item.stock = $('#stock').val();
-				item.usStock = $('#usStock').val();
-				item.canStock = $('#canStock').val();
-				item.location = $('#location').val();
-				item.barcode = $('#barcode').val();
-				item.countryOfOrigin = $('#country').val();
-				item.isOption = $('#itemIsOption').is(':checked');
-				item.hasOptions = $('#itemHasOptions').is(':checked');
-				item.inactive = $('#itemInactive').is(':checked');
-				socket.emit('saveItem', item);
-				$('#itemModal').modal('hide');
-			});
-
 			$('#itemModal').modal();
 		});
 
