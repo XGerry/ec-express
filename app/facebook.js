@@ -1,10 +1,18 @@
 var Item = require('./model/item');
 var fs = require('fs');
+var path = require('path');
 
 module.exports = {
-	routes: function(app) {
+	route: function(app) {
 		app.get('/feeds/facebook/us', function(req, res) {
 			// generate the feeds file for facebook
+			generateFacebookFeed(function(err) {
+				if (err) {
+					res.send('Error generating feed.');
+				} else {
+					res.sendFile(path.resolve(__dirname + '/../feeds/facebook_us.tsv'));
+				}
+			});
 		});
 	},
 	generateFacebookFeed: generateFacebookFeed
@@ -56,7 +64,7 @@ function generateFacebookFeed(callback) {
 				feed = addRow(feed, line);
 			});
 
-			fs.writeFile('facebook_us.tsv', feed, function(err) {
+			fs.writeFile('./feeds/facebook_us.tsv', feed, function(err) {
 				if (err) {
 					console.log(err);
 				} else {

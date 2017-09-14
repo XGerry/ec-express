@@ -7,6 +7,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var api = require('./app/api');
 var routes = require('./app/routes');
+var facebook = require('./app/facebook');
 var events = require('./app/events');
 
 var app = express();
@@ -55,6 +56,7 @@ var server = app.listen(process.env.PORT || 3000, function() {
 var io = require('socket.io')(server);
 
 api.route(app, passport, qbws, io);
+facebook.route(app);
 events(io, qbws);
 routes(app, passport);
 require('./config/passport')(passport);
