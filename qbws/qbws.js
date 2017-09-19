@@ -159,7 +159,6 @@ function buildRequest() {
 
 var addRequest = function(str) {
     req.push(str);
-    console.log(req.length + ' Number of Requests');
 }
 
 var addOrder = function(order) {
