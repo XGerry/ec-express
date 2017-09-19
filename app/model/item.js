@@ -32,7 +32,8 @@ var itemSchema = new mongoose.Schema({
 	salePrice: Number,
 	usLink: String,
 	canLink: String,
-	manufacturerId: Number
+	manufacturerId: Number,
+	manufacturerName: String
 });
 
 module.exports = mongoose.model('Item', itemSchema);

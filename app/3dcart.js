@@ -20,13 +20,12 @@ function refreshFrom3DCart(callback) {
   // get all the items from the US store
   getItemsFull({}, function(progress, total) {
     console.log(((progress/total)*100).toFixed(2) + '%');
-  }, function(responsesUS) {
+  }, function() {
     console.log('Getting all items from the CA store.');
     getItemsFull({canadian:true}, function(progress, total) {
       console.log(((progress/total)*100).toFixed(2) + '%');
-    }, function(responsesCA) {
-      var merged = responsesUS.concat(responsesCA);
-      callback(merged);
+    }, function() {
+      callback();
     });
   });
 }

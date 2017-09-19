@@ -25,5 +25,10 @@ module.exports = function(qbws) {
     });
   }
 
-
+  /**
+   * this should run once every couple hours
+   */
+  function refreshInventory(callback) {
+    cart3d.refreshFrom3DCart(callback);
+  }
 }
