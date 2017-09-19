@@ -1,6 +1,7 @@
 var helpers = require('./helpers');
 var schedule = require('node-schedule');
 var routes = require('./routes');
+var cart3d = require('./3dcart');
 var Order = require('./model/order.js');
 
 module.exports = function(qbws) {
@@ -23,19 +24,6 @@ module.exports = function(qbws) {
       console.log(response);
     });
   }
-  
-  /*
-  var checkForErrorsJob = schedule.scheduleJob({
-    hour: 10,
-    minute: 4,
-    dayOfWeek: [1, 2, 3, 4, 5]
-  }, updateCompletedOrders);
 
-  // prepare scheduler
-  var getOrdersJob = schedule.scheduleJob({
-    hour: 10,
-    minute: 2,
-    dayOfWeek: [1, 2, 3, 4, 5]
-  }, getOrders);
-  */
+
 }

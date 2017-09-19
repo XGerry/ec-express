@@ -57,9 +57,9 @@ function generateFacebookFeed(callback) {
 					line = addCol(line, item.sku);
 				}
 				if (item.isOption) {
-					line += line + item.catalogId; // add the parent to the group Id
+					line += item.catalogId + '\t'; // add the parent to the group Id
 				} else {
-					line += '';
+					line += '\t';
 				}
 				feed = addRow(feed, line);
 			});
