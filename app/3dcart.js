@@ -15,20 +15,29 @@ var secureUrlCa = 'https://www.ecstasycrafts.ca';
 /**
  * Refreshes the inventory in our DB so we know what to use in quickbooks
  */
-function refreshFrom3DCart(callback) {
-  console.log('Getting all items from the US store.');
+function refreshFrom3DCart(finalCallback) {
   // get all the items from the US store
-  getItemsFull({}, function(progress, total) {
-    console.log(((progress/total)*100).toFixed(2) + '%');
-  }, function(usItems) {
-    usItems = null;
+  function refreshUS(callback) {
+    console.log('Getting all items from the US store.');
+    getItemsFull({}, function(progress, total) {
+      console.log('US: ' + ((progress/total)*100).toFixed(2) + '%');
+    }, function(err) {
+      callback(err)
+    });
+  }
+  
+  // At the same time, get the items from the canadian store
+  function refreshCA(callback) {
     console.log('Getting all items from the CA store.');
     getItemsFull({canadian:true}, function(progress, total) {
-      console.log(((progress/total)*100).toFixed(2) + '%');
-    }, function(canadianItems) {
-      canadianItems = null;
-      callback();
+        console.log('CA: ' + ((progress/total)*100).toFixed(2) + '%');
+      }, function(err) {
+        callback(err);
     });
+  }
+
+  async.parallel([refreshUS, refreshCA], function(err) {
+    finalCallback(err);
   });
 }
 
@@ -742,40 +751,37 @@ function getItemsFull(query, progressCallback, finalCallback) {
 	  	}
       var counter = 0;
 
-	  	async.mapLimit(requests, 2, function(option, callback) {
+	  	async.eachLimit(requests, 2, function(option, callback) {
         function doRequest() {
           request(option, function(err, response, body) {
             if (err) {
               callback(err);
             } else {
-              callback(null, JSON.parse(body));
-              progressCallback(++counter, numOfRequests);
+              var items = JSON.parse(body);
+              progressCallback(++counter, numOfRequests, items);
+              items.forEach(function(cartItem) {
+                var sku = cartItem.SKUInfo.SKU.trim();
+                Item.findOne({sku: sku}, function(err, item) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    if (item) { // do some updates
+                      updateItemFields(item, cartItem, canadian);
+                    } else {
+                      var newItem = new Item();
+                      newItem.sku = sku;
+                      updateItemFields(newItem, cartItem, canadian);
+                    }
+                  }
+                });
+              });
+              callback(null);
             }
           });
         }
-
         setTimeout(doRequest, 1000);
-	  	}, function(err, responses) {
-	  		var merged = [].concat.apply([], responses);
-
-	  		merged.forEach(function(cartItem) {
-          var sku = cartItem.SKUInfo.SKU.trim();
-	  			Item.findOne({sku: sku}, function(err, item) {
-	  				if (err) {
-	  					console.log(err);
-	  				} else {
-	  					if (item) { // do some updates
-	  						updateItemFields(item, cartItem, canadian);
-	  					} else {
-	  						var newItem = new Item();
-                newItem.sku = sku;
-                updateItemFields(newItem, cartItem, canadian);
-	  					}
-	  				}
-	  			});
-	  		});
-
-	  		finalCallback(merged);
+	  	}, function(err) {
+	  		finalCallback(err);
 	  	});
   	}
   });

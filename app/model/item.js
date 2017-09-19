@@ -33,7 +33,11 @@ var itemSchema = new mongoose.Schema({
 	usLink: String,
 	canLink: String,
 	manufacturerId: Number,
-	manufacturerName: String
+	manufacturerName: String,
+	width: Number,
+	height: Number,
+	length: Number,
+	weight: Number
 });
 
 module.exports = mongoose.model('Item', itemSchema);

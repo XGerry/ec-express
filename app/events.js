@@ -76,10 +76,12 @@
  		 * Get all the information on the items based on a query
  		 */
  		socket.on('getItemsFull', function(query) {
- 			cart3d.getItemsFull(query, function(progress, total) {
- 				socket.emit('getItemsProgress', progress, total);
- 			}, function(items) {
- 				socket.emit('getItemsFinished', items);
+ 			cart3d.getItemsFull(query, function(progress, total, items) {
+ 				socket.emit('getItemsProgress', progress, total, items);
+ 				console.log('progress');
+ 			}, function(err) {
+ 				console.log('done.');
+ 				socket.emit('getItemsFinished');
  			});
  		});
 

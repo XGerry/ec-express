@@ -88,6 +88,46 @@ function addProducts(callback) {
 	});
 }
 
+function generateSellerUploadFile() {
+	Item.find({}, function(err, items) {
+		if (err) {
+			console.log(err);
+		} else {
+			var tsv = getHeader() + '\n';
+			items.forEach(function(item) {
+				tsv += 'craft-supplies\t'; 		// item_type
+				tsv += item.sku + '\t'; 			// item_sku
+				tsv += item.barcode + '\t'; 	// external_product_id
+				tsv += 'UPC\t'; 							// external_product_id_type
+				tsv += item.manufacturerName; // brand_name
+			});
+		}
+	});
+}
+
+function getHeader() {
+	var headers = 'item_type\t'; // either craft-project-kits or craft-supplies
+	headers += 'item_sku\t'; // sku
+	headers += 'external_product_id\t'; // EAN, GCID, GTIN, UPC value
+	headers += 'external_product_id_type\t'; // EAN, GCID, GTIN, UPC
+	headers += 'brand_name\t'; // Brand name or 'Generic' eg. Lenovo
+	headers += 'feed_product_type\t'; // ArtSupplies
+	headers += 'item_name\t'; // The name
+	headers += 'manufacturer\t'; // Manufacturer name
+	headers += 'part_number\t'; // sku
+	headers += 'standard_price\t'; // us price
+	headers += 'quantity\t'; // inventory commitment
+	headers += 'migrated_shipping_group_name\t'; // Migrated Template
+	headers += 'fulfillment_center_id\t'; // DEFAULT or AMAZON_NA
+	headers += 'package_length\t'; // the length
+	headers += 'package_width\t'; // the width
+	headers += 'package_weight_unit_of_measure\t'; // GR, KG, OZ, LB
+	headers += 'package_height\t'; // the height
+	headers += 'package_length_unit_of_measure\t'; // CM, MM, IN
+	headers += 'package_weight\t'; // the weight
+	return headers;
+}
+
 module.exports = {
 	addProducts: addProducts
 }

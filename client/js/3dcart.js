@@ -2,6 +2,7 @@ var socket = io();
 
 var selectedProducts = [];
 var allProducts = [];
+var items = [];
 
 socket.on('saveAdvancedOptionsFinished', function(data) {
 	console.log('finshed saving options');
@@ -12,7 +13,7 @@ socket.on('updateItemsFinished', function(data) {
 	console.log(data);
 });
 
-socket.on('getItemsFinished', function(items) {
+socket.on('getItemsFinished', function() {
 	console.log(items);
 	buildProductTable(items);
 	$('#getProductsProgress').removeClass('active');
@@ -31,7 +32,9 @@ socket.on('updateAllItemsFinished', function(responses) {
 	console.log(responses);
 });
 
-socket.on('getItemsProgress', function(progress, total) {
+socket.on('getItemsProgress', function(progress, total, itemsChunk) {
+	items = items.concat(itemsChunk);
+	console.log(items);
 	var percentage = (progress / total) * 100;
 	$('#getProductsProgress').css("width", percentage + '%');
 	$('#getProductsProgress').text(percentage.toFixed(0) + '%');
