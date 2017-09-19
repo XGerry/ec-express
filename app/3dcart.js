@@ -436,6 +436,8 @@ function getOrdersFull(query, callback) {
  */ 
 function getOrders(query, qbws, callback) {
 
+  finishedDelete();
+
   function finishedDelete() {
     // set a new timecode
     helpers.timecode = + new Date();
@@ -550,23 +552,12 @@ function getOrders(query, qbws, callback) {
           } else {
             if (dbOrder) {
               // We already have this order in the db. So we must be retrying it for some reason
-              dbOrder.cartOrder = order;
-              dbOrder.name = order.BillingFirstName + ' ' + order.BillingLastName;
-              dbOrder.timecode = helpers.timecode;
-              dbOrder.retry = true;
-              dbOrder.canadian = order.InvoiceNumberPrefix == 'CA-';
-              dbOrder.save();
+              updateOrderInfo(dbOrder, order);
             } else {
               // create the order in our database
               var newOrder = new Order();
-              newOrder.cartOrder = order;
-              newOrder.name = order.BillingFirstName + ' ' + order.BillingLastName;
-              newOrder.orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-              newOrder.imported = false;
-              newOrder.timecode = helpers.timecode;
-              newOrder.retry = false;
-              newOrder.canadian = order.InvoiceNumberPrefix == 'CA-';
-              newOrder.save();
+              newOrder.orderId = orderId;
+              updateOrderInfo(newOrder, order);
             }
           }
         });
@@ -592,7 +583,6 @@ function updateOrderInfo(order, cartOrder) {
   cartOrder.OrderItemList.forEach(function(item) {
 
   });
-
   order.save();
 }
 
