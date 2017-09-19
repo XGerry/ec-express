@@ -34,3 +34,7 @@ body {
 .top-25 {
 	margin-top: 25px;
 }
+
+.right-float {
+	float: right;
+}

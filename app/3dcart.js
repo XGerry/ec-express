@@ -1,3 +1,6 @@
+var secureUrlUs = 'https://www.ecstasycrafts.com';
+var secureUrlCa = 'https://www.ecstasycrafts.ca';
+
 /**
  * This will be a helper class for doing the common functions involving 3D Cart
  */
@@ -8,6 +11,25 @@
  var Receipt = require('./model/receipt');
  var helpers = require('./helpers');
  var pixl = require('pixl-xml')
+
+/**
+ * Refreshes the inventory in our DB so we know what to use in quickbooks
+ */
+function refreshFrom3DCart(callback) {
+  console.log('Getting all items from the US store.');
+  // get all the items from the US store
+  getItemsFull({}, function(progress, total) {
+    console.log(((progress/total)*100).toFixed(2) + '%');
+  }, function(responsesUS) {
+    console.log('Getting all items from the CA store.');
+    getItemsFull({canadian:true}, function(progress, total) {
+      console.log(((progress/total)*100).toFixed(2) + '%');
+    }, function(responsesCA) {
+      var merged = responsesUS.concat(responsesCA);
+      callback(merged);
+    });
+  });
+}
 
 /**
  * Gets items from 3D cart and saves them to the db
@@ -35,22 +57,28 @@ function getItems(qbws, notifyCallback, finalCallback) {
     var requests = [];
 
     for (var i = 0; i < numOfRequests; i++) {
+      options.headers.SecureUrl = secureUrlUs;
+      options.headers.Token = process.env.CART_TOKEN;
       options.qs.countonly = 0;
       options.qs.offset = i * 200;
       options.qs.limit = 200;
       requests.push(JSON.parse(JSON.stringify(options)));
     }
     var counter = 0;
-    async.mapSeries(requests, function(option, callback) {
-      request(option, function(err, response, body) {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, JSON.parse(body));
-        }
-        counter++;
-        notifyCallback(counter, numOfRequests);
-      });
+    async.mapLimit(requests, 2, function(option, callback) {
+      function doRequest() {
+        request(option, function(err, response, body) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, JSON.parse(body));
+          }
+          counter++;
+          notifyCallback(counter, numOfRequests);
+        });
+      }
+
+      setTimeout(doRequest, 1000);
     }, function(err, responses) {
       var merged = [].concat.apply([], responses);
       var qbRq = {
@@ -72,6 +100,7 @@ function getItems(qbws, notifyCallback, finalCallback) {
               item.usPrice = skuInfo.Price;
               item.catalogId = skuInfo.CatalogID;
               item.isOption = false;
+              item.updated = false;
               item.save();
             } else {
               var newItem = new Item();
@@ -81,6 +110,7 @@ function getItems(qbws, notifyCallback, finalCallback) {
               newItem.usPrice = skuInfo.Price;
               newItem.catalogId = skuInfo.CatalogID;
               newItem.isOption = false;
+              newItem.updated = false;
               newItem.save();
             }
           }
@@ -185,7 +215,9 @@ function saveItems(query, progressCallback, finalCallback) {
           } else {
             callback(null, body);
             counter++;
-            console.log(body);
+            if (body.Status != '200') {
+              console.log(body);
+            }
             progressCallback(counter, numOfRequests*2);
           }
         });
@@ -260,6 +292,10 @@ function saveOptionItems(progressCallback, finalCallback) {
               callback(null, body);
               counter++;
               console.log(body);
+              if (body.status != '200') {
+                console.log(body);
+                console.log(option.url);
+              }
               progressCallback(counter, total);
             }
           });
@@ -301,14 +337,20 @@ function doSaveAdvancedOptions(canadian, cartItems, finalCallback) {
   });
 
   async.mapLimit(requests, 2, function(req, callback) {
-  	request(req, function(err, response, body) {
-  		if (err)
-  			callback(err);
-  		else 
-  			callback(null, body);
-  	});
+  	function doRequest() {
+      request(req, function(err, response, body) {
+        if (err)
+          callback(err);
+        else 
+          callback(null, body);
+        console.log('saved item and options');
+      });
+    }
+    
+    setTimeout(doRequest, 1000);
   }, function(err, responses) {
 		console.log('done');
+    console.log(responses);
 		finalCallback(responses);
 	});
 }
@@ -393,11 +435,6 @@ function getOrdersFull(query, callback) {
  * For importing orders into quickbooks
  */ 
 function getOrders(query, qbws, callback) {
-  // clear the requests in qbws
-  qbws.clearRequests();
-
-  // remove the orders (i guess this is the best way to do this for now)
-  Order.remove({}, finishedDelete);
 
   function finishedDelete() {
     // set a new timecode
@@ -535,6 +572,7 @@ function getOrders(query, qbws, callback) {
         });
       });
 
+      // Hubspot update
       helpers.updateContacts(contacts, function(message) {
         console.log('Hubspot Response:')
         console.log(message.statusCode);
@@ -543,6 +581,19 @@ function getOrders(query, qbws, callback) {
       callback(jsonBody);
     }
   }
+}
+
+function updateOrderInfo(order, cartOrder) {
+  order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
+  order.timecode = helpers.timecode;
+  order.retry = true;
+  order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
+  var itemList = [];
+  cartOrder.OrderItemList.forEach(function(item) {
+
+  });
+
+  order.save();
 }
 
 function getSalesReceipts(qbws) {
@@ -676,10 +727,6 @@ function getItemsFull(query, progressCallback, finalCallback) {
   delete query.canadian;
 
   options.qs = query;
-  
-  console.log(url);
-  console.log(options.headers.SecureUrl);
-	console.log(query);
 
   request(options, function(err, response, body) {
   	if (!body) {
@@ -704,22 +751,25 @@ function getItemsFull(query, progressCallback, finalCallback) {
 	  	}
       var counter = 0;
 
-	  	async.mapSeries(requests, function(option, callback) {
-	  		request(option, function(err, response, body) {
-	  			if (err) {
-	  				callback(err);
-	  			} else {
-	  				callback(null, JSON.parse(body));
-            counter++;
-            progressCallback(counter, numOfRequests);
-	  				console.log('Received Response');
-	  			}
-	  		});
+	  	async.mapLimit(requests, 2, function(option, callback) {
+        function doRequest() {
+          request(option, function(err, response, body) {
+            if (err) {
+              callback(err);
+            } else {
+              callback(null, JSON.parse(body));
+              progressCallback(++counter, numOfRequests);
+            }
+          });
+        }
+
+        setTimeout(doRequest, 1000);
 	  	}, function(err, responses) {
 	  		var merged = [].concat.apply([], responses);
 
 	  		merged.forEach(function(cartItem) {
-	  			Item.findOne({sku:cartItem.SKUInfo.SKU}, function(err, item) {
+          var sku = cartItem.SKUInfo.SKU.trim();
+	  			Item.findOne({sku: sku}, function(err, item) {
 	  				if (err) {
 	  					console.log(err);
 	  				} else {
@@ -727,7 +777,7 @@ function getItemsFull(query, progressCallback, finalCallback) {
 	  						updateItemFields(item, cartItem, canadian);
 	  					} else {
 	  						var newItem = new Item();
-                newItem.sku = cartItem.SKUInfo.SKU.trim();
+                newItem.sku = sku;
                 updateItemFields(newItem, cartItem, canadian);
 	  					}
 	  				}
@@ -755,12 +805,14 @@ function updateItemFields(item, cartItem, canadian) {
     item.canPrice = cartItem.SKUInfo.Price;
     item.catalogIdCan = cartItem.SKUInfo.CatalogID;
     item.canLink = cartItem.ProductLink;
+    item.canStock = cartItem.SKUInfo.Stock;
   }
   else {
     item.usPrice = cartItem.SKUInfo.Price;
     item.catalogId = cartItem.SKUInfo.CatalogID;
     item.usLink = cartItem.ProductLink;
     item.manufacturerId = cartItem.ManufacturerID;
+    item.usStock = cartItem.SKUInfo.Stock;
   }
 
   if (cartItem.AdvancedOptionList.length > 0) {
@@ -793,14 +845,16 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
     advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID; // Parent Item
     advancedOption.canPrice = optionItem.AdvancedOptionPrice;
     advancedOption.canLink = cartItem.ProductLink;
+    advancedOption.canStock = cartItem.AdvancedOptionStock;
   }
   else {
     advancedOption.usPrice = optionItem.AdvancedOptionPrice;
     advancedOption.catalogId = cartItem.SKUInfo.CatalogID; // Parent Item
     advancedOption.optionId = optionItem.AdvancedOptionCode;
     advancedOption.usLink = cartItem.ProductLink;
+    advancedOption.canStock = cartItem.AdvancedOptionStock;
   }
-  // advancedOption.stock = optionItem.AdvancedOptionStock; // We don't actually want to do this. Stock comes from us.
+
   advancedOption.isOption = true;
   advancedOption.save();
 }
@@ -1238,6 +1292,7 @@ function saveItem(item, qbws) {
 
 module.exports = {
  	getItems: getItems,
+  refreshFrom3DCart: refreshFrom3DCart,
  	saveItems: saveItems, // for inventory
  	saveOptionItems: saveOptionItems,
  	saveAdvancedOptions: saveAdvancedOptions,

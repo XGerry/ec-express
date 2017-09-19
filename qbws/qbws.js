@@ -22,6 +22,9 @@ var qbws,
     companyFile = '\\\\DESKTOP-1DLOLHU\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2014B.QBW', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
     req = [],
     orders = [],
+    finalCallback = function(response) {
+        console.log(response);
+    }
     callback = function(response) {
         console.log(response);
     }
@@ -156,6 +159,7 @@ function buildRequest() {
 
 var addRequest = function(str) {
     req.push(str);
+    console.log(req.length + ' Number of Requests');
 }
 
 var addOrder = function(order) {
@@ -176,6 +180,10 @@ var clearRequests = function() {
 
 var setCallback = function(fnc) {
     callback = fnc;
+}
+
+function setFinalCallback(fnc) {
+    finalCallback = fnc;
 }
 
 var defaultCallback = function (response) {
@@ -514,6 +522,7 @@ function (args) {
     // Resetting the connection error count and reset the requests
     connectionErrCounter = 0;
     clearRequests();
+    finalCallback();
 
     serviceLog('    Return values:');
     serviceLog('        string retVal = ' + retVal);
@@ -772,6 +781,7 @@ module.exports = {
     clearRequests : clearRequests,
     buildRequest : buildRequest,
     setCallback : setCallback,
+    setFinalCallback: setFinalCallback,
     companyFile : companyFile,
     addOrder : addOrder,
     removeOrder: removeOrder,

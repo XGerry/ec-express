@@ -10,6 +10,7 @@ function showLoading(buttonId, iconId, progressBarId) {
 	}
 	if (iconId) {
 		$('#'+iconId).removeClass('fa-square-o');
+		$('#'+iconId).removeClass('fa-check-square-o');	
 		$('#'+iconId).addClass('fa-refresh fa-spin');
 	}
 	if (progressBarId) {
@@ -86,6 +87,10 @@ $(document).ready(function() {
 		};
 		socket.emit('saveSettings', data)
 	});
+
+	$('#refreshAllItems').click(function(e) {
+		socket.emit('refreshAllItems');
+	})
 });
 
 socket.on('getItemsProgress', function(data) {

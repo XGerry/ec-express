@@ -31,7 +31,7 @@
  		 * This usually happens after an inventory sync.
  		 */
  		socket.on('saveItems', function(query) {
- 			cart3d.saveItems(query, function(progress, total) {
+ 			cart3d.saveItems({}, function(progress, total) {
  				socket.emit('saveItemsProgress', {
  					progress: progress,
  					total: total
@@ -186,5 +186,29 @@
  				socket.emit('facebookFeedFinished');
  			});
  		});
+
+ 		socket.on('refreshAllItems', function() {
+ 			console.log('Refreshing all items');
+ 			cart3d.refreshFrom3DCart(function(items) {
+ 				helpers.queryAllItems(qbws, function() {
+					console.log('Run the web connector');
+	 				qbws.setFinalCallback(function() {
+	 					// now we can save the items?
+	 					console.log('Ready to save the items');
+	 					cart3d.saveItems({}, function(progress, total) {
+			 				console.log(((progress/total)*100).toFixed(2) + '%');
+			 			}, function(updatedItems) {
+			 				console.log('Item inventory updated, now saving the options');
+			 				// also save the options
+			 				cart3d.saveOptionItems(function(progress, total) {
+			 					console.log(((progress/total)*100).toFixed(2) + '%');
+			 				}, function(items) {
+			 					console.log('All items and options updated.');
+			 				});
+			 			});
+	 				});
+ 				});
+ 			});
+ 		})
  	});
  }

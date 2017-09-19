@@ -2,6 +2,7 @@ var socket = io();
 
 var usDistribution = 0.6;
 var canDistribution = 0.4;
+var theItem = {};
 
 var queries = {
 	$eq: [],
@@ -82,6 +83,10 @@ $(document).ready(function() {
 	$('#facebookButton').click(function(e) {
 		socket.emit('generateFacebookFeed');
 	});
+
+	$('#saveItemButton').click(function(e) {
+			saveItem(theItem);
+		});
 });
 
 socket.on('searchFinished', function(data) {
@@ -116,25 +121,8 @@ function buildItemTable(items) {
 		row.append(canPrice);
 		row.append(stock);
 
-		$('#saveItemButton').click(function(e) {
-			item.name = $('#itemName').val();
-			item.usPrice = parseFloat($('#usPrice').val());
-			item.canPrice = parseFloat($('#canPrice').val());
-			item.stock = $('#stock').val();
-			item.usStock = $('#usStock').val();
-			item.canStock = $('#canStock').val();
-			item.location = $('#location').val();
-			item.barcode = $('#barcode').val();
-			item.countryOfOrigin = $('#country').val();
-			item.isOption = $('#itemIsOption').is(':checked');
-			item.hasOptions = $('#itemHasOptions').is(':checked');
-			item.inactive = $('#itemInactive').is(':checked');
-			socket.emit('saveItem', item);
-			$('#itemModal').modal('hide');
-		});
-
 		row.click(function(e) {
-			console.log(item);
+			theItem = item;
 			$('#itemNameTitle').text(item.name);
 			$('#itemSKU').val(item.sku);
 			$('#itemName').val(item.name);
@@ -166,4 +154,22 @@ function buildItemTable(items) {
 		pageLength: 100,
 		order: [[0, 'asc']]
 	});
+}
+
+function saveItem(item) {
+	console.log(item);
+	item.name = $('#itemName').val();
+	item.usPrice = parseFloat($('#usPrice').val());
+	item.canPrice = parseFloat($('#canPrice').val());
+	item.stock = $('#stock').val();
+	item.usStock = $('#usStock').val();
+	item.canStock = $('#canStock').val();
+	item.location = $('#location').val();
+	item.barcode = $('#barcode').val();
+	item.countryOfOrigin = $('#country').val();
+	item.isOption = $('#itemIsOption').is(':checked');
+	item.hasOptions = $('#itemHasOptions').is(':checked');
+	item.inactive = $('#itemInactive').is(':checked');
+	socket.emit('saveItem', item);
+	$('#itemModal').modal('hide');
 }
