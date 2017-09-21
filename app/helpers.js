@@ -376,15 +376,7 @@ function getCustomerFromOrder(order) {
   var orderDate = new Date(order.OrderDate);
   var utcDate = Date.UTC(orderDate.getUTCFullYear(), orderDate.getUTCMonth(), orderDate.getUTCDate());
   customer.properties.push(addProperty('last_order_date', utcDate));
-  
-  var cottonCandy = false;
-  order.OrderItemList.forEach(function (item) {
-    if (item.ItemID == 'ECProj01') { // this means they ordered the Cotton Candy Essentials Pack
-      cottonCandy = true;
-    }
-  });
 
-  customer.properties.push(addProperty('purchased_cotton_candy', cottonCandy));
   return customer;
 }
 

@@ -10,6 +10,42 @@ var queries = {
 	$lt: []
 };
 
+function getQuery() {
+	var query = {
+		sku: $('#sku').val(),
+		manufacturerName: $('#manufacturer').val(),
+		catalogId: $('#catalogId').val(),
+		updated: $('#updated').is(':checked'),
+		isOption: $('#isOption').is(':checked'),
+		hasOptions: $('#hasOptions').is(':checked'),
+		catalogIdCan: $('#catalogIdCan').val()
+	};
+
+	if (query.sku == '') {
+		delete query.sku;
+	}
+	if (query.manufacturerName == '') {
+		delete query.manufacturerName;
+	}
+	if (query.catalogId == '') {
+		delete query.catalogId;
+	}
+	if (query.catalogIdCan == '') {
+		delete query.catalogIdCan;
+	}
+	if (query.updated == false) {
+		delete query.updated;
+	}
+	if (query.isOption == false) {
+		delete query.isOption
+	}
+	if (query.hasOptions == false) {
+		delete query.hasOptions
+	}
+
+	return query;
+}
+
 $(document).ready(function() {
 	$('#databaseTable').DataTable({
 		bDestroy: true,
@@ -24,36 +60,7 @@ $(document).ready(function() {
 	});
 
 	$('#searchButton').click(function(e) {
-		var query = {
-			sku: $('#sku').val(),
-			catalogId: $('#catalogId').val(),
-			updated: $('#updated').is(':checked'),
-			isOption: $('#isOption').is(':checked'),
-			hasOptions: $('#hasOptions').is(':checked'),
-			catalogIdCan: $('#catalogIdCan').val()
-		};
-
-		if (query.sku == '') {
-			delete query.sku;
-		}
-		if (query.catalogId == '') {
-			delete query.catalogId;
-		}
-		if (query.catalogIdCan == '') {
-			delete query.catalogIdCan;
-		}
-		if (query.updated == false) {
-			delete query.updated;
-		}
-		if (query.isOption == false) {
-			delete query.isOption
-		}
-		if (query.hasOptions == false) {
-			delete query.hasOptions
-		}
-
-		console.log(query);
-		socket.emit('searchDB', query);
+		socket.emit('searchDB', getQuery());
 	});
 
 	// update stock automatically
@@ -78,6 +85,10 @@ $(document).ready(function() {
 
 	$('#amazonButton').click(function(e) {
 		socket.emit('sendProductsToAmazon');
+	});
+
+	$('#amazonVendorButton').click(function(e) {
+		socket.emit('generateVendorFile', getQuery());
 	});
 
 	$('#facebookButton').click(function(e) {

@@ -51,6 +51,8 @@ $(document).ready(function() {
 
 	$('#getProductsButton').click(function(e) {
 		selectedProducts = [];
+		allProducts = [];
+		items = [];
 		getItems();
 	});
 

@@ -3,6 +3,7 @@ var Item = require('./model/item');
 var crypto = require('crypto');
 var queryString = require('query-string');
 var request = require('request');
+var fs = require('fs');
 
 function addProducts(callback) {
 	var options = {
@@ -88,12 +89,12 @@ function addProducts(callback) {
 	});
 }
 
-function generateSellerUploadFile() {
+function generateSellerUploadFile(callback) {
 	Item.find({}, function(err, items) {
 		if (err) {
 			console.log(err);
 		} else {
-			var tsv = getHeader() + '\n';
+			var tsv = getSellerHeader() + '\n';
 			items.forEach(function(item) {
 				tsv += 'craft-supplies\t'; 		// item_type
 				tsv += item.sku + '\t'; 			// item_sku
@@ -105,7 +106,55 @@ function generateSellerUploadFile() {
 	});
 }
 
-function getHeader() {
+function generateVendorUploadFile(query, callback) {
+	Item.find(query, function(err, items) {
+		var tsv = getVendorHeader() + '\n';
+		items.forEach(function(item) {
+			tsv += item.name + '\t';
+			tsv += item.manufacturerName + '\t';
+			tsv += item.sku + '\t';
+			tsv += item.barcode + '\t';
+			tsv += 'UPC\t';
+			tsv += item.usPrice + '\t';
+			tsv += item.size + '\t'; // I think the best we have
+			tsv += item.weight + '\t';
+			tsv += item.countryOfOrigin + '\t';
+			tsv += '1\t';
+			tsv += '50\t';
+			tsv += item.size + '\t';
+			tsv += 'N/A\t';
+			tsv += '\n';
+		});
+	});
+
+	fs.writeFile('./feeds/amazon_vendor.tsv', tsv, function(err) {
+		if (err) {
+			console.log(err);
+		} else {
+			console.log('Feed Generated Successfully');
+		}
+		callback(err);
+	});
+}
+
+function getVendorHeader() {
+	var headers = 'item_name\t';
+	headers += 'brand_name\t';
+	headers += 'manufacturer\t';
+	headers += 'part_number\t';
+	headers += 'external_product_id\t';
+	headers += 'external_product_id_type\t';
+	headers += 'cost\t';
+	headers += 'item_dimensions\t';
+	headers += 'weight\t';
+	headers += 'county_of_origin\t';
+	headers += 'min_order_quantity\t';
+	headers += 'case_pack_quantity\t';
+	headers += 'package_dimensions\t';
+	headers += 'case_upc\t';
+}
+
+function getSellerHeader() {
 	var headers = 'item_type\t'; // either craft-project-kits or craft-supplies
 	headers += 'item_sku\t'; // sku
 	headers += 'external_product_id\t'; // EAN, GCID, GTIN, UPC value
@@ -129,5 +178,6 @@ function getHeader() {
 }
 
 module.exports = {
-	addProducts: addProducts
+	addProducts: addProducts,
+	generateVendorUploadFile: generateVendorUploadFile
 }

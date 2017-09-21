@@ -37,7 +37,9 @@ var itemSchema = new mongoose.Schema({
 	width: Number,
 	height: Number,
 	length: Number,
-	weight: Number
+	weight: Number,
+	size: String,
+	categories: [String]
 });
 
 module.exports = mongoose.model('Item', itemSchema);

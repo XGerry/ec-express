@@ -19,7 +19,7 @@
  					progress: counter,
  					total: total
  				});
- 			}, function(responses) {
+ 			}, function(err) {
 				socket.emit('getItemsFinished');
  			});
  		});
@@ -183,6 +183,12 @@
  					console.log(err);
  				}
  				socket.emit('facebookFeedFinished');
+ 			});
+ 		});
+
+ 		socket.on('generateVendorFile', function(query) {
+ 			amazon.generateVendorUploadFile(query, function() {
+ 				console.log('Finished');
  			});
  		});
 

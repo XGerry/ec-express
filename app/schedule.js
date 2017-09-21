@@ -31,4 +31,16 @@ module.exports = function(qbws) {
   function refreshInventory(callback) {
     cart3d.refreshFrom3DCart(callback);
   }
+
+  function quickInventory() {
+    cart3d.getItems(qbws, function(progress, total) {
+      console.log('Get Items: ' + ((progress / total)*100).toFixed() + '%');
+    }, function() {
+      console.log('finished getting the items');
+      qbws.setFinalCallback(function() {
+        // after we've done the query, we have to save the items back to the website
+        
+      });
+    })
+  }
 }

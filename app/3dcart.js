@@ -66,11 +66,11 @@ function getItems(qbws, notifyCallback, finalCallback) {
 
  	// Get the product list from US 3D Cart first
   function usUpdate(callback) {
-    getItemsQuick(false, function(progress, total) {
+    getItemsQuick(false, function(progress, total, items) {
       usProgress = progress;
       notifyCallback(usProgress + canProgress, total*2);
-    }, function(merged) {
-      merged.forEach(function(skuInfo) {
+
+      items.forEach(function(skuInfo) {
         var sku = skuInfo.SKU.trim();
         Item.findOne({sku: sku}, function(err, item) {
           if (err) {
@@ -86,17 +86,18 @@ function getItems(qbws, notifyCallback, finalCallback) {
           }
         });
       });
+    }, function(err) {
       callback(null);
     });
   }
 
   // Get product list from Canadian website
   function canUpdate(callback) {
-    getItemsQuick(true, function(progress, total) {
+    getItemsQuick(true, function(progress, total, items) {
       canProgress = progress;
       notifyCallback(usProgress + canProgress, total*2);
-    }, function(merged) {
-      merged.forEach(function(skuInfo) {
+
+      items.forEach(function(skuInfo) {
         var sku = skuInfo.SKU.trim();
         Item.findOne({sku: sku}, function(err, item) {
           if (err) {
@@ -112,6 +113,7 @@ function getItems(qbws, notifyCallback, finalCallback) {
           }
         });
       });
+    }, function(err) {
       callback(null);
     });
   }
@@ -158,25 +160,24 @@ function getItemsQuick(canadian, notifyCallback, finalCallback) {
     }
 
     var counter = 0;
-    async.mapLimit(requests, 2, function(option, callback) {
+    async.eachLimit(requests, 2, function(option, callback) {
       function doRequest() {
         request(option, function(err, response, body) {
           if (err) {
             callback(err);
           } else {
-            callback(null, JSON.parse(body));
+            callback(null);
           }
           counter++;
-          notifyCallback(counter, numOfRequests);
+          notifyCallback(counter, numOfRequests, JSON.parse(body));
         });
       }
       setTimeout(doRequest, 1000);
-    }, function (err, responses) {
+    }, function (err) {
       if (err) {
         console.log(err);
       } else {
-        var merged = [].concat.apply([], responses);
-        finalCallback(merged);
+        finalCallback();
       }
     });
   });
@@ -528,7 +529,31 @@ function getOrdersFull(query, callback) {
 
 /**
  * For importing orders into quickbooks
- */ 
+ */
+
+function getOrdersQuick(query, qbws, callback) {
+  var canadian = false;
+
+  if (query.canadian == true) {
+    canadian = true;
+  }
+  delete query.canadian;
+
+  var options = {
+    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : process.env.CART_PRIVATE_KEY,
+      Token : process.env.CART_TOKEN
+    },
+    qs : query
+  };
+
+
+}
+
+
+
 function getOrders(query, qbws, callback) {
 
   finishedDelete();
@@ -878,6 +903,14 @@ function updateItemFields(item, cartItem, canadian) {
   item.description = cartItem.Description;
   item.imageURL = cartItem.MainImageFile;
   item.name = cartItem.SKUInfo.Name;
+  item.weight = cartItem.Weight;
+  item.manufacturerName = cartItem.ManufacturerName;
+
+  var categories = [];
+  cartItem.CategoryList.forEach(function(category) {
+    categories.push(category.CategoryName);
+  });
+  item.categories = categories;
 
   if (item.ExtraField8 != '' && item.ExtraField8 != undefined) {
     item.barcode = item.ExtraField8;
@@ -888,6 +921,7 @@ function updateItemFields(item, cartItem, canadian) {
     item.catalogIdCan = cartItem.SKUInfo.CatalogID;
     item.canLink = cartItem.ProductLink;
     item.canStock = cartItem.SKUInfo.Stock;
+
   }
   else {
     item.usPrice = cartItem.SKUInfo.Price;
@@ -915,8 +949,44 @@ function updateItemFields(item, cartItem, canadian) {
         }
       });
     });
+  } else {
+    item.hasOptions = false;
   }
 
+  if (cartItem.Width != 0) {
+    item.width = cartItem.Width;
+  }
+
+  if (cartItem.Height != 0) {
+    item.length = cartItem.Height;
+  }
+
+  cartItem.FeatureList.forEach(function(feature) {
+    if (feature.FeatureTitle == 'Size' || 
+        feature.FeatureTitle == 'size' ||
+        feature.FeatureTitle == 'Size:' ||
+        feature.FeatureTitle == 'size:') {
+      var size = feature.FeatureDescription;
+      var tempSize = size;
+      if (tempSize.indexOf('Largest') > -1) {
+        tempSize = tempSize.substring(tempSize.indexOf('Largest'));
+      }
+
+      item.size = size;
+      tempSize = tempSize.replace(/[a-w]|[yz]|:|"| /gi, '');
+      var middle = tempSize.indexOf('x');
+      var width = tempSize.substring(0, middle);
+      var length = tempSize.substring(middle + 1);
+
+      item.width = width;
+      item.length = length;
+      console.log(size);
+      console.log(width);
+      console.log(length);
+      console.log('\n');
+    }
+  });
+  
   item.save();
 }
 

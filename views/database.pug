@@ -12,9 +12,12 @@ html
 		.container
 			form#databaseForm
 				.form-group.row
-					.col-lg-6
+					.col-lg-3
 						label(for="sku") SKU
 						input.form-control#sku(type="text", name="sku")
+					.col-lg-3
+						label(for="manufacturer") Manufacturer
+						input.form-control#manufacturer(type="text", name="manufacturer")
 					.col-lg-2.checkbox.checkbox-top-margin
 						label(for="updated")
 							input#updated(type="checkbox", name="updated")
@@ -64,6 +67,7 @@ html
 				button.btn.btn-default#searchButton(type="button") Search
 				button.btn.btn-info#advancedButton(type="button", data-toggle="collapse", data-target="#advancedSearch") Advanced
 				button.btn.btn-danger#amazonButton(type="button") Send To Amazon
+				button.btn.btn-success#amazonVendorButton(type="button") Generate Amazon Vendor
 				button.btn.btn-primary#facebookButton(type="button") Generate Facebook
 
 			table.table.table-striped.table-hover#databaseTable
