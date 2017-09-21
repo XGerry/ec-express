@@ -41,21 +41,105 @@ function refreshFrom3DCart(finalCallback) {
   });
 }
 
+function updateItemsFromSKUInfo(item, skuInfo, canadian) {
+  item.name = skuInfo.Name;
+  item.isOption = false;
+  item.updated = false;
+  if (canadian == true) {
+    item.catalogIdCan = skuInfo.CatalogID;
+    item.canPrice = skuInfo.Price;
+    item.canStock = skuInfo.Stock;
+  } else {
+    item.catalogId = skuInfo.CatalogID;
+    item.usPrice = skuInfo.Price;
+    item.usStock = skuInfo.Stock;
+  }
+  item.save();
+}
+
 /**
  * Gets items from 3D cart and saves them to the db
  */
 function getItems(qbws, notifyCallback, finalCallback) {
- 	// get the product list from 3D Cart first
+  var usProgress = 0;
+  var canProgress = 0;
+
+ 	// Get the product list from US 3D Cart first
+  function usUpdate(callback) {
+    getItemsQuick(false, function(progress, total) {
+      usProgress = progress;
+      notifyCallback(usProgress + canProgress, total*2);
+    }, function(merged) {
+      merged.forEach(function(skuInfo) {
+        var sku = skuInfo.SKU.trim();
+        Item.findOne({sku: sku}, function(err, item) {
+          if (err) {
+            console.log('error!');
+          } else {
+            if (item) {
+              updateItemsFromSKUInfo(item, skuInfo, false);
+            } else {
+              var newItem = new Item();
+              newItem.sku = sku;
+              updateItemsFromSKUInfo(newItem, skuInfo, false);
+            }
+          }
+        });
+      });
+      callback(null);
+    });
+  }
+
+  // Get product list from Canadian website
+  function canUpdate(callback) {
+    getItemsQuick(true, function(progress, total) {
+      canProgress = progress;
+      notifyCallback(usProgress + canProgress, total*2);
+    }, function(merged) {
+      merged.forEach(function(skuInfo) {
+        var sku = skuInfo.SKU.trim();
+        Item.findOne({sku: sku}, function(err, item) {
+          if (err) {
+            console.log('error!');
+          } else {
+            if (item) {
+              updateItemsFromSKUInfo(item, skuInfo, true);
+            } else {
+              var newItem = new Item();
+              newItem.sku = sku;
+              updateItemsFromSKUInfo(newItem, skuInfo, true);
+            }
+          }
+        });
+      });
+      callback(null);
+    });
+  }
+
+  async.parallel([usUpdate, canUpdate], function(err) {
+    // Query all the items in our database (including the options)
+    helpers.queryAllItems(qbws, function() {
+      finalCallback();
+    });
+  });
+}
+
+function getItemsQuick(canadian, notifyCallback, finalCallback) {
   var options = {
     url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/skuinfo',
     headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
+      SecureUrl : secureUrlUs,
       PrivateKey : process.env.CART_PRIVATE_KEY,
       Token : process.env.CART_TOKEN
     },
     qs: {
-      countonly: 1,
+      countonly: 1
     }
+  }
+
+  if (canadian == true) {
+    options.headers.SecureUrl = secureUrlCa;
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
   }
 
   request(options, function(err, response, body) {
@@ -67,13 +151,12 @@ function getItems(qbws, notifyCallback, finalCallback) {
     var requests = [];
 
     for (var i = 0; i < numOfRequests; i++) {
-      options.headers.SecureUrl = secureUrlUs;
-      options.headers.Token = process.env.CART_TOKEN;
       options.qs.countonly = 0;
       options.qs.offset = i * 200;
       options.qs.limit = 200;
       requests.push(JSON.parse(JSON.stringify(options)));
     }
+
     var counter = 0;
     async.mapLimit(requests, 2, function(option, callback) {
       function doRequest() {
@@ -87,68 +170,14 @@ function getItems(qbws, notifyCallback, finalCallback) {
           notifyCallback(counter, numOfRequests);
         });
       }
-
       setTimeout(doRequest, 1000);
-    }, function(err, responses) {
-      var merged = [].concat.apply([], responses);
-      var qbRq = {
-        ItemInventoryQueryRq: {
-          '@requestID' : 'inventoryRq',
-          FullName: []
-        }
-      };
-
-      merged.forEach(function(skuInfo) {
-        var sku = skuInfo.SKU.trim();
-        Item.findOne({sku: sku}, function(err, item) {
-          if (err) {
-            console.log('error!');
-          } else {
-            if (item) {
-              item.name = skuInfo.Name;
-              item.usStock = skuInfo.Stock;
-              item.usPrice = skuInfo.Price;
-              item.catalogId = skuInfo.CatalogID;
-              item.isOption = false;
-              item.updated = false;
-              item.save();
-            } else {
-              var newItem = new Item();
-              newItem.sku = sku;
-              newItem.name = skuInfo.Name;
-              newItem.usStock = skuInfo.Stock;
-              newItem.usPrice = skuInfo.Price;
-              newItem.catalogId = skuInfo.CatalogID;
-              newItem.isOption = false;
-              newItem.updated = false;
-              newItem.save();
-            }
-          }
-        });
-
-        // build a qbxml
-        qbRq.ItemInventoryQueryRq.FullName.push(sku);
-      });
-
-      // also, always include the options
-      Item.find({isOption:true}, function(err, items) {
-        if (err) {
-          console.log(err);
-        } else {
-          items.forEach(function(item) {
-            qbRq.ItemInventoryQueryRq.FullName.push(item.sku);
-            item.updated = false;
-            item.save();
-          });
-
-          qbRq.ItemInventoryQueryRq.OwnerID = 0;
-          var xmlDoc = helpers.getXMLRequest(qbRq);
-          var str = xmlDoc.end({pretty:true});
-          qbws.addRequest(str);
-          qbws.setCallback(helpers.inventorySyncCallback);
-          finalCallback(merged);
-        }
-      });
+    }, function (err, responses) {
+      if (err) {
+        console.log(err);
+      } else {
+        var merged = [].concat.apply([], responses);
+        finalCallback(merged);
+      }
     });
   });
 }
@@ -156,88 +185,136 @@ function getItems(qbws, notifyCallback, finalCallback) {
 /**
  * Takes the current state of the db and saves it to 3D Cart.
  */ 
-function saveItems(query, progressCallback, finalCallback) {
-  Item.find({updated: true, isOption: false}, function(err, items) {
-    console.log('There are ' + items.length + ' items that need inventory synced.');
-    var body = [];
-    var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
-    console.log('We need to send ' + numOfRequests + ' requests.');
+function quickSaveItems(query, progressCallback, finalCallback) {
+  var options = {
+    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+    method: 'PUT',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : process.env.CART_PRIVATE_KEY,
+      Token : process.env.CART_TOKEN
+    },
+    json : true
+  };
 
-    items.forEach(function(item) {
-      var cartItem = {
-        SKUInfo: {
-          SKU: item.sku,
-          Stock: item.usStock,
-          CanadaStock: item.canStock
-        },
-        MFGID: item.sku,
-        WarehouseLocation: item.location,
-        ExtraField8: item.barcode,
-        ExtraField9: item.countryOfOrigin
-      };
+  var canadian = false;
 
-      if (item.inactive) {
-        cartItem.SKUInfo.Stock = 0;
+  if (query.canadian == true) {
+    options.headers.SecureUrl = secureUrlCa;
+    canadian = true;
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+  }
+  delete query.canadian;
+
+  console.log(query);
+
+  Item.find(query, function(err, items) {
+    if (err) {
+      console.log(err);
+    } else {
+      var body = [];
+      items.forEach(function(item) {
+        body.push(buildCartItem(item, canadian));
+      });
+
+      var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
+      console.log('We need to send ' + numOfRequests + ' requests.');
+      var requests = [];
+      for (var i = 0; i < numOfRequests; i++) {
+        options.body = body.slice(i*100, (i+1)*100);
+        requests.push(JSON.parse(JSON.stringify(options)));
       }
 
-      var control = 3;
-      if (item.usStock > 0)
-        cartItem.InventoryControl = control;
-
-      body.push(cartItem);
-    });
-
-    var options = {
-      url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-      method: 'PUT',
-      headers : {
-        SecureUrl : 'https://www.ecstasycrafts.com',
-        PrivateKey : process.env.CART_PRIVATE_KEY,
-        Token : process.env.CART_TOKEN
-      },
-      body : body,
-      json : true
-    };
-
-    var requests = [];
-    for (var i = 0; i < numOfRequests; i++) {
-      // us
-      options.headers.SecureUrl = 'https://www.ecstasycrafts.com';
-      options.headers.Token = process.env.CART_TOKEN_CANADA;
-      options.body = body.slice(i*100, (i+1)*100);
-      requests.push(JSON.parse(JSON.stringify(options)));
-
-      // canadian store
-      options.body.forEach(function(item) {
-        item.SKUInfo.Stock = item.SKUInfo.CanadaStock;
-      });
-      options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
-      options.headers.Token = process.env.CART_TOKEN_CANADA;
-      requests.push(JSON.parse(JSON.stringify(options)));
-    }
-
-    var counter = 0;
-    async.mapLimit(requests, 2, function(option, callback) {
-      function doRequest() {
-        request(option, function(err, response, body) {
-          if (err) {
-            callback(err);
-          } else {
-            callback(null, body);
-            counter++;
-            if (body.Status != '200') {
-              console.log(body);
+      var counter = 0;
+      async.mapLimit(requests, 2, function(option, callback) {
+        function doRequest() {
+          request(option, function(err, response, body) {
+            if (err) {
+              callback(err);
+            } else {
+              callback(null, body);
+              body.forEach(function(response) {
+                if (response.Status != '200') {
+                  console.log(response);
+                }
+              });
+              progressCallback(++counter, numOfRequests);
             }
-            progressCallback(counter, numOfRequests*2);
-          }
-        });
-      };
+          });
+        };
+        setTimeout(doRequest, 1000);
+      }, function(err, responses) {
+        var merged = [].concat.apply([], responses);
+        finalCallback(merged);
+      });
+    }
+  });
+}
 
-      setTimeout(doRequest, 1000);
-    }, function(err, responses) {
-      var merged = [].concat.apply([], responses);
-      finalCallback(merged);
+function buildCartItem(item, canadian) {
+  var cartItem = {
+    SKUInfo: {
+      SKU: item.sku,
+    },
+    MFGID: item.sku,
+    WarehouseLocation: item.location,
+    ExtraField8: item.barcode,
+    ExtraField9: item.countryOfOrigin
+  };
+
+  if (canadian == true) {
+    cartItem.SKUInfo.Stock = item.canStock;
+  } else {
+    cartItem.SKUInfo.Stock = item.usStock;
+  }
+
+  if (item.inactive && !item.hasOptions) {
+    cartItem.SKUInfo.Stock = 0;
+  } else if (item.inactive && item.hasOptions) {
+    cartItem.SKUInfo.Stock = 1;
+  }
+
+  var control = 3;
+  if (item.usStock > 0)
+    cartItem.InventoryControl = control;
+
+  return cartItem;
+}
+
+function saveItems(query, progressCallback, finalCallback) {
+  if (query == null || query == undefined) {
+    query = {
+      isOption: false,
+      updated: true
+    };
+  }
+
+  var usProgress = 0;
+  var canProgress = 0;
+
+  function saveUSSite(callback) {
+    quickSaveItems(query, function(progress, total) {
+      console.log('US SAVE: ' + ((progress/total)*100).toFixed() + '%');
+      usProgress = progress;
+      progressCallback(canProgress+usProgress, total*2);
+    }, function(responses) {
+      callback(null);
     });
+  };
+
+  function saveCanSite(callback) {
+    query.canadian = true;
+    quickSaveItems(query, function(progress, total) {
+      console.log('CAN SAVE: ' + ((progress/total)*100).toFixed() + '%');
+      canProgress = progress;
+      progressCallback(canProgress+usProgress, total*2);
+    }, function(responses) {
+      callback(null);
+    });
+  };
+
+  async.parallel([saveUSSite, saveCanSite], function(err) {
+    finalCallback([]);
   });
 }
 
@@ -301,10 +378,18 @@ function saveOptionItems(progressCallback, finalCallback) {
             } else {
               callback(null, body);
               counter++;
-              console.log(body);
-              if (body.status != '200') {
-                console.log(body);
-                console.log(option.url);
+              if (Array.isArray(body)) {
+                body.forEach(function(response) {
+                  if (response.Status != '200') {
+                    console.log(response);
+                    console.log(option.url);
+                    console.log(option.headers.SecureUrl);
+                  }
+                });
+              } else {
+                if (body.Status != '200') {
+                  console.log(response);
+                }
               }
               progressCallback(counter, total);
             }

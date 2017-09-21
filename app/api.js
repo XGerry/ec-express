@@ -659,30 +659,21 @@ module.exports = {
      * information about items to convert to a QBXML
      */
     app.get('/api/sync/inventory/qbxml', function(req, res) {
-      var qbRq = {
-        ItemInventoryQueryRq: {
-          '@requestID' : 'inventoryRq',
-          FullName: []
-        }
-      };
 
-      Item.find({}, function(err, items) {
+      Item.find({sku:'554'}, function(err, items) {
         if (err) {
           console.log('An error occurred finding the items in Mongo.');
         } else {
           console.log('Found ' + items.length + ' items in the database.');
           items.forEach(function(item) {
-            qbRq.ItemInventoryQueryRq.FullName.push(item.sku);
+            var str = helpers.getItemRq(item);
+            console.log(str);
+            qbws.addRequest(str);
+            qbws.setCallback(helpers.inventorySyncCallback);
           });
         }
       });
 
-      qbRq.ItemInventoryQueryRq.OwnerID = 0;
-      var xmlDoc = helpers.getXMLRequest(qbRq);
-      var str = xmlDoc.end({pretty:true});
-      qbws.addRequest(str);
-
-      qbws.setCallback(helpers.inventorySyncCallback);
       res.send('Run the Web Connector.');
     });
 

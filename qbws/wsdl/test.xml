@@ -1,22 +1,10 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <InventoryAdjustmentAddRq>
-      <InventoryAdjustmentAdd>
-        <AccountRef>
-          <FullName>inventory changes</FullName>
-        </AccountRef>
-        <Memo>Updated through EC-Express</Memo>
-        <InventoryAdjustmentLineAdd>
-          <ItemRef>
-            <FullName>PC0917</FullName>
-          </ItemRef>
-          <QuantityAdjustment>
-            <NewQuantity>31</NewQuantity>
-          </QuantityAdjustment>
-        </InventoryAdjustmentLineAdd>
-      </InventoryAdjustmentAdd>
-    </InventoryAdjustmentAddRq>
+    <ItemInventoryQueryRq requestID="itemRequest-554">
+      <FullName>554</FullName>
+      <OwnerID>0</OwnerID>
+    </ItemInventoryQueryRq>
   </QBXMLMsgsRq>
 </QBXML>

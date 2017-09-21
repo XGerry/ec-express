@@ -172,10 +172,11 @@ function getMultipleItemsRq(items) {
 
   var names = [];
   items.forEach(function(item) {
-    names.push(item.name);
+    names.push(item.sku);
   });
 
   qbRq.ItemInventoryQueryRq.FullName = names;
+  //qbRq.ItemInventoryQueryRq.ActiveStatus = 'ALL';
   qbRq.ItemInventoryQueryRq.OwnerID = 0;
 
   var xmlDoc = getXMLRequest(qbRq);
@@ -191,6 +192,7 @@ function getItemRq(item) {
   };
 
   qbRq.ItemInventoryQueryRq.FullName = item.sku;
+  //qbRq.ItemInventoryQueryRq.ActiveStatus = 'ALL';
   qbRq.ItemInventoryQueryRq.OwnerID = 0;
 
   var xmlDoc = getXMLRequest(qbRq);
@@ -581,20 +583,33 @@ function inventorySyncCallback(response) {
   xmlParser(response, {explicitArray: false}, function(err, result) {
     var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
     if (itemInventoryRs) {
-      itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
-        Item.findOne({sku: qbItem.FullName}, function(err, item) {
-          if (err) {
-            console.log('Error finding the item');
-          } else {
-            if (!item) {
-              console.log('Unable to find item ' + qbItem.FullName);
-            }
-            else {
-              saveItemFromQB(item, qbItem);
-            }
-          }
+      if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
+        itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
+          findItemAndSave(qbItem)
         });
-      });
+        console.log('Inventory Sync Finished - Array.');
+      } else {
+        findItemAndSave(itemInventoryRs.ItemInventoryRet);  
+        console.log('Inventory Sync Finished - Single Item.');
+      }
+    } else {
+      console.log('Not an inventory response');
+      console.log(result.QBXML);
+    }
+  });
+}
+
+function findItemAndSave(qbItem) {
+  Item.findOne({sku: qbItem.FullName}, function(err, item) {
+    if (err) {
+      console.log('Error finding the item');
+    } else {
+      if (!item) {
+        console.log('Unable to find item ' + qbItem.FullName);
+      }
+      else {
+        saveItemFromQB(item, qbItem);
+      }
     }
   });
 }
@@ -631,9 +646,16 @@ function saveItemFromQB(item, qbItem) {
       item.listId = qbItem.ListID;
       item.editSequence = qbItem.EditSequence;
 
-      if (item.inactive != !qbItem.IsActive) {
-        item.inactive = !qbItem.IsActive;
-        item.updated = true;
+      if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
+        if (item.inactive == false) {
+          item.updated = true;
+        }
+        item.inactive = true;
+      } else {
+        if (item.inactive == true) {
+          item.updated = true;
+        }
+        item.inactive = false;
       }
 
       item.save();
@@ -719,6 +741,9 @@ function saveToQuickbooks(item, qbws, callback) {
   });
 }
 
+/**
+ * This is all the items and the options
+ */
 function queryAllItems(qbws, callback) {
   Item.find({}, function(err, items) {
     if (err) {
@@ -726,6 +751,11 @@ function queryAllItems(qbws, callback) {
     } else {
       qbws.addRequest(getMultipleItemsRq(items));
       qbws.setCallback(inventorySyncCallback);
+      items.forEach(function(item) {
+        item.updated = false;
+        item.save();
+      });
+      callback();
     }
   });
 }
@@ -776,5 +806,7 @@ module.exports = {
   search: search,
   saveItem: saveItem,
   saveToQuickbooks: saveToQuickbooks,
-  queryAllItems: queryAllItems
+  queryAllItems: queryAllItems,
+  getItemRq: getItemRq,
+  getItemInQuickbooks: getItemInQuickbooks
 }

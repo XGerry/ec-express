@@ -20,9 +20,7 @@
  					total: total
  				});
  			}, function(responses) {
-				socket.emit('getItemsFinished', {
-					items: responses
-				});
+				socket.emit('getItemsFinished');
  			});
  		});
 
@@ -31,7 +29,7 @@
  		 * This usually happens after an inventory sync.
  		 */
  		socket.on('saveItems', function(query) {
- 			cart3d.saveItems({}, function(progress, total) {
+ 			cart3d.saveItems(null, function(progress, total) {
  				socket.emit('saveItemsProgress', {
  					progress: progress,
  					total: total
@@ -80,7 +78,6 @@
  				socket.emit('getItemsProgress', progress, total, items);
  				console.log('progress');
  			}, function(err) {
- 				console.log('done.');
  				socket.emit('getItemsFinished');
  			});
  		});

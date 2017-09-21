@@ -1,9 +1,5 @@
 var socket = io();
 
-socket.on('testFinished', function(data) {
-	console.log(data);
-});
-
 function showLoading(buttonId, iconId, progressBarId) {
 	if (buttonId) {
 		$('#'+buttonId).addClass('disabled');
@@ -109,9 +105,8 @@ socket.on('saveOptionItemsProgress', function(data) {
 	$('#saveInventoryProgressBar').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
 });
 
-socket.on('getItemsFinished', function(data) {
+socket.on('getItemsFinished', function() {
 	doneLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
-	console.log(data);
 });
 
 socket.on('saveItemsFinished', function(data) {
