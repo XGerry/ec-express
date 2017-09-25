@@ -8,6 +8,7 @@ var secureUrlCa = 'https://www.ecstasycrafts.ca';
  var async = require('async');
  var Item = require('./model/item');
  var Order = require('./model/order');
+ var Settings = require('./model/settings');
  var Receipt = require('./model/receipt');
  var helpers = require('./helpers');
  var pixl = require('pixl-xml')
@@ -531,185 +532,158 @@ function getOrdersFull(query, callback) {
  * For importing orders into quickbooks
  */
 
-function getOrdersQuick(query, qbws, callback) {
+function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
   var canadian = false;
+
+  helpers.setTimeCode();
+  Settings.findOne({}, function(err, settings) {
+    settings.lastImport = helpers.getTimeCode();
+    settings.save();
+  });
+
+  query.countonly = 1;
+
+  var options = {
+    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    headers: {
+      SecureUrl: secureUrlUs,
+      PrivateKey: process.env.CART_PRIVATE_KEY,
+      Token: process.env.CART_TOKEN
+    },
+    qs: query
+  };
 
   if (query.canadian == true) {
     canadian = true;
+    options.headers.SecureUrl = secureUrlCa;
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
   }
   delete query.canadian;
 
-  var options = {
-    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    qs : query
-  };
+  request(options, function(err, response, body) {
+    delete query.countonly;
+    var numberOfOrders = JSON.parse(body).TotalCount;
+    var numOfRequests = Math.ceil(numberOfOrders / 100);
+    var requests = [];
 
+    console.log('We need to do ' + numOfRequests + ' requests to get all the orders');
 
+    if (numOfRequests == 0) {
+      finalCallback();
+    } else {
+      for (var i = 0; i < numOfRequests; i++) {
+        query.offset = i * query.limit;
+        options.qs = query;
+        requests.push(JSON.parse(JSON.stringify(options)));
+      }
+
+      var counter = 0;
+      async.eachLimit(requests, 2, function(option, callback) {
+        function doRequest() {
+          request(option, function(err, response, body) {
+            progressCallback(++counter, numOfRequests);
+            createOrdersInDB(JSON.parse(body), function() {
+              console.log('finsihed saving the orders');
+              callback(null);
+            });
+          });
+        }
+        setTimeout(doRequest, 1000);
+      }, function(err) {
+        finalCallback();
+      });
+    }
+  });
 }
-
-
 
 function getOrders(query, qbws, callback) {
-
-  finishedDelete();
-
-  function finishedDelete() {
-    // set a new timecode
-    helpers.timecode = + new Date();
-
-    var options = {
-      url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-      headers : {
-        SecureUrl : 'https://www.ecstasycrafts.com',
-        PrivateKey : process.env.CART_PRIVATE_KEY,
-        Token : process.env.CART_TOKEN
-      },
-      qs : query
-    };
-
-    var requests = [];
-    requests.push(JSON.parse(JSON.stringify(options)));
-
-    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-
-    requests.push(JSON.parse(JSON.stringify(options)));
-
-    async.map(requests, function(option, asyncCallback) {
-      request.get(option, function (error, response, body) {
-        if (error) {
-          asyncCallback(err);
-        } else {
-          if (body)
-            asyncCallback(null, JSON.parse(body));
-          else
-            asyncCallback(null, []);
-        }
-      });
-    }, function(err, bodies) {
-      var merged = [].concat.apply([], bodies);
-      createInvoices(merged);
+  function usOrders(cb) {
+    getOrdersQuick(query, qbws, function(progress, total, orders) {
+      console.log('US: ' + ((progress/total)*100).toFixed() + '%');
+    }, function() {
+      // finished
+      cb();
     });
-
-    function createInvoices(orders) {
-      var jsonBody = orders;
-      var contacts = [];
-
-      // first request is a check to see if there are duplicate invoices
-      var invoiceRq = helpers.queryInvoiceRq(jsonBody);
-      qbws.addRequest(invoiceRq);
-
-      qbws.setCallback(function(response) {
-        var doc = pixl.parse(response);
-        var invoiceRs = doc.QBXMLMsgsRs.InvoiceQueryRs;
-
-        if (invoiceRs) {
-          if (invoiceRs.requestID == 'invoiceCheck') {
-            var orders = qbws.getOrders();
-
-            if (invoiceRs.InvoiceRet instanceof Array) {
-              console.log(invoiceRs.InvoiceRet.length + ' duplicates found.');
-              invoiceRs.InvoiceRet.forEach(function(invoice) {
-                var index = -1;
-                for (var i = 0; i < orders.length; i++) {
-                  var order = orders[i];
-                  var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-                  if (invoice.RefNumber == orderId) {
-                    index = i;
-                    break;
-                  }
-                }
-
-                // remove the order from the import list
-                qbws.removeOrder(index);
-                Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
-                  savedOrder.errorMessage = 'Duplicate order. Skipping import.';
-                  savedOrder.imported = true;
-                  savedOrder.save();
-                });
-              });
-            } else {
-              var invoice = invoiceRs.InvoiceRet;
-              if (invoice) { // if there was no invoice then all the orders are new
-                var index = -1;
-                for (var i = 0; i < orders.length; i++) {
-                  var order = orders[i];
-                  var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-                  if (invoice.RefNumber == orderId) {
-                    index = i;
-                    break;
-                  }
-                }
-                qbws.removeOrder(index);
-                Order.findOne({orderId: invoice.RefNumber}, function(err, savedOrder) {
-                  savedOrder.errorMessage = 'Duplicate order. Skipping import.';
-                  savedOrder.save();
-                });
-              }
-            }
-
-            // now all the orders should only contain the ones we want to import
-            qbws.generateOrderRequest();
-          }
-        }
-      });
-
-      // build requests and save this to the database
-      jsonBody.forEach(function(order) {
-        qbws.addOrder(order);
-
-        contacts.push(helpers.getCustomer(order)); // hubspot integration
-        var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-
-        Order.findOne({orderId: orderId}, function(err, dbOrder) {
-          if (err) {
-            console.log(err);
-          } else {
-            if (dbOrder) {
-              // We already have this order in the db. So we must be retrying it for some reason
-              updateOrderInfo(dbOrder, order);
-            } else {
-              // create the order in our database
-              var newOrder = new Order();
-              newOrder.orderId = orderId;
-              updateOrderInfo(newOrder, order);
-            }
-          }
-        });
-      });
-
-      // Hubspot update
-      helpers.updateContacts(contacts, function(message) {
-        console.log('Hubspot Response:')
-        console.log(message.statusCode);
-      });
-      
-      callback(jsonBody);
-    }
   }
+
+  function canOrders(cb) {
+    query.canadian = true;
+    getOrdersQuick(query, qbws, function(progress, total, orders) {
+      console.log('CA: ' + ((progress/total)*100).toFixed() + '%');
+    }, function() {
+      // finished
+      cb();
+    });
+  }
+
+  async.parallel([usOrders, canOrders], function() {
+    // all orders now should be in the {imported: false} state if
+    // they need to be imported
+    helpers.createInvoices(qbws);
+    Order.find({imported: false}, function(err, orders) {
+      callback(orders.length);
+    });
+  });
 }
 
-function updateOrderInfo(order, cartOrder) {
+function createOrdersInDB(orders, callback) {
+  // build requests and save this to the database
+  var operations = [];
+  var contacts = [];
+  orders.forEach(function(order) {
+    contacts.push(helpers.getCustomer(order)); // hubspot integration
+    var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+
+    operations.push(function(cb) {
+      Order.findOne({orderId: orderId}, function(err, dbOrder) {
+        if (err) {
+          console.log(err);
+        } else {
+          if (dbOrder) {
+            // We already have this order in the db.
+            dbOrder.retry = true;
+            updateOrderInfo(dbOrder, order, cb);
+          } else {
+            // create the order in our database
+            var newOrder = new Order();
+            newOrder.orderId = orderId;
+            newOrder.imported = false;
+            newOrder.retry = false;
+            updateOrderInfo(newOrder, order, cb);
+          }
+        }
+      });
+    });
+  });
+
+  async.parallel(operations, function(err) {
+    // Hubspot update
+    helpers.updateContacts(contacts, function(message) {
+      console.log('Hubspot Response:')
+      console.log(message.statusCode);
+    });
+    callback();
+  });
+}
+
+function updateOrderInfo(order, cartOrder, callback) {
   order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
-  order.timecode = helpers.timecode;
-  order.retry = true;
+  order.cartOrder = cartOrder;
+  order.timecode = helpers.getTimeCode();
   order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   var itemList = [];
   cartOrder.OrderItemList.forEach(function(item) {
-
+    // TODO: save item information
   });
-  order.save();
+  order.save(function(err, savedOrder) {
+    callback();
+  });
 }
 
 function getSalesReceipts(qbws) {
 	var salesReceiptRq = helpers.querySalesReceiptRq('2017-08-10', '2017-08-11');
 	qbws.addRequest(salesReceiptRq);
-	qbws.setCallback(function(response) {
+	qbws.setCallback(function(response, qbws, continueFunction) {
 		var doc = pixl.parse(response);
     var salesRs = doc.QBXMLMsgsRs.SalesReceiptQueryRs;
 
@@ -736,6 +710,7 @@ function getSalesReceipts(qbws) {
     	});
     }
 	});
+  continueFunction();
 }
 
 function addSalesReceipts(qbws) {
@@ -855,7 +830,7 @@ function getItemsFull(query, progressCallback, finalCallback) {
 
 	  	for (var i = 0; i < numOfRequests; i++) {
 	  		options.qs.countonly = 0;
-	  		options.qs.offset = i * 200;
+        options.qs.offset = i * 200;
 	  		options.qs.limit = 200;
 	  		requests.push(JSON.parse(JSON.stringify(options)));
 	  	}

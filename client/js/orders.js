@@ -6,28 +6,36 @@ $(document).ready(function() {
       showOrders(response);
     });
   });
+
+  $('#generateOrderRequest').click(function(e) {
+    socket.emit('orderRequest');
+  });
+
+  $('#getOrdersButton').click(function(e) {
+    var status = $('#orderStatus').val();
+    var limit = $('#limit').val();
+    if (limit == null || limit == undefined || limit > 200 || limit == '') {
+      limit = 200;
+    }
+    var query = {
+      status: status,
+      limit: limit,
+      startDate: $('#startDate').val(),
+      endDate: $('#endDate').val()
+    };
+
+    socket.emit('getOrders', query);
+    $('#getOrdersButton').addClass('disabled');
+  });
 });
 
-socket.on('getOrdersFinished', function(orders) {
-  console.log(orders);
+socket.on('getOrdersFinished', function(numberOfOrders) {
+  console.log(numberOfOrders);
   showInstructions();
   $('#notifications').addClass('alert-success');
-  $('#message').text('Received ' + orders.length + ' orders from 3D Cart.');
+  $('#message').text('Received ' + numberOfOrders + ' orders from 3D Cart.');
   $('#notifications').removeClass('hidden');
   $('#getOrdersButton').removeClass('disabled');
-});
-
-$('#getOrdersButton').click(function(e) {
-  var status = $('#orderStatus').val();
-
-  var query = {
-    status: status,
-    startDate: $('#startDate').val(),
-    endDate: $('#endDate').val()
-  };
-
-  socket.emit('getOrders', query);
-  $('#getOrdersButton').addClass('disabled');
 });
 
 function showInstructions() {

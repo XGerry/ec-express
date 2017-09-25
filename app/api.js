@@ -300,42 +300,47 @@ module.exports = {
     }
 
     app.get('/api/orders/errors', function(req, res) {
-      Order.find({ imported: false }, function(err, errors) {
-        Order.find({ imported: true }, function(err, successes) {
-          if (err) {
-            console.log('There was an error finding the orders.');
-            res.send('Error getting the results from the last import.');
-            return;
-          }
+      Settings.findOne({}, function(err, settings) {
+        Order.find({ imported: false, timecode:settings.lastImport }, function(err, errors) {
+          Order.find({ imported: true, timecode:settings.lastImport }, function(err, successes) {
+            if (err) {
+              console.log('There was an error finding the orders.');
+              res.send('Error getting the results from the last import.');
+              return;
+            }
 
-          var message = successes.length + ' invoices imported. ' + errors.length + ' errors.'
-          console.log(message);
+            var message = successes.length + ' invoices imported. ' + errors.length + ' errors.'
+            console.log(message);
 
-          var responseObject = {
-            errors : [],
-            successes : []
-          };
+            var responseObject = {
+              errors : [],
+              successes : []
+            };
 
-          errors.forEach(function(doc) {
-            doc.cartOrder.errorMessage = doc.errorMessage;
-            responseObject.errors.push(doc.cartOrder);
+            errors.forEach(function(doc) {
+              if (doc.cartOrder)
+                doc.cartOrder.errorMessage = doc.errorMessage;
+              responseObject.errors.push(doc.cartOrder);
+            });
+
+            successes.forEach(function(doc) {
+              responseObject.successes.push(doc.cartOrder);
+            });
+
+            res.send(responseObject);
           });
-
-          successes.forEach(function(doc) {
-            responseObject.successes.push(doc.cartOrder);
-          });
-
-          res.send(responseObject);
         });
       });
     });
 
     app.get('/api/orders/updateCompleted', function(req, res) {
-      helpers.markCompletedOrdersAsProcessing(function(error, response, body) {
-        console.log('Marked orders as processing.');
-        console.log(response);
-        console.log(body);
-        res.send(body);
+      Settings.findOne({}, function(err, settings) {
+        helpers.markCompletedOrdersAsProcessing(settings.lastImport, function(error, response, body) {
+          console.log('Marked orders as processing.');
+          console.log(response);
+          console.log(body);
+          res.send(body);
+        });
       });
     });
 

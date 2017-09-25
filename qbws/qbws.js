@@ -25,8 +25,9 @@ var qbws,
     finalCallback = function(response) {
         console.log(response);
     }
-    callback = function(response) {
+    callback = function(response, returnObject, responseCallback) {
         console.log(response);
+        responseCallback(returnObject);
     }
 
 /**
@@ -185,43 +186,42 @@ function setFinalCallback(fnc) {
     finalCallback = fnc;
 }
 
-var defaultCallback = function (response) {
+var defaultCallback = function(response, returnObject, responseCallback) {
     console.log(response);
+    responseCallback(returnObject);
 }
 
 function getOrders() {
     return orders;
 }
 
-function generateOrderRequest() {
-    console.log('generating requests for ' + orders.length) + ' orders.';
+function generateOrderRequest(returnObject, responseCallback) {
+    setCallback(checkError); // don't end up here again
     var requestNumber = 1;
-    orders.forEach(function(order) {
-        addRequest(helpers.addCustomerRq(order, requestNumber++));
-        var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-        var invoiceRqId = orderId;
-        var xmlInvoiceRequest = helpers.addInvoiceRq(order, invoiceRqId); // make the request ID the order ID!
-        addRequest(xmlInvoiceRequest);
-        console.log('adding request: ' + orderId);
-        Order.findOne({orderId: orderId}, function(err, savedOrder) {
-            savedOrder.requestID = invoiceRqId;
-            savedOrder.save();
+    Order.find({imported: false}, function(err, orders) {
+        orders.forEach(function(order) {
+            addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
+            var invoiceRqId = order.orderId;
+            var xmlInvoiceRequest = helpers.addInvoiceRq(order.cartOrder, invoiceRqId); // make the request ID the order ID!
+            addRequest(xmlInvoiceRequest);
+            order.requestID = invoiceRqId;
+            order.save();
         });
+        responseCallback({string: 'Adding Requests'});
     });
 }
 
-function checkError(response) {
+function checkError(response, returnObject, responseCallback) {
     xmlParser(response, {explicitArray: false}, function(err, result) {
         var invoiceRs = result.QBXML.QBXMLMsgsRs.InvoiceAddRs;
         if (invoiceRs) {
-            console.log(invoiceRs);
             var requestID = invoiceRs.$.requestID;
             Order.findOne({ orderId : requestID }, function(err, doc) {
                 if (doc) {
                     if (invoiceRs.$.statusCode == '3140' || invoiceRs.$.statusCode == '3205') { // error
                         doc.imported = false;
-                        doc.errorMessage = invoiceRs.$.statusMessage;
-                        console.log('found an error: ' + doc.errorMessage);
+                        doc.message = invoiceRs.$.statusMessage;
+                        console.log('found an error: ' + doc.message);
                     } else {
                         doc.imported = true;
                     }
@@ -230,6 +230,7 @@ function checkError(response) {
             });
         }
     });
+    responseCallback(returnObject);
 }
 
 /**
@@ -293,7 +294,8 @@ function announceMethod(name, params) {
                 '() has been called by QBWebConnector'));
 
     // TODO: dedicated method for Object...length
-    if (Object.getOwnPropertyNames(params).length) {
+
+    if (params != null && params != undefined && Object.getOwnPropertyNames(params).length) {
         serviceLog('    Parameters received:');
         for (arg in params) {
             if (params.hasOwnProperty(arg)) {
@@ -471,7 +473,7 @@ function (args) {
 // - any_string = Request XML for QBWebConnector to process
 // - "" = No more request XML
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.sendRequestXML =
-function (args) {
+function (args, sendCallback) {
     var total,
         request = '';
 
@@ -497,9 +499,9 @@ function (args) {
         request = '';
     }
 
-    return {
+    sendCallback({
         sendRequestXMLResult: { string: request }
-    };
+    });
 };
 
 // WebMethod - closeConnection()
@@ -710,7 +712,7 @@ function (args) {
 // 100 = Done. no more request to send
 // Less than zero  = Custom Error codes
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.receiveResponseXML =
-function (args) {
+function (args, responseCallback) {
     var response = args.response,
         hresult = args.hresult,
         message = args.message,
@@ -718,9 +720,6 @@ function (args) {
         percentage;
 
     announceMethod('receiveResponseXML', args);
-
-    callback(response); // this method may end up adding requests
-    checkError(response);
 
     // TODO: Create method for Object testing and property names length
     if (typeof hresult === 'object' && Object.getOwnPropertyNames(hresult).length !== 0) {
@@ -737,16 +736,18 @@ function (args) {
             counter = 0;
         }
 
-        // QVWC throws an error if if the return value contains a decimal
+        // QBWC throws an error if if the return value contains a decimal
         retVal = percentage.toFixed();
     }
 
     serviceLog('    Return values: ');
     serviceLog('        Number retVal = ' + retVal);
 
-    return {
+    var returnObject = {
         receiveResponseXMLResult: { string: retVal }
     };
+
+    callback(response, returnObject, responseCallback);
 };
 
 /*

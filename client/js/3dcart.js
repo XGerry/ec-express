@@ -34,7 +34,6 @@ socket.on('updateAllItemsFinished', function(responses) {
 
 socket.on('getItemsProgress', function(progress, total, itemsChunk) {
 	items = items.concat(itemsChunk);
-	console.log(items);
 	var percentage = (progress / total) * 100;
 	$('#getProductsProgress').css("width", percentage + '%');
 	$('#getProductsProgress').text(percentage.toFixed(0) + '%');

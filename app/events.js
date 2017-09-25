@@ -53,20 +53,26 @@
  			});
  		});
 
+ 		socket.on('orderRequest', function() {
+ 			qbws.generateOrderRequest();
+ 		});
+
  		/**
  		 * Find all the orders in 3D Cart and save them to our db
  		 */
  		socket.on('getOrders', function(data) {
  			var query = {
-        limit : 200, // always 200
+        limit : data.limit,
         orderstatus : data.status, // Status of New = 1
         datestart : data.startDate,
         dateend : data.endDate,
         invoicenumber : data.number
       };
 
- 			cart3d.getOrders(query, qbws, function(orders) {
- 				socket.emit('getOrdersFinished', orders);
+      console.log(query.limit);
+
+ 			cart3d.getOrders(query, qbws, function(numberOfOrders) {
+ 				socket.emit('getOrdersFinished', numberOfOrders);
  			});
  		});
 
@@ -76,7 +82,6 @@
  		socket.on('getItemsFull', function(query) {
  			cart3d.getItemsFull(query, function(progress, total, items) {
  				socket.emit('getItemsProgress', progress, total, items);
- 				console.log('progress');
  			}, function(err) {
  				socket.emit('getItemsFinished');
  			});

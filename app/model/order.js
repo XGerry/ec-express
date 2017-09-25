@@ -11,7 +11,7 @@ var orderSchema = new mongoose.Schema({
 	orderId : String,
 	imported : Boolean,
 	requestId : Number,
-	errorMessage : String,
+	message : String,
 	qbRequest : String,
 	completed: Boolean,
 	timecode: Number,

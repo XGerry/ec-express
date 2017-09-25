@@ -9,8 +9,17 @@ var Settings = require('./model/settings');
 var Item = require('./model/item');
 var async = require('async');
 var xmlParser = require('xml2js').parseString; 
+var pixl = require('pixl-xml')
 
 var timecode = + new Date();
+
+function getTimeCode() {
+  return timecode;
+}
+
+function setTimeCode() {
+  timecode = +new Date();
+}
 
 function getXMLRequest(request) {
   var xmlDoc = builder.create('QBXML', { version: '1.0', encoding: 'ISO-8859-1'})
@@ -222,6 +231,9 @@ function modifyItemRq(item) {
   return str;
 }
 
+/**
+ * orders are 3d cart orders
+ */
 function queryInvoiceRq(orders) {
   var orderNumbers = [];
   orders.forEach(function(order) {
@@ -235,6 +247,27 @@ function queryInvoiceRq(orders) {
     }
   };
   
+  var xmlDoc = getXMLRequest(invoiceQuery);
+  var str = xmlDoc.end({'pretty': true});
+  return str;
+}
+
+/**
+ * orders are db orders
+ */
+function getInvoiceRq(orders) {
+  var orderNumbers = [];
+  orders.forEach(function(order) {
+    orderNumbers.push(order.orderId);
+  });
+
+  var invoiceQuery = {
+    InvoiceQueryRq : {
+      '@requestID' : 'invoiceCheck',
+      RefNumber : orderNumbers
+    }
+  };
+
   var xmlDoc = getXMLRequest(invoiceQuery);
   var str = xmlDoc.end({'pretty': true});
   return str;
@@ -363,6 +396,9 @@ function addProperty(propertyName, value) {
   return prop;
 }
 
+/**
+ * For hubspot integration
+ */
 function getCustomerFromOrder(order) {
   var customer = {
     email : order.BillingEmail,
@@ -464,14 +500,14 @@ function updateOrders(orders, callback, canadian) {
   });
 }
 
-function markCompletedOrdersAsProcessing(callback) {
-  Order.find({imported: true, canadian: false}, function (err, docs) {
+function markCompletedOrdersAsProcessing(timecode, callback) {
+  Order.find({imported: true, canadian: false, timecode: timecode}, function (err, docs) {
     if (err) {
       console.log('Error getting the results');
     } else {
       var orders = setOrderAsProcessing(docs);
       updateOrders(orders, function(err, results) {
-        Order.find({imported: true, canadian: true}, function(err, docs) {
+        Order.find({imported: true, canadian: true, timecode: timecode}, function(err, docs) {
           if (err) {
             console.log(err);
           } else {
@@ -485,8 +521,6 @@ function markCompletedOrdersAsProcessing(callback) {
       }, false);
     }
   });
-
-  
 }
 
 function setOrderAsProcessing(docs) {
@@ -571,7 +605,74 @@ function safePrint(value) {
   }
 }
 
-function inventorySyncCallback(response) {
+/**
+ * orders are a 3D cart order
+ */
+function createInvoices(qbws) {
+  // first request is a check to see if there are duplicate invoices
+  Order.find({imported: false}, function(err, orders) {
+    if (err) {
+      console.log(err);
+    } else if (orders.length != 0) {
+      var invoiceRq = getInvoiceRq(orders);
+      console.log(invoiceRq);
+      qbws.addRequest(invoiceRq);
+      qbws.setCallback(function(response, returnObject, responseCallback) {
+        var doc = pixl.parse(response);
+        var invoiceRs = doc.QBXMLMsgsRs.InvoiceQueryRs;
+        var operations = [];
+
+        if (invoiceRs) {
+          if (invoiceRs.requestID == 'invoiceCheck') {
+            if (Array.isArray(invoiceRs.InvoiceRet)) {
+              invoiceRs.InvoiceRet.forEach(function(invoice) {
+                operations.push(function(cb) {
+                  updateDuplicateOrder(invoice, function() {
+                    cb();
+                  });
+                });
+              });
+            } else {
+              var invoice = invoiceRs.InvoiceRet;
+              if (invoice != null || invoice != undefined) {
+                operations.push(function(cb) {
+                  updateDuplicateOrder(invoice, function() {
+                    cb();
+                  });
+                });
+              }
+            }
+
+            async.parallel(operations, function() {
+              // now all the orders should only contain the ones we want to import
+              console.log('calling generate order request');
+              qbws.generateOrderRequest(returnObject, responseCallback);
+            });
+          }
+        } else {
+          responseCallback(returnObject); // default
+        }
+      });
+    }
+  });
+}
+
+function updateDuplicateOrder(invoice, callback) {
+  Order.findOne({orderId: invoice.RefNumber}, function(err, order) {
+    if (err) {
+      console.log(err);
+    } else {
+      // duplicate order
+      order.imported = true; // already imported
+      order.message = 'Duplicate order. Skipping.';
+      order.save(function(err) {
+        callback();
+      });
+    }
+  });
+}
+
+function inventorySyncCallback(response, returnObject, responseCallback) {
   xmlParser(response, {explicitArray: false}, function(err, result) {
     var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
     if (itemInventoryRs) {
@@ -589,6 +690,7 @@ function inventorySyncCallback(response) {
       console.log(result.QBXML);
     }
   });
+  responseCallback(returnObject);
 }
 
 function findItemAndSave(qbItem) {
@@ -790,7 +892,8 @@ module.exports = {
   addItemForManifest : addItemForManifest,
   isCanadian : isCanadian,
   safePrint: safePrint,
-  timecode: timecode,
+  getTimeCode: getTimeCode,
+  setTimeCode: setTimeCode,
   queryInvoiceRq: queryInvoiceRq,
   querySalesReceiptRq: querySalesReceiptRq,
   modifyItemRq: modifyItemRq,
@@ -800,5 +903,6 @@ module.exports = {
   saveToQuickbooks: saveToQuickbooks,
   queryAllItems: queryAllItems,
   getItemRq: getItemRq,
-  getItemInQuickbooks: getItemInQuickbooks
+  getItemInQuickbooks: getItemInQuickbooks,
+  createInvoices: createInvoices
 }
