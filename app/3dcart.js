@@ -679,7 +679,7 @@ function updateOrderInfo(order, cartOrder, callback) {
   order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   var itemList = [];
   cartOrder.OrderItemList.forEach(function(item) {
-    // TODO: save item information
+    itemList.push()
   });
   order.save(function(err, savedOrder) {
     callback();

@@ -526,7 +526,9 @@ function markCompletedOrdersAsProcessing(timecode, callback) {
 function setOrderAsProcessing(docs) {
   var orders = [];
   docs.forEach(function (doc) {
-    var order = doc.cartOrder;
+    var order = {};
+    order.OrderID = doc.cartOrder.OrderID;
+    order.ShipmentList = doc.cartOrder.ShipmentList;
     order.OrderStatusID = 2; // processing
     order.ShipmentList[0].ShipmentOrderStatus = 2; // processing
     order.InternalComments = "This order was automatically updated by EC-Express";
