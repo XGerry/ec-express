@@ -537,8 +537,14 @@ function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
 
   helpers.setTimeCode();
   Settings.findOne({}, function(err, settings) {
-    settings.lastImport = helpers.getTimeCode();
-    settings.save();
+    if (settings) {
+      settings.lastImport = helpers.getTimeCode();
+      settings.save();
+    } else {
+      var newSettings = new Settings();
+      newSettings.lastImport = helpers.getTimeCode();
+      newSettings.save();
+    }
   });
 
   query.countonly = 1;
