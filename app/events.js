@@ -197,6 +197,12 @@
  			});
  		});
 
+ 		socket.on('generateSellerFile', function(query) {
+ 			amazon.generateSellerUploadFile(query, null, function() {
+ 				console.log('Finished');
+ 			});
+ 		});
+
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {

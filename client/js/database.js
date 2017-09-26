@@ -91,6 +91,10 @@ $(document).ready(function() {
 		socket.emit('generateVendorFile', getQuery());
 	});
 
+	$('#amazonSellerButton').click(function(e) {
+		socket.emit('generateSellerFile', getQuery());
+	});
+
 	$('#facebookButton').click(function(e) {
 		socket.emit('generateFacebookFeed');
 	});
