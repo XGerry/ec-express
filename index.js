@@ -1,3 +1,4 @@
+require('dotenv').config();
 var express = require('express');
 var cors = require('cors');
 var qbws = require('./qbws/qbws'); // my modified qbws
