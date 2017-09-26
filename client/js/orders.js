@@ -102,7 +102,7 @@ function showOrders(orders) {
     var row = $('<tr></tr>').attr('id', order.InvoiceNumber);
     var numberCol = $('<td></td>').text(order.InvoiceNumberPrefix + order.InvoiceNumber);
     var customerName = $('<td></td>').text(order.BillingFirstName + ' ' + order.BillingLastName);
-    var message = order.errorMessage;
+    var message = order.message;
     if (!message) {
       message = "Please run the Web Connector";
     }
