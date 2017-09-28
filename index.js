@@ -17,7 +17,11 @@ var uriString = process.env.MONGODB_URI ||
                 process.env.MONGOHQ_URL ||
                 'mongodb://localhost/db';
 
-mongoose.connect(uriString, function (err, res) {
+mongoose.connect(uriString, {
+  useMongoClient: true,
+  socketTimeoutMS: 0,
+  keepAlive: true
+}, function (err, res) {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
