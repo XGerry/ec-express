@@ -681,11 +681,11 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
       if (itemInventoryRs) {
         if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
           itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
-            findItemAndSave(qbItem)
+            findItemAndSave(settings, qbItem)
           });
           console.log('Inventory Sync Finished - Array.');
         } else {
-          findItemAndSave(itemInventoryRs.ItemInventoryRet);  
+          findItemAndSave(settings, itemInventoryRs.ItemInventoryRet);  
           console.log('Inventory Sync Finished - Single Item.');
         }
       } else {
