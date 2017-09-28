@@ -699,7 +699,8 @@ function findItemAndSave(qbItem) {
   Item.findOne({sku: qbItem.FullName}, function(err, item) {
     if (err) {
       console.log('Error finding the item');
-      console.log(err);
+      console.log(err.message);
+      console.log(qbItem.FullName);
     } else {
       if (!item) {
         console.log('Unable to find item ' + qbItem.FullName);
