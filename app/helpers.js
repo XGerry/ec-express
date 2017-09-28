@@ -699,6 +699,7 @@ function findItemAndSave(qbItem) {
   Item.findOne({sku: qbItem.FullName}, function(err, item) {
     if (err) {
       console.log('Error finding the item');
+      console.log(err);
     } else {
       if (!item) {
         console.log('Unable to find item ' + qbItem.FullName);
@@ -743,17 +744,16 @@ function saveItemFromQB(item, qbItem) {
       item.editSequence = qbItem.EditSequence;
 
       if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
-        if (item.inactive == false) {
+        if (item.inactive == false || item.inactive == null) {
           item.updated = true;
         }
         item.inactive = true;
       } else {
-        if (item.inactive == true) {
+        if (item.inactive == true || item.inactive == null) {
           item.updated = true;
         }
         item.inactive = false;
       }
-
       item.save();
     }
   });
