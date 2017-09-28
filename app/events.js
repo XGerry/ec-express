@@ -150,9 +150,16 @@
  		socket.on('saveSettings', function(data) {
  			Settings.findOne({}, function(err, settings) {
  				console.log(data);
- 				settings.canadianDistribution = (data.canada / 100);
- 				settings.usDistribution = (data.us / 100);
- 				settings.save();
+ 				if (setttings) {
+	 				settings.canadianDistribution = (data.canada / 100);
+	 				settings.usDistribution = (data.us / 100);
+	 				settings.save();
+	 			} else {
+	 				var newSettings = new Settings();
+	 				newSettings.canadianDistribution = (data.canada / 100);
+	 				newSettings.usDistribution = (data.us / 100);
+	 				newSettings.save();
+	 			}
  				console.log('Saved settings');
  			});
  		});
