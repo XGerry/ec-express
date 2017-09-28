@@ -19,7 +19,7 @@ var uriString = process.env.MONGODB_URI ||
 
 mongoose.connect(uriString, {
   useMongoClient: true,
-  socketTimeoutMS: 0,
+  socketTimeoutMS: 360000,
   keepAlive: true
 }, function (err, res) {
   if (err) {
