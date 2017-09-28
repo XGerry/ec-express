@@ -150,7 +150,7 @@
  		socket.on('saveSettings', function(data) {
  			Settings.findOne({}, function(err, settings) {
  				console.log(data);
- 				if (setttings) {
+ 				if (settings) {
 	 				settings.canadianDistribution = (data.canada / 100);
 	 				settings.usDistribution = (data.us / 100);
 	 				settings.save();
