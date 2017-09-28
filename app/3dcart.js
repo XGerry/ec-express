@@ -9,6 +9,7 @@ var secureUrlCa = 'https://www.ecstasycrafts.ca';
  var Item = require('./model/item');
  var Order = require('./model/order');
  var Settings = require('./model/settings');
+ var Customer = require('./model/customer');
  var Receipt = require('./model/receipt');
  var helpers = require('./helpers');
  var pixl = require('pixl-xml')
@@ -679,11 +680,45 @@ function updateOrderInfo(order, cartOrder, callback) {
   order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   var itemList = [];
   cartOrder.OrderItemList.forEach(function(item) {
-    itemList.push()
+    // TODO
   });
+  
   order.save(function(err, savedOrder) {
+    updateCustomerInfo(savedOrder, cartOrder);
     callback();
   });
+}
+
+function updateCustomerInfo(order, cartOrder) {
+  var email = cartOrder.BillingEmail;
+  Customer.findOne({email: email}, function(err, customer) {
+    if (err) {
+      console.log(err);
+    } else {
+      if (customer) {
+        updateCustomer(customer, order, cartOrder);
+      } else {
+        var newCustomer = new Customer();
+        newCustomer.email = email;
+        updateCustomer(newCustomer, order, cartOrder);
+      }
+    }
+  });
+}
+
+function updateCustomer(customer, order, cartOrder) {
+  customer.firstname = cartOrder.BillingFirstName;
+  customer.lastname = cartOrder.BillingLastName;
+  customer.lastOrderDate = new Date(cartOrder.OrderDate);
+  var contestStart = new Date();
+  contestStart.setFullYear(2017, 8, 29);
+  var contestEnd = new Date();
+  contestEnd.setFullYear(2017, 9, 2);
+  if (customer.lastOrderDate > contestStart && customer.lastOrderDate < contestEnd) {
+    customer.contestEntries++;
+  }
+  customer.orders.push(order._id);
+  customer.save();
 }
 
 function getSalesReceipts(qbws) {
