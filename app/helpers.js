@@ -717,49 +717,45 @@ function findItemAndSave(settings, qbItem) {
 }
 
 function saveItemFromQB(settings, item, qbItem) {
-  if (err) {
-    console.log(err);
+  var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
+  var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
+  
+  if ((item.stock != qbItem.QuantityOnHand) || 
+    (item.usStock != usStock) ||
+    (item.canStock != canStock)) {
+    item.stock = qbItem.QuantityOnHand
+    item.usStock = usStock;
+    item.canStock = canStock;
+    item.updated = true;
   } else {
-    var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
-    var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
-    
-    if ((item.stock != qbItem.QuantityOnHand) || 
-      (item.usStock != usStock) ||
-      (item.canStock != canStock)) {
-      item.stock = qbItem.QuantityOnHand
-      item.usStock = usStock;
-      item.canStock = canStock;
-      item.updated = true;
-    } else {
-      item.updated = false;
-    }
-    
-    if (qbItem.DataExtRet) {
-      if (qbItem.DataExtRet instanceof Array) {
-        qbItem.DataExtRet.forEach(function(data) {
-          addItemProperties(data, item);
-        });
-      } else {
-        addItemProperties(qbItem.DataExtRet, item);
-      }
-    }
-
-    item.listId = qbItem.ListID;
-    item.editSequence = qbItem.EditSequence;
-
-    if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
-      if (item.inactive == false || item.inactive == null) {
-        item.updated = true;
-      }
-      item.inactive = true;
-    } else {
-      if (item.inactive == true || item.inactive == null) {
-        item.updated = true;
-      }
-      item.inactive = false;
-    }
-    item.save();
+    item.updated = false;
   }
+  
+  if (qbItem.DataExtRet) {
+    if (qbItem.DataExtRet instanceof Array) {
+      qbItem.DataExtRet.forEach(function(data) {
+        addItemProperties(data, item);
+      });
+    } else {
+      addItemProperties(qbItem.DataExtRet, item);
+    }
+  }
+
+  item.listId = qbItem.ListID;
+  item.editSequence = qbItem.EditSequence;
+
+  if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
+    if (item.inactive == false || item.inactive == null) {
+      item.updated = true;
+    }
+    item.inactive = true;
+  } else {
+    if (item.inactive == true || item.inactive == null) {
+      item.updated = true;
+    }
+    item.inactive = false;
+  }
+  item.save();
 }
 
 function addItemProperties(data, item) {
