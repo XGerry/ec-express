@@ -20,6 +20,7 @@ var uriString = process.env.MONGODB_URI ||
 mongoose.connect(uriString, {
   useMongoClient: true,
   socketTimeoutMS: 0,
+  autoReconnect: true,
   keepAlive: true
 }, function (err, res) {
   if (err) {
@@ -28,6 +29,11 @@ mongoose.connect(uriString, {
     console.log('Successfully connected to: ' + uriString);
   }
 });
+
+mongoose.connection.on('connecting',   () => { log('Database connecting...'); });
+mongoose.connection.on('timeout',      () => { log('Database timeout...'); });
+mongoose.connection.on('error',        () => { log('Database error...'); });
+mongoose.connection.on('disconnected', () => { log('Database disconnected...'); });
 
 // prepare server
 app.use(cors({

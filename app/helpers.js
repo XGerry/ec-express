@@ -698,20 +698,22 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
 }
 
 function findItemAndSave(settings, qbItem) {
-  Item.findOne({sku: qbItem.FullName}, function(err, item) {
-    if (err) {
-      console.log('Error finding the item');
-      console.log(err.message);
-      console.log(qbItem.FullName);
-    } else {
-      if (!item) {
-        console.log('Unable to find item ' + qbItem.FullName);
+  if (qbItem) {
+    Item.findOne({sku: qbItem.FullName}, function(err, item) {
+      if (err) {
+        console.log('Error finding the item');
+        console.log(err.message);
+        console.log(qbItem.FullName);
+      } else {
+        if (!item) {
+          console.log('Unable to find item ' + qbItem.FullName);
+        }
+        else {
+          saveItemFromQB(settings, item, qbItem);
+        }
       }
-      else {
-        saveItemFromQB(settings, item, qbItem);
-      }
-    }
-  });
+    });
+  }
 }
 
 function saveItemFromQB(settings, item, qbItem) {
