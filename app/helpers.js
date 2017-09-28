@@ -840,7 +840,7 @@ function saveToQuickbooks(item, qbws, callback) {
  * This is all the items and the options
  */
 function queryAllItems(qbws, callback) {
-  Item.find({}, function(err, items) {
+  Item.find({sku: 'LR0492'}, function(err, items) {
     if (err) {
       console.log(err);
     } else {
