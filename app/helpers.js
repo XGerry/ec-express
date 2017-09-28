@@ -675,27 +675,29 @@ function updateDuplicateOrder(invoice, callback) {
 }
 
 function inventorySyncCallback(response, returnObject, responseCallback) {
-  xmlParser(response, {explicitArray: false}, function(err, result) {
-    var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-    if (itemInventoryRs) {
-      if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
-        itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
-          findItemAndSave(qbItem)
-        });
-        console.log('Inventory Sync Finished - Array.');
+  Settings.findOne({}, function(err, settings) {
+    xmlParser(response, {explicitArray: false}, function(err, result) {
+      var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+      if (itemInventoryRs) {
+        if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
+          itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
+            findItemAndSave(qbItem)
+          });
+          console.log('Inventory Sync Finished - Array.');
+        } else {
+          findItemAndSave(itemInventoryRs.ItemInventoryRet);  
+          console.log('Inventory Sync Finished - Single Item.');
+        }
       } else {
-        findItemAndSave(itemInventoryRs.ItemInventoryRet);  
-        console.log('Inventory Sync Finished - Single Item.');
+        console.log('Not an inventory response');
+        console.log(result.QBXML);
       }
-    } else {
-      console.log('Not an inventory response');
-      console.log(result.QBXML);
-    }
+    });
   });
   responseCallback(returnObject);
 }
 
-function findItemAndSave(qbItem) {
+function findItemAndSave(settings, qbItem) {
   Item.findOne({sku: qbItem.FullName}, function(err, item) {
     if (err) {
       console.log('Error finding the item');
@@ -706,58 +708,56 @@ function findItemAndSave(qbItem) {
         console.log('Unable to find item ' + qbItem.FullName);
       }
       else {
-        saveItemFromQB(item, qbItem);
+        saveItemFromQB(settings, item, qbItem);
       }
     }
   });
 }
 
-function saveItemFromQB(item, qbItem) {
-  Settings.findOne({}, function(err, settings) {
-    if (err) {
-      console.log(err);
+function saveItemFromQB(settings, item, qbItem) {
+  if (err) {
+    console.log(err);
+  } else {
+    var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
+    var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
+    
+    if ((item.stock != qbItem.QuantityOnHand) || 
+      (item.usStock != usStock) ||
+      (item.canStock != canStock)) {
+      item.stock = qbItem.QuantityOnHand
+      item.usStock = usStock;
+      item.canStock = canStock;
+      item.updated = true;
     } else {
-      var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
-      var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
-      
-      if ((item.stock != qbItem.QuantityOnHand) || 
-        (item.usStock != usStock) ||
-        (item.canStock != canStock)) {
-        item.stock = qbItem.QuantityOnHand
-        item.usStock = usStock;
-        item.canStock = canStock;
-        item.updated = true;
-      } else {
-        item.updated = false;
-      }
-      
-      if (qbItem.DataExtRet) {
-        if (qbItem.DataExtRet instanceof Array) {
-          qbItem.DataExtRet.forEach(function(data) {
-            addItemProperties(data, item);
-          });
-        } else {
-          addItemProperties(qbItem.DataExtRet, item);
-        }
-      }
-
-      item.listId = qbItem.ListID;
-      item.editSequence = qbItem.EditSequence;
-
-      if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
-        if (item.inactive == false || item.inactive == null) {
-          item.updated = true;
-        }
-        item.inactive = true;
-      } else {
-        if (item.inactive == true || item.inactive == null) {
-          item.updated = true;
-        }
-        item.inactive = false;
-      }
-      item.save();
+      item.updated = false;
     }
-  });
+    
+    if (qbItem.DataExtRet) {
+      if (qbItem.DataExtRet instanceof Array) {
+        qbItem.DataExtRet.forEach(function(data) {
+          addItemProperties(data, item);
+        });
+      } else {
+        addItemProperties(qbItem.DataExtRet, item);
+      }
+    }
+
+    item.listId = qbItem.ListID;
+    item.editSequence = qbItem.EditSequence;
+
+    if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
+      if (item.inactive == false || item.inactive == null) {
+        item.updated = true;
+      }
+      item.inactive = true;
+    } else {
+      if (item.inactive == true || item.inactive == null) {
+        item.updated = true;
+      }
+      item.inactive = false;
+    }
+    item.save();
+  }
 }
 
 function addItemProperties(data, item) {
