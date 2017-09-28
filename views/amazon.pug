@@ -1,0 +1,47 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Feeds
+	body
+		+navbar("amazon")
+		.container
+			.starter-template
+				h1 Feeds
+				p.lead Generate upload files for Seller or Vendor Central on Amazon or create Facebook feeds.
+		.container
+			form#databaseForm
+				.form-group.row
+					.col-lg-3
+						label(for="sku") SKU
+						input.form-control#sku(type="text", name="sku")
+					.col-lg-3
+						label(for="manufacturer") Manufacturer
+						input.form-control#manufacturer(type="text", name="manufacturer")
+			.row.bottom-10
+				button.btn.btn-default#defaultValButton(type="button", data-toggle="collapse", data-target="#defaultValues") Default Values
+			#defaultValues.collapse
+				.form-group.row
+					.col-lg-3
+						label(for="productLength") Length
+						input.form-control#productLength(type="text")
+
+			.btn-toolbar.bottom-10.row
+				button.btn.btn-default#searchButton(type="button") Search
+				button.btn.btn-danger#amazonButton(type="button") Send To Amazon
+				button.btn.btn-success#amazonVendorButton(type="button") Generate Amazon Vendor
+				button.btn.btn-success#amazonSellerButton(type="button") Generate Amazon Seller
+				button.btn.btn-primary#facebookButton(type="button") Generate Facebook
+
+			table.table.table-striped.table-hover#databaseTable
+				thead
+					tr
+						th SKU
+						th Name
+						th US Price
+						th Canadian Price
+						th Stock
+				tbody#databaseTableBody
+
+	include includes/end
+		script(src="/js/database.js")

@@ -43,6 +43,12 @@ mixin navbar(active)
 						else
 							li
 								a(href="/database") Database
+						if active == "amazon"
+							li
+								a(href="/amazon") Feeds
+						else
+							li
+								a(href="/amazon") Feeds
 						li
 							a(href="/product-upload.html") Product Upload
 						if active == "orders"

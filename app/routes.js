@@ -107,4 +107,8 @@ module.exports = function(app, passport) {
   app.get('/database', function(req, res) {
     res.render('database');
   });
+
+  app.get('/amazon', function(req, res) {
+    res.render('amazon');
+  });
 }
