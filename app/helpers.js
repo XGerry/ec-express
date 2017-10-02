@@ -675,29 +675,42 @@ function updateDuplicateOrder(invoice, callback) {
 }
 
 function inventorySyncCallback(response, returnObject, responseCallback) {
+  var operations = [];
   Settings.findOne({}, function(err, settings) {
     xmlParser(response, {explicitArray: false}, function(err, result) {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
       if (itemInventoryRs) {
         if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
           itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
-            findItemAndSave(settings, qbItem)
+            operations.push(function(callback) {
+              findItemAndSave(settings, qbItem, callback);
+            });
           });
-          console.log('Inventory Sync Finished - Array.');
+          console.log('Array.');
         } else {
-          findItemAndSave(settings, itemInventoryRs.ItemInventoryRet);  
-          console.log('Inventory Sync Finished - Single Item.');
+          operations.push(function(callback) {
+            findItemAndSave(settings, itemInventoryRs.ItemInventoryRet, callback);  
+          });
+          console.log('Single Item.');
         }
+        async.series(operations, function(err) {
+          if (err) {
+            console.log('An error occurred saving the items');
+            console.log(err);
+          } else {
+            console.log('Saved all items successfully.');
+          }
+        });
       } else {
         console.log('Not an inventory response');
         console.log(result.QBXML);
+        responseCallback(returnObject);
       }
     });
   });
-  responseCallback(returnObject);
 }
 
-function findItemAndSave(settings, qbItem) {
+function findItemAndSave(settings, qbItem, callback) {
   if (qbItem) {
     Item.findOne({sku: qbItem.FullName}, function(err, item) {
       if (err) {
@@ -709,14 +722,14 @@ function findItemAndSave(settings, qbItem) {
           console.log('Unable to find item ' + qbItem.FullName);
         }
         else {
-          saveItemFromQB(settings, item, qbItem);
+          saveItemFromQB(settings, item, qbItem, callback);
         }
       }
     });
   }
 }
 
-function saveItemFromQB(settings, item, qbItem) {
+function saveItemFromQB(settings, item, qbItem, callback) {
   var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
   var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
   
@@ -755,7 +768,13 @@ function saveItemFromQB(settings, item, qbItem) {
     }
     item.inactive = false;
   }
-  item.save();
+  item.save(function(err) {
+    if (err) {
+      callback(err);
+    } else {
+      callback();
+    }
+  });
 }
 
 function addItemProperties(data, item) {
