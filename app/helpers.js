@@ -720,6 +720,7 @@ function findItemAndSave(settings, qbItem, callback) {
       } else {
         if (!item) {
           console.log('Unable to find item ' + qbItem.FullName);
+          callback();
         }
         else {
           saveItemFromQB(settings, item, qbItem, callback);
