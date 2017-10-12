@@ -17,11 +17,15 @@ $(document).ready(function() {
     if (limit == null || limit == undefined || limit > 200 || limit == '') {
       limit = 200;
     }
+
+    var startDate = new Date($('#startDate').val());
+    var endDate = new Date($('#endDate').val());
+
     var query = {
       status: status,
       limit: limit,
-      startDate: $('#startDate').val(),
-      endDate: $('#endDate').val()
+      startDate: startDate.getMonth()+1+'/'+startDate.getDate()+'/'+startDate.getFullYear(),
+      endDate: endDate.getMonth()+1+'/'+endDate.getDate()+'/'+endDate.getFullYear()
     };
 
     socket.emit('getOrders', query);

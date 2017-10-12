@@ -100,8 +100,12 @@ $(document).ready(function() {
 	});
 
 	$('#saveItemButton').click(function(e) {
-			saveItem(theItem);
-		});
+		saveItem(theItem);
+	});
+
+	$('#hideUnhide').click(function(e) {
+		hideUnhide(theItem);
+	});
 });
 
 socket.on('searchFinished', function(data) {
@@ -151,14 +155,20 @@ function buildItemTable(items) {
 			$('#barcode').val(item.barcode);
 			$('#country').val(item.countryOfOrigin);
 			$('#itemInactive').prop('checked', item.inactive === true);
+			$('#itemHidden').prop('checked', item.hidden === true);
 			$('#itemIsOption').prop('checked', item.isOption === true);
 			$('#itemHasOptions').prop('checked', item.hasOptions === true);
 			$('#catalogIdUS').val(item.catalogId);
-			console.log(item.catalogIdCan);
 			$('#catalogIdCanModal').val(item.catalogIdCan);
 			$('#optionId').val(item.optionId);
 			$('#optionIdCan').val(item.optionIdCan);
 			$('#itemModal').modal();
+
+			if (item.hidden === true) {
+				$('#hideUnhide').text('Unhide');
+			} else {
+				$('#hideUnhide').text('Hide');
+			}
 		});
 
 		$('#databaseTableBody').append(row);
@@ -172,7 +182,12 @@ function buildItemTable(items) {
 }
 
 function saveItem(item) {
-	console.log(item);
+	item = saveItemProperties(item);
+	socket.emit('saveItem', item);
+	$('#itemModal').modal('hide');
+}
+
+function saveItemProperties(item) {
 	item.name = $('#itemName').val();
 	item.usPrice = parseFloat($('#usPrice').val());
 	item.canPrice = parseFloat($('#canPrice').val());
@@ -185,6 +200,21 @@ function saveItem(item) {
 	item.isOption = $('#itemIsOption').is(':checked');
 	item.hasOptions = $('#itemHasOptions').is(':checked');
 	item.inactive = $('#itemInactive').is(':checked');
+	item.hidden = $('#itemHidden').is(':checked');
+	return item;
+}
+
+function hideUnhide(item) {
+	var isHidden = item.hidden;
+	item = saveItemProperties(item);
+
+	if (isHidden == true) {
+		item.hidden = false;
+		item.inactive = false;
+	} else {
+		item.hidden = true;
+		item.inactive = true;
+	}
 	socket.emit('saveItem', item);
 	$('#itemModal').modal('hide');
 }

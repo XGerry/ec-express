@@ -25,6 +25,7 @@ var itemSchema = new mongoose.Schema({
 	editSequence: String, // also need this in order to modify the item in qb
 	isOption: Boolean,
 	inactive: Boolean,
+	hidden: Boolean,
 	hasOptions: Boolean,
 	optionId: Number,
 	optionIdCan: Number,
@@ -39,7 +40,12 @@ var itemSchema = new mongoose.Schema({
 	length: Number,
 	weight: Number,
 	size: String,
-	categories: [String]
+	categories: [String],
+	lastOrderDate: Date,
+	orderCount: {
+		type: Number,
+		default: 0
+	}
 });
 
 module.exports = mongoose.model('Item', itemSchema);

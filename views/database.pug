@@ -66,10 +66,6 @@ html
 			.btn-toolbar.bottom-10
 				button.btn.btn-default#searchButton(type="button") Search
 				button.btn.btn-info#advancedButton(type="button", data-toggle="collapse", data-target="#advancedSearch") Advanced
-				button.btn.btn-danger#amazonButton(type="button") Send To Amazon
-				button.btn.btn-success#amazonVendorButton(type="button") Generate Amazon Vendor
-				button.btn.btn-success#amazonSellerButton(type="button") Generate Amazon Seller
-				button.btn.btn-primary#facebookButton(type="button") Generate Facebook
 
 			table.table.table-striped.table-hover#databaseTable
 				thead
@@ -134,15 +130,19 @@ html
 
 								#advanced.collapse
 									.row.form-group.checkbox
-										.col-lg-4
+										.col-lg-3
+											label(for="itemHidden")
+												input#itemHidden(type="checkbox")
+												| Hidden
+										.col-lg-3
 											label(for="itemInactive")
 												input#itemInactive(type="checkbox")
 												| Inactive
-										.col-lg-4
+										.col-lg-3
 											label(for="itemIsOption")
 												input#itemIsOption(type="checkbox")
 												| Is Option
-										.col-lg-4
+										.col-lg-3
 											label(for="itemHasOptions")
 												input#itemHasOptions(type="checkbox")
 												| Has Options
@@ -162,6 +162,7 @@ html
 											input#optionIdCan.form-control(type="text", readonly) 		
 						.modal-footer
 							button#saveItemButton.btn.btn-success(type="button") Save
+							button#hideUnhide.btn.btn-info(type="button") Hide
 							button.btn.btn-default(type="button", data-dismiss="modal") Cancel
 
 	include includes/end

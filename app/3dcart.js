@@ -567,12 +567,20 @@ function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
   }
   delete query.canadian;
 
+  console.log(query);
+
   request(options, function(err, response, body) {
     delete query.countonly;
     var numberOfOrders = JSON.parse(body).TotalCount;
-    var numOfRequests = Math.ceil(numberOfOrders / 100);
+    console.log(numberOfOrders);
+    var numOfRequests = Math.ceil(numberOfOrders / 200); // can always get 200 records
     var requests = [];
 
+    if (canadian) {
+      console.log('Canada');
+    } else {
+      console.log('US');
+    }
     console.log('We need to do ' + numOfRequests + ' requests to get all the orders');
 
     if (numOfRequests == 0) {
@@ -667,7 +675,12 @@ function createOrdersInDB(orders, callback) {
     // Hubspot update
     helpers.updateContacts(contacts, function(message) {
       console.log('Hubspot Response:')
-      console.log(message.statusCode);
+      if (message) {
+        console.log(message.statusCode);
+        if (message.statusCode == 400) {
+          console.log(message);
+        }
+      }
     });
     callback();
   });
@@ -679,9 +692,19 @@ function updateOrderInfo(order, cartOrder, callback) {
   order.timecode = helpers.getTimeCode();
   order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   var itemList = [];
-  cartOrder.OrderItemList.forEach(function(item) {
-    // TODO
-  });
+  if (cartOrder.OrderItemList) {
+    cartOrder.OrderItemList.forEach(function(item) {
+      // TODO
+      var sku = item.ItemID.trim();
+      var findingItem = Item.findOne({sku: sku});
+      findingItem.then(function(doc) {
+        doc.lastOrderDate = new Date(cartOrder.OrderDate);
+        doc.save();
+      });
+    });
+  } else {
+    console.log(cartOrder);
+  }
   
   order.save(function(err, savedOrder) {
     updateCustomerInfo(savedOrder, cartOrder);
@@ -921,6 +944,7 @@ function updateItemFields(item, cartItem, canadian) {
   item.name = cartItem.SKUInfo.Name;
   item.weight = cartItem.Weight;
   item.manufacturerName = cartItem.ManufacturerName;
+  item.hidden = cartItem.Hide;
 
   var categories = [];
   cartItem.CategoryList.forEach(function(category) {
@@ -937,7 +961,6 @@ function updateItemFields(item, cartItem, canadian) {
     item.catalogIdCan = cartItem.SKUInfo.CatalogID;
     item.canLink = cartItem.ProductLink;
     item.canStock = cartItem.SKUInfo.Stock;
-
   }
   else {
     item.usPrice = cartItem.SKUInfo.Price;
@@ -951,7 +974,8 @@ function updateItemFields(item, cartItem, canadian) {
     item.hasOptions = true;
     // save the options
     cartItem.AdvancedOptionList.forEach(function(optionItem) {
-      Item.findOne({sku:optionItem.AdvancedOptionSufix}, function(err, advancedOption) {
+      var optionSKU = optionItem.AdvancedOptionSufix.trim();
+      Item.findOne({sku: optionSKU}, function(err, advancedOption) {
         if (err) {
           console.log(err);
         } else {
@@ -959,7 +983,7 @@ function updateItemFields(item, cartItem, canadian) {
             updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian);
           } else if (optionItem.AdvancedOptionSufix != '') {
             var newOption = new Item();
-            newOption.sku = optionItem.AdvancedOptionSufix.trim();
+            newOption.sku = optionSKU;
             updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian);
           }
         }
@@ -976,7 +1000,8 @@ function updateItemFields(item, cartItem, canadian) {
   if (cartItem.Height != 0) {
     item.length = cartItem.Height;
   }
-
+  
+  /*
   cartItem.FeatureList.forEach(function(feature) {
     if (feature.FeatureTitle == 'Size' || 
         feature.FeatureTitle == 'size' ||
@@ -996,12 +1021,9 @@ function updateItemFields(item, cartItem, canadian) {
 
       item.width = width;
       item.length = length;
-      console.log(size);
-      console.log(width);
-      console.log(length);
-      console.log('\n');
     }
   });
+  */
   
   item.save();
 }
@@ -1013,14 +1035,14 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
     advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID; // Parent Item
     advancedOption.canPrice = optionItem.AdvancedOptionPrice;
     advancedOption.canLink = cartItem.ProductLink;
-    advancedOption.canStock = cartItem.AdvancedOptionStock;
+    advancedOption.canStock = optionItem.AdvancedOptionStock;
   }
   else {
     advancedOption.usPrice = optionItem.AdvancedOptionPrice;
     advancedOption.catalogId = cartItem.SKUInfo.CatalogID; // Parent Item
     advancedOption.optionId = optionItem.AdvancedOptionCode;
     advancedOption.usLink = cartItem.ProductLink;
-    advancedOption.canStock = cartItem.AdvancedOptionStock;
+    advancedOption.usStock = optionItem.AdvancedOptionStock;
   }
 
   advancedOption.isOption = true;
@@ -1384,7 +1406,8 @@ function saveItem(item, qbws) {
       GTIN: item.barcode,
       ExtraField8: item.barcode,
       ExtraField9: item.countryOfOrigin,
-      InventoryControl: control
+      InventoryControl: control,
+      Hide: item.hidden
     }];
 
     if (item.inactive == true) {

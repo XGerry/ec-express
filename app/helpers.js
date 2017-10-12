@@ -817,6 +817,7 @@ function saveItem(item, qbws) {
       theItem.isOption = item.isOption;
       theItem.hasOptions = item.hasOptions;
       theItem.inactive = item.inactive;
+      theItem.hidden = item.hidden;
       theItem.save();
 
       saveToQuickbooks(theItem, qbws, function(savedItem) {

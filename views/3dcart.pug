@@ -41,6 +41,19 @@ html
 								.input-group
 									span.input-group-addon $
 									input.form-control#priceTo(type="number")
+						.form-group
+							.col-lg-3
+								label(for="stockfrom") Stock From
+								input.form-control#stockfrom(type="number")
+							.col-lg-3
+								label(for="stockto") Stock To
+								input.form-control#stockto(type="number")
+							.col-lg-3
+								label(for="lastupdatefrom") Last Updated From
+								input.form-control#lastupdatefrom(type="date")
+							.col-lg-3
+								label(for="lastupdateto") Last Update To
+								input.form-control#lastupdateto(type="date")
 						.form-group.row.checkbox
 							.col-lg-3
 								label(for="onSaleCheckbox")

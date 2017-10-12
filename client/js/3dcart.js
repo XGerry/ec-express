@@ -100,7 +100,7 @@ function getItems() {
 		sku: $('#sku').val(),
 		onsale: $('#onSaleCheckbox').is(':checked'),
 		manufacturer: $('#manufacturer').val(),
-		canadian: $('#canadianStore').is(':checked'),
+		canadian: $('#canadianStore').is(':checked')
 	};
 
 	var priceFrom = $('#priceFrom').val();
@@ -112,6 +112,29 @@ function getItems() {
 	if (priceTo != '') {
 		query.priceTo = priceTo;
 	}
+
+	var stockfrom = $('#stockfrom').val();
+	var stockto = $('#stockto').val();
+	if (stockfrom != '') {
+		query.stockfrom = stockfrom;
+	}
+	if (stockto != '') {
+		query.stockto = stockto;
+	}
+
+	var lastupdatestart = $('#lastupdatefrom').val();
+	var lastupdateend = $('#lastupdateto').val();
+
+	if (lastupdatestart != '') {
+		var date = new Date(lastupdatestart);
+		query.lastupdatestart = date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear();
+	}
+
+	if (lastupdateend != '') {
+		var date = new Date(lastupdateend);
+		query.lastupdateend = date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear();
+	}
+
 
 	$('#getItemsProgress').css('width', '0%');
 	$('#getItemsProgress').addClass('active');
