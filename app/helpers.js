@@ -652,7 +652,7 @@ function createInvoices(qbws) {
             });
           }
         } else {
-          responseCallback(returnObject); // default
+          responseCallback({returnObject}); // default
         }
       });
     }
@@ -821,6 +821,7 @@ function saveItem(item, qbws) {
       theItem.save();
 
       saveToQuickbooks(theItem, qbws, function(savedItem) {
+        console.log('adding inventory request');
         qbws.addRequest(modifyInventoryRq(savedItem));
       });
     }
@@ -834,7 +835,7 @@ function saveItem(item, qbws) {
 function getItemInQuickbooks(item, qbws, callback) {
   // create request in qb
   qbws.addRequest(getItemRq(item));
-  qbws.setCallback(function(response) {
+  qbws.setCallback(function(response, returnObject, responseCallback) {
     xmlParser(response, {explicitArray: false}, function(err, result) {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
       if (itemInventoryRs) {
@@ -842,18 +843,24 @@ function getItemInQuickbooks(item, qbws, callback) {
           item.editSequence = itemInventoryRs.ItemInventoryRet.EditSequence;
           item.listId = itemInventoryRs.ItemInventoryRet.ListID;
           item.save(function(err, savedItem) {
-            callback(savedItem, itemInventoryRs.ItemInventoryRet);
+            callback(savedItem, itemInventoryRs.ItemInventoryRet, returnObject, responseCallback);
           });
+        } else {
+          responseCallback(returnObject); // default
         }
+      } else {
+        responseCallback(returnObject); // default
       }
     });
   });
 }
 
 function saveToQuickbooks(item, qbws, callback) {
-  getItemInQuickbooks(item, qbws, function(savedItem) {
+  getItemInQuickbooks(item, qbws, function(savedItem, inventoryResponse, returnObject, responseCallback) {
+    console.log('adding modify item request');
     qbws.addRequest(modifyItemRq(savedItem));
     callback(savedItem);
+    responseCallback({string: '50'});
   });
 }
 
