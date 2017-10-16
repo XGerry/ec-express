@@ -8,6 +8,7 @@ var xmlParser = require('xml2js').parseString;
 var Order = require('../app/model/order');
 var Settings = require('../app/model/settings');
 var helpers = require('../app/helpers.js');
+var async = require('async');
 
 var qbws,
     server,
@@ -23,12 +24,13 @@ var qbws,
     req = [],
     orders = [],
     finalCallback = function(response) {
-        console.log(response);
+        // console.log(response);
     }
     callback = function(response, returnObject, responseCallback) {
-        console.log(response);
+        // console.log(response);
         responseCallback(returnObject);
-    }
+    },
+    callbacks = [];
 
 /**
  * Returns an array of sample QBXML requests
@@ -176,10 +178,15 @@ var clearRequests = function() {
     orders = [];
     callback = defaultCallback;
     connectionErrCounter = 0; // reset this too
+    callbacks = [];
 }
 
 var setCallback = function(fnc) {
     callback = fnc;
+}
+
+function addCallback(fnc) {
+    callbacks.push(fnc);
 }
 
 function setFinalCallback(fnc) {
@@ -477,31 +484,30 @@ function (args, sendCallback) {
     var total,
         request = '';
 
-    if (counter === null) {
-        counter = 0;
-    }
-
     announceMethod('sendRequestXML', args);
-
-    if (counter == 0) {
-        serviceLog('    Sending first request');
-    }
 
     total = req.length;
     console.log('Sending ' + total + ' requests to QBWC.');
 
-    if (counter < total) {
-        request = req[counter];
-        serviceLog('    Sending request no = ' + (counter + 1));
-        counter = counter + 1;
-    } else {
-        counter = 0;
-        request = '';
+    // if (counter < total) {
+    //     request = req[counter];
+    //     serviceLog('    Sending request no = ' + (counter + 1));
+    //     counter = counter + 1;
+    // } else {
+    //     counter = 0;
+    //     request = '';
+    // }
+
+    // just shift the next request off the stack
+
+    if (req.length > 0) {
+        request = req.shift();
     }
 
     sendCallback({
         sendRequestXMLResult: { string: request }
     });
+
 };
 
 // WebMethod - closeConnection()
@@ -740,14 +746,27 @@ function (args, responseCallback) {
         retVal = percentage.toFixed();
     }
 
-    serviceLog('    Return values: ');
-    serviceLog('        Number retVal = ' + retVal);
+    //serviceLog('    Return values: ');
+    //serviceLog('        Number retVal = ' + retVal);
 
     var returnObject = {
         receiveResponseXMLResult: { string: retVal }
     };
 
-    callback(response, returnObject, responseCallback);
+    async.applyEach(callbacks, response, function() { // go over all the callbacks until it's finished
+        percentage = counter * 100 / req.length; // recalculate percentage because we may have added stuff
+        if (percentage >= 100) {
+            counter = 0;
+        }
+
+        // QBWC throws an error if if the return value contains a decimal
+        retVal = percentage.toFixed();
+
+        returnObject = {
+            receiveResponseXMLResult: { string: retVal }
+        };
+        callback(response, returnObject, responseCallback);
+    });
 };
 
 /*
@@ -786,6 +805,7 @@ module.exports = {
     addOrder : addOrder,
     removeOrder: removeOrder,
     getOrders: getOrders,
-    generateOrderRequest: generateOrderRequest
+    generateOrderRequest: generateOrderRequest,
+    addCallback: addCallback
 };
 

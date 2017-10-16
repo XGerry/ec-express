@@ -70,6 +70,15 @@ $(document).ready(function() {
 		$('#canStock').val((totalStock * canDistribution).toFixed());
 	});
 
+	// calculate sale prices automatically
+	$('#salePercentage').change(function() {
+		var salePercentage = $('#salePercentage').val() / 100;
+		var usOff = (salePercentage*theItem.usPrice);
+		var canOff = (salePercentage*theItem.canPrice);
+		$('#usSalePrice').val((theItem.usPrice - usOff).toFixed(2));
+		$('#canSalePrice').val((theItem.canPrice - canOff).toFixed(2));
+	});
+
 	$('#andQuery').click(function(e) {
 		// add the query to the and part
 		var value = $('#valueInput').val();
@@ -146,8 +155,19 @@ function buildItemTable(items) {
 			$('#itemSKU').val(item.sku);
 			$('#itemName').val(item.name);
 			$('#usPrice').val(item.usPrice.toFixed(2));
-			if (item.canPrice != undefined)
+			if (item.canPrice != undefined) {
 				$('#canPrice').val(item.canPrice.toFixed(2));
+			}
+			if (item.usSalePrice != undefined) {
+				$('#usSalePrice').val(item.usSalePrice.toFixed(2));
+			} else {
+				$('#usSalePrice').val(0.00);
+			}
+			if (item.canSalePrice != undefined) {
+				$('#canSalePrice').val(item.canSalePrice.toFixed(2));
+			} else {
+				$('#canSalePrice').val(0.00);
+			}
 			$('#stock').val(item.stock);
 			$('#usStock').val(item.usStock);
 			$('#canStock').val(item.canStock);
@@ -158,10 +178,12 @@ function buildItemTable(items) {
 			$('#itemHidden').prop('checked', item.hidden === true);
 			$('#itemIsOption').prop('checked', item.isOption === true);
 			$('#itemHasOptions').prop('checked', item.hasOptions === true);
+			$('#onSale').prop('checked', item.onSale === true);
 			$('#catalogIdUS').val(item.catalogId);
 			$('#catalogIdCanModal').val(item.catalogIdCan);
 			$('#optionId').val(item.optionId);
 			$('#optionIdCan').val(item.optionIdCan);
+			$('#salePercentage').val(0);
 			$('#itemModal').modal();
 
 			if (item.hidden === true) {
@@ -191,6 +213,8 @@ function saveItemProperties(item) {
 	item.name = $('#itemName').val();
 	item.usPrice = parseFloat($('#usPrice').val());
 	item.canPrice = parseFloat($('#canPrice').val());
+	item.canSalePrice = parseFloat($('#canSalePrice').val());
+	item.usSalePrice = parseFloat($('#usSalePrice').val());
 	item.stock = $('#stock').val();
 	item.usStock = $('#usStock').val();
 	item.canStock = $('#canStock').val();
@@ -201,6 +225,7 @@ function saveItemProperties(item) {
 	item.hasOptions = $('#itemHasOptions').is(':checked');
 	item.inactive = $('#itemInactive').is(':checked');
 	item.hidden = $('#itemHidden').is(':checked');
+	item.onSale = $('#onSale').is(':checked');
 	return item;
 }
 

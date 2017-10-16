@@ -1396,7 +1396,9 @@ function saveItem(item, qbws) {
         SKU: item.sku,
         RetailPrice: item.usPrice,
         Name: item.name,
-        Stock: item.usStock
+        Stock: item.usStock,
+        OnSale: item.onSale,
+        SalePrice: item.usSalePrice
       },
       PriceLevel1: item.usPrice,
       PriceLevel2: (item.usPrice/2).toFixed(2),
@@ -1407,7 +1409,8 @@ function saveItem(item, qbws) {
       ExtraField8: item.barcode,
       ExtraField9: item.countryOfOrigin,
       InventoryControl: control,
-      Hide: item.hidden
+      Hide: item.hidden,
+
     }];
 
     if (item.inactive == true) {
@@ -1427,6 +1430,7 @@ function saveItem(item, qbws) {
     options.headers.Token = process.env.CART_TOKEN_CANADA;
     options.body[0].SKUInfo.Price = item.canPrice;
     options.body[0].SKUInfo.RetailPrice = item.canPrice;
+    options.body[0].SKUInfo.SalePrice = item.canSalePrice;
     options.body[0].SKUInfo.Stock = item.canStock;
     options.body[0].PriceLevel1 = item.canPrice;
     options.body[0].PriceLevel2 = (item.canPrice/2).toFixed(2);
