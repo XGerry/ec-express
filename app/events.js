@@ -171,8 +171,17 @@
  		});
 
  		socket.on('searchDB', function(query) {
+ 			console.log(query);
  			helpers.search(query, function(err, items) {
  				socket.emit('searchFinished', items);
+ 			});
+ 		});
+
+ 		socket.on('searchSKU', function(sku) {
+ 			sku = sku.trim().toUpperCase();
+ 			var search = helpers.searchSKU(sku);
+ 			search.then(function(items) {
+ 				socket.emit('searchSKUFinished', items);
  			});
  		});
 

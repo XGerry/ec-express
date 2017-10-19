@@ -798,6 +798,11 @@ function search(query, callback) {
   Item.find(query, callback);
 }
 
+function searchSKU(sku) {
+  var pattern = '^'+sku;
+  return Item.find({sku: {$regex: pattern, $options:'gi'}}).limit(100);
+}
+
 function saveItem(item, qbws) {
   // save the item in our db
   Item.findOne({sku: item.sku}, function(err, theItem) {
@@ -938,5 +943,6 @@ module.exports = {
   queryAllItems: queryAllItems,
   getItemRq: getItemRq,
   getItemInQuickbooks: getItemInQuickbooks,
-  createInvoices: createInvoices
+  createInvoices: createInvoices,
+  searchSKU: searchSKU
 }

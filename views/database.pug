@@ -14,7 +14,8 @@ html
 				.form-group.row
 					.col-lg-3
 						label(for="sku") SKU
-						input.form-control#sku(type="text", name="sku")
+						input.form-control#sku(type="text", name="sku", list="items")
+						datalist#items
 					.col-lg-3
 						label(for="manufacturer") Manufacturer
 						input.form-control#manufacturer(type="text", name="manufacturer")

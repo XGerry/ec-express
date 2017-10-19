@@ -11,8 +11,14 @@ var queries = {
 };
 
 function getQuery() {
+	var sku = $('#sku').val().trim().toUpperCase();
+	var pattern = '^'+sku;
+
 	var query = {
-		sku: $('#sku').val(),
+		sku: {
+			$regex: pattern,
+			$options: 'gi'
+		},
 		manufacturerName: $('#manufacturer').val(),
 		catalogId: $('#catalogId').val(),
 		updated: $('#updated').is(':checked'),
@@ -115,6 +121,18 @@ $(document).ready(function() {
 	$('#hideUnhide').click(function(e) {
 		hideUnhide(theItem);
 	});
+
+	$('#sku').on('input propertychange', function(e) {
+		var sku = $('#sku').val();
+		socket.emit('searchSKU', sku);
+	});
+});
+
+socket.on('searchSKUFinished', function(items) {
+	$('#items').empty();
+	items.forEach(function(item) {
+		$('#items').append('<option>'+item.sku+'</option>');
+	});
 });
 
 socket.on('searchFinished', function(data) {
@@ -134,14 +152,18 @@ function buildItemTable(items) {
 		var row = $('<tr></tr>');
 		var sku = $('<td></td>').text(item.sku+'');
 		var name = $('<td></td>').text(item.name+'');
-		if (item.usPrice)
-			var usPrice = $('<td></td>').text('$'+item.usPrice.toFixed(2));
+		var americanPrice = '-';
+		if (item.usPrice) {
+			americanPrice = item.usPrice.toFixed(2);
+		}
 		var canadaPrice = '-';
-		if (item.canPrice != undefined)
+		if (item.canPrice != undefined) {
 			canadaPrice = '$'+item.canPrice.toFixed(2);
+		}
 
-		var canPrice = $('<td></td>').text(canadaPrice);
-		var stock = $('<td></td>').text(item.stock+'');
+		var usPrice = $('<td></td>').text('$'+americanPrice);
+		var canPrice = $('<td id="canPrice"></td>').text(canadaPrice);
+		var stock = $('<td id="stock"></td>').text(item.stock+'');
 
 		row.append(sku);
 		row.append(name);
