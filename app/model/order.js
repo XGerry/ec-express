@@ -16,7 +16,8 @@ var orderSchema = new mongoose.Schema({
 	completed: Boolean,
 	timecode: Number,
 	retry: Boolean,
-	canadian: Boolean
+	canadian: Boolean,
+	manual: Boolean
 });
 
 module.exports = mongoose.model('Order', orderSchema);

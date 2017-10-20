@@ -185,6 +185,10 @@
  			});
  		});
 
+ 		socket.on('sendTo3DCart', function(order, isCanadian) {
+ 			cart3d.newOrder(order, isCanadian);
+ 		});
+
  		/**
  		 * Updates the item in our db, qb, and 3d cart (us and can)
  		 */

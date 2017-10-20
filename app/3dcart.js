@@ -1485,6 +1485,62 @@ function saveItem(item, qbws) {
   }
 }
 
+function newOrder(order, isCanadian) {
+  var options = {
+    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    method: 'POST',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : process.env.CART_PRIVATE_KEY,
+      Token : process.env.CART_TOKEN
+    },
+    json: true
+  };
+
+  if (isCanadian) {
+    options.headers.SecureUrl = secureUrlCa;
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+  }
+
+  options.body = {
+    BillingFirstName: 'Matt',
+    BillingLastName: 'Oskamp',
+    BillingAddress: '1922 Berrywood Cres',
+    BillingCity: 'Kingston',
+    BillingState: 'Ontario',
+    BillingCountry: 'Canada',
+    BillingZipCode: 'K7P3G9',
+    BillingPhoneNumber: '613-242-8433',
+    BillingEmail: 'mattoskamp@gmail.com',
+    BillingPaymentMethod: 'On Account',
+    BillingOnlinePayment: false,
+    BillingPaymentMethodID: '49',
+    ShipmentList: [{
+      ShipmentOrderStatus: 1,
+      ShipmentFirstName: 'Matt',
+      ShipmentLastName: 'Oskamp',
+      ShipmentAddress: '1922 Berrywood Cres',
+      ShipmentCity: 'Kingston',
+      ShipmentState: 'Ontario',
+      ShipmentCountry: 'Canada',
+      ShipmentZipCode: 'K7P3G9',
+      ShipmentPhone: '613-242-8433',
+      BillingEmail: 'mattoskamp@gmail.com',
+    }],
+    OrderItemList: [{
+      ItemID: 'FAP01',
+      ItemQuantity: 3,
+      ItemUnitPrice: '10'
+    }],
+    SalesTax: '1',
+    OrderStatusID: 1
+  };
+
+  request(options, function(err, response, body) {
+    console.log(body);
+  })
+}
+
 module.exports = {
  	getItems: getItems,
   refreshFrom3DCart: refreshFrom3DCart,
@@ -1500,5 +1556,6 @@ module.exports = {
   getCategories: getCategories,
   updateItemsFromDB: updateItemsFromDB,
   saveCategories: updateCategories,
-  saveItem: saveItem
+  saveItem: saveItem,
+  newOrder: newOrder
 }

@@ -51,10 +51,26 @@ mixin navbar(active)
 								a(href="/amazon") Feeds
 						li
 							a(href="/product-upload.html") Product Upload
-						if active == "orders"
-							li.active
-								a(href="/orders") Order Sync
-						else
-							li
-								a(href="/orders") Order Sync
+						li.dropdown
+							a.dropdown-toggle(href="#", data-toggle="dropdown",role="button",aria-haspopup="true",aria-expanded="false") Orders #[span.caret]
+							ul.dropdown-menu
+								if active == "orders"
+									li.active
+										a(href="/orders") Sync
+								else
+									li
+										a(href="/orders") Sync
+								if active == "new-order"
+									li.active
+										a(href="/new-order") New Order
+								else
+									li
+										a(href="/new-order") New Order
+								if active == "order-import"
+									li.active
+										a(href="/order-import") Import
+								else
+									li
+										a(href="/order-import") Import
+						
 					ul.nav.navbar-nav.navbar-right#nav-right

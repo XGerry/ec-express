@@ -105,13 +105,13 @@ html
 												.input-group
 													span.input-group-addon
 														i.fa.fa-dollar
-													input#usPrice.form-control(type="number")
+													input#usPrice.form-control(type="number", step="any")
 											.col-lg-6
 												label(for="canPrice") Canadian Price
 												.input-group
 													span.input-group-addon
 														i.fa.fa-dollar
-													input#canPrice.form-control(type="number")
+													input#canPrice.form-control(type="number", step="any")
 										.row.form-group
 											.col-lg-4
 												label(for="stock") Stock
@@ -122,6 +122,15 @@ html
 											.col-lg-4
 												label(for="canStock") Canadian Stock
 												input#canStock.form-control(type="number")
+								
+								.panel-heading
+									h4.panel-title
+										a(data-toggle="collapse", data-target="#itemImagePanel") Image
+								#itemImagePanel.collapse.panel-collapse
+									.panel-body
+										.form-group.row
+											.col-lg-12
+												img#itemImage.img-rounded.img-responsive(src="http://via.placeholder.com/350x150")
 								
 								.panel-heading
 									h4.panel-title
@@ -151,6 +160,7 @@ html
 													span.input-group-addon
 														i.fa.fa-dollar
 													input#canSalePrice.form-control(type="number")
+								
 								.panel-heading
 									h4.panel-title
 										a(data-toggle="collapse", data-target="#warehouse") Warehouse
@@ -202,6 +212,8 @@ html
 											label(for="optionIdCan") Canadian Option ID
 											input#optionIdCan.form-control(type="text", readonly) 		
 						.modal-footer
+							a#viewOnUSWebsite.btn.btn-default(href="https://www.ecstasycrafts.com", target="_blank") View on US Website
+							a#viewOnCanWebsite.btn.btn-default(href="https://www.ecstasycrafts.ca", target="_blank") View on Canadian Website
 							button#saveItemButton.btn.btn-success(type="button") Save
 							button#hideUnhide.btn.btn-info(type="button") Hide
 							button.btn.btn-default(type="button", data-dismiss="modal") Cancel

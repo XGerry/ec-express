@@ -111,4 +111,12 @@ module.exports = function(app, passport) {
   app.get('/amazon', function(req, res) {
     res.render('amazon');
   });
+
+  app.get('/new-order', function(req, res) {
+    res.render('new-order');
+  });
+
+  app.get('/order-import', function(req, res) {
+    res.render('order-import');
+  });
 }

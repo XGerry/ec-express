@@ -103,6 +103,7 @@ function showOrders(orders) {
 
   // Error Table Body
   orders.errors.forEach(function(order) {
+    console.log(order);
     var row = $('<tr></tr>').attr('id', order.InvoiceNumber);
     var numberCol = $('<td></td>').text(order.InvoiceNumberPrefix + order.InvoiceNumber);
     var customerName = $('<td></td>').text(order.BillingFirstName + ' ' + order.BillingLastName);

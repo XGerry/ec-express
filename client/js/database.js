@@ -43,10 +43,10 @@ function getQuery() {
 		delete query.updated;
 	}
 	if (query.isOption == false) {
-		delete query.isOption
+		delete query.isOption;
 	}
 	if (query.hasOptions == false) {
-		delete query.hasOptions
+		delete query.hasOptions;
 	}
 
 	return query;
@@ -162,8 +162,8 @@ function buildItemTable(items) {
 		}
 
 		var usPrice = $('<td></td>').text('$'+americanPrice);
-		var canPrice = $('<td id="canPrice"></td>').text(canadaPrice);
-		var stock = $('<td id="stock"></td>').text(item.stock+'');
+		var canPrice = $('<td></td>').text(canadaPrice);
+		var stock = $('<td></td>').text(item.stock+'');
 
 		row.append(sku);
 		row.append(name);
@@ -177,6 +177,7 @@ function buildItemTable(items) {
 			$('#itemSKU').val(item.sku);
 			$('#itemName').val(item.name);
 			$('#usPrice').val(item.usPrice.toFixed(2));
+
 			if (item.canPrice != undefined) {
 				$('#canPrice').val(item.canPrice.toFixed(2));
 			}
@@ -190,6 +191,8 @@ function buildItemTable(items) {
 			} else {
 				$('#canSalePrice').val(0.00);
 			}
+
+			$('#itemImage').attr('src', 'https://ecstasycrafts.com/'+item.imageURL);
 			$('#stock').val(item.stock);
 			$('#usStock').val(item.usStock);
 			$('#canStock').val(item.canStock);
@@ -206,6 +209,8 @@ function buildItemTable(items) {
 			$('#optionId').val(item.optionId);
 			$('#optionIdCan').val(item.optionIdCan);
 			$('#salePercentage').val(0);
+			$('#viewOnUSWebsite').attr('href', item.usLink);
+			$('#viewOnCanWebsite').attr('href', item.canLink);
 			$('#itemModal').modal();
 
 			if (item.hidden === true) {

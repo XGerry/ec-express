@@ -1,0 +1,304 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title New Order
+	body
+		+navbar("new-order")
+		.container
+			.starter-template
+				h1 Orders
+				p.lead Create or load orders.
+		.container
+			.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#customerPanel") Customer
+				#customerPanel.panel-collapse.collapse.in
+					.panel-body
+						.form-group.row
+							.col-lg-4
+								label(for="customerEmail") Email
+								input#customerEmail.form-control(type="text", list="emailList")
+								datalist#emailList
+							.col-lg-4
+								label(for="websiteSelect") Website
+								select.form-control#websiteSelect
+									option(value="canada") Canada
+									option(value="us") U.S.
+							.col-lg-4
+								label(for="profileSelect") Profile
+								select.form-control#profileSelect
+									option(value="retail") Retail
+									option(value="wholesale") Wholesale - 50%
+						.btn-toolbar
+							button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") New Customer
+						table.table.table-striped.table-hover#customerTable
+							thead
+								tr
+									th Name
+									th Email
+									th Phone
+									th Shipping Address
+									th Shipping City
+							tbody#customerTableBody
+				h4 Item
+				.form-group.row
+					.col-lg-2
+						label(for="itemSKU") SKU
+						input#itemSKU.form-control(type="text", list="itemList")
+						datalist#itemList
+					.col-lg-4
+						label(for="itemName") Name
+						input#itemName.form-control(type="text")
+					.col-lg-2
+						label(for="itemQuantity") Quantity
+						input#itemQuantity.form-control(type="number", value="1")
+					.col-lg-2
+						label(for="itemPrice") Item Price
+						.input-group
+							span.input-group-addon
+								i.fa.fa-dollar
+							input#itemPrice.form-control(type="number", step="any")
+					.col-lg-2
+						label(for="lineTotal") Line Total
+						.input-group
+							span.input-group-addon
+								i.fa.fa-dollar
+							input#lineTotal.form-control(type="number", readonly)
+				button.btn.btn-primary#addItemButton(type="button", disabled) Add Item
+				h4 Order
+				table.table.table-striped.table-hover#orderTable
+					thead
+						tr
+							th SKU
+							th Name
+							th Quantity
+							th Price
+							th Total
+					tbody#orderTableBody
+				.row.form-group
+					.col-lg-2.col-lg-offset-8
+						p Subtotal
+					.col-lg-2
+						.input-group
+							span.input-group-addon
+								i.fa.fa-dollar
+							input.form-control#subtotal(type="number", readonly)
+				.row.form-group
+					.col-lg-2.text-right
+						label(for="taxOptions") Tax
+					.col-lg-2
+						select#taxOptions.form-control
+							option(value=0) No Tax - 0%
+							option(value=13) HST - 13%
+							option(value=5) GST - 5%
+					.col-lg-2.col-lg-offset-4
+						p Tax
+					.col-lg-2
+						.input-group
+							span.input-group-addon
+								i.fa.fa-dollar
+							input.form-control#taxes(type="number", readonly)
+				.row.form-group
+					.col-lg-2.text-right
+						label(for="shippingOptions") Shipping
+					.col-lg-2
+						select#shippingOptions.form-control
+							option UPS
+							option Canada Post
+							option USPS
+					.col-lg-2.col-lg-offset-4
+						p Shipping
+					.col-lg-2
+						.input-group
+							span.input-group-addon
+								i.fa.fa-dollar
+							input.form-control#shipping(type="number")
+				.row.form-group
+					.col-lg-2.col-lg-offset-8
+						p Total
+					.col-lg-2
+						.input-group
+							span.input-group-addon
+								i.fa.fa-dollar
+							input.form-control#total(type="number", readonly)
+				.btn-toolbar
+					button.btn.btn-primary#saveToSiteButton(type="button") Send to Website
+
+		#customerModal.modal.fade(role="dialog")
+			.modal-dialog
+				.modal-content
+					.modal-header
+						button.close(data-dismiss="modal") &times;
+						h4#customerName New Customer
+					.modal-body
+						.form-group.row
+							.col-lg-6
+								label(for="customerFirstName") First Name
+								input#customerFirstName.form-control(type="text")
+							.col-lg-6
+								label(for="customerLastName") Last Name
+								input#customerLastName.form-control(type="text")
+						.form-group.row
+							.col-lg-6
+								label(for="customerEmailModal") Email
+								input#customerEmailModal.form-control(type="text")
+							.col-lg-6
+								label(for="customerPhone") Phone
+								input#customerPhone.form-control(type="text")
+						.panel.panel-default
+							.panel-heading
+								h4.panel-title
+									a(data-toggle="collapse", data-target="#customerBillingAddress") Billing
+							#customerBillingAddress.panel-collapse.collapse.in
+								.panel-body
+									.form-group.row
+										.col-lg-4
+											label(for="billingAddress") Address
+											input#billingAddress.form-control(type="text")
+										.col-lg-4
+											label(for="billingAddress2") Address 2
+											input#billingAddress2.form-control(type="text")
+										.col-lg-4
+											label(for="billingCity") City
+											input#billingCity.form-control(type="text")
+									.form-group.row
+										.col-lg-4
+											label(for="billingState") State
+											input#billingState.form-control(type="text")
+										.col-lg-4
+											label(for="billingCountry") Country
+											input#billingCountry.form-control(type="text")
+										.col-lg-4
+											label(for="billingZip") Zip/Postal Code
+											input#billingZip.form-control(type="text")
+									button.btn-primary.btn#sameAsShippingButton(type="button") Same as Shipping Address
+							.panel-heading
+								h4.panel-title
+									a(data-toggle="collapse", data-target="#customerShippingAddress") Shipping
+							#customerShippingAddress.panel-collapse.collapse
+								.panel-body
+									.form-group.row
+										.col-lg-4
+											label(for="shippingAddress") Address
+											input#shippingAddress.form-control(type="text")
+										.col-lg-4
+											label(for="shippingAddress2") Address 2
+											input#shippingAddress2.form-control(type="text")
+										.col-lg-4
+											label(for="shippingCity") City
+											input#shippingCity.form-control(type="text")
+									.form-group.row
+										.col-lg-4
+											label(for="shippingState") State
+											input#shippingState.form-control(type="text")
+										.col-lg-4
+											label(for="shippingCountry") Country
+											input#shippingCountry.form-control(type="text")
+										.col-lg-4
+											label(for="shippingZip") Zip/Postal Code
+											input#shippingZip.form-control(type="text")
+										
+					.modal-footer
+						button#saveCustomerButton.btn.btn-success(type="button") Save
+						button.btn.btn-default(type="button", data-dismiss="modal") Cancel
+
+		#itemModal.modal.fade(role="dialog")
+				.modal-dialog
+					.modal-content
+						.modal-header
+							button.close(data-dismiss="modal") &times;
+							h4#itemNameTitle Item Name
+						.modal-body
+
+							.panel.panel-default
+								.panel-heading
+									h4.panel-title
+										a(data-toggle="collapse", data-target="#generalInfo") General
+								#generalInfo.panel-collapse.collapse.in
+									.panel-body
+										.row.form-group
+											.col-lg-6
+												label(for="itemSKUModal") SKU
+												input#itemSKUModal.form-control(type="text", readonly)
+											.col-lg-6
+												label(for="itemNameModal") Name
+												input#itemNameModal.form-control(type="text")
+										.row.form-group
+											.col-lg-6
+												label(for="itemQuantityModal") Quantity
+												input#itemQuantityModal.form-control(type="number")
+											.col-lg-6
+												label(for="itemPriceModal") Price
+												.input-group
+													span.input-group-addon
+														i.fa.fa-dollar
+													input#itemPriceModal.form-control(type="number", step="any")
+										.row.form-group
+											.col-lg-4
+												label(for="stock") Stock
+												input#stock.form-control(type="number")
+											.col-lg-4
+												label(for="usStock") US Stock
+												input#usStock.form-control(type="number")
+											.col-lg-4
+												label(for="canStock") Canadian Stock
+												input#canStock.form-control(type="number")
+								
+								.panel-heading
+									h4.panel-title
+										a(data-toggle="collapse", data-target="#itemImagePanel") Image
+								#itemImagePanel.collapse.panel-collapse
+									.panel-body
+										.form-group.row
+											.col-lg-12
+												img#itemImage.img-rounded.img-responsive(src="http://via.placeholder.com/350x150")
+								
+								.panel-heading
+									h4.panel-title
+										a(data-toggle="collapse", data-target="#sales") Sale
+								#sales.collapse.panel-collapse
+									.panel-body
+										.row.form-group
+											.col-lg-4.checkbox
+												label(for="onSale")
+													input#onSale(type="checkbox")
+													| On Sale
+											.col-lg-4
+												label(for="usSalePrice") US Sale Price
+												.input-group
+													span.input-group-addon
+														i.fa.fa-dollar
+													input#usSalePrice.form-control(type="number")
+											.col-lg-4
+												label(for="canSalePrice") CAN Sale Price
+												.input-group
+													span.input-group-addon
+														i.fa.fa-dollar
+													input#canSalePrice.form-control(type="number")
+								
+								.panel-heading
+									h4.panel-title
+										a(data-toggle="collapse", data-target="#warehouse") Warehouse
+								#warehouse.collapse.panel-collapse.panel-body
+									.row.form-group
+										.col-lg-4
+											label(for="location") Location
+											input#location.form-control(type="text")
+										.col-lg-4
+											label(for="barcode") Barcode
+											input#barcode.form-control(type="text")
+										.col-lg-4
+											label(for="country") Country of Origin
+											input#country.form-control(type="text")
+							
+						.modal-footer
+							a#viewOnUSWebsite.btn.btn-default(href="https://www.ecstasycrafts.com", target="_blank") US Website
+							a#viewOnCanWebsite.btn.btn-default(href="https://www.ecstasycrafts.ca", target="_blank") Canadian Website
+							button#saveItemButton.btn.btn-success(type="button") Save
+							button#removeFromOrderButton.btn.btn-danger(type="button") Remove
+							button.btn.btn-default(type="button", data-dismiss="modal") Cancel
+
+	include includes/end
+		script(src="/js/new-order.js")
