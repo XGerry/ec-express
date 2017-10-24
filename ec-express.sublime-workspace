@@ -4,6 +4,186 @@
 		"selected_items":
 		[
 			[
+				"bi",
+				"billingAddress"
+			],
+			[
+				"customer",
+				"customerDB"
+			],
+			[
+				"data",
+				"data-toggle"
+			],
+			[
+				"sub",
+				"subTotal"
+			],
+			[
+				"tax",
+				"taxPrice"
+			],
+			[
+				"add",
+				"addItemRow"
+			],
+			[
+				"itemQ",
+				"itemQuantityModal"
+			],
+			[
+				"shippi",
+				"shippingAddress2"
+			],
+			[
+				"bil",
+				"billingZipCode"
+			],
+			[
+				"shippin",
+				"shippingCity"
+			],
+			[
+				"shipping",
+				"shippingState"
+			],
+			[
+				"shippingz",
+				"shippingZipCode"
+			],
+			[
+				"shippinga",
+				"shippingAddress"
+			],
+			[
+				"the",
+				"theCustomer"
+			],
+			[
+				"new",
+				"newOrder"
+			],
+			[
+				"secure",
+				"secureUrlCa"
+			],
+			[
+				"securl",
+				"SecureUrl"
+			],
+			[
+				"empt",
+				"emptyItemLine"
+			],
+			[
+				"addI",
+				"addItemButton"
+			],
+			[
+				"lien",
+				"linePrice"
+			],
+			[
+				"addIte",
+				"addItemRow"
+			],
+			[
+				"ca",
+				"calculateLineTotal"
+			],
+			[
+				"prof",
+				"customerProfile"
+			],
+			[
+				"search",
+				"searchSKU"
+			],
+			[
+				"searc",
+				"searchDB"
+			],
+			[
+				"response",
+				"response"
+			],
+			[
+				"callba",
+				"callbacks"
+			],
+			[
+				"us",
+				"usPrice"
+			],
+			[
+				"sale",
+				"salePercentage"
+			],
+			[
+				"data-",
+				"data-toggle"
+			],
+			[
+				"reutrn",
+				"returnObject"
+			],
+			[
+				"return",
+				"returnObject"
+			],
+			[
+				"respon",
+				"responseCallback"
+			],
+			[
+				"Advanced",
+				"AdvancedOptionSufix"
+			],
+			[
+				"is",
+				"isHidden"
+			],
+			[
+				"save",
+				"saveItemProperties"
+			],
+			[
+				"hide",
+				"hideUnhide"
+			],
+			[
+				"las",
+				"lastupdatestart"
+			],
+			[
+				"Order",
+				"OrderItemList"
+			],
+			[
+				"O",
+				"OrderDate"
+			],
+			[
+				"SKU",
+				"SKUInfo"
+			],
+			[
+				"canadia",
+				"canadianDistribution"
+			],
+			[
+				"Bill",
+				"BillingFirstName"
+			],
+			[
+				"B",
+				"BillingFirstName"
+			],
+			[
+				"Billi",
+				"BillingLastName"
+			],
+			[
 				"rea",
 				"readyForCode"
 			],
@@ -24,16 +204,8 @@
 				"generateCode"
 			],
 			[
-				"new",
-				"newCode"
-			],
-			[
 				"genera",
 				"generateUniqueCode"
-			],
-			[
-				"the",
-				"theCode"
 			],
 			[
 				"ge",
@@ -108,10 +280,6 @@
 				"DataExtName"
 			],
 			[
-				"save",
-				"saveToQuickbooks"
-			],
-			[
 				"man",
 				"manufacturerId"
 			],
@@ -144,20 +312,12 @@
 				"EditSequence"
 			],
 			[
-				"ca",
-				"catalogId"
-			],
-			[
 				"valu",
 				"valueInput"
 			],
 			[
 				"c",
 				"catalogId"
-			],
-			[
-				"SKU",
-				"SKUInfo"
 			],
 			[
 				"qb",
@@ -176,10 +336,6 @@
 				"AdvancedOptionName"
 			],
 			[
-				"Advanced",
-				"AdvancedOptionPrice"
-			],
-			[
 				"Price",
 				"PriceLevel2"
 			],
@@ -192,20 +348,8 @@
 				"countryOfOrigin"
 			],
 			[
-				"us",
-				"usStock"
-			],
-			[
-				"data-",
-				"data-dismiss"
-			],
-			[
 				"form-",
 				"form-control"
-			],
-			[
-				"is",
-				"isOption"
 			],
 			[
 				"Inbv",
@@ -214,10 +358,6 @@
 			[
 				"Invoice",
 				"InvoiceNumberPrefix"
-			],
-			[
-				"data",
-				"data-toggle"
 			],
 			[
 				"SKIU",
@@ -374,151 +514,173 @@
 			[
 				"in",
 				"inventory"
-			],
-			[
-				"report",
-				"reportName"
-			],
-			[
-				"query",
-				"queryItemRq"
-			],
-			[
-				"deliver",
-				"delivery-method"
-			],
-			[
-				"deli",
-				"Delivery"
-			],
-			[
-				"her",
-				"heritageKegs"
-			],
-			[
-				"herit",
-				"heritageCherryKegs"
-			],
-			[
-				"k",
-				"heritageKegs"
-			],
-			[
-				"CASE",
-				"CASE_HERITAGE_PRICE"
-			],
-			[
-				"CA",
-				"CASE_PREMIERE_PRICE"
-			],
-			[
-				"casesOf",
-				"casesOfHeritage"
-			],
-			[
-				"case",
-				"casesOfPremiere"
-			],
-			[
-				"premiere",
-				"premiere-kegs"
-			],
-			[
-				"Premier",
-				"premiere"
-			],
-			[
-				"bottle",
-				"bottleSize"
-			],
-			[
-				"vol",
-				"volumeSold"
-			],
-			[
-				"bott",
-				"bottleSize"
-			],
-			[
-				"basi",
-				"basicTax"
-			],
-			[
-				"envi",
-				"environmentalTax"
-			],
-			[
-				"cont",
-				"containerDeposit"
-			],
-			[
-				"inpu",
-				"input-group"
-			],
-			[
-				"for",
-				"form-control"
-			],
-			[
-				"padding",
-				"padding-top"
-			],
-			[
-				"text",
-				"text-center"
-			],
-			[
-				"proc",
-				"processingButton"
-			],
-			[
-				"tex",
-				"text-center"
-			],
-			[
-				"resu",
-				"resultsDiv"
-			],
-			[
-				"show",
-				"showInstructions"
-			],
-			[
-				"tab",
-				"tab-pane"
-			],
-			[
-				"nav",
-				"navbar-btn"
-			],
-			[
-				"btn",
-				"btn-primary"
-			],
-			[
-				"na",
-				"navbar"
-			],
-			[
-				"json",
-				"jsonParser"
-			],
-			[
-				"method",
-				"methodName"
-			],
-			[
-				"succe",
-				"Successfully"
-			],
-			[
-				"payment",
-				"paymentMethod"
 			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "index.js",
+			"settings":
+			{
+				"buffer_size": 2020,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/events.js",
+			"settings":
+			{
+				"buffer_size": 6994,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "views/mixins.pug",
+			"settings":
+			{
+				"buffer_size": 2319,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/routes.js",
+			"settings":
+			{
+				"buffer_size": 3001,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "views/new-order.pug",
+			"settings":
+			{
+				"buffer_size": 10829,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "new-order.pug"
+			}
+		},
+		{
+			"file": "app/amazon.js",
+			"settings":
+			{
+				"buffer_size": 6647,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "views/amazon.pug",
+			"settings":
+			{
+				"buffer_size": 1680,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "amazon.pug"
+			}
+		},
+		{
+			"file": "app/model/order.js",
+			"settings":
+			{
+				"buffer_size": 463,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/model/item.js",
+			"settings":
+			{
+				"buffer_size": 1243,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/helpers.js",
+			"settings":
+			{
+				"buffer_size": 28662,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "qbws/qbws.js",
+			"settings":
+			{
+				"buffer_size": 24710,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/model/customer.js",
+			"settings":
+			{
+				"buffer_size": 734,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "customer.js"
+			}
+		},
+		{
+			"contents": "var socket = io();\n\nvar itemsInOrder = [];\nvar usOrder = true;\nvar customerProfile = 'retail';\nvar theItem = {};\nvar theOrder = {};\nvar theCustomer = {};\nvar theEditItem = {};\n\n$(document).ready(function() {\n\t$('#itemSKU').on('input propertychange', function() {\n\t\tsocket.emit('searchSKU', $('#itemSKU').val());\n\t});\n\n\t$('#itemSKU').on('keydown', function(e) {\n\t\tvar code = e.keyCode || e.which;\n\t\tif (code === 9) {\n\t\t\tvar sku = $('#itemSKU').val().toUpperCase().trim();\n\t\t\tsocket.emit('searchDB', {sku: sku});\n\t\t}\n\t});\n\n\t$('#profileSelect').change(function(e) {\n\t\tcustomerProfile = $('#profileSelect').val();\n\t});\n\n\t$('#websiteSelect').change(function(e) {\n\t\tvar site = $('#websiteSelect').val();\n\t\tif (site === 'canada') {\n\t\t\tusOrder = false;\n\t\t} else {\n\t\t\tusOrder = true;\n\t\t}\n\t});\n\n\t$('#itemQuantity').change(function(e) {\n\t\tcalculateLineTotal();\n\t});\n\n\t$('#itemPrice').change(function(e) {\n\t\tcalculateLineTotal();\n\t});\n\n\t$('#addItemButton').click(function(e) {\n\t\ttheItem.quantity = $('#itemQuantity').val();\n\t\ttheItem.salesPrice = $('#itemPrice').val();\n\t\titemsInOrder.push(theItem);\n\t\taddItemRow(theItem);\n\t\ttheItem = {};\n\t\t$('#addItemButton').prop('disabled', 'disabled');\n\t\temptyItemLine();\n\t\t$('#itemSKU').focus();\n\t\tcalculateTotals();\n\t});\n\n\t$('#saveToSiteButton').click(function(e) {\n\t\tsocket.emit('sendTo3DCart', {}, true);\n\t});\n\n\t$('#sameAsShippingButton').click(function(e) {\n\t\tcopyBillingToShipping();\n\t});\n\n\t$('#saveCustomerButton').click(function(e) {\n\t\tsaveCustomer();\n\t});\n\n\t$('#saveItemButton').click(function(e) {\n\t\tsaveItem();\n\t\tcalculateTotals();\n\t});\n\n\t$('#taxOptions').change(function(e) {\n\t\tcalculateTotals();\n\t});\n\n\t$('#customerSearch').on('input propertychange', function() {\n\t\tsocket.emit('searchCustomer', $('#customerSearch').val());\n\t});\n});\n\nsocket.on('searchCustomerFinished', function(customers) {\n\tcustomers.forEach(function(customer) {\n\n\t})\n});\n\nsocket.on('searchSKUFinished', function(items) {\n\t$('#itemList').empty();\n\titems.forEach(function(item) {\n\t\t$('#itemList').append('<option>'+item.sku+'</option>');\n\t});\n\t$('#addItemButton').prop('disabled', '');\n});\n\nsocket.on('searchFinished', function(items) {\n\t// just want the first item\n\tvar item = items[0];\n\tfillItemLine(item);\n\tcalculateLineTotal();\n\ttheItem = item;\n});\n\nfunction fillItemLine(item) {\n\t$('#itemName').val(item.name);\n\n\tvar price = 0;\n\tif (usOrder) {\n\t\tprice = item.usPrice;\n\t}\n\telse {\n\t\tprice = item.canPrice;\n\t}\n\n\tif (customerProfile === 'wholesale') {\n\t\tprice = price / 2;\n\t}\n\t$('#itemPrice').val(price.toFixed(2));\n}\n\nfunction calculateLineTotal() {\n\tvar quantity = $('#itemQuantity').val();\n\tvar price = $('#itemPrice').val();\n\tvar linePrice = quantity * price;\n\t$('#lineTotal').val(linePrice.toFixed(2));\n}\n\nfunction addItemRow(item) {\n\tvar row = $('<tr></tr>');\n\tvar sku = $('<td></td>').text(item.sku);\n\tvar name = $('<td></td>').text(item.name);\n\tvar quantity = $('<td></td>').text(item.quantity);\n\tvar price = $('<td></td>').text('$'+item.salesPrice);\n\tvar lineTotal = item.quantity * item.salesPrice;\n\tvar linePrice = $('<td></td>').text('$'+lineTotal.toFixed(2));\n\n\trow.append(sku);\n\trow.append(name);\n\trow.append(quantity);\n\trow.append(price);\n\trow.append(linePrice);\n\n\trow.click(function(e) {\n\t\tsetItemModalFields(item);\n\t\t$('#itemModal').modal();\n\t});\n\n\t$('#orderTableBody').append(row);\n}\n\nfunction emptyItemLine() {\n\t$('#itemSKU').val('');\n\t$('#itemName').val('');\n\t$('#itemPrice').val('');\n\t$('#itemQuantity').val('1');\n\t$('#lineTotal').val('');\n}\n\nfunction copyBillingToShipping() {\n\t$('#shippingAddress').val($('#billingAddress').val());\n\t$('#shippingAddress2').val($('#billingAddress2').val());\n\t$('#shippingCity').val($('#billingCity').val());\n\t$('#shippingState').val($('#billingState').val());\n\t$('#shippingCountry').val($('#billingCountry').val());\n\t$('#shippingZip').val($('#billingZip').val());\n}\n\nfunction saveCustomer() {\n\t$('#customerModal').modal('hide');\n\n\t// save the customer to the database\n\ttheCustomer.firstname = $('#customerFirstName').val();\n\ttheCustomer.lastname = $('#customerLastName').val();\n\ttheCustomer.email = $('#customerEmailModal').val();\n\ttheCustomer.phone = $('#customerPhone').val();\n\ttheCustomer.billingAddress = $('#billingAddress').val();\n\ttheCustomer.billingAddress2 = $('#billingAddress2').val();\n\ttheCustomer.billingCity = $('#billingCity').val();\n\ttheCustomer.billingState = $('#billingState').val();\n\ttheCustomer.billingCountry = $('#billingCountry').val();\n\ttheCustomer.billingZipCode = $('#billingZip').val();\n\ttheCustomer.shippingAddress = $('#shippingAddress').val();\n\ttheCustomer.shippingAddress2 = $('#shippingAddress2').val();\n\ttheCustomer.shippingCity = $('#shippingCity').val();\n\ttheCustomer.shippingState = $('#shippingState').val();\n\ttheCustomer.shippingCountry = $('#shippingCountry').val();\n\ttheCustomer.shippingZipCode = $('#shippingZip').val();\n\n\tsocket.emit('saveCustomer', theCustomer);\n\n\t// add the row to the table\n\t$('#customerTableBody').empty();\n\tvar row = $('<tr></tr>');\n\tvar name = $('<td></td>').text(theCustomer.firstname + ' ' + theCustomer.lastname);\n\tvar email = $('<td></td>').text(theCustomer.email);\n\tvar phone = $('<td></td>').text(theCustomer.phone);\n\tvar address = $('<td></td>').text(theCustomer.shippingAddress);\n\tvar city = $('<td></td>').text(theCustomer.shippingCity);\n\n\trow.append(name);\n\trow.append(email);\n\trow.append(phone);\n\trow.append(address);\n\trow.append(city);\n\n\trow.click(function(e) {\n\t\tsetCustomerModalFields();\n\t\t$('#customerModal').modal();\n\t});\n\n\t$('#customerTableBody').append(row);\n}\n\nfunction setCustomerModalFields() {\n\t$('#customerName').val(theCustomer.firstname + theCustomer.lastname);\n\t$('#customerFirstName').val(theCustomer.firstname);\n\t$('#customerLastName').val(theCustomer.lastname);\n\t$('#customerEmailModal').val(theCustomer.email);\n\t$('#customerPhone').val(theCustomer.phone);\n\t$('#billingAddress').val(theCustomer.billingAddress);\n\t$('#billingAddress2').val(theCustomer.billingAddress2);\n\t$('#billingCity').val(theCustomer.billingCity);\n\t$('#billingState').val(theCustomer.billingState);\n\t$('#billingCountry').val(theCustomer.billingCountry);\n\t$('#billingZip').val(theCustomer.billingZipCode);\n\t$('#shippingAddress').val(theCustomer.shippingAddress);\n\t$('#shippingAddress2').val(theCustomer.shippingAddress2);\n\t$('#shippingCity').val(theCustomer.shippingCity);\n\t$('#shippingState').val(theCustomer.shippingState);\n\t$('#shippingCountry').val(theCustomer.shippingCountry);\n\t$('#shippingZip').val(theCustomer.shippingZipCode);\n}\n\nfunction setItemModalFields(item) {\n\ttheEditItem = item;\n\t$('#itemNameTitle').text(item.name);\n\t$('#itemSKUModal').val(item.sku);\n\t$('#itemNameModal').val(item.name);\n\t$('#itemQuantityModal').val(item.quantity);\n\t$('#itemPriceModal').val(item.salesPrice);\n\n\tif (item.usSalePrice != undefined) {\n\t\t$('#usSalePrice').val(item.usSalePrice.toFixed(2));\n\t} else {\n\t\t$('#usSalePrice').val(0.00);\n\t}\n\tif (item.canSalePrice != undefined) {\n\t\t$('#canSalePrice').val(item.canSalePrice.toFixed(2));\n\t} else {\n\t\t$('#canSalePrice').val(0.00);\n\t}\n\n\t$('#itemImage').attr('src', 'https://ecstasycrafts.com/'+item.imageURL);\n\t$('#stock').val(item.stock);\n\t$('#usStock').val(item.usStock);\n\t$('#canStock').val(item.canStock);\n\t$('#location').val(item.location);\n\t$('#barcode').val(item.barcode);\n\t$('#country').val(item.countryOfOrigin);\n\t$('#onSale').prop('checked', item.onSale === true);\n\t$('#viewOnUSWebsite').attr('href', item.usLink);\n\t$('#viewOnCanWebsite').attr('href', item.canLink);\n}\n\nfunction saveItem() {\n\ttheEditItem.quantity = $('#itemQuantityModal').val();\n\ttheEditItem.salesPrice = $('#itemPriceModal').val();\n\tbuildOrderTable();\n\t$('#itemModal').modal('hide');\n}\n\nfunction buildOrderTable() {\n\t$('#orderTableBody').empty();\n\titemsInOrder.forEach(function(item) {\n\t\taddItemRow(item);\n\t});\n}\n\nfunction calculateTotals() {\n\tvar subTotal = 0;\n\tvar total = 0;\n\tvar tax = 0;\n\tvar taxPrice = 0;\n\tvar shipping = 0;\n\n\titemsInOrder.forEach(function(item) {\n\t\tvar itemTotal = item.quantity * item.salesPrice;\n\t\tsubTotal += itemTotal;\n\t});\n\n\ttax = $('#taxOptions').val() / 100;\n\ttaxPrice = tax * subTotal;\n\n\ttotal = subTotal + taxPrice + shipping;\n\n\t$('#subtotal').val(subTotal.toFixed(2));\n\t$('#taxes').val(taxPrice.toFixed(2));\n\t$('#total').val(total.toFixed(2));\n}",
+			"file": "client/js/new-order.js",
+			"file_size": 8274,
+			"file_write_time": 131529973530328739,
+			"settings":
+			{
+				"buffer_size": 8222,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "new-order.js"
+			}
+		},
+		{
+			"file": "views/database.pug",
+			"settings":
+			{
+				"buffer_size": 7802,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "client/js/database.js",
+			"settings":
+			{
+				"buffer_size": 7033,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "var secureUrlUs = 'https://www.ecstasycrafts.com';\nvar secureUrlCa = 'https://www.ecstasycrafts.ca';\n\n/**\n * This will be a helper class for doing the common functions involving 3D Cart\n */\n var request = require('request');\n var async = require('async');\n var Item = require('./model/item');\n var Order = require('./model/order');\n var Settings = require('./model/settings');\n var Customer = require('./model/customer');\n var Receipt = require('./model/receipt');\n var helpers = require('./helpers');\n var pixl = require('pixl-xml')\n\n/**\n * Refreshes the inventory in our DB so we know what to use in quickbooks\n */\nfunction refreshFrom3DCart(finalCallback) {\n  // get all the items from the US store\n  function refreshUS(callback) {\n    console.log('Getting all items from the US store.');\n    getItemsFull({}, function(progress, total) {\n      console.log('US: ' + ((progress/total)*100).toFixed(2) + '%');\n    }, function(err) {\n      callback(err)\n    });\n  }\n  \n  // At the same time, get the items from the canadian store\n  function refreshCA(callback) {\n    console.log('Getting all items from the CA store.');\n    getItemsFull({canadian:true}, function(progress, total) {\n        console.log('CA: ' + ((progress/total)*100).toFixed(2) + '%');\n      }, function(err) {\n        callback(err);\n    });\n  }\n\n  async.parallel([refreshUS, refreshCA], function(err) {\n    finalCallback(err);\n  });\n}\n\nfunction updateItemsFromSKUInfo(item, skuInfo, canadian) {\n  item.name = skuInfo.Name;\n  item.isOption = false;\n  item.updated = false;\n  if (canadian == true) {\n    item.catalogIdCan = skuInfo.CatalogID;\n    item.canPrice = skuInfo.Price;\n    item.canStock = skuInfo.Stock;\n  } else {\n    item.catalogId = skuInfo.CatalogID;\n    item.usPrice = skuInfo.Price;\n    item.usStock = skuInfo.Stock;\n  }\n  item.save();\n}\n\n/**\n * Gets items from 3D cart and saves them to the db\n */\nfunction getItems(qbws, notifyCallback, finalCallback) {\n  var usProgress = 0;\n  var canProgress = 0;\n\n \t// Get the product list from US 3D Cart first\n  function usUpdate(callback) {\n    getItemsQuick(false, function(progress, total, items) {\n      usProgress = progress;\n      notifyCallback(usProgress + canProgress, total*2);\n\n      items.forEach(function(skuInfo) {\n        var sku = skuInfo.SKU.trim();\n        Item.findOne({sku: sku}, function(err, item) {\n          if (err) {\n            console.log('error!');\n          } else {\n            if (item) {\n              updateItemsFromSKUInfo(item, skuInfo, false);\n            } else {\n              var newItem = new Item();\n              newItem.sku = sku;\n              updateItemsFromSKUInfo(newItem, skuInfo, false);\n            }\n          }\n        });\n      });\n    }, function(err) {\n      callback(null);\n    });\n  }\n\n  // Get product list from Canadian website\n  function canUpdate(callback) {\n    getItemsQuick(true, function(progress, total, items) {\n      canProgress = progress;\n      notifyCallback(usProgress + canProgress, total*2);\n\n      items.forEach(function(skuInfo) {\n        var sku = skuInfo.SKU.trim();\n        Item.findOne({sku: sku}, function(err, item) {\n          if (err) {\n            console.log('error!');\n          } else {\n            if (item) {\n              updateItemsFromSKUInfo(item, skuInfo, true);\n            } else {\n              var newItem = new Item();\n              newItem.sku = sku;\n              updateItemsFromSKUInfo(newItem, skuInfo, true);\n            }\n          }\n        });\n      });\n    }, function(err) {\n      callback(null);\n    });\n  }\n\n  async.parallel([usUpdate, canUpdate], function(err) {\n    // Query all the items in our database (including the options)\n    helpers.queryAllItems(qbws, function() {\n      finalCallback();\n    });\n  });\n}\n\nfunction getItemsQuick(canadian, notifyCallback, finalCallback) {\n  var options = {\n    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/skuinfo',\n    headers : {\n      SecureUrl : secureUrlUs,\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    },\n    qs: {\n      countonly: 1\n    }\n  }\n\n  if (canadian == true) {\n    options.headers.SecureUrl = secureUrlCa;\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n  }\n\n  request(options, function(err, response, body) {\n    var responseObject = JSON.parse(body);\n    var totalItems = responseObject.TotalCount;\n\n    var numOfRequests = Math.ceil(totalItems / 200);\n    console.log('We need to send '+numOfRequests+' requests to get all the items.');\n    var requests = [];\n\n    for (var i = 0; i < numOfRequests; i++) {\n      options.qs.countonly = 0;\n      options.qs.offset = i * 200;\n      options.qs.limit = 200;\n      requests.push(JSON.parse(JSON.stringify(options)));\n    }\n\n    var counter = 0;\n    async.eachLimit(requests, 2, function(option, callback) {\n      function doRequest() {\n        request(option, function(err, response, body) {\n          if (err) {\n            callback(err);\n          } else {\n            callback(null);\n          }\n          counter++;\n          notifyCallback(counter, numOfRequests, JSON.parse(body));\n        });\n      }\n      setTimeout(doRequest, 1000);\n    }, function (err) {\n      if (err) {\n        console.log(err);\n      } else {\n        finalCallback();\n      }\n    });\n  });\n}\n\n/**\n * Takes the current state of the db and saves it to 3D Cart.\n */ \nfunction quickSaveItems(query, progressCallback, finalCallback) {\n  var options = {\n    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',\n    method: 'PUT',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    },\n    json : true\n  };\n\n  var canadian = false;\n\n  if (query.canadian == true) {\n    options.headers.SecureUrl = secureUrlCa;\n    canadian = true;\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n  }\n  delete query.canadian;\n\n  console.log(query);\n\n  Item.find(query, function(err, items) {\n    if (err) {\n      console.log(err);\n    } else {\n      var body = [];\n      items.forEach(function(item) {\n        body.push(buildCartItem(item, canadian));\n      });\n\n      var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time\n      console.log('We need to send ' + numOfRequests + ' requests.');\n      var requests = [];\n      for (var i = 0; i < numOfRequests; i++) {\n        options.body = body.slice(i*100, (i+1)*100);\n        requests.push(JSON.parse(JSON.stringify(options)));\n      }\n\n      var counter = 0;\n      async.mapLimit(requests, 2, function(option, callback) {\n        function doRequest() {\n          request(option, function(err, response, body) {\n            if (err) {\n              callback(err);\n            } else {\n              callback(null, body);\n              body.forEach(function(response) {\n                if (response.Status != '200') {\n                  console.log(response);\n                }\n              });\n              progressCallback(++counter, numOfRequests);\n            }\n          });\n        };\n        setTimeout(doRequest, 1000);\n      }, function(err, responses) {\n        var merged = [].concat.apply([], responses);\n        finalCallback(merged);\n      });\n    }\n  });\n}\n\nfunction buildCartItem(item, canadian) {\n  var cartItem = {\n    SKUInfo: {\n      SKU: item.sku,\n    },\n    MFGID: item.sku,\n    WarehouseLocation: item.location,\n    ExtraField8: item.barcode,\n    ExtraField9: item.countryOfOrigin\n  };\n\n  if (canadian == true) {\n    cartItem.SKUInfo.Stock = item.canStock;\n  } else {\n    cartItem.SKUInfo.Stock = item.usStock;\n  }\n\n  if (item.inactive && !item.hasOptions) {\n    cartItem.SKUInfo.Stock = 0;\n  } else if (item.inactive && item.hasOptions) {\n    cartItem.SKUInfo.Stock = 1;\n  }\n\n  var control = 3;\n  if (item.usStock > 0)\n    cartItem.InventoryControl = control;\n\n  return cartItem;\n}\n\nfunction saveItems(query, progressCallback, finalCallback) {\n  if (query == null || query == undefined) {\n    query = {\n      isOption: false,\n      updated: true\n    };\n  }\n\n  var usProgress = 0;\n  var canProgress = 0;\n\n  function saveUSSite(callback) {\n    quickSaveItems(query, function(progress, total) {\n      console.log('US SAVE: ' + ((progress/total)*100).toFixed() + '%');\n      usProgress = progress;\n      progressCallback(canProgress+usProgress, total*2);\n    }, function(responses) {\n      callback(null);\n    });\n  };\n\n  function saveCanSite(callback) {\n    query.canadian = true;\n    quickSaveItems(query, function(progress, total) {\n      console.log('CAN SAVE: ' + ((progress/total)*100).toFixed() + '%');\n      canProgress = progress;\n      progressCallback(canProgress+usProgress, total*2);\n    }, function(responses) {\n      callback(null);\n    });\n  };\n\n  async.parallel([saveUSSite, saveCanSite], function(err) {\n    finalCallback([]);\n  });\n}\n\n/**\n * Takes the current state of the db (for items that are options and that are updated)\n * and saves it to 3D Cart.\n */\nfunction saveOptionItems(progressCallback, finalCallback) {\n  Item.find({isOption: true, inactive: false, updated: true}, function(err, items) {\n    if (err) {\n      console.log(err);\n    } else {\n      console.log('There are ' + items.length + ' options that need updating.');\n      \n      var requests = [];\n\n      var options = {\n        url: '',\n        method: 'PUT',\n        headers : {\n          SecureUrl : 'https://www.ecstasycrafts.com',\n          PrivateKey : process.env.CART_PRIVATE_KEY,\n          Token : process.env.CART_TOKEN\n        },\n        json: true\n      }\n\n      items.forEach(function(item) {\n        options.headers.SecureUrl = 'https://www.ecstasycrafts.com';\n        options.headers.Token = process.env.CART_TOKEN;\n        options.body = {\n          AdvancedOptionStock: item.usStock,\n          AdvancedOptionSufix: item.sku\n        }\n        var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+\n          item.catalogId+'/AdvancedOptions/'+item.optionId;\n        options.url = url;\n        requests.push(JSON.parse(JSON.stringify(options)));\n\n        // now for the canadian site\n        options.headers.SecureUrl = 'https://www.ecstasycrafts.ca';\n        options.headers.Token = process.env.CART_TOKEN_CANADA;\n        options.body = {\n          AdvancedOptionStock: item.canStock,\n          AdvancedOptionSufix: item.sku\n        };\n        url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+\n          item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;\n        options.url = url;\n        requests.push(JSON.parse(JSON.stringify(options)));\n      });\n\n      var total = requests.length;\n      var counter = 0;\n\n      async.mapLimit(requests, 4, function(option, callback) {\n        function doRequest() {\n          request(option, function(err, response, body) {\n            if (err) {\n              callback(err);\n            } else {\n              callback(null, body);\n              counter++;\n              if (Array.isArray(body)) {\n                body.forEach(function(response) {\n                  if (response.Status != '200') {\n                    console.log(response);\n                    console.log(option.url);\n                    console.log(option.headers.SecureUrl);\n                  }\n                });\n              } else {\n                if (body.Status != '200') {\n                  console.log(response);\n                }\n              }\n              progressCallback(counter, total);\n            }\n          });\n        }\n\n        setTimeout(doRequest, 1000);\n      }, function(err, responses) {\n        var merged = [].concat.apply([], responses);\n        finalCallback(merged);\n      });\n    }\n  });\n}\n\nfunction doSaveAdvancedOptions(canadian, cartItems, finalCallback) {\n\tvar options = {\n    url: '',\n    method: 'PUT',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    },\n    json: true\n  };\n\n  if (canadian) {\n    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n  }\n\n  var requests = [];\n  console.log('saving options');\n\n  cartItems.forEach(function(item) {\n  \toptions.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.SKUInfo.CatalogID+'/AdvancedOptions/'\n  \toptions.body = item.AdvancedOptionList;\n  \trequests.push(JSON.parse(JSON.stringify(options)));\n  });\n\n  async.mapLimit(requests, 2, function(req, callback) {\n  \tfunction doRequest() {\n      request(req, function(err, response, body) {\n        if (err)\n          callback(err);\n        else \n          callback(null, body);\n        console.log('saved item and options');\n      });\n    }\n    \n    setTimeout(doRequest, 1000);\n  }, function(err, responses) {\n\t\tconsole.log('done');\n    console.log(responses);\n\t\tfinalCallback(responses);\n\t});\n}\n\nfunction saveAdvancedOptions(canadian, cartItems, finalCallback, rebuild) {\n\tif (rebuild) {\n\t\tdoRebuild(canadian, cartItems, function(items) {\n\t\t\tdoSaveAdvancedOptions(canadian, items, finalCallback);\n\t\t});\n\t} else {\n\t\tdoSaveAdvancedOptions(canadian, cartItems, finalCallback);\n\t}\n}\n\nfunction doRebuild(canadian, cartItems, finalCallback) {\n\tasync.map(cartItems, function(cartItem, callback) {\n    var newOptions = [];\n\n    Item.find({catalogId: cartItem.SKUInfo.CatalogID, isOption: true}, function(err, options) {\n      if (err) {\n        console.log(err);\n      } else {\n        options.forEach(function(option) {\n          // go through the options on 3D Cart to match up the ids\n          // The only thing that remains the same is the name\n          var optionId = option.optionId;\n\n          cartItem.AdvancedOptionList.forEach(function(advancedOption) {\n            if (advancedOption.AdvancedOptionName == option.name) {\n              optionId = advancedOption.AdvancedOptionCode;\n              if (canadian) {\n                option.optionIdCan = optionId;\n              } else {\n                option.optionId = optionId;\n              }\n              option.save();\n            }\n          });\n\n          var newOption = {\n            AdvancedOptionSufix: option.sku,\n            AdvancedOptionStock: option.stock,\n            AdvancedOptionName: option.name,\n            AdvancedOptionPrice: option.usPrice,\n            AdvancedOptionCode: optionId\n          };\n          console.log(newOption);\n          newOptions.push(newOption);\n        });\n\n        cartItem.AdvancedOptionList = newOptions;\n        callback(null, cartItem);\n      }\n    });\n  }, function(err, results) {\n\t\tfinalCallback(results);\n\t});\n}\n\n/**\n * Just get the order information\n */\nfunction getOrdersFull(query, callback) {\n  query.countonly = 1;\n\n  var options = {\n    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    },\n    qs : query\n  };\n\n  request(options, function(err, response, body) {\n    console.log(body);\n  });\n}\n\n/**\n * For importing orders into quickbooks\n */\n\nfunction getOrdersQuick(query, qbws, progressCallback, finalCallback) {\n  var canadian = false;\n\n  helpers.setTimeCode();\n  Settings.findOne({}, function(err, settings) {\n    if (settings) {\n      settings.lastImport = helpers.getTimeCode();\n      settings.save();\n    } else {\n      var newSettings = new Settings();\n      newSettings.lastImport = helpers.getTimeCode();\n      newSettings.save();\n    }\n  });\n\n  query.countonly = 1;\n\n  var options = {\n    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',\n    headers: {\n      SecureUrl: secureUrlUs,\n      PrivateKey: process.env.CART_PRIVATE_KEY,\n      Token: process.env.CART_TOKEN\n    },\n    qs: query\n  };\n\n  if (query.canadian == true) {\n    canadian = true;\n    options.headers.SecureUrl = secureUrlCa;\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n  }\n  delete query.canadian;\n\n  console.log(query);\n\n  request(options, function(err, response, body) {\n    delete query.countonly;\n    var numberOfOrders = JSON.parse(body).TotalCount;\n    console.log(numberOfOrders);\n    var numOfRequests = Math.ceil(numberOfOrders / 200); // can always get 200 records\n    var requests = [];\n\n    if (canadian) {\n      console.log('Canada');\n    } else {\n      console.log('US');\n    }\n    console.log('We need to do ' + numOfRequests + ' requests to get all the orders');\n\n    if (numOfRequests == 0) {\n      finalCallback();\n    } else {\n      for (var i = 0; i < numOfRequests; i++) {\n        query.offset = i * query.limit;\n        options.qs = query;\n        requests.push(JSON.parse(JSON.stringify(options)));\n      }\n\n      var counter = 0;\n      async.eachLimit(requests, 2, function(option, callback) {\n        function doRequest() {\n          request(option, function(err, response, body) {\n            progressCallback(++counter, numOfRequests);\n            createOrdersInDB(JSON.parse(body), function() {\n              console.log('finsihed saving the orders');\n              callback(null);\n            });\n          });\n        }\n        setTimeout(doRequest, 1000);\n      }, function(err) {\n        finalCallback();\n      });\n    }\n  });\n}\n\nfunction getOrders(query, qbws, callback) {\n  function usOrders(cb) {\n    getOrdersQuick(query, qbws, function(progress, total, orders) {\n      console.log('US: ' + ((progress/total)*100).toFixed() + '%');\n    }, function() {\n      // finished\n      cb();\n    });\n  }\n\n  function canOrders(cb) {\n    query.canadian = true;\n    getOrdersQuick(query, qbws, function(progress, total, orders) {\n      console.log('CA: ' + ((progress/total)*100).toFixed() + '%');\n    }, function() {\n      // finished\n      cb();\n    });\n  }\n\n  async.parallel([usOrders, canOrders], function() {\n    // all orders now should be in the {imported: false} state if\n    // they need to be imported\n    helpers.createInvoices(qbws);\n    Order.find({imported: false}, function(err, orders) {\n      callback(orders.length);\n    });\n  });\n}\n\nfunction createOrdersInDB(orders, callback) {\n  // build requests and save this to the database\n  var operations = [];\n  var contacts = [];\n  orders.forEach(function(order) {\n    contacts.push(helpers.getCustomer(order)); // hubspot integration\n    var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;\n\n    operations.push(function(cb) {\n      Order.findOne({orderId: orderId}, function(err, dbOrder) {\n        if (err) {\n          console.log(err);\n        } else {\n          if (dbOrder) {\n            // We already have this order in the db.\n            dbOrder.retry = true;\n            updateOrderInfo(dbOrder, order, cb);\n          } else {\n            // create the order in our database\n            var newOrder = new Order();\n            newOrder.orderId = orderId;\n            newOrder.imported = false;\n            newOrder.retry = false;\n            updateOrderInfo(newOrder, order, cb);\n          }\n        }\n      });\n    });\n  });\n\n  async.parallel(operations, function(err) {\n    // Hubspot update\n    helpers.updateContacts(contacts, function(message) {\n      console.log('Hubspot Response:')\n      if (message) {\n        console.log(message.statusCode);\n        if (message.statusCode == 400) {\n          console.log(message);\n        }\n      }\n    });\n    callback();\n  });\n}\n\nfunction updateOrderInfo(order, cartOrder, callback) {\n  order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;\n  order.cartOrder = cartOrder;\n  order.timecode = helpers.getTimeCode();\n  order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';\n  var itemList = [];\n  if (cartOrder.OrderItemList) {\n    cartOrder.OrderItemList.forEach(function(item) {\n      // TODO\n      var sku = item.ItemID.trim();\n      var findingItem = Item.findOne({sku: sku});\n      findingItem.then(function(doc) {\n        doc.lastOrderDate = new Date(cartOrder.OrderDate);\n        doc.save();\n      });\n    });\n  } else {\n    console.log(cartOrder);\n  }\n  \n  order.save(function(err, savedOrder) {\n    updateCustomerInfo(savedOrder, cartOrder);\n    callback();\n  });\n}\n\nfunction updateCustomerInfo(order, cartOrder) {\n  var email = cartOrder.BillingEmail;\n  Customer.findOne({email: email}, function(err, customer) {\n    if (err) {\n      console.log(err);\n    } else {\n      if (customer) {\n        updateCustomer(customer, order, cartOrder);\n      } else {\n        var newCustomer = new Customer();\n        newCustomer.email = email;\n        updateCustomer(newCustomer, order, cartOrder);\n      }\n    }\n  });\n}\n\nfunction updateCustomer(customer, order, cartOrder) {\n  customer.firstname = cartOrder.BillingFirstName;\n  customer.lastname = cartOrder.BillingLastName;\n  customer.lastOrderDate = new Date(cartOrder.OrderDate);\n  var contestStart = new Date();\n  contestStart.setFullYear(2017, 8, 29);\n  var contestEnd = new Date();\n  contestEnd.setFullYear(2017, 9, 2);\n  if (customer.lastOrderDate > contestStart && customer.lastOrderDate < contestEnd) {\n    customer.contestEntries++;\n  }\n  customer.orders.push(order._id);\n  customer.save();\n}\n\nfunction getSalesReceipts(qbws) {\n\tvar salesReceiptRq = helpers.querySalesReceiptRq('2017-08-10', '2017-08-11');\n\tqbws.addRequest(salesReceiptRq);\n\tqbws.setCallback(function(response, qbws, continueFunction) {\n\t\tvar doc = pixl.parse(response);\n    var salesRs = doc.QBXMLMsgsRs.SalesReceiptQueryRs;\n\n    if (salesRs) {\n    \tvar receipts = salesRs.SalesReceiptRet;\n\n    \treceipts.forEach(function(receipt) {\n    \t\tReceipt.findOne({id: receipt.RefNumber}, function(err, dbReceipt) {\n    \t\t\tif (err) {\n    \t\t\t\tconsole.log(err);\n    \t\t\t} else {\n    \t\t\t\tif (dbReceipt) {\n    \t\t\t\t\tdbReceipt.qbObj = receipt;\n    \t\t\t\t\tdbReceipt.save();\n    \t\t\t\t} else {\n    \t\t\t\t\tvar newReceipt = new Receipt();\n    \t\t\t\t\tnewReceipt.id = receipt.RefNumber;\n    \t\t\t\t\tnewReceipt.qbObj = receipt;\n    \t\t\t\t\tnewReceipt.save();\n    \t\t\t\t}\n    \t\t\t\tconsole.log(receipt.RefNumber);\n    \t\t\t}\n    \t\t});\n    \t});\n    }\n\t});\n  continueFunction();\n}\n\nfunction addSalesReceipts(qbws) {\n\tReceipt.find({}, function(err, receipts) {\n\t\tif (err) {\n\t\t\tconsole.log(err);\n\t\t} else {\n\t\t\treceipts.forEach(function(receipt) {\n\t\t\t\tvar addSalesReceipts = {\n\t\t\t\t\tSalesReceiptAddRq: {\n\t\t\t\t\t\tSalesReceiptAdd: {}\n\t\t\t\t\t}\n\t\t\t\t};\n\n\t\t\t\tvar salesAdd = {\n\t\t\t\t\tTxnDate: receipt.qbObj.TxnDate,\n\t\t\t\t\tRefNumber: receipt.qbObj.RefNumber,\n\t\t\t\t\tSalesReceiptLineAdd: []\n\t\t\t\t};\n\n\t\t\t\tif (receipt.qbObj.SalesReceiptLineRet instanceof Array) {\n\t\t\t\t\treceipt.qbObj.SalesReceiptLineRet.forEach(function(lineItem) {\n\t\t\t\t\t\tif (lineItem.ItemRef) {\n\t\t\t\t\t\t\tsalesAdd.SalesReceiptLineAdd.push({\n\t\t\t\t\t\t\t\tItemRef: {\n\t\t\t\t\t\t\t\t\tFullName: lineItem.ItemRef.FullName\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\tQuantity: lineItem.Quantity,\n\t\t\t\t\t\t\t\tAmount: lineItem.Amount\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t} else {\n\t\t\t\t\tvar lineItem = receipt.qbObj.SalesReceiptLineRet;\n\t\t\t\t\tsalesAdd.SalesReceiptLineAdd.push({\n\t\t\t\t\t\tItemRef: {\n\t\t\t\t\t\t\tFullName: lineItem.ItemRef.FullName\n\t\t\t\t\t\t},\n\t\t\t\t\t\tQuantity: lineItem.Quantity,\n\t\t\t\t\t\tAmount: lineItem.Amount\n\t\t\t\t\t});\n\t\t\t\t}\n\n\t\t\t\taddSalesReceipts.SalesReceiptAddRq.SalesReceiptAdd = salesAdd;\n\n\t\t\t\tvar xmlDoc = helpers.getXMLRequest(addSalesReceipts);\n\t\t\t\tvar str = xmlDoc.end({pretty:true});\n\t\t\t\tconsole.log(str);\n\t\t\t\tqbws.addRequest(str);\n\t\t\t});\n\t\t}\n\t});\n}\n\nfunction getItemsFull(query, progressCallback, finalCallback) {\n\tquery.countonly = 1;\n  var canadian = false;\n\tvar url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products';\n\t\n\tif (query.categoryid != undefined && query.categoryid != '') { \n\t\turl = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Categories/'+query.categoryid+'/Products';\n\t}\n\tdelete query.categoryid;\n\n  if (query.sku != undefined && query.sku != '') {\n    url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products';\n  } else {\n    delete query.sku;\n  }\n\n  if (query.manufacturer != undefined && query.manufacturer != '') {\n    url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Manufacturers/'+query.manufacturer+'/Products';\n    delete query.manufacturer;\n  } else {\n    delete query.manufacturer;\n  }\n\n\tif (query.onsale) {\n\t\tquery.onsale = 1;\n\t} else {\n\t\tdelete query.onsale;\n\t}\n\n  var options = {\n    url: url,\n    method: 'GET',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    }\n  };\n\n  if (query.canadian != 'undefined' && query.canadian == true) {\n    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n    canadian = true;\n  }\n  delete query.canadian;\n\n  options.qs = query;\n\n  request(options, function(err, response, body) {\n  \tif (!body) {\n  \t\tconsole.log('No items found');\n      console.log(response);\n  \t\tfinalCallback([]);\n  \t} else {\n\t  \tvar responseObject = JSON.parse(body);\n\t  \tconsole.log(responseObject);\n\t  \tvar totalItems = responseObject.TotalCount;\n\t  \t// can only get 200 items back per request\n\t  \tvar numOfRequests = Math.ceil(totalItems / 200);\n\t  \tconsole.log('We need to send ' + numOfRequests + ' requests to 3D Cart.');\n\n\t  \tvar requests = [];\n\n\t  \tfor (var i = 0; i < numOfRequests; i++) {\n\t  \t\toptions.qs.countonly = 0;\n        options.qs.offset = i * 200;\n\t  \t\toptions.qs.limit = 200;\n\t  \t\trequests.push(JSON.parse(JSON.stringify(options)));\n\t  \t}\n      var counter = 0;\n\n\t  \tasync.eachLimit(requests, 2, function(option, callback) {\n        function doRequest() {\n          request(option, function(err, response, body) {\n            if (err) {\n              callback(err);\n            } else {\n              var items = JSON.parse(body);\n              progressCallback(++counter, numOfRequests, items);\n              items.forEach(function(cartItem) {\n                var sku = cartItem.SKUInfo.SKU.trim();\n                Item.findOne({sku: sku}, function(err, item) {\n                  if (err) {\n                    console.log(err);\n                  } else {\n                    if (item) { // do some updates\n                      updateItemFields(item, cartItem, canadian);\n                    } else {\n                      var newItem = new Item();\n                      newItem.sku = sku;\n                      updateItemFields(newItem, cartItem, canadian);\n                    }\n                  }\n                });\n              });\n              callback(null);\n            }\n          });\n        }\n        setTimeout(doRequest, 1000);\n\t  \t}, function(err) {\n\t  \t\tfinalCallback(err);\n\t  \t});\n  \t}\n  });\n}\n\nfunction updateItemFields(item, cartItem, canadian) {\n  // common attributes\n  item.onSale = cartItem.SKUInfo.OnSale;\n  item.description = cartItem.Description;\n  item.imageURL = cartItem.MainImageFile;\n  item.name = cartItem.SKUInfo.Name;\n  item.weight = cartItem.Weight;\n  item.manufacturerName = cartItem.ManufacturerName;\n  item.hidden = cartItem.Hide;\n\n  var categories = [];\n  cartItem.CategoryList.forEach(function(category) {\n    categories.push(category.CategoryName);\n  });\n  item.categories = categories;\n\n  if (item.ExtraField8 != '' && item.ExtraField8 != undefined) {\n    item.barcode = item.ExtraField8;\n  }\n\n  if (canadian) {\n    item.canPrice = cartItem.SKUInfo.Price;\n    item.catalogIdCan = cartItem.SKUInfo.CatalogID;\n    item.canLink = cartItem.ProductLink;\n    item.canStock = cartItem.SKUInfo.Stock;\n  }\n  else {\n    item.usPrice = cartItem.SKUInfo.Price;\n    item.catalogId = cartItem.SKUInfo.CatalogID;\n    item.usLink = cartItem.ProductLink;\n    item.manufacturerId = cartItem.ManufacturerID;\n    item.usStock = cartItem.SKUInfo.Stock;\n  }\n\n  if (cartItem.AdvancedOptionList.length > 0) {\n    item.hasOptions = true;\n    // save the options\n    cartItem.AdvancedOptionList.forEach(function(optionItem) {\n      var optionSKU = optionItem.AdvancedOptionSufix.trim();\n      Item.findOne({sku: optionSKU}, function(err, advancedOption) {\n        if (err) {\n          console.log(err);\n        } else {\n          if (advancedOption) {\n            updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian);\n          } else if (optionItem.AdvancedOptionSufix != '') {\n            var newOption = new Item();\n            newOption.sku = optionSKU;\n            updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian);\n          }\n        }\n      });\n    });\n  } else {\n    item.hasOptions = false;\n  }\n\n  if (cartItem.Width != 0) {\n    item.width = cartItem.Width;\n  }\n\n  if (cartItem.Height != 0) {\n    item.length = cartItem.Height;\n  }\n  \n  /*\n  cartItem.FeatureList.forEach(function(feature) {\n    if (feature.FeatureTitle == 'Size' || \n        feature.FeatureTitle == 'size' ||\n        feature.FeatureTitle == 'Size:' ||\n        feature.FeatureTitle == 'size:') {\n      var size = feature.FeatureDescription;\n      var tempSize = size;\n      if (tempSize.indexOf('Largest') > -1) {\n        tempSize = tempSize.substring(tempSize.indexOf('Largest'));\n      }\n\n      item.size = size;\n      tempSize = tempSize.replace(/[a-w]|[yz]|:|\"| /gi, '');\n      var middle = tempSize.indexOf('x');\n      var width = tempSize.substring(0, middle);\n      var length = tempSize.substring(middle + 1);\n\n      item.width = width;\n      item.length = length;\n    }\n  });\n  */\n  \n  item.save();\n}\n\nfunction updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian) {\n  advancedOption.name = optionItem.AdvancedOptionName;\n  if (canadian) {\n    advancedOption.optionIdCan = optionItem.AdvancedOptionCode;\n    advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID; // Parent Item\n    advancedOption.canPrice = optionItem.AdvancedOptionPrice;\n    advancedOption.canLink = cartItem.ProductLink;\n    advancedOption.canStock = optionItem.AdvancedOptionStock;\n  }\n  else {\n    advancedOption.usPrice = optionItem.AdvancedOptionPrice;\n    advancedOption.catalogId = cartItem.SKUInfo.CatalogID; // Parent Item\n    advancedOption.optionId = optionItem.AdvancedOptionCode;\n    advancedOption.usLink = cartItem.ProductLink;\n    advancedOption.usStock = optionItem.AdvancedOptionStock;\n  }\n\n  advancedOption.isOption = true;\n  advancedOption.save();\n}\n\n/**\n * toFixed() has some rounding issues\n */\nfunction updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) {\n\tvar itemsToSend = [];\n\tcartItems.forEach(function(item) {\n\t\t// apply bulk updates\n\t\tif (bulkUpdates.priceIncrease) {\n\t\t\tvar percentIncrease = (bulkUpdates.priceIncrease / 100) + 1;\n\t\t\tvar originalPrice = item.SKUInfo.Price\n\t\t\tvar newPrice = (originalPrice * percentIncrease).toFixed(2);\n\n\t\t\tconsole.log(newPrice);\n\n      item.SKUInfo.Price = newPrice;\n\t\t\titem.SKUInfo.RetailPrice = newPrice;\n\t\t\titem.PriceLevel2 = (newPrice / 2).toFixed(2); // U.S. Wholesale\n\t\t\titem.PriceLevel7 = (newPrice / 2).toFixed(2); // Canadian Wholesale\n\t\t\titem.SKUInfo.Canadian = newPrice * 1.10; // Canadian Markup\n\t\t}\n\n\t\tif (bulkUpdates.onSale) {\n\t\t\titem.SKUInfo.OnSale = bulkUpdates.onSale;\n\t\t}\n\n\t\tvar newItem = {\n\t\t\tSKUInfo: item.SKUInfo,\n\t\t\tPriceLevel2: item.PriceLevel2,\n\t\t\tPriceLevel7: item.PriceLevel7\n\t\t};\n\n\t\titemsToSend.push(newItem);\n\n\t\t// after we're done updating, let's save the item in our Database\n\t\tItem.findOne({sku: item.SKUInfo.SKU}, function(err, dbItem) {\n      if (err) {\n        console.log(err);\n      } else if (dbItem) {\n        // do some updates\n        dbItem.usPrice = newPrice;\n        dbItem.canPrice = newPrice * 1.10;\n        dbItem.updated = true;\n        dbItem.save();\n\n        if (dbItem.hasOptions) { // update the options too\n          Item.find({catalogId: dbItem.catalogId, isOption: true}, function(err, options) {\n            if (err) {\n              console.log(err);\n            } else {\n              options.forEach(function(option) {\n                option.usPrice = newPrice;\n                option.canPrice = newPrice * 1.10;\n                option.updated = true;\n                option.save();\n              });\n            }\n          });\n        }\n      } else {\n        console.log('Item not found.');\n      }\n    });\n\t});\n\n\tcartItems = itemsToSend; // if we send the raw object we end up wiping the advanced options\n\n\tvar numOfRequests = Math.ceil(cartItems.length / 100);\n\tconsole.log('We need to send ' + numOfRequests + ' requests to 3D Cart - updating');\n\n\tvar options = {\n    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',\n    method: 'PUT',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    },\n    body: cartItems,\n    json: true\n  };\n\n  var requests = [];\n\n  for (var i = 0; i < numOfRequests; i++) {\n  \tvar requestBody = cartItems.slice(i*100, (i+1)*100);\n\n  \t// US\n  \toptions.headers.SecureUrl = 'https://www.ecstasycrafts.com';\n  \toptions.headers.Token = process.env.CART_TOKEN;\n  \toptions.body = requestBody;\n  \trequests.push(JSON.parse(JSON.stringify(options)));\n\n  \t// Canadian\n  \toptions.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n  \toptions.headers.Token = process.env.CART_TOKEN_CANADA;\n  \trequestBody.forEach(function(item) {\n      var cad = item.SKUInfo.Canadian;\n      item.SKUInfo.Price = cad;\n      item.SKUInfo.RetailPrice = cad;\n  \t\titem.PriceLevel1 = cad;\n      item.PriceLevel2 = (cad / 2).toFixed(2);\n      item.PriceLevel7 = (cad / 2).toFixed(2);\n  \t});\n  \trequests.push(JSON.parse(JSON.stringify(options)));\n  }\n\n  var counter = 0;\n\n  async.mapLimit(requests, 4, function(option, callback) {\n  \tfunction doRequest() {\n  \t\trequest(option, function(err, response, body) {\n\t  \t\tif (err) {\n\t  \t\t\tcallback(err);\n\t  \t\t} else {\n\t  \t\t\tcallback(null, body);\n\t  \t\t\tcounter++;\n\t  \t\t\tprogressCallback(counter, numOfRequests * 2);\n\t  \t\t}\n\t  \t});\n  \t}\n\n  \tsetTimeout(doRequest, 1000);\n  }, function(err, responses) {\n  \tvar merged = [].concat.apply([], responses);\n    console.log('Finished Update.');\n  \tfinalCallback(merged);\n  });\n}\n\nfunction updateItemsFromDB(progressCallback, finalCallback) {\n  Item.find({}, function(err, items) {\n    if (err) {\n      console.log(err);\n    } else {\n      var itemsToSend = [];\n      items.forEach(function(item) {\n        var itemToSend = {\n          SKUInfo: {\n            SKU: item.sku,\n            RetailPrice: item.usPrice\n          },\n          PriceLevel1: item.usPrice\n        }\n        itemsToSend.push(itemToSend);\n      });\n\n      console.log('Found ' + items.length + ' items.');\n\n      var numOfRequests = Math.ceil(itemsToSend.length / 100);\n      console.log('We need to send ' + numOfRequests + ' requests to 3D Cart - updating from DB');\n\n      var options = {\n        url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',\n        method: 'PUT',\n        headers : {\n          SecureUrl : 'https://www.ecstasycrafts.com',\n          PrivateKey : process.env.CART_PRIVATE_KEY,\n          Token : process.env.CART_TOKEN\n        },\n        body: itemsToSend,\n        json: true\n      };\n\n      var requests = [];\n\n      for (var i = 0; i < numOfRequests; i++) {\n        var requestBody = itemsToSend.slice(i*100, (i+1)*100);\n\n        // US\n        options.headers.SecureUrl = 'https://www.ecstasycrafts.com';\n        options.headers.Token = process.env.CART_TOKEN;\n        options.body = requestBody;\n        requests.push(JSON.parse(JSON.stringify(options)));\n\n        // Canadian\n        options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n        options.headers.Token = process.env.CART_TOKEN_CANADA;\n        requestBody.forEach(function(item) {\n          var cad = (item.PriceLevel1 * 1.10).toFixed(2);\n          item.SKUInfo.RetailPrice = cad;\n        });\n        requests.push(JSON.parse(JSON.stringify(options)));\n      }\n\n      var counter = 0;\n\n      async.mapLimit(requests, 4, function(option, callback) {\n        function doRequest() {\n          request(option, function(err, response, body) {\n            if (err) {\n              callback(err);\n            } else {\n              callback(null, body);\n              counter++;\n              progressCallback(counter, numOfRequests * 2);\n            }\n          });\n        }\n\n        setTimeout(doRequest, 1000);\n      }, function(err, responses) {\n        var merged = [].concat.apply([], responses);\n        console.log('Finished Update.');\n        finalCallback(merged);\n      });\n    }\n  });\n}\n\n/**\n * Takes all the updated items in our database and writes them to Quickbooks\n * Pricing only\n */\nfunction updateQuickbooks(qbws, callback) {\n  Item.find({}, function(err, items) {\n    if (err) {\n      console.log(err);\n    } else {\n      console.log('Modifying ' + items.length + ' items in quickbooks.');\n  \n      items.forEach(function(item) {\n        helpers.saveToQuickbooks(item, qbws);\n      });\n\n      callback();\n    }\n  });\n}\n\nfunction getCategories(finalCallback) {\n  var options = {\n    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Categories',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    },\n    qs: {\n      countonly: 1\n    }\n  };\n\n  // Canada\n  //options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n  //options.headers.Token = process.env.CART_TOKEN_CANADA;\n\n  request(options, function(err, response, body) {\n    var numOfCategories = JSON.parse(body).TotalCount;\n    var numOfRequests = Math.ceil(numOfCategories / 200);\n    var requests = [];\n    delete options.qs.countonly;\n    console.log('We need to do ' + numOfRequests + ' requests to get the categories.');\n    \n    for (var i = 0; i < numOfRequests; i++) {\n      options.qs.limit = 200;\n      options.qs.offset = i * 200;\n      requests.push(JSON.parse(JSON.stringify(options)));\n    }\n\n    async.mapSeries(requests, function(option, callback) {\n      request(option, function(err, response, body) {\n        if (err) {\n          callback(err);\n        } else {\n          console.log('received');\n          callback(null, JSON.parse(body));\n        }\n      });\n    }, function(err, responses) {\n      var merged = [].concat.apply([], responses);\n      console.log('done.');\n      finalCallback(merged);\n\n      updateCategories(merged, function(responses) {\n        console.log('done updating');\n      });\n    });\n  });\n}\n\nfunction updateCategories(categories, finalCallback) {\n  var options = {\n    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Categories',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    }\n  };\n  options.method = \"POST\";\n  options.body = categories[0];\n  options.json = true;\n  options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n  options.headers.Token = process.env.CART_TOKEN_CANADA;\n  \n  var numOfRequests = Math.ceil(categories.length);\n  console.log('We need to do ' + numOfRequests + ' requests to save all the categories');\n  var requests = [];\n\n  for (var i = 0; i < numOfRequests; i++) {\n    options.body = categories[i];\n    requests.push(JSON.parse(JSON.stringify(options)));\n  }\n\n  async.mapLimit(requests, 2, function(option, callback) {\n    function doRequest() {\n      request(option, function(err, response, body) {\n        if (err) {\n          callback(err);\n        } else {\n          callback(null, body);\n          console.log(body);\n          console.log('sent.');\n        }\n      });\n    }\n\n    setTimeout(doRequest, 500);\n  }, function(err, responses) {\n    console.log(responses);\n    finalCallback(responses);\n  });\n}\n\nfunction saveItem(item, qbws) {\n  helpers.saveItem(item, qbws);\n\n  if (!item.isOption) {\n    // save to us website\n    var options = {\n      url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',\n      method: 'PUT',\n      headers : {\n        SecureUrl : 'https://www.ecstasycrafts.com',\n        PrivateKey : process.env.CART_PRIVATE_KEY,\n        Token : process.env.CART_TOKEN\n      }\n    };\n\n    var control = 3;\n\n    var body = [{\n      SKUInfo: {\n        Price: item.usPrice,\n        SKU: item.sku,\n        RetailPrice: item.usPrice,\n        Name: item.name,\n        Stock: item.usStock,\n        OnSale: item.onSale,\n        SalePrice: item.usSalePrice\n      },\n      PriceLevel1: item.usPrice,\n      PriceLevel2: (item.usPrice/2).toFixed(2),\n      PriceLevel7: (item.usPrice/2).toFixed(2),\n      MFGID: item.sku,\n      WarehouseLocation: item.location,\n      GTIN: item.barcode,\n      ExtraField8: item.barcode,\n      ExtraField9: item.countryOfOrigin,\n      InventoryControl: control,\n      Hide: item.hidden,\n\n    }];\n\n    if (item.inactive == true) {\n      body[0].SKUInfo.Stock = 0;\n    }\n\n    options.body = body;\n    options.json = true;\n\n    request(options, function(err, response, body) {\n      console.log('US Site:');\n      console.log(body);\n    });\n\n    // save to canadian site\n    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n    options.body[0].SKUInfo.Price = item.canPrice;\n    options.body[0].SKUInfo.RetailPrice = item.canPrice;\n    options.body[0].SKUInfo.SalePrice = item.canSalePrice;\n    options.body[0].SKUInfo.Stock = item.canStock;\n    options.body[0].PriceLevel1 = item.canPrice;\n    options.body[0].PriceLevel2 = (item.canPrice/2).toFixed(2);\n    options.body[0].PriceLevel7 = (item.canPrice/2).toFixed(2);\n\n    if (item.canStock > 0) {\n      options.body[0].InventoryControl = 3;\n    }\n\n    request(options, function(err, response, body) {\n      console.log('CAN Site:');\n      console.log(body);\n    });\n  } else {\n    // save the option\n    var options = {\n      url: '',\n      method: 'PUT',\n      headers : {\n        SecureUrl : 'https://www.ecstasycrafts.com',\n        PrivateKey : process.env.CART_PRIVATE_KEY,\n        Token : process.env.CART_TOKEN\n      },\n      json: true\n    };\n\n    options.body = {\n      AdvancedOptionStock: item.usStock,\n      AdvancedOptionSufix: item.sku,\n      AdvancedOptionPrice: item.usPrice,\n      AdvancedOptionName: item.name\n    }\n\n    var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogId+'/AdvancedOptions/'+item.optionId;\n    options.url = url;\n\n    request(options, function(err, response, body) {\n      console.log('US Site:')\n      console.log(body);\n    });\n\n    options.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;\n    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n    options.body.AdvancedOptionPrice = item.canPrice;\n    options.body.AdvancedOptionStock = item.canStock;\n\n    request(options, function(err, response, body) {\n      console.log('CAN Site:');\n      console.log(body);\n    });\n  }\n}\n\nfunction newOrder(order, isCanadian) {\n  var options = {\n    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',\n    method: 'POST',\n    headers : {\n      SecureUrl : 'https://www.ecstasycrafts.com',\n      PrivateKey : process.env.CART_PRIVATE_KEY,\n      Token : process.env.CART_TOKEN\n    },\n    json: true\n  };\n\n  if (isCanadian) {\n    options.headers.SecureUrl = secureUrlCa;\n    options.headers.Token = process.env.CART_TOKEN_CANADA;\n  }\n\n  options.body = {\n    BillingFirstName: 'Matt',\n    BillingLastName: 'Oskamp',\n    BillingAddress: '1922 Berrywood Cres',\n    BillingCity: 'Kingston',\n    BillingState: 'Ontario',\n    BillingCountry: 'Canada',\n    BillingZipCode: 'K7P3G9',\n    BillingPhoneNumber: '613-242-8433',\n    BillingEmail: 'mattoskamp@gmail.com',\n    BillingPaymentMethod: 'On Account',\n    BillingOnlinePayment: false,\n    BillingPaymentMethodID: '49',\n    ShipmentList: [{\n      ShipmentOrderStatus: 1,\n      ShipmentFirstName: 'Matt',\n      ShipmentLastName: 'Oskamp',\n      ShipmentAddress: '1922 Berrywood Cres',\n      ShipmentCity: 'Kingston',\n      ShipmentState: 'Ontario',\n      ShipmentCountry: 'Canada',\n      ShipmentZipCode: 'K7P3G9',\n      ShipmentPhone: '613-242-8433',\n    }],\n    OrderItemList: [{\n      ItemID: 'FAP01',\n      ItemQuantity: 3,\n      ItemUnitPrice: '10'\n    }],\n    SalesTax: '1',\n    OrderStatusID: 1\n  };\n\n  request(options, function(err, response, body) {\n    console.log(body);\n  })\n}\n\nmodule.exports = {\n \tgetItems: getItems,\n  refreshFrom3DCart: refreshFrom3DCart,\n \tsaveItems: saveItems, // for inventory\n \tsaveOptionItems: saveOptionItems,\n \tsaveAdvancedOptions: saveAdvancedOptions,\n \tgetOrders: getOrders,\n \tgetSalesReceipts: getSalesReceipts,\n \taddSalesReceipts: addSalesReceipts,\n \tgetItemsFull: getItemsFull,\n \tupdateItems: updateItems,\n  updateQuickbooks: updateQuickbooks,\n  getCategories: getCategories,\n  updateItemsFromDB: updateItemsFromDB,\n  saveCategories: updateCategories,\n  saveItem: saveItem,\n  newOrder: newOrder\n}",
+			"file": "app/3dcart.js",
+			"file_size": 46304,
+			"file_write_time": 131529172348592198,
+			"settings":
+			{
+				"buffer_size": 44700,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "client/js/orders.js",
+			"settings":
+			{
+				"buffer_size": 5496,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -576,11 +738,34 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Users/matto/Development/ec/ec-express"
+		"/C/Users/matto/Development/ec/ec-express",
+		"/C/Users/matto/Development/ec/ec-express/app",
+		"/C/Users/matto/Development/ec/ec-express/app/model",
+		"/C/Users/matto/Development/ec/ec-express/client",
+		"/C/Users/matto/Development/ec/ec-express/client/js",
+		"/C/Users/matto/Development/ec/ec-express/qbws",
+		"/C/Users/matto/Development/ec/ec-express/views"
 	],
 	"file_history":
 	[
+		"/C/Users/matto/Development/ec/ec-express/client/js/3dcart.js",
+		"/C/Users/matto/Development/ec/ec-express/client/js/orders.js",
+		"/C/Users/matto/Development/ec/ec-express/app/helpers.js",
+		"/C/Users/matto/Development/ec/ec-express/app/amazon.js",
+		"/C/Users/matto/Development/ec/ec-express/views/3dcart.pug",
+		"/C/Users/matto/Development/ec/ec-express/views/orders.pug",
+		"/C/Users/matto/Development/ec/ec-express/app/model/item.js",
+		"/C/Users/matto/Development/ec/ec-express/app/routes.js",
+		"/C/Users/matto/Development/ec/ec-express/views/mixins.pug",
+		"/C/Users/matto/Development/ec/ec-express/app/model/order.js",
+		"/C/Users/matto/Development/ec/ec-express/app/api.js",
+		"/C/Users/matto/Development/ec/ec-express/.env",
+		"/C/Users/matto/Development/ec/ec-express/log.log",
 		"/C/Windows/System32/drivers/etc/hosts",
+		"/C/Users/matto/Development/ec/ec-express/.gitignore",
+		"/C/Users/matto/Development/ec/ec-express/feeds/amazon_seller.tsv",
+		"/C/Users/matto/Development/ec/ec-express/qbws/ec-connector.qwc",
+		"/C/Users/matto/Development/ec/ec-express/package.json",
 		"/C/Users/matto/Development/applefalls/apps/applefalls/views/includes/head.pug",
 		"/C/Users/matto/Development/applefalls/apps/applefalls/.env",
 		"/C/Users/matto/Desktop/not on site.txt",
@@ -589,7 +774,6 @@
 		"/C/Users/matto/Development/applefalls/website/.htaccess",
 		"/C/Users/matto/Development/ec/ec-express/app/model/report.js",
 		"/C/Users/matto/Development/ec/ec-express/app/model/settings.js",
-		"/C/Users/matto/Development/ec/ec-express/client/js/orders.js",
 		"/C/Users/matto/Development/applefalls/apps/volleyball/app/model/team.js",
 		"/C/Users/matto/Development/applefalls/apps/volleyball/app/model/member.js",
 		"/C/Users/matto/Development/applefalls/apps/volleyball/public/img/babes.jpg",
@@ -602,13 +786,11 @@
 		"/C/Users/matto/Development/applefalls/apps/ciderhouse/views/css/ciderhouse.css",
 		"/C/Users/matto/Development/ec/creds/amazon.txt",
 		"/C/Users/matto/Downloads/ec-connector (1).qwc",
-		"/C/Users/matto/Development/ec/ec-express/app/helpers.js",
 		"/C/Users/matto/Development/ec/ec-express/qbws/qbws.js",
 		"/C/Users/matto/Development/ec/ec-express/wsdl/test.xml",
 		"/C/Users/matto/Development/ec/ec-express/client/js/login.js",
 		"/C/Users/matto/Development/ec/ec-express/client/signup.html",
 		"/C/Users/matto/Development/ec/ec-express/client/js/navigation.js",
-		"/C/Users/matto/Development/ec/ec-express/qbws/ec-connector.qwc",
 		"/C/Users/matto/Development/ec/ec-express/qbws/wsdl/ec-connector.qwc",
 		"/C/Users/matto/Downloads/ec-connector.qwc",
 		"/C/Users/matto/Downloads/connector",
@@ -629,19 +811,17 @@
 		"/C/Users/matto/Development/ec/ec-express/client/js/homepage.js",
 		"/C/Users/matto/Development/ec/ec-express/client/css/starter-template.css",
 		"/C/Users/matto/Development/ec/ec-express/client/js/results.txt",
-		"/C/Users/matto/Development/ec/ec-express/package.json",
 		"/C/Users/matto/Desktop/norsteel.txt",
 		"/C/Users/matto/Development/ec/ec-express/client/index.html",
 		"/C/Users/matto/Development/ec/ec-express/client/product-upload.html",
 		"/C/Users/matto/Development/ec/ec-express/client/css/styles.css",
 		"/C/Users/matto/Development/ec/ec-express/wsdl/ec-connector.qwc",
 		"/C/Users/matto/Development/ec/ec-express/client/js/product-upload.js",
-		"/C/Users/matto/Development/ec/ec-express/wsdl/qbwc.wsdl",
-		"/C/Users/matto/Development/ec/ec-express/.gitignore"
+		"/C/Users/matto/Development/ec/ec-express/wsdl/qbwc.wsdl"
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 52.0
 	},
 	"find_in_files":
 	{
@@ -655,6 +835,69 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"firstname",
+			"billing",
+			"dbCustomer.billingAddress = customer.billingAddress;\n  dbCustomer.billingAddress2 = customer.billingAddress2;\n  dbCustomer.billingCity = customer.billingCity;\n  dbCustomer.billingState = customer.billingState;\n  dbCustomer.billingCountry = customer.billingCountry;\n  dbCustomer.billingZipCode = customer.billingZipCode;",
+			"firstname",
+			"mer",
+			"firstname",
+			"first",
+			"addItemRow",
+			"itemQuantity",
+			"canPrice",
+			"theCustomer",
+			"name",
+			"billing",
+			"Country",
+			"State",
+			"City",
+			"'));\n",
+			"Address",
+			"billing",
+			"modal",
+			");\n",
+			"promise",
+			".then",
+			"promise",
+			"searchDB",
+			"searchDb",
+			"on",
+			"finalcallback",
+			"getitemrq",
+			"setca",
+			"saveitem",
+			"modifyInventoryRq",
+			"itemModify-",
+			"itemMod",
+			"modifyInventoryRq",
+			"modifyItemRq",
+			"responseCallback",
+			"modifyInventoryRq",
+			"modifyItemRq",
+			"saveToQuickbooks",
+			"callback",
+			"getItemInQuickbooks",
+			"getorders",
+			"refresh",
+			"getitems",
+			"updateAdvancedOptionFields",
+			"();\n",
+			"getorders",
+			"updateitem",
+			"markcompleted",
+			"we need to do",
+			"getorders",
+			"inventorysync",
+			"inventory",
+			"queryAllItems",
+			"getMultipleItemsRq",
+			"getcustomer",
+			"getCustomerFromOrder",
+			"operations",
+			"getorder",
+			"getitemsfu",
+			"getquery",
+			"amazon"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -672,13 +915,514 @@
 	"groups":
 	[
 		{
+			"selected": 9,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "index.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2020,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1189,
+								1189
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 72.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 16,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "app/events.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6994,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5177,
+								5177
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3926.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "views/mixins.pug",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2319,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2159,
+								2159
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Pug/Syntaxes/Pug.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 720.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "app/routes.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3001,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2990,
+								2990
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1728.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "views/new-order.pug",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10829,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3968,
+								3968
+							]
+						],
+						"settings":
+						{
+							"auto_name": "new-order.pug",
+							"syntax": "Packages/Pug/Syntaxes/Pug.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 2520.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "app/amazon.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6647,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1863,
+								1863
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 864.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 15,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "views/amazon.pug",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1680,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1034,
+								1034
+							]
+						],
+						"settings":
+						{
+							"auto_name": "amazon.pug",
+							"syntax": "Packages/Pug/Syntaxes/Pug.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 360.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "app/model/order.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 463,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								403,
+								403
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "app/model/item.js",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 1243,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "app/helpers.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 28662,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								28662,
+								28662
+							]
+						],
+						"settings":
+						{
+							"spell_check": true,
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 22749.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "qbws/qbws.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 24710,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1031,
+								1031
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 15.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				}
 			]
 		},
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 11,
+					"file": "app/model/customer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 734,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								467,
+								467
+							]
+						],
+						"settings":
+						{
+							"auto_name": "customer.js",
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "client/js/new-order.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8222,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1785,
+								1807
+							]
+						],
+						"settings":
+						{
+							"auto_name": "new-order.js",
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1152.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "views/database.pug",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7802,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6441,
+								6441
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Pug/Syntaxes/Pug.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "client/js/database.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7033,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4070,
+								5557
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 4063.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "app/3dcart.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 44700,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								43911,
+								43911
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 33196.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "client/js/orders.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5496,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3086,
+								3086
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1992.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -720,6 +1464,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 160.0
+	},
 	"output.find_results":
 	{
 		"height": 0.0
@@ -758,7 +1506,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},

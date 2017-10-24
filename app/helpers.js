@@ -6,6 +6,7 @@ var builder = require('xmlbuilder');
 var request = require('request');
 var Order = require('./model/order');
 var Settings = require('./model/settings');
+var Customer = require('./model/customer');
 var Item = require('./model/item');
 var async = require('async');
 var xmlParser = require('xml2js').parseString; 
@@ -803,6 +804,45 @@ function searchSKU(sku) {
   return Item.find({sku: {$regex: pattern, $options:'gi'}}).limit(100);
 }
 
+function searchCustomer(email) {
+  var pattern = '^'+email;
+  return Customer.find({email: {$regex: pattern, $options:'gi'}}).limit(10);
+}
+
+function saveCustomer(customer) {
+  var search = Customer.findOne({email: customer.email});
+  search.then(function(customerDB) {
+    if (customerDB) {
+      updateCustomer(customerDB, customer);
+    } else {
+      var newCustomer = new Customer();
+      newCustomer.email = customer.email;
+      updateCustomer(newCustomer, customer);
+    }
+  });
+}
+
+function updateCustomer(dbCustomer, customer) {
+  dbCustomer.firstname = customer.firstname;
+  dbCustomer.lastname = customer.lastname;
+  dbCustomer.email = customer.email;
+  dbCustomer.phone = customer.phone;
+  dbCustomer.billingAddress = customer.billingAddress;
+  dbCustomer.billingAddress2 = customer.billingAddress2;
+  dbCustomer.billingCity = customer.billingCity;
+  dbCustomer.billingState = customer.billingState;
+  dbCustomer.billingCountry = customer.billingCountry;
+  dbCustomer.billingZipCode = customer.billingZipCode;
+  dbCustomer.shippingAddress = customer.shippingAddress;
+  dbCustomer.shippingAddress2 = customer.shippingAddress2;
+  dbCustomer.shippingCity = customer.shippingCity;
+  dbCustomer.shippingState = customer.shippingState;
+  dbCustomer.shippingCountry = customer.shippingCountry;
+  dbCustomer.shippingZipCode = customer.shippingZipCode;
+  dbCustomer.defaultProfile = customer.defaultProfile;
+  dbCustomer.defaultWebsite = customer.defaultWebsite;
+}
+
 function saveItem(item, qbws) {
   // save the item in our db
   Item.findOne({sku: item.sku}, function(err, theItem) {
@@ -944,5 +984,7 @@ module.exports = {
   getItemRq: getItemRq,
   getItemInQuickbooks: getItemInQuickbooks,
   createInvoices: createInvoices,
-  searchSKU: searchSKU
+  searchSKU: searchSKU,
+  searchCustomer: searchCustomer,
+  updateCustoemr: updateCustomer
 }

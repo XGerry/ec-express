@@ -14,117 +14,110 @@ html
 				.panel-heading
 					h2.panel-title
 						a(data-toggle="collapse", data-target="#customerPanel") Customer
-				#customerPanel.panel-collapse.collapse.in
-					.panel-body
-						.form-group.row
-							.col-lg-4
-								label(for="customerEmail") Email
-								input#customerEmail.form-control(type="text", list="emailList")
-								datalist#emailList
-							.col-lg-4
-								label(for="websiteSelect") Website
-								select.form-control#websiteSelect
-									option(value="canada") Canada
-									option(value="us") U.S.
-							.col-lg-4
-								label(for="profileSelect") Profile
-								select.form-control#profileSelect
-									option(value="retail") Retail
-									option(value="wholesale") Wholesale - 50%
-						.btn-toolbar
-							button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") New Customer
-						table.table.table-striped.table-hover#customerTable
-							thead
-								tr
-									th Name
-									th Email
-									th Phone
-									th Shipping Address
-									th Shipping City
-							tbody#customerTableBody
-				h4 Item
-				.form-group.row
-					.col-lg-2
-						label(for="itemSKU") SKU
-						input#itemSKU.form-control(type="text", list="itemList")
-						datalist#itemList
-					.col-lg-4
-						label(for="itemName") Name
-						input#itemName.form-control(type="text")
-					.col-lg-2
-						label(for="itemQuantity") Quantity
-						input#itemQuantity.form-control(type="number", value="1")
-					.col-lg-2
-						label(for="itemPrice") Item Price
-						.input-group
-							span.input-group-addon
-								i.fa.fa-dollar
-							input#itemPrice.form-control(type="number", step="any")
-					.col-lg-2
-						label(for="lineTotal") Line Total
-						.input-group
-							span.input-group-addon
-								i.fa.fa-dollar
-							input#lineTotal.form-control(type="number", readonly)
-				button.btn.btn-primary#addItemButton(type="button", disabled) Add Item
-				h4 Order
-				table.table.table-striped.table-hover#orderTable
-					thead
-						tr
-							th SKU
-							th Name
-							th Quantity
-							th Price
-							th Total
-					tbody#orderTableBody
-				.row.form-group
-					.col-lg-2.col-lg-offset-8
-						p Subtotal
-					.col-lg-2
-						.input-group
-							span.input-group-addon
-								i.fa.fa-dollar
-							input.form-control#subtotal(type="number", readonly)
-				.row.form-group
-					.col-lg-2.text-right
-						label(for="taxOptions") Tax
-					.col-lg-2
-						select#taxOptions.form-control
-							option(value=0) No Tax - 0%
-							option(value=13) HST - 13%
-							option(value=5) GST - 5%
-					.col-lg-2.col-lg-offset-4
-						p Tax
-					.col-lg-2
-						.input-group
-							span.input-group-addon
-								i.fa.fa-dollar
-							input.form-control#taxes(type="number", readonly)
-				.row.form-group
-					.col-lg-2.text-right
-						label(for="shippingOptions") Shipping
-					.col-lg-2
-						select#shippingOptions.form-control
-							option UPS
-							option Canada Post
-							option USPS
-					.col-lg-2.col-lg-offset-4
-						p Shipping
-					.col-lg-2
-						.input-group
-							span.input-group-addon
-								i.fa.fa-dollar
-							input.form-control#shipping(type="number")
-				.row.form-group
-					.col-lg-2.col-lg-offset-8
-						p Total
-					.col-lg-2
-						.input-group
-							span.input-group-addon
-								i.fa.fa-dollar
-							input.form-control#total(type="number", readonly)
-				.btn-toolbar
-					button.btn.btn-primary#saveToSiteButton(type="button") Send to Website
+				#customerPanel.panel-collapse.collapse.in.panel-body
+					.btn-toolbar
+						button.btn.btn-success#lookupCustomer(type="button") Customer Lookup
+						button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") New Customer
+					table.table.table-striped.table-hover#customerTable
+						thead
+							tr
+								th Name
+								th Email
+								th Phone
+								th Shipping Address
+								th Shipping City
+						tbody#customerTableBody
+			
+			.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#itemPanel") Item
+				#itemPanel.panel-collapse.collapse.in.panel-body
+					.form-group.row
+						.col-lg-2
+							label(for="itemSKU") SKU
+							input#itemSKU.form-control(type="text", list="itemList")
+							datalist#itemList
+						.col-lg-4
+							label(for="itemName") Name
+							input#itemName.form-control(type="text")
+						.col-lg-2
+							label(for="itemQuantity") Quantity
+							input#itemQuantity.form-control(type="number", value="1")
+						.col-lg-2
+							label(for="itemPrice") Item Price
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input#itemPrice.form-control(type="number", step="any")
+						.col-lg-2
+							label(for="lineTotal") Line Total
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input#lineTotal.form-control(type="number", readonly)
+					button.btn.btn-primary#addItemButton(type="button", disabled) Add Item			
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#orderPanel") Order
+				#orderPanel.panel-body.panel-collapse.collapse.in
+					table.table.table-striped.table-hover#orderTable
+						thead
+							tr
+								th SKU
+								th Name
+								th Quantity
+								th Price
+								th Total
+						tbody#orderTableBody
+					.row.form-group
+						.col-lg-2.col-lg-offset-8
+							p Subtotal
+						.col-lg-2
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input.form-control#subtotal(type="number", readonly)
+					.row.form-group
+						.col-lg-2.text-right
+							label(for="taxOptions") Tax
+						.col-lg-2
+							select#taxOptions.form-control
+								option(value=0) No Tax - 0%
+								option(value=13) HST - 13%
+								option(value=5) GST - 5%
+						.col-lg-2.col-lg-offset-4
+							p Tax
+						.col-lg-2
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input.form-control#taxes(type="number", readonly)
+					.row.form-group
+						.col-lg-2.text-right
+							label(for="shippingOptions") Shipping
+						.col-lg-2
+							select#shippingOptions.form-control
+								option UPS
+								option Canada Post
+								option USPS
+						.col-lg-2.col-lg-offset-4
+							p Shipping
+						.col-lg-2
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input.form-control#shipping(type="number")
+					.row.form-group
+						.col-lg-2.col-lg-offset-8
+							p Total
+						.col-lg-2
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input.form-control#total(type="number", readonly)
+					.btn-toolbar
+						button.btn.btn-primary#saveToSiteButton(type="button") Send to Website
 
 		#customerModal.modal.fade(role="dialog")
 			.modal-dialog
@@ -133,6 +126,11 @@ html
 						button.close(data-dismiss="modal") &times;
 						h4#customerName New Customer
 					.modal-body
+						.form-group.row
+							.col-lg-12
+								label(for="customerSearch") Email Search
+								input#customerSearch.form-control(type="text", list="emailList")
+								datalist#emailList
 						.form-group.row
 							.col-lg-6
 								label(for="customerFirstName") First Name
@@ -199,6 +197,17 @@ html
 										.col-lg-4
 											label(for="shippingZip") Zip/Postal Code
 											input#shippingZip.form-control(type="text")
+						.form-group.row
+							.col-lg-6
+								label(for="websiteSelect") Website
+								select.form-control#websiteSelect
+									option(value="canada") Canada
+									option(value="us") U.S.
+							.col-lg-6
+								label(for="profileSelect") Profile
+								select.form-control#profileSelect
+									option(value="retail") Retail
+									option(value="wholesale") Wholesale - 50%
 										
 					.modal-footer
 						button#saveCustomerButton.btn.btn-success(type="button") Save

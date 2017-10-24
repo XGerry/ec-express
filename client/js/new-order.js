@@ -74,6 +74,22 @@ $(document).ready(function() {
 	$('#taxOptions').change(function(e) {
 		calculateTotals();
 	});
+
+	$('#customerSearch').on('input propertychange', function() {
+		socket.emit('searchCustomer', $('#customerSearch').val());
+	});
+});
+
+socket.on('searchCustomerFinished', function(customers) {
+	$('#emailList').empty();
+	customers.forEach(function(customer) {
+		$('#emailList').append('<option>'+customer.email+'</option>');
+	});
+
+	if (customers.length == 1) {
+		// load the customer fields in
+		setCustomerModalFields(customers[0]);
+	}
 });
 
 socket.on('searchSKUFinished', function(items) {
@@ -195,31 +211,31 @@ function saveCustomer() {
 	row.append(city);
 
 	row.click(function(e) {
-		setCustomerModalFields();
+		setCustomerModalFields(theCustomer);
 		$('#customerModal').modal();
 	});
 
 	$('#customerTableBody').append(row);
 }
 
-function setCustomerModalFields() {
-	$('#customerName').val(theCustomer.firstname + theCustomer.lastname);
-	$('#customerFirstName').val(theCustomer.firstname);
-	$('#customerLastName').val(theCustomer.lastname);
-	$('#customerEmailModal').val(theCustomer.email);
-	$('#customerPhone').val(theCustomer.phone);
-	$('#billingAddress').val(theCustomer.billingAddress);
-	$('#billingAddress2').val(theCustomer.billingAddress2);
-	$('#billingCity').val(theCustomer.billingCity);
-	$('#billingState').val(theCustomer.billingState);
-	$('#billingCountry').val(theCustomer.billingCountry);
-	$('#billingZip').val(theCustomer.billingZipCode);
-	$('#shippingAddress').val(theCustomer.shippingAddress);
-	$('#shippingAddress2').val(theCustomer.shippingAddress2);
-	$('#shippingCity').val(theCustomer.shippingCity);
-	$('#shippingState').val(theCustomer.shippingState);
-	$('#shippingCountry').val(theCustomer.shippingCountry);
-	$('#shippingZip').val(theCustomer.shippingZipCode);
+function setCustomerModalFields(customer) {
+	$('#customerName').val(customer.firstname + customer.lastname);
+	$('#customerFirstName').val(customer.firstname);
+	$('#customerLastName').val(customer.lastname);
+	$('#customerEmailModal').val(customer.email);
+	$('#customerPhone').val(customer.phone);
+	$('#billingAddress').val(customer.billingAddress);
+	$('#billingAddress2').val(customer.billingAddress2);
+	$('#billingCity').val(customer.billingCity);
+	$('#billingState').val(customer.billingState);
+	$('#billingCountry').val(customer.billingCountry);
+	$('#billingZip').val(customer.billingZipCode);
+	$('#shippingAddress').val(customer.shippingAddress);
+	$('#shippingAddress2').val(customer.shippingAddress2);
+	$('#shippingCity').val(customer.shippingCity);
+	$('#shippingState').val(customer.shippingState);
+	$('#shippingCountry').val(customer.shippingCountry);
+	$('#shippingZip').val(customer.shippingZipCode);
 }
 
 function setItemModalFields(item) {

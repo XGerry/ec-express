@@ -185,6 +185,13 @@
  			});
  		});
 
+ 		socket.on('searchCustomer', function(email) {
+ 			var search = helpers.searchCustomer(email);
+ 			search.then(function(customers) {
+ 				socket.emit('searchCustomerFinished', customers);
+ 			});
+ 		});
+
  		socket.on('sendTo3DCart', function(order, isCanadian) {
  			cart3d.newOrder(order, isCanadian);
  		});
