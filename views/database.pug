@@ -14,11 +14,11 @@ html
 				.form-group.row
 					.col-lg-3
 						label(for="sku") SKU
-						input.form-control#sku(type="text", name="sku", list="items")
+						input.form-control.enterKeySearch#sku(type="text", name="sku", list="items")
 						datalist#items
 					.col-lg-3
 						label(for="manufacturer") Manufacturer
-						input.form-control#manufacturer(type="text", name="manufacturer")
+						input.form-control.enterKeySearch#manufacturer(type="text", name="manufacturer")
 					.col-lg-2.checkbox.checkbox-top-margin
 						label(for="updated")
 							input#updated(type="checkbox", name="updated")

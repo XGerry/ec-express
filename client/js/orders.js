@@ -28,6 +28,13 @@ $(document).ready(function() {
       endDate: endDate.getMonth()+1+'/'+endDate.getDate()+'/'+endDate.getFullYear()
     };
 
+    if (startDate == '') {
+      delete query.startDate;
+    }
+    if (endDate == '') {
+      delete query.endDate;
+    }
+
     socket.emit('getOrders', query);
     $('#getOrdersButton').addClass('disabled');
   });

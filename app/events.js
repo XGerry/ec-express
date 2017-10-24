@@ -65,9 +65,12 @@
         limit : data.limit,
         orderstatus : data.status, // Status of New = 1
         datestart : data.startDate,
-        dateend : data.endDate,
-        invoicenumber : data.number
+        dateend : data.endDate
       };
+
+      if (data.number) {
+      	query.invoicenumber = data.number;
+      }
 
       console.log(query.limit);
 

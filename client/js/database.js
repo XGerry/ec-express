@@ -126,6 +126,12 @@ $(document).ready(function() {
 		var sku = $('#sku').val();
 		socket.emit('searchSKU', sku);
 	});
+
+	$('.enterKeySearch').on('keyup', function(e) {
+		if (e.keyCode == 13) {
+			socket.emit('searchDB', getQuery());
+		}
+	});
 });
 
 socket.on('searchSKUFinished', function(items) {

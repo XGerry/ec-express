@@ -571,6 +571,8 @@ function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
 
   request(options, function(err, response, body) {
     delete query.countonly;
+    console.log(options.headers.SecureUrl)
+    console.log(body);
     var numberOfOrders = JSON.parse(body).TotalCount;
     console.log(numberOfOrders);
     var numOfRequests = Math.ceil(numberOfOrders / 200); // can always get 200 records
@@ -1525,7 +1527,6 @@ function newOrder(order, isCanadian) {
       ShipmentCountry: 'Canada',
       ShipmentZipCode: 'K7P3G9',
       ShipmentPhone: '613-242-8433',
-      BillingEmail: 'mattoskamp@gmail.com',
     }],
     OrderItemList: [{
       ItemID: 'FAP01',
