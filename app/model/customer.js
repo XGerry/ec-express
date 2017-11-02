@@ -15,6 +15,7 @@ var customerSchema = new mongoose.Schema({
 	}],
 	email: String,
 	phone: String,
+	companyName: String,
 	billingAddress: String,
 	billingAddress2: String,
 	billingCity: String,

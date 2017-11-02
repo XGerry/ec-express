@@ -841,6 +841,7 @@ function updateCustomer(dbCustomer, customer) {
   dbCustomer.shippingZipCode = customer.shippingZipCode;
   dbCustomer.defaultProfile = customer.defaultProfile;
   dbCustomer.defaultWebsite = customer.defaultWebsite;
+  dbCustomer.save();
 }
 
 function saveItem(item, qbws) {
@@ -986,5 +987,6 @@ module.exports = {
   createInvoices: createInvoices,
   searchSKU: searchSKU,
   searchCustomer: searchCustomer,
-  updateCustoemr: updateCustomer
+  updateCustoemr: updateCustomer,
+  saveCustomer: saveCustomer
 }

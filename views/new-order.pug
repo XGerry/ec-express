@@ -5,19 +5,43 @@ html
 		title New Order
 	body
 		+navbar("new-order")
-		.container
-			.starter-template
-				h1 Orders
-				p.lead Create or load orders.
-		.container
+		.container.top-25
+			.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#loadOrderPanel") Load
+				#loadOrderPanel.panel-collapse.collapse.in.panel-body
+					.row.form-group
+						.col-lg-6
+							.text-center
+								h4 3D Cart Order
+							.row
+								.col-lg-3
+									label Order Prefix
+									select#prefixSelect.form-control
+										option(value="AB") AB
+										option(value="CA") CA
+								.col-lg-6
+									label Order Number
+									input.form-control(type="number")#orderNumber
+								.col-lg-3
+									.btn-toolbar.top-25
+										button.btn.btn-default#loadFrom3DCartButton(type="button") Load
+						.col-lg-6
+							.text-center
+								h4 CSV Order
+							.row
+								.col-lg-6
+									label.btn.btn-default.btn-file Browse
+										input(type="file" style="display: none;")
+
 			.panel.panel-default
 				.panel-heading
 					h2.panel-title
 						a(data-toggle="collapse", data-target="#customerPanel") Customer
 				#customerPanel.panel-collapse.collapse.in.panel-body
 					.btn-toolbar
-						button.btn.btn-success#lookupCustomer(type="button") Customer Lookup
-						button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") New Customer
+						button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") Add Customer
 					table.table.table-striped.table-hover#customerTable
 						thead
 							tr
@@ -210,7 +234,7 @@ html
 									option(value="wholesale") Wholesale - 50%
 										
 					.modal-footer
-						button#saveCustomerButton.btn.btn-success(type="button") Save
+						button#saveCustomerButton.btn.btn-success(type="button") Add
 						button.btn.btn-default(type="button", data-dismiss="modal") Cancel
 
 		#itemModal.modal.fade(role="dialog")

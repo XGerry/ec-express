@@ -147,7 +147,15 @@ function getItemsQuick(canadian, notifyCallback, finalCallback) {
   }
 
   request(options, function(err, response, body) {
-    var responseObject = JSON.parse(body);
+    var responseObject = {
+      TotalCount: 0
+    };
+    try {
+      responseObject = JSON.parse(body);
+    } catch (e) {
+      console.log(e);
+      console.log('Request Failed');
+    }
     var totalItems = responseObject.TotalCount;
 
     var numOfRequests = Math.ceil(totalItems / 200);
@@ -171,7 +179,18 @@ function getItemsQuick(canadian, notifyCallback, finalCallback) {
             callback(null);
           }
           counter++;
-          notifyCallback(counter, numOfRequests, JSON.parse(body));
+          var jsonBody = [];
+          try {
+            jsonBody = JSON.parse(body);
+          } catch (e) {
+            console.log(e);
+            console.log(body);
+            console.log('Options:');
+            console.log(option);
+            console.log('Call Failed');
+            notifyCallback(counter, numOfRequests, jsonBody);
+          }
+          notifyCallback(counter, numOfRequests, jsonBody);
         });
       }
       setTimeout(doRequest, 1000);
@@ -506,6 +525,29 @@ function doRebuild(canadian, cartItems, finalCallback) {
   }, function(err, results) {
 		finalCallback(results);
 	});
+}
+
+function getOrder(query, canadian, callback) {
+  var options = {
+    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : process.env.CART_PRIVATE_KEY,
+      Token : process.env.CART_TOKEN
+    },
+    qs : query
+  };
+
+  if (canadian) {
+    options.headers.SecureUrl = secureUrlCa;
+    options.headers.Token = process.env.CART_TOKEN_CANADA;
+  }
+
+  console.log(options);
+
+  request(options, function(err, response, body) {
+    callback(JSON.parse(body));
+  });
 }
 
 /**
@@ -954,9 +996,11 @@ function updateItemFields(item, cartItem, canadian) {
   });
   item.categories = categories;
 
-  if (item.ExtraField8 != '' && item.ExtraField8 != undefined) {
-    item.barcode = item.ExtraField8;
+  if (cartItem.ExtraField8 != '' && cartItem.ExtraField8 != undefined) {
+    item.barcode = cartItem.ExtraField8;
   }
+
+  console.log(cartItem.ExtraField8);
 
   if (canadian) {
     item.canPrice = cartItem.SKUInfo.Price;
@@ -1487,7 +1531,7 @@ function saveItem(item, qbws) {
   }
 }
 
-function newOrder(order, isCanadian) {
+function saveOrder(order, isCanadian, callback) {
   var options = {
     url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
     method: 'POST',
@@ -1504,42 +1548,11 @@ function newOrder(order, isCanadian) {
     options.headers.Token = process.env.CART_TOKEN_CANADA;
   }
 
-  options.body = {
-    BillingFirstName: 'Matt',
-    BillingLastName: 'Oskamp',
-    BillingAddress: '1922 Berrywood Cres',
-    BillingCity: 'Kingston',
-    BillingState: 'Ontario',
-    BillingCountry: 'Canada',
-    BillingZipCode: 'K7P3G9',
-    BillingPhoneNumber: '613-242-8433',
-    BillingEmail: 'mattoskamp@gmail.com',
-    BillingPaymentMethod: 'On Account',
-    BillingOnlinePayment: false,
-    BillingPaymentMethodID: '49',
-    ShipmentList: [{
-      ShipmentOrderStatus: 1,
-      ShipmentFirstName: 'Matt',
-      ShipmentLastName: 'Oskamp',
-      ShipmentAddress: '1922 Berrywood Cres',
-      ShipmentCity: 'Kingston',
-      ShipmentState: 'Ontario',
-      ShipmentCountry: 'Canada',
-      ShipmentZipCode: 'K7P3G9',
-      ShipmentPhone: '613-242-8433',
-    }],
-    OrderItemList: [{
-      ItemID: 'FAP01',
-      ItemQuantity: 3,
-      ItemUnitPrice: '10'
-    }],
-    SalesTax: '1',
-    OrderStatusID: 1
-  };
+  options.body = order;
 
   request(options, function(err, response, body) {
-    console.log(body);
-  })
+    callback(body);
+  });
 }
 
 module.exports = {
@@ -1558,5 +1571,6 @@ module.exports = {
   updateItemsFromDB: updateItemsFromDB,
   saveCategories: updateCategories,
   saveItem: saveItem,
-  newOrder: newOrder
+  saveOrder: saveOrder,
+  getOrder: getOrder
 }

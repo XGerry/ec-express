@@ -5,6 +5,7 @@
  var amazon = require('./amazon');
  var facebook = require('./facebook');
  var helpers = require('./helpers');
+ var walmart = require('./walmart');
  var Settings = require('./model/settings');
 
  module.exports = function(io, qbws) {
@@ -195,8 +196,11 @@
  			});
  		});
 
- 		socket.on('sendTo3DCart', function(order, isCanadian) {
- 			cart3d.newOrder(order, isCanadian);
+ 		socket.on('saveOrder', function(order, isCanadian) {
+ 			console.log('saving order');
+ 			cart3d.saveOrder(order, isCanadian, function(response) {
+ 				console.log(response);
+ 			});
  		});
 
  		/**
@@ -204,6 +208,18 @@
  		 */
  		socket.on('saveItem', function(item) {
  			cart3d.saveItem(item, qbws);
+ 		});
+
+ 		socket.on('saveCustomer', function(customer) {
+ 			helpers.saveCustomer(customer);
+ 		});
+
+ 		socket.on('loadFrom3DCart', function(prefix, orderNumber) {
+ 			cart3d.getOrder({
+ 				invoicenumber: orderNumber
+ 			}, prefix == 'CA', function(response) {
+ 				socket.emit('receivedOrder', response);
+ 			});
  		});
 
  		socket.on('sendProductsToAmazon', function() {
@@ -218,6 +234,12 @@
  					console.log(err);
  				}
  				socket.emit('facebookFeedFinished');
+ 			});
+ 		});
+
+ 		socket.on('getWalmartFeeds', function() {
+ 			walmart.createItem(function(response) {
+ 				// do something here
  			});
  		});
 

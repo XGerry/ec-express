@@ -132,6 +132,12 @@ $(document).ready(function() {
 			socket.emit('searchDB', getQuery());
 		}
 	});
+
+	$('.enterKeySaveItem').on('keyup', function(e) {
+		if (e.keyCode == 13) {
+			saveItem(theItem);
+		}
+	});
 });
 
 socket.on('searchSKUFinished', function(items) {

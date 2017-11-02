@@ -1,12 +1,18 @@
 var socket = io();
 
 var itemsInOrder = [];
-var usOrder = true;
+var usOrder = false;
 var customerProfile = 'retail';
 var theItem = {};
 var theOrder = {};
 var theCustomer = {};
 var theEditItem = {};
+var salesTax = 0;
+var subTotal = 0;
+var shipping = 0;
+var total = 0;
+var paymentMethod = 'On Account';
+var updatingOrder = false;
 
 $(document).ready(function() {
 	$('#itemSKU').on('input propertychange', function() {
@@ -55,7 +61,7 @@ $(document).ready(function() {
 	});
 
 	$('#saveToSiteButton').click(function(e) {
-		socket.emit('sendTo3DCart', {}, true);
+		socket.emit('saveOrder', generateOrder(), !usOrder);
 	});
 
 	$('#sameAsShippingButton').click(function(e) {
@@ -78,6 +84,50 @@ $(document).ready(function() {
 	$('#customerSearch').on('input propertychange', function() {
 		socket.emit('searchCustomer', $('#customerSearch').val());
 	});
+
+	$('#loadFrom3DCartButton').click(function() {
+		socket.emit('loadFrom3DCart', $('#prefixSelect').val(), $('#orderNumber').val());
+	});
+});
+
+socket.on('receivedOrder', function(orders) {
+	theOrder = orders[0];
+	theCustomer = {
+		billingAddress: theOrder.BillingAddress,
+		billingAddress2: theOrder.BillingAddress2,
+		billingCity: theOrder.BillingCity,
+		companyName: theOrder.BillingCompany,
+		email: theOrder.BillingEmail,
+		firstname: theOrder.BillingFirstName,
+		lastname: theOrder.BillingLastName,
+		billingState: theOrder.BillingState,
+		billingZipCode: theOrder.BillingZipCode,
+		shippingAddress: theOrder.ShipmentList[0].ShipmentAddress,
+		shippingAddress2: theOrder.ShipmentList[0].ShipmentAddress2,
+		shippingCity: theOrder.ShipmentList[0].ShipmentCity,
+		companyName: theOrder.ShipmentList[0].ShipmentCompany,
+		shippingState: theOrder.ShipmentList[0].ShipmentState,
+		shippingZipCode: theOrder.ShipmentList[0].ShipmentZipCode,
+		phone: theOrder.BillingPhoneNumber
+	};
+
+	usOrder = theOrder.InvoicePrefix == "AB-";
+
+	itemsInOrder = [];
+	theOrder.OrderItemList.forEach(function(item) {
+		var orderItem = {
+			name: item.ItemDescription,
+			sku: item.ItemID,
+			quantity: item.ItemQuantity,
+			imageURL: item.ItemImage1,
+			salesPrice: item.ItemUnitPrice
+		}
+		itemsInOrder.push(orderItem);
+	});
+
+	addCustomerRow(theCustomer);
+	buildOrderTable();
+	calculateTotals();
 });
 
 socket.on('searchCustomerFinished', function(customers) {
@@ -194,15 +244,18 @@ function saveCustomer() {
 	theCustomer.shippingZipCode = $('#shippingZip').val();
 
 	socket.emit('saveCustomer', theCustomer);
+	addCustomerRow(theCustomer);
+}
 
+function addCustomerRow(customer) {
 	// add the row to the table
 	$('#customerTableBody').empty();
 	var row = $('<tr></tr>');
-	var name = $('<td></td>').text(theCustomer.firstname + ' ' + theCustomer.lastname);
-	var email = $('<td></td>').text(theCustomer.email);
-	var phone = $('<td></td>').text(theCustomer.phone);
-	var address = $('<td></td>').text(theCustomer.shippingAddress);
-	var city = $('<td></td>').text(theCustomer.shippingCity);
+	var name = $('<td></td>').text(customer.firstname + ' ' + customer.lastname);
+	var email = $('<td></td>').text(customer.email);
+	var phone = $('<td></td>').text(customer.phone);
+	var address = $('<td></td>').text(customer.shippingAddress);
+	var city = $('<td></td>').text(customer.shippingCity);
 
 	row.append(name);
 	row.append(email);
@@ -211,7 +264,7 @@ function saveCustomer() {
 	row.append(city);
 
 	row.click(function(e) {
-		setCustomerModalFields(theCustomer);
+		setCustomerModalFields(customer);
 		$('#customerModal').modal();
 	});
 
@@ -284,11 +337,10 @@ function buildOrderTable() {
 }
 
 function calculateTotals() {
-	var subTotal = 0;
-	var total = 0;
 	var tax = 0;
-	var taxPrice = 0;
-	var shipping = 0;
+	subTotal = 0;
+	total = 0;
+
 
 	itemsInOrder.forEach(function(item) {
 		var itemTotal = item.quantity * item.salesPrice;
@@ -296,11 +348,54 @@ function calculateTotals() {
 	});
 
 	tax = $('#taxOptions').val() / 100;
-	taxPrice = tax * subTotal;
+	salesTax = tax * subTotal;
 
-	total = subTotal + taxPrice + shipping;
+	total = subTotal + salesTax + shipping;
 
 	$('#subtotal').val(subTotal.toFixed(2));
-	$('#taxes').val(taxPrice.toFixed(2));
+	$('#taxes').val(salesTax.toFixed(2));
 	$('#total').val(total.toFixed(2));
+}
+
+function generateOrder() {
+	var order = {
+		BillingFirstName: theCustomer.firstname,
+		BillingLastName: theCustomer.lastname,
+		BillingAddress: theCustomer.billingAddress,
+		BillingAddress2: theCustomer.billingAddress2,
+		BillingCompany: theCustomer.companyName,
+		BillingCity: theCustomer.billingCity,
+		BillingCountry: theCustomer.billingCountry,
+		BillingZipCode: theCustomer.billingZipCode,
+		BillingPhoneNumber: theCustomer.phone,
+		BillingEmail: theCustomer.email,
+		BillingPaymentMethod: paymentMethod,
+		BillingPaymentMethodID: '49', // need to look up all of these
+		ShipmentList: [{
+			ShipmentOrderStatus: 1, // NEW
+			ShipmentFirstName: theCustomer.firstname,
+      ShipmentLastName: theCustomer.lastname,
+      ShipmentAddress: theCustomer.shippingAddress,
+      ShipmentCity: theCustomer.shippingCity,
+      ShipmentState: theCustomer.shippingState,
+      ShipmentCountry: theCustomer.shippingCountry,
+      ShipmentZipCode: theCustomer.shippingZipCode,
+      ShipmentPhone: theCustomer.phone
+		}],
+		OrderItemList: [],
+		SalesTax: salesTax,
+		OrderStatusID: 1 // NEW
+	};
+
+	itemsInOrder.forEach(function(item) {
+		var orderItem = {
+			ItemID: item.sku,
+			ItemQuantity: item.quantity,
+			ItemUnitPrice: item.salesPrice,
+			ItemDescription: item.name
+		}
+		order.OrderItemList.push(orderItem);
+	});
+
+	return order;
 }
