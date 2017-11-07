@@ -41,6 +41,6 @@ module.exports = function(qbws) {
         // after we've done the query, we have to save the items back to the website
         
       });
-    })
+    });
   }
 }

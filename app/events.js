@@ -222,10 +222,20 @@
  			});
  		});
 
- 		socket.on('sendProductsToAmazon', function() {
- 			amazon.addProducts(function(response) {
- 				// do something here.
- 			});
+ 		socket.on('createAmazonItem', function(sku) {
+ 			amazon.addProducts(sku);
+ 		});
+
+ 		socket.on('addAmazonImage', function(sku) {
+ 			amazon.addProductImage(sku);
+ 		});
+
+ 		socket.on('updateAmazonInventory', function(sku) {
+ 			amazon.updateInventory(sku);
+ 		});
+
+ 		socket.on('updateAmazonPricing', function(sku) {
+ 			amazon.updatePricing(sku);
  		});
 
  		socket.on('generateFacebookFeed', function() {
@@ -237,10 +247,28 @@
  			});
  		});
 
- 		socket.on('getWalmartFeeds', function() {
- 			walmart.createItem(function(response) {
- 				// do something here
- 			});
+ 		socket.on('getWalmartFeed', function(feedId) {
+ 			walmart.getFeedStatus(feedId);
+ 		});
+
+ 		socket.on('createWalmartItem', function(sku) {
+ 			walmart.createItem(sku);
+ 		});
+
+ 		socket.on('getWalmartItem', function(sku) {
+ 			walmart.getItem(sku);
+ 		});
+
+ 		socket.on('updateWalmartItem', function(sku) {
+ 			walmart.updateItem(sku);
+ 		});
+
+ 		socket.on('getWalmartInventory', function(sku) {
+ 			walmart.getInventory(sku);
+ 		});
+
+ 		socket.on('updateWalmartInventory', function(sku) {
+ 			walmart.updateInventory(sku);
  		});
 
  		socket.on('generateVendorFile', function(query) {

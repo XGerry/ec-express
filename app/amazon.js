@@ -5,88 +5,174 @@ var queryString = require('query-string');
 var request = require('request');
 var fs = require('fs');
 
-function addProducts(callback) {
+function addProducts(sku) {
+	function productMessage(item) {
+		var barcodeType = 'UPC';
+		if (item.barcode.length == 13) {
+			barcodeType = 'EAN';
+		}
+		var message = {
+			SKU: item.sku,
+			StandardProductID: {
+				Type: barcodeType,
+				Value: item.barcode
+			},
+			Condition: {
+				ConditionType: 'New'
+			},
+			DescriptionData: {
+				Title: item.name,
+				Brand: item.manufacturerName,
+				Description: item.description,
+				Manufacturer: item.manufacturerName,
+				ItemType: 'craft-supplies'
+			}
+		};
+		return message;
+	}
+
+	doAmazonRequest(sku,
+		'_POST_PRODUCT_DATA_',
+		'Product',
+		'POST',
+		productMessage,
+		genericCallback);
+}
+
+function updateInventory(sku) {
+	function buildInventoryMessage(item) {
+		var inventoryMessage = {
+			SKU: item.sku,
+			Quantity: 2,
+			FulfillmentLatency: 3
+		};
+		return inventoryMessage;
+	}
+
+	doAmazonRequest(sku, 
+		'_POST_INVENTORY_AVAILABILITY_DATA_',
+		'Inventory',
+		'POST',
+		buildInventoryMessage,
+		genericCallback);
+}
+
+function addProductImage(sku) {
+	function imageMessage(item, imageType) {
+		var message = [{
+  				SKU: item.sku,
+  				ImageType: 'MainOfferImage',
+  				ImageLocation: 'https://www.ecstasycrafts.com' + item.imageURL
+  			}];
+  	return message;
+	};
+
+	doAmazonRequest(sku,
+		'_POST_PRODUCT_IMAGE_DATA_',
+		'ProductImage',
+		'POST',
+		imageMessage,
+		genericCallback);
+}
+
+function updatePricing(sku) {
+	function buildPriceMessage(item) {
+		var priceMessage = {
+			SKU: item.sku,
+ 			StandardPrice: {
+				'@currency': 'USD',
+				'#text': item.usPrice
+			}
+		};
+		return priceMessage;
+	}
+
+	doAmazonRequest(sku, 
+		'_POST_PRODUCT_PRICING_DATA_', 
+		'Price', 
+		'POST', 
+		buildPriceMessage, 
+		genericCallback);
+}
+
+function doAmazonRequest(sku, feedType, itemType, httpMethod, documentBuilder, callback) {
+	var xmlDoc = getFeed(itemType);
+	var messages = [];
+  var messageCounter = 0;
+
+	var findItem = Item.find({sku:sku});
+	findItem.then(function(items) {
+		console.log('found items' + items.length);
+		items.forEach(function(item) {
+			var message = {
+				MessageID: ++messageCounter,
+  			OperationType: 'Update'
+			};
+			message[itemType] = documentBuilder(item);
+			messages.push(message);
+		});
+		
+		xmlDoc.AmazonEnvelope.Message = messages;
+		var body = helpers.getXMLDoc(xmlDoc);
+		console.log(body);
+		var options = getOptions(feedType, httpMethod, body);
+		request(options, callback);
+	});
+}
+
+function getFeed(messageType) {
+	var xmlDoc = {
+    AmazonEnvelope : {
+      Header: {
+        DocumentVersion: 1.01,
+        MerchantIdentifier: 'M_ECSTASYCRA_1118417'
+      },
+      MessageType: messageType,
+      PurgeAndReplace: 'false'
+    }
+  };
+  return xmlDoc;
+}
+
+function getOptions(feedType, method, body) {
+  var now = new Date();
 	var options = {
     url: 'https://mws.amazonservices.com/',
+    method: method,
     qs: {
       AWSAccessKeyId: process.env.AWS_ACCESS_KEY,
       Action: 'SubmitFeed',
-      ContentMD5Value: '',
-      FeedType: '_POST_FLAT_FILE_LISTINGS_DATA_',
-      Merchant: 'A1AG76L8PLY85T',
+      ContentMD5Value: crypto.createHash('md5').update(body).digest('base64'),
+      FeedType: feedType,
+      Merchant: process.env.SELLER_ID,
       PurgeAndReplace: false,
       SignatureMethod: 'HmacSHA256',
       SignatureVersion: '2',
-      Timestamp: '',
-      Version: '2009-01-01',
+      Timestamp: now.toISOString(),
+      Version: '2009-01-01'
     },
     headers: {
       'Content-Type': 'text/xml'
     }
   };
 
-  var xmlDoc = {
-    AmazonEnvelope : {
-      Header: {
-        DocumentVersion: 1.01,
-        MerchantIdentifier: 'M_ECSTASYCRA_1118417'
-      },
-      MessageType: 'Product',
-      PurgeAndReplace: 'false'
-    }
-  };
+  options.body = body;
 
-  var messages = [];
-  var messageCounter = 0;
+  var qString = queryString.stringify(options.qs);
+  var stringToSign = method+'\n' + 
+    'mws.amazonservices.com\n' +
+    '/\n' +
+    qString;
 
-  Item.find({sku: 'DUS0649'}, function(err, items) {
-  	items.forEach(function(item) {
-  		if (item.barcode) {
-	  		var message = {
-	  			MessageID: ++messageCounter,
-	  			Product: {
-	  				SKU: item.sku,
-	  				StandardProductID: {
-	  					Type: 'UPC',
-	  					Value: item.barcode
-	  				},
-	  				DescriptionData: {
-	  					Title: item.name,
-	  					ItemType: '8090710011'
-	  				}
-	  			}
-	  		}
-	  		messages.push(message);
-  		} else {
-  			console.log(item.sku + ' had no barcode');
-  		}
-  	});
+  options.qs.Signature = crypto.createHmac('sha256', process.env.AMAZON_SECRET_KEY)
+    .update(stringToSign)
+    .digest('base64');
 
-	  xmlDoc.AmazonEnvelope.Message = messages;
+  return options;
+}
 
-		var body = helpers.getXMLDoc(xmlDoc);
-		console.log(body);
-	  options.body = body;
-	  var now = new Date();
-	  options.qs.Timestamp = now.toISOString();
-	  options.qs.ContentMD5Value = crypto.createHash('md5').update(body).digest('base64');
-
-	  var qString = queryString.stringify(options.qs);
-	  
-	  var stringToSign = 'POST\n' + 
-	    'mws.amazonservices.com\n' +
-	    '/\n' +
-	    qString;
-
-	  options.qs.Signature = crypto.createHmac('sha256', process.env.AMAZON_SECRET_KEY)
-	    .update(stringToSign)
-	    .digest('base64');
-
-	  request.post(options, function(err, response, body) {
-	  	console.log(body);
-	    callback(body);
-	  });
-	});
+function genericCallback(err, response, body) {
+	console.log(body);
 }
 
 function generateSellerUploadFile(query, options, callback) {
@@ -207,5 +293,8 @@ function getSellerHeader() {
 module.exports = {
 	addProducts: addProducts,
 	generateVendorUploadFile: generateVendorUploadFile,
-	generateSellerUploadFile: generateSellerUploadFile
+	generateSellerUploadFile: generateSellerUploadFile,
+	addProductImage: addProductImage,
+	updateInventory: updateInventory,
+	updatePricing: updatePricing
 }

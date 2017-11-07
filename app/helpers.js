@@ -31,7 +31,7 @@ function getXMLRequest(request) {
 }
 
 function getXMLDoc(doc) {
-  var xmlDoc = builder.create(doc);
+  var xmlDoc = builder.create(doc, {encoding: 'utf-8'});
   return xmlDoc.end({pretty: true});
 }
 

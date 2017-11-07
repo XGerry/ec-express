@@ -1000,8 +1000,6 @@ function updateItemFields(item, cartItem, canadian) {
     item.barcode = cartItem.ExtraField8;
   }
 
-  console.log(cartItem.ExtraField8);
-
   if (canadian) {
     item.canPrice = cartItem.SKUInfo.Price;
     item.catalogIdCan = cartItem.SKUInfo.CatalogID;
