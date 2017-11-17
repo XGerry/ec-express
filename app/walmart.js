@@ -47,15 +47,18 @@ function getFeedStatus(feedId) {
 }
 
 function createItem(sku) {
-	var findItem = Item.findOne({sku: sku});
+	var findItem = Item.find({sku: sku});
 
 	findItem.then(function(item) {
-		var options = getRequestOptions('https://marketplace.walmartapis.com/v3/feeds?feedType=item', 'POST');
-		options.body = getCreateItemFeed(item);
-		options.headers['Content-Type'] = 'multipart/form-data; boundary=ecstasy123';
-		
-		request(options, genericCallback);
+		createItemRequest(item)
 	});
+}
+
+function createItemRequest(items) {
+	var options = getRequestOptions('https://marketplace.walmartapis.com/v3/feeds?feedType=item', 'POST');
+	options.body = getCreateItemFeed(items);
+	options.headers['Content-Type'] = 'multipart/form-data; boundary=ecstasy123';
+	request(options, genericCallback);
 }
 
 function updateItem(sku) {
@@ -83,15 +86,44 @@ function getInventory(sku) {
 	});
 }
 
-function updateInventory(sku) {
+function updateInventoryItem(sku) {
 	var findItem = Item.findOne({sku: sku});
 	findItem.then(function(item) {
-		var options = getRequestOptions('https://marketplace.walmartapis.com/v2/inventory', 'PUT', {sku: item.sku});
-		options.headers['Content-Type'] = 'application/xml';
-		options.body = createInventoryItemDocument(item);
-
-		request(options, genericCallback);
+		createInventoryRequest([item]);
 	});
+}
+
+function updateInventory() {
+	var findItems = Item.find({updated: true});
+	findItems.then(function(items) {
+		createInventoryRequest(items);
+	});
+}
+
+function updateAllInventory() {
+	var findAllItems = Item.find({});
+	var savingItems = [];
+	findAllItems.then(function(items) {
+		items.forEach(function(item) {
+			if (item.stock > 30) {
+				item.walmartStock = 2;
+				savingItems.push(item.save());
+			}
+		});
+	});
+	
+	Promise.all(savingItems).then(function(results) {
+		findAllItems.then(function(items) {
+			createInventoryRequest(items);
+		});
+	});
+}
+
+function createInventoryRequest(items) {
+	var options = getRequestOptions('https://marketplace.walmartapis.com/v2/feeds?feedType=inventory', 'POST');
+	options.headers['Content-Type'] = 'multipart/form-data; boundary=ecstasy123';
+	options.body = getCreateInventoryFeed(items);
+	request(options, genericCallback);
 }
 
 function getRequestOptions(baseURL, httpMethod, query) {
@@ -126,23 +158,14 @@ function getRequestOptions(baseURL, httpMethod, query) {
 	return options;
 }
 
-function createInventoryItemDocument(item) {
-	var feed = {
-		inventory: {
-			'@xmlns': 'http://walmart.com/',
-			sku: item.sku,
-			quantity: {
-				unit: 'EACH',
-				amount: 2 // default for now
-			},
-			fulfillmentLagTime: 3
-		}
-	};
+function getCreateInventoryFeed(items) {
+	var feed = getInventoryFeed();
+	feed.InventoryFeed.inventory = [];
+	items.forEach(function(item) {
+		feed.InventoryFeed.inventory.push(getInventoryItem(item));
+	});
 
-	var xmlDoc = builder.create(feed, {encoding: 'utf-8'});
-	var str = xmlDoc.end({pretty: true});
-	console.log(str);
-	return str;
+	return capFeed(feed);
 }
 
 function getUpdateItemFeed(item) {
@@ -154,16 +177,52 @@ function getUpdateItemFeed(item) {
 	return capFeed(feed);
 }
 
-function getCreateItemFeed(item) {
-	var feed = getMPItemFeed(item);
-	feed.MPItemFeed.MPItem = getMPItem(item, 'CREATE');
-	feed.MPItemFeed.MPItem.MPProduct = getMPProduct(item);
-	feed.MPItemFeed.MPItem.MPOffer = getMPOffer(item);
+function getCreateItemFeed(items) {
+	var feed = getMPItemFeed();
 
+	var mpItems = [];
+	items.forEach(function(item) {
+		console.log(item.sku);
+		if (item.barcode) {
+			var mpItem = getMPItem(item, 'CREATE');
+			mpItem.MPProduct = getMPProduct(item);
+			mpItem.MPOffer = getMPOffer(item);
+			mpItems.push(mpItem);
+		} else {
+			console.log('No barcode for item: ' + item.sku);
+		}
+	});
+
+	feed.MPItemFeed.MPItem = mpItems;
 	return capFeed(feed);
 }
 
-function getMPItemFeed(item) {
+function getInventoryFeed() {
+	var feed = {
+		InventoryFeed: {
+			'@xmlns': 'http://walmart.com/',
+			InventoryHeader: {
+				version: '1.4'
+			}
+		}
+	};
+	return feed;
+}
+
+function getInventoryItem(item) {
+	var feed = {
+		sku: item.sku,
+		quantity: {
+			unit: 'EACH',
+			amount: item.walmartStock
+		},
+		fulfillmentLagTime: 3
+	};
+
+	return feed;
+}
+
+function getMPItemFeed() {
 	var expiry = new Date();
 	expiry.setDate(expiry.getDate() + 7);
 	var expiryString = expiry.toISOString();
@@ -185,8 +244,9 @@ function getMPItemFeed(item) {
 }
 
 function getMPItem(item, processMode) {
+	var barcode = item.barcode.replace(/a| /gi, '');
 	var productIdType = 'UPC';
-	if (item.barcode.length == 13) {
+	if (barcode.length == 13) {
 		productIdType = 'EAN';
 	}
 
@@ -196,7 +256,7 @@ function getMPItem(item, processMode) {
 		productIdentifiers: {
 			productIdentifier: {
 				productIdType: productIdType,
-				productId: item.barcode
+				productId: barcode
 			}
 		}
 	};
@@ -205,6 +265,11 @@ function getMPItem(item, processMode) {
 }
 
 function getMPProduct(item) {
+	console.log('MP Product for ' + item.sku);
+	var imageURL = item.imageURL;
+	if (imageURL[0] != '/') {
+		imageURL = '/'+imageURL;
+	}
 	var mpProduct = {
 		productName: item.name,
 		category: {
@@ -213,7 +278,7 @@ function getMPProduct(item) {
 					shortDescription: item.name,
 					brand: item.manufacturerName,
 					manufacturer: item.manufacturerName,
-					mainImageUrl: 'https://www.ecstasycrafts.com'+item.imageURL
+					mainImageUrl: 'https://www.ecstasycrafts.com' + imageURL
 				}
 			}
 		}
@@ -223,8 +288,11 @@ function getMPProduct(item) {
 }
 
 function getMPOffer(item) {
+	console.log('MPOffer for ' + item.sku);
+	var walmartPrice = item.usPrice + 1; // add a dollar to the price
+	walmartPrice = walmartPrice.toFixed(2);
 	var mpOffer = {
-		price: item.usPrice,
+		price: walmartPrice,
 		ShippingWeight: {
 			measure: item.weight,
 			unit: 'lb'
@@ -261,6 +329,31 @@ function genericCallback(err, response, body) {
 	console.log(body);
 }
 
+function bulkCreateItems(manufacturerName) {
+	var findItems = Item.find({manufacturerName: manufacturerName}).limit(100);
+
+	findItems.then(function(items) {
+		console.log('found ' + items.length + ' items');
+		createItemRequest(items);
+	});
+}
+
+function bulkSendItems(items) {
+	createItemRequest(items);
+}
+
+function calculateWalmartInventory() {
+	var findAllItems = Item.find({});
+	findAllItems.then(function(items) {
+		items.forEach(function(item) {
+			if (item.stock > 30) {
+				item.walmartStock = 2;
+				item.save();
+			}
+		});
+	});
+}
+
 module.exports = {
 	getAllFeedStatuses: getAllFeedStatuses,
 	createItem: createItem,
@@ -268,5 +361,9 @@ module.exports = {
 	getInventory: getInventory,
 	getItem: getItem,
 	updateInventory: updateInventory,
-	updateItem: updateItem
+	updateInventoryItem: updateInventoryItem,
+	updateAllInventory: updateAllInventory,
+	updateItem: updateItem,
+	bulkCreateItems: bulkCreateItems,
+	bulkSendItems: bulkSendItems
 };

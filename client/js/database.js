@@ -3,6 +3,8 @@ var socket = io();
 var usDistribution = 0.6;
 var canDistribution = 0.4;
 var theItem = {};
+var allItems = [];
+var selectedItems = [];
 
 var queries = {
 	$eq: [],
@@ -56,7 +58,11 @@ $(document).ready(function() {
 	$('#databaseTable').DataTable({
 		bDestroy: true,
 		pageLength: 100,
-		order: [[0, 'asc']]
+		order: [[1, 'asc']],
+		columnDefs: [{
+			targets: 'no-sort',
+			orderable: false
+		}]
 	});
 
 	socket.emit('getSettings');
@@ -67,6 +73,8 @@ $(document).ready(function() {
 
 	$('#searchButton').click(function(e) {
 		socket.emit('searchDB', getQuery());
+		selectedItems = [];
+		allItems = [];
 	});
 
 	// update stock automatically
@@ -85,6 +93,20 @@ $(document).ready(function() {
 		$('#canSalePrice').val((theItem.canPrice - canOff).toFixed(2));
 	});
 
+	$('#selectAll').click(function(e) {
+		if (this.checked) {
+			selectedItems = allItems;
+			$('.selectable').each(function(index, element) {
+				$(this).prop('checked', true);
+			});
+		} else {
+			selectedItems = [];
+			$('.selectable').each(function(index, element) {
+				$(this).prop('checked', false);
+			});
+		}
+	});
+
 	$('#andQuery').click(function(e) {
 		// add the query to the and part
 		var value = $('#valueInput').val();
@@ -98,20 +120,9 @@ $(document).ready(function() {
 		console.log(field + ' ' + operator + ' ' + value);
 	});
 
-	$('#amazonButton').click(function(e) {
-		socket.emit('sendProductsToAmazon');
-	});
-
-	$('#amazonVendorButton').click(function(e) {
-		socket.emit('generateVendorFile', getQuery());
-	});
-
-	$('#amazonSellerButton').click(function(e) {
-		socket.emit('generateSellerFile', getQuery());
-	});
-
-	$('#facebookButton').click(function(e) {
-		socket.emit('generateFacebookFeed');
+	$('#sendProductsToWalmart').click(function() {
+		console.log('sending items');
+		socket.emit('bulkSendWalmartItems', selectedItems);
 	});
 
 	$('#saveItemButton').click(function(e) {
@@ -152,6 +163,7 @@ socket.on('searchFinished', function(data) {
 	$('#databaseTable').dataTable().fnDestroy();
 	$('#databaseTableBody').empty();
 	buildItemTable(data);
+	allItems = data;
 });
 
 socket.on('getSettingsFinished', function(data) {
@@ -159,9 +171,26 @@ socket.on('getSettingsFinished', function(data) {
 	canDistribution = data.canadianDistribution;
 });
 
+function checkItemSelected(item, checkbox) {
+	if ($.inArray(item, selectedItems) > -1) {
+		checkbox.prop('checked', true);
+	} else {
+		checkbox.prop('checked', false);
+	}
+}
+
 function buildItemTable(items) {
 	items.forEach(function(item) {
 		var row = $('<tr></tr>');
+		var checkboxCol = $('<td class="text-center"></td>');
+		var checkbox = $('<input type="checkbox" class="lg-box selectable">')
+		checkboxCol.append(checkbox);
+
+		checkItemSelected(item, checkbox);
+		$('#databaseTable').on('draw.dt', function() {
+			checkItemSelected(item, checkbox);
+		});
+
 		var sku = $('<td></td>').text(item.sku+'');
 		var name = $('<td></td>').text(item.name+'');
 		var americanPrice = '-';
@@ -177,13 +206,25 @@ function buildItemTable(items) {
 		var canPrice = $('<td></td>').text(canadaPrice);
 		var stock = $('<td></td>').text(item.stock+'');
 
+		row.append(checkboxCol);
 		row.append(sku);
 		row.append(name);
 		row.append(usPrice);
 		row.append(canPrice);
 		row.append(stock);
 
+		checkbox.click(function(e) {
+			if (this.checked) {
+				selectedItems.push(item);
+			} else {
+				selectedItems.splice($.inArray(item, selectedItems), 1);
+			}
+		});
+
 		row.click(function(e) {
+			if (e.target.type == 'checkbox') {
+				return;
+			}
 			theItem = item;
 			$('#itemNameTitle').text(item.name);
 			$('#itemSKU').val(item.sku);
@@ -238,7 +279,11 @@ function buildItemTable(items) {
 	$('#databaseTable').DataTable({
 		bDestroy: true,
 		pageLength: 100,
-		order: [[0, 'asc']]
+		order: [[1, 'asc']],
+		columnDefs: [{
+			targets: 'no-sort',
+			orderable: false
+		}]
 	});
 }
 

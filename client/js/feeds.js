@@ -50,4 +50,17 @@ $(document).ready(function() {
 		var sku = $('#sku').val();
 		socket.emit('updateAmazonPricing', sku);
 	});
+
+	$('#createBulkWalmartItem').click(function() {
+		var manufacturer = $('#manufacturer').val();
+		socket.emit('bulkCreateWalmartItem', manufacturer);
+	});
+
+	$('#updateAllWalmartInventory').click(function() {
+		socket.emit('updateAllWalmartInventory');
+	});
+
+	$('#updateAllAmazonInventory').click(function() {
+		socket.emit('updateAllAmazonInventory');
+	});
 });

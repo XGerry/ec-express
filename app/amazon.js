@@ -31,7 +31,9 @@ function addProducts(sku) {
 		return message;
 	}
 
-	doAmazonRequest(sku,
+	var itemPromise = Item.find({sku: sku});
+
+	doAmazonRequest(itemPromise,
 		'_POST_PRODUCT_DATA_',
 		'Product',
 		'POST',
@@ -39,17 +41,39 @@ function addProducts(sku) {
 		genericCallback);
 }
 
-function updateInventory(sku) {
-	function buildInventoryMessage(item) {
-		var inventoryMessage = {
-			SKU: item.sku,
-			Quantity: 2,
-			FulfillmentLatency: 3
-		};
-		return inventoryMessage;
-	}
+function buildInventoryMessage(item) {
+	var inventoryMessage = {
+		SKU: item.sku,
+		Quantity: item.amazonStock,
+		FulfillmentLatency: 3
+	};
+	return inventoryMessage;
+}
 
-	doAmazonRequest(sku, 
+function updateInventoryItem(sku) {
+	var itemPromise = Item.find({sku: sku});
+
+	doAmazonRequest(itemPromise, 
+		'_POST_INVENTORY_AVAILABILITY_DATA_',
+		'Inventory',
+		'POST',
+		buildInventoryMessage,
+		genericCallback);
+}
+
+function updateAllInventory() {
+	var itemPromise = Item.find({});
+	doAmazonRequest(itemPromise, 
+		'_POST_INVENTORY_AVAILABILITY_DATA_',
+		'Inventory',
+		'POST',
+		buildInventoryMessage,
+		genericCallback);
+}
+
+function updateInventory() {
+	var itemPromise = Item.find({updated: true});
+	doAmazonRequest(itemPromise, 
 		'_POST_INVENTORY_AVAILABILITY_DATA_',
 		'Inventory',
 		'POST',
@@ -67,7 +91,9 @@ function addProductImage(sku) {
   	return message;
 	};
 
-	doAmazonRequest(sku,
+	var itemPromise = Item.find({sku: sku});
+
+	doAmazonRequest(itemPromise,
 		'_POST_PRODUCT_IMAGE_DATA_',
 		'ProductImage',
 		'POST',
@@ -87,7 +113,9 @@ function updatePricing(sku) {
 		return priceMessage;
 	}
 
-	doAmazonRequest(sku, 
+	var itemPromise = Item.find({sku: sku});
+
+	doAmazonRequest(itemPromise, 
 		'_POST_PRODUCT_PRICING_DATA_', 
 		'Price', 
 		'POST', 
@@ -95,13 +123,12 @@ function updatePricing(sku) {
 		genericCallback);
 }
 
-function doAmazonRequest(sku, feedType, itemType, httpMethod, documentBuilder, callback) {
+function doAmazonRequest(itemPromise, feedType, itemType, httpMethod, documentBuilder, callback) {
 	var xmlDoc = getFeed(itemType);
 	var messages = [];
   var messageCounter = 0;
 
-	var findItem = Item.find({sku:sku});
-	findItem.then(function(items) {
+	itemPromise.then(function(items) {
 		console.log('found items' + items.length);
 		items.forEach(function(item) {
 			var message = {
@@ -296,5 +323,7 @@ module.exports = {
 	generateSellerUploadFile: generateSellerUploadFile,
 	addProductImage: addProductImage,
 	updateInventory: updateInventory,
+	updateAllInventory: updateAllInventory,
+	updateInventoryItem: updateInventoryItem,
 	updatePricing: updatePricing
 }

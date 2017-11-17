@@ -319,7 +319,7 @@ module.exports = {
 
             errors.forEach(function(doc) {
               if (doc.cartOrder)
-                doc.cartOrder.errorMessage = doc.errorMessage;
+                doc.cartOrder.message = doc.message;
               responseObject.errors.push(doc.cartOrder);
             });
 

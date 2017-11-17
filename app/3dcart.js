@@ -1073,7 +1073,7 @@ function updateItemFields(item, cartItem, canadian) {
 }
 
 function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian) {
-  advancedOption.name = optionItem.AdvancedOptionName;
+  advancedOption.name = cartItem.SKUInfo.Name + ' - ' + optionItem.AdvancedOptionName;
   if (canadian) {
     advancedOption.optionIdCan = optionItem.AdvancedOptionCode;
     advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID; // Parent Item
@@ -1087,8 +1087,9 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
     advancedOption.optionId = optionItem.AdvancedOptionCode;
     advancedOption.usLink = cartItem.ProductLink;
     advancedOption.usStock = optionItem.AdvancedOptionStock;
+    advancedOption.imageURL = cartItem.MainImageFile;
   }
-
+  
   advancedOption.isOption = true;
   advancedOption.save();
 }

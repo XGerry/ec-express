@@ -1,19 +1,28 @@
 var mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 
 var itemSchema = new mongoose.Schema({
-	sku : {
-		type : String,
-		index : true
+	sku: {
+		type: String,
+		index: true,
+		unique: true,
+		dropDups: true
 	},
-	upc : String,
-	name : String,
-	description : String,
-	imageURL : String,
-	htc : String,
+	upc: String,
+	name: String,
+	description: String,
+	imageURL: String,
+	htc: String,
 	usPrice: Number,
 	canPrice: Number,
-	walmartStock: Number,
-	amazonStock: Number,
+	walmartStock: {
+		type: Number,
+		default: 0
+	},
+	amazonStock: {
+		type: Number,
+		default: 0
+	},
 	stock: Number, // the total stock from quickbooks
 	usStock: Number, // the stock in the us site
 	canStock: Number, // the stock in the canadian site

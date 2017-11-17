@@ -68,9 +68,21 @@ html
 				button.btn.btn-default#searchButton(type="button") Search
 				button.btn.btn-info#advancedButton(type="button", data-toggle="collapse", data-target="#advancedSearch") Advanced
 
+			.panel.panel-default
+				.panel-heading
+					h4.panel-title
+						a(data-toggle="collapse", data-target="#bulkActions") Bulk Actions
+				#bulkActions.panel-collapse.collapse
+					.panel-body
+						.btn-toolbar
+							button.btn.btn-primary#sendProductsToWalmart(type="button") Send To Walmart
+							//button.btn.btn-primary#sendProductsToWalmart(type="button") Send To Amazon
+
 			table.table.table-striped.table-hover#databaseTable
 				thead
 					tr
+						th.text-center.no-sort
+							input#selectAll(type="checkbox").lg-box
 						th SKU
 						th Name
 						th US Price
