@@ -269,6 +269,17 @@
  			walmart.bulkSendItems(items);
  		});
 
+ 		socket.on('bulkSendAmazonItems', function(items) {
+ 			var skus = [];
+ 			items.forEach(function(item) {
+ 				skus.push(item.sku);
+ 			});
+
+ 			amazon.bulkAddItems(skus);
+ 			//amazon.bulkAddImages(skus);
+ 			//amazon.bulkAddPrices(skus);
+ 		});
+
  		socket.on('getWalmartItem', function(sku) {
  			walmart.getItem(sku);
  		});

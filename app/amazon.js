@@ -6,11 +6,24 @@ var request = require('request');
 var fs = require('fs');
 
 function addProducts(sku) {
+	var itemPromise = Item.find({sku: sku});
+	addProductToAmazon(itemPromise);
+}
+
+function bulkAddItems(skus) {
+	var itemPromise = Item.find({sku: {$in: skus}});
+	addProductToAmazon(itemPromise);
+}
+
+function addProductToAmazon(itemPromise) {
 	function productMessage(item) {
 		var barcodeType = 'UPC';
 		if (item.barcode.length == 13) {
 			barcodeType = 'EAN';
 		}
+
+		var cleanDescription = item.description.replace(/<\/?[^>]+(>|$)/g, "");
+
 		var message = {
 			SKU: item.sku,
 			StandardProductID: {
@@ -23,15 +36,20 @@ function addProducts(sku) {
 			DescriptionData: {
 				Title: item.name,
 				Brand: item.manufacturerName,
-				Description: item.description,
+				Description: cleanDescription,
 				Manufacturer: item.manufacturerName,
-				ItemType: 'craft-supplies'
+				ItemType: 'paper-craft-supplies'
+			},
+			ProductData: {
+				Arts: {
+					ProductType: 'ArtSupplies',
+					ProductCategory: 'Hobbies',
+					ProductSubcategory: 'Decorative_Arts',
+				}
 			}
 		};
 		return message;
 	}
-
-	var itemPromise = Item.find({sku: sku});
 
 	doAmazonRequest(itemPromise,
 		'_POST_PRODUCT_DATA_',
@@ -81,16 +99,20 @@ function updateInventory() {
 		genericCallback);
 }
 
-function addProductImage(sku) {
-	function imageMessage(item, imageType) {
-		var message = [{
-  				SKU: item.sku,
-  				ImageType: 'MainOfferImage',
-  				ImageLocation: 'https://www.ecstasycrafts.com' + item.imageURL
-  			}];
-  	return message;
-	};
+function imageMessage(item, imageType) {
+	var imageURL = item.imageURL;
+	if (imageURL[0] != '/') {
+		imageURL = '/'+imageURL;
+	}
+	var message = [{
+		SKU: item.sku,
+		ImageType: 'MainOfferImage',
+		ImageLocation: 'https://www.ecstasycrafts.com' + imageURL
+	}];
+	return message;
+};
 
+function addProductImage(sku) {
 	var itemPromise = Item.find({sku: sku});
 
 	doAmazonRequest(itemPromise,
@@ -101,19 +123,41 @@ function addProductImage(sku) {
 		genericCallback);
 }
 
-function updatePricing(sku) {
-	function buildPriceMessage(item) {
-		var priceMessage = {
-			SKU: item.sku,
- 			StandardPrice: {
-				'@currency': 'USD',
-				'#text': item.usPrice
-			}
-		};
-		return priceMessage;
-	}
+function bulkAddImages(skus) {
+	var itemPromise = Item.find({sku: {$in: skus}});
 
+	doAmazonRequest(itemPromise,
+		'_POST_PRODUCT_IMAGE_DATA_',
+		'ProductImage',
+		'POST',
+		imageMessage,
+		genericCallback);
+}
+
+function buildPriceMessage(item) {
+	var priceMessage = {
+		SKU: item.sku,
+			StandardPrice: {
+			'@currency': 'USD',
+			'#text': item.usPrice
+		}
+	};
+	return priceMessage;
+}
+
+function updatePricing(sku) {
 	var itemPromise = Item.find({sku: sku});
+
+	doAmazonRequest(itemPromise, 
+		'_POST_PRODUCT_PRICING_DATA_', 
+		'Price', 
+		'POST', 
+		buildPriceMessage, 
+		genericCallback);
+}
+
+function bulkAddPrices(skus) {
+	var itemPromise = Item.find({sku: {$in: skus}});
 
 	doAmazonRequest(itemPromise, 
 		'_POST_PRODUCT_PRICING_DATA_', 
@@ -325,5 +369,8 @@ module.exports = {
 	updateInventory: updateInventory,
 	updateAllInventory: updateAllInventory,
 	updateInventoryItem: updateInventoryItem,
-	updatePricing: updatePricing
+	updatePricing: updatePricing,
+	bulkAddImages: bulkAddImages,
+	bulkAddItems: bulkAddItems,
+	bulkAddPrices: bulkAddPrices
 }

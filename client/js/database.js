@@ -125,6 +125,10 @@ $(document).ready(function() {
 		socket.emit('bulkSendWalmartItems', selectedItems);
 	});
 
+	$('#sendProductsToAmazon').click(function() {
+		socket.emit('bulkSendAmazonItems', selectedItems);
+	});
+
 	$('#saveItemButton').click(function(e) {
 		saveItem(theItem);
 	});

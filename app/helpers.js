@@ -731,15 +731,15 @@ function findItemAndSave(settings, qbItem, callback) {
 
 function saveItemFromQB(settings, item, qbItem, callback) {
   var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
-  var canStock = (qbItem.QuantityOnHand * settings.canadianDistribution).toFixed();
+  var canStock = (qbItem.QuantityOnHand - usStock);
   var walmartStock = 0;
   var amazonStock = 0;
 
   if (qbItem.QuantityOnHand > 30) {
     walmartStock = 2;
     amazonStock = 2;
-    usStock -= 2;
-    canStock -= 2;
+    //usStock -= 2; // fixme
+    //canStock -= 2;
   }
   
   if ((item.stock != qbItem.QuantityOnHand) || 
