@@ -316,6 +316,12 @@
  			});
  		});
 
+ 		socket.on('getSettings', function() {
+ 			Settings.findOne({}, function(err, settings) {
+ 				socket.emit('getSettingsFinished', settings);
+ 			});
+ 		});
+
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {

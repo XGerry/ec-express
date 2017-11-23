@@ -47,14 +47,17 @@ function updateItemsFromSKUInfo(item, skuInfo, canadian) {
   item.name = skuInfo.Name;
   item.isOption = false;
   item.updated = false;
+  item.onSale = skuInfo.OnSale;
   if (canadian == true) {
     item.catalogIdCan = skuInfo.CatalogID;
     item.canPrice = skuInfo.Price;
+    item.canSalePrice = skuInfo.SalePrice;
     item.canStock = skuInfo.Stock;
   } else {
     item.catalogId = skuInfo.CatalogID;
     item.usPrice = skuInfo.Price;
     item.usStock = skuInfo.Stock;
+    item.usSalePrice = skuInfo.SalePrice;
   }
   item.save();
 }

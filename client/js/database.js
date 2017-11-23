@@ -1,7 +1,7 @@
 var socket = io();
 
-var usDistribution = 0.6;
-var canDistribution = 0.4;
+var usDistribution = 0.5;
+var canDistribution = 0.5;
 var theItem = {};
 var allItems = [];
 var selectedItems = [];
@@ -80,8 +80,9 @@ $(document).ready(function() {
 	// update stock automatically
 	$('#stock').change(function() {
 		var totalStock = $('#stock').val();
-		$('#usStock').val((totalStock * usDistribution).toFixed());
-		$('#canStock').val((totalStock * canDistribution).toFixed());
+		var usStock = (totalStock * usDistribution).toFixed()
+		$('#usStock').val(usStock);
+		$('#canStock').val(totalStock - usStock);
 	});
 
 	// calculate sale prices automatically
@@ -171,6 +172,7 @@ socket.on('searchFinished', function(data) {
 });
 
 socket.on('getSettingsFinished', function(data) {
+	console.log(data);
 	usDistribution = data.usDistribution;
 	canDistribution = data.canadianDistribution;
 });

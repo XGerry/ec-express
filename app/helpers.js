@@ -731,11 +731,13 @@ function findItemAndSave(settings, qbItem, callback) {
 
 function saveItemFromQB(settings, item, qbItem, callback) {
   var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
+  console.log(usStock);
   var canStock = (qbItem.QuantityOnHand - usStock);
+  console.log(canStock);
   var walmartStock = 0;
   var amazonStock = 0;
 
-  if (qbItem.QuantityOnHand > 30) {
+  if (qbItem.QuantityOnHand > 10) {
     walmartStock = 2;
     amazonStock = 2;
     //usStock -= 2; // fixme
