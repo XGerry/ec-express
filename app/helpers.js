@@ -191,14 +191,14 @@ function getMultipleItemsRq(items) {
 
   var xmlDoc = getXMLRequest(qbRq);
   var str = xmlDoc.end({'pretty' : true});
+  console.log(str);
   return str;
 }
 
 function getMultipleItemAssemblyRq(items) {
   var qbRq = {
     ItemInventoryAssemblyQueryRq: {
-      '@requestID': 'itemAssemblyRq',
-      OwnerID: 0
+      '@requestID': 'itemAssemblyRequest'
     }
   };
 
@@ -208,7 +208,10 @@ function getMultipleItemAssemblyRq(items) {
   });
 
   qbRq.ItemInventoryAssemblyQueryRq.FullName = names;
-  var str = getXMLDoc(qbRq);
+  qbRq.ItemInventoryAssemblyQueryRq.OwnerID = 0; // order matters
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({pretty: true});
   console.log(str);
   return str;
 }
@@ -713,8 +716,11 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
   Settings.findOne({}, function(err, settings) {
     xmlParser(response, {explicitArray: false}, function(err, result) {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-      var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.itemInventoryAssemblyQueryRs;
+      var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.ItemInventoryAssemblyQueryRs;
+      console.log(itemInventoryRs);
+      console.log(itemInventoryAssemblyRs);
       if (itemInventoryRs) {
+        console.log('Inventory Part');
         if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
           itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
             operations.push(function(callback) {
@@ -732,9 +738,11 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
             console.log(err);
           } else {
             console.log('Saved all items successfully.');
+            responseCallback(returnObject);
           }
         });
       } else if (itemInventoryAssemblyRs) {
+        console.log('Iventory Assembly');
         if (Array.isArray(itemInventoryAssemblyRs.ItemInventoryAssemblyRet)) {
           itemInventoryAssemblyRs.ItemInventoryAssemblyRet.forEach((qbItemAssembly) => {
             operations.push(function(callback) {
@@ -752,10 +760,11 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
             console.log(err);
           } else {
             console.log('Saved all item assemblies successfully.');
+            responseCallback(returnObject);
           }
         });
       } else {
-        console.log('Not an inventory response');
+        console.log('Not an inventory response.');
         console.log(result.QBXML);
         responseCallback(returnObject);
       }
@@ -988,7 +997,7 @@ function queryAllItems(qbws, callback) {
     if (err) {
       console.log(err);
     } else {
-      //qbws.addRequest(getMultipleItemsRq(items));
+      qbws.addRequest(getMultipleItemsRq(items));
       qbws.addRequest(getMultipleItemAssemblyRq(items)); // how do we know if it's a bundle?
       qbws.setCallback(inventorySyncCallback);
       items.forEach(function(item) {

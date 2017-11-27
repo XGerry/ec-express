@@ -86,7 +86,14 @@ $(document).ready(function() {
 
 	$('#refreshAllItems').click(function(e) {
 		socket.emit('refreshAllItems');
-	})
+	});
+
+	socket.emit('getSettings');
+});
+
+socket.on('getSettingsFinished', function(data) {
+	$('#usStore').val(data.usDistribution * 100);
+	$('#canStore').val(data.canadianDistribution * 100);
 });
 
 socket.on('getItemsProgress', function(data) {
