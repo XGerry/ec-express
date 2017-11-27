@@ -85,6 +85,16 @@ $(document).ready(function() {
 		$('#canStock').val(totalStock - usStock);
 	});
 
+	$('#usStock').on('input change', function() {
+		var totalStock = parseInt($('#usStock').val()) + parseInt($('#canStock').val());
+		$('#stock').val(totalStock);
+	});
+
+	$('#canStock').on('input change', function() {
+		var totalStock = parseInt($('#usStock').val()) + parseInt($('#canStock').val());
+		$('#stock').val(totalStock);
+	});
+
 	// calculate sale prices automatically
 	$('#salePercentage').change(function() {
 		var salePercentage = $('#salePercentage').val() / 100;

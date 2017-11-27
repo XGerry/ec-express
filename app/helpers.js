@@ -194,6 +194,39 @@ function getMultipleItemsRq(items) {
   return str;
 }
 
+function getMultipleItemAssemblyRq(items) {
+  var qbRq = {
+    ItemInventoryAssemblyQueryRq: {
+      '@requestID': 'itemAssemblyRq',
+      OwnerID: 0
+    }
+  };
+
+  var names = [];
+  items.forEach((item) => {
+    names.push(item.sku);
+  });
+
+  qbRq.ItemInventoryAssemblyQueryRq.FullName = names;
+  var str = getXMLDoc(qbRq);
+  console.log(str);
+  return str;
+}
+
+function getItemAssemblyRq(item) {
+  var qbRq = {
+    ItemInventoryAssemblyQueryRq: {
+      '@requestID': 'itemAssemblyRq-'+item.sku,
+      FullName: item.sku,
+      OwnerID: 0
+    }
+  };
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({pretty: true});
+  return str;
+}
+
 function getItemRq(item) {
   var qbRq = {
     ItemInventoryQueryRq : {
@@ -680,6 +713,7 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
   Settings.findOne({}, function(err, settings) {
     xmlParser(response, {explicitArray: false}, function(err, result) {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+      var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.itemInventoryAssemblyQueryRs;
       if (itemInventoryRs) {
         if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
           itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
@@ -698,6 +732,26 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
             console.log(err);
           } else {
             console.log('Saved all items successfully.');
+          }
+        });
+      } else if (itemInventoryAssemblyRs) {
+        if (Array.isArray(itemInventoryAssemblyRs.ItemInventoryAssemblyRet)) {
+          itemInventoryAssemblyRs.ItemInventoryAssemblyRet.forEach((qbItemAssembly) => {
+            operations.push(function(callback) {
+              findItemAndSave(settings, qbItemAssembly, callback);
+            });
+          });
+        } else {
+          operations.push(function(callback) {
+            findItemAndSave(settings, itemInventoryAssemblyRs.ItemInventoryAssemblyRet, callback);
+          });
+        }
+        async.series(operations, function(err) {
+          if (err) {
+            console.log('An error occurred saving the items (assembly)');
+            console.log(err);
+          } else {
+            console.log('Saved all item assemblies successfully.');
           }
         });
       } else {
@@ -731,9 +785,7 @@ function findItemAndSave(settings, qbItem, callback) {
 
 function saveItemFromQB(settings, item, qbItem, callback) {
   var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
-  console.log(usStock);
   var canStock = (qbItem.QuantityOnHand - usStock);
-  console.log(canStock);
   var walmartStock = 0;
   var amazonStock = 0;
 
@@ -936,7 +988,8 @@ function queryAllItems(qbws, callback) {
     if (err) {
       console.log(err);
     } else {
-      qbws.addRequest(getMultipleItemsRq(items));
+      //qbws.addRequest(getMultipleItemsRq(items));
+      qbws.addRequest(getMultipleItemAssemblyRq(items)); // how do we know if it's a bundle?
       qbws.setCallback(inventorySyncCallback);
       items.forEach(function(item) {
         item.updated = false;

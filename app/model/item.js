@@ -58,7 +58,8 @@ var itemSchema = new mongoose.Schema({
 	orderCount: {
 		type: Number,
 		default: 0
-	}
+	},
+	isBundle: Boolean
 });
 
 module.exports = mongoose.model('Item', itemSchema);
