@@ -1104,7 +1104,7 @@ function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) {
 	var itemsToSend = [];
 	cartItems.forEach(function(item) {
 		// apply bulk updates
-		if (bulkUpdates.priceIncrease) {
+		if (bulkUpdates.priceIncrease != '' || bulkUpdates.priceIncrease != undefined) {
 			var percentIncrease = (bulkUpdates.priceIncrease / 100) + 1;
 			var originalPrice = item.SKUInfo.Price
 			var newPrice = (originalPrice * percentIncrease).toFixed(2);
@@ -1118,14 +1118,36 @@ function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) {
 			item.SKUInfo.Canadian = newPrice * 1.10; // Canadian Markup
 		}
 
-		if (bulkUpdates.onSale) {
+    if (bulkUpdates.categoryToAdd != '' || bulkUpdates != undefined) {
+      item.CategoryList.push({
+        CategoryID: bulkUpdates.categoryToAdd
+      });
+    }
+
+    if (bulkUpdates.categoryToRemove != '' || bulkUpdates.categoryToRemove != undefined) {
+      var categories = item.CategoryList;
+      var indexToRemove = -1;
+      for (var i = 0; i < categories.length; i++) {
+        if (categories[i].CategoryID == bulkUpdates.categoryToRemove) {
+          indexToRemove = i;
+          break;
+        }
+      }
+
+      if (indexToRemove > -1) {
+        item.CategoryList.splice(indexToRemove, 1);
+      }
+    }
+
+		if (bulkUpdates.onSale != '' || bulkUpdates.onSale != undefined) {
 			item.SKUInfo.OnSale = bulkUpdates.onSale;
 		}
-
+    
 		var newItem = {
 			SKUInfo: item.SKUInfo,
 			PriceLevel2: item.PriceLevel2,
-			PriceLevel7: item.PriceLevel7
+			PriceLevel7: item.PriceLevel7,
+      CategoryList: item.CategoryList
 		};
 
 		itemsToSend.push(newItem);

@@ -190,7 +190,11 @@ function buildProductTable(products) {
 
 function bulkUpdate(products) {
 	var bulkUpdates = {
-		priceIncrease: $('#increasePrice').val()
+		priceIncrease: $('#increasePrice').val(),
+		categoryToAdd: $('#addCategory').val(),
+		categoryToRemove: $('#removeCategory').val(),
+		addKeyword: $('#keywords').val()
+		//onSale: $('#onSaleCheckbox').is(':checked')
 	};
 
 	socket.emit('updateItems', products, bulkUpdates);
