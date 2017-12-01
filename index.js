@@ -7,6 +7,7 @@ var passport = require('passport');
 var api = require('./app/api');
 var routes = require('./app/routes');
 var facebook = require('./app/facebook');
+var webhooks = require('./app/webhooks');
 var events = require('./app/events');
 
 var app = express();
@@ -58,5 +59,6 @@ api.route(app, passport, qbws, io);
 facebook.route(app);
 events(io, qbws);
 routes(app, passport);
+webhooks.route(app);
 require('./config/passport')(passport);
 require('./app/schedule')(qbws);
