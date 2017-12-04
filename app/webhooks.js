@@ -60,7 +60,7 @@ function sendToSlack(order) {
 	var infoURL = 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.OrderID;
 	var message = order.BillingFirstName + ' ' + order.BillingLastName;
 	message += ' placed an order for $' + order.OrderAmount + '.';
-	message += ' <'+infoURL+'|'+orderid+'>';
+	message += ' <'+infoURL+'|'+orderId+'>';
 
 	var options = {
 		url: 'https://hooks.slack.com/services/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',
