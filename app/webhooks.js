@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json({limit : '50mb'});
 var Order = require('./model/order');
 var Customer = require('./model/customer');
+var Item = require('./model/item');
 var helpers = require('./helpers');
 
 function updateOrderInfo(order, cartOrder) {
