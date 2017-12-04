@@ -54,7 +54,7 @@ function updateCustomer(customer, order, cartOrder) {
   customer.save();
 }
 
-function sendToSlack(order) {
+function sendOrderToSlack(order) {
 	var canadian = order.InvoiceNumberPrefix == 'CA-';
 	var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
 	var infoURL = 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.OrderID;
@@ -74,10 +74,38 @@ function sendToSlack(order) {
 	request(options);
 }
 
+function sendCustomerToSlack(customer) {
+	var message = customer.BillingFirstName + ' ' + customer.BillingLastName + ' is a new customer.';
+
+	var options = {
+		url: 'https://hooks.slack.com/services/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',
+		method: 'POST',
+		json: true,
+		body: {
+			text: message
+		}
+	};
+
+	request(options);
+}
+
+function sendNewProductToSlack(product) {
+	var message = 'New item ' + product.SKUInfo.SKU + ' added.';
+	var options = {
+		url: 'https://hooks.slack.com/services/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',
+		method: 'POST',
+		json: true,
+		body: {
+			text: message
+		}
+	};
+
+	request(options);
+}
+
 module.exports = {
 	route: function(app) {
 		app.post('/webhooks/new-order', jsonParser, function(req, res) {
-			console.log(req.body);
 			var orders = req.body;
 			
 			orders.forEach((order) => {
@@ -86,10 +114,30 @@ module.exports = {
 				newOrder.imported = false;
 				newOrder.orderId = orderId;
 				updateOrderInfo(newOrder, order);
-				sendToSlack(order);
+				sendOrderToSlack(order);
 			});
 
-			res.send('Got it');
+			res.send('New order.');
+		});
+
+		app.post('/webhooks/new-customer', jsonParser, function(req, res) {
+			var customers = req.body;
+
+			customer.forEach((customer) => {
+				sendCustomerToSlack(customer);
+			});
+
+			res.send('New customer.');
+		});
+
+		app.post('/webhooks/new-product', jsonParser, function(req, res) {
+			var products = req.body;
+
+			products.forEach((product) => {
+				sendNewProductToSlack(product)
+			});
+
+			res.send('New product.');
 		});
 	}
 }
