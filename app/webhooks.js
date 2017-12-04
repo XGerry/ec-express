@@ -59,9 +59,7 @@ function sendToSlack(order) {
 		method: 'POST',
 		json: true,
 		body: {
-			text: {
-				"Received a new order"
-			}
+			text: "Received a new order"
 		}
 	};
 
