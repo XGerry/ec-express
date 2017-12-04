@@ -55,12 +55,19 @@ function updateCustomer(customer, order, cartOrder) {
 }
 
 function sendToSlack(order) {
+	var canadian = order.InvoiceNumberPrefix == 'CA-';
+	var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+	var infoURL = 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.OrderID;
+	var message = order.BillingFirstName + ' ' + order.BillingLastName;
+	message += ' placed an order for $' + order.OrderAmount + '.';
+	message += ' <'+infoURL+'|'+orderid+'>';
+
 	var options = {
 		url: 'https://hooks.slack.com/services/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',
 		method: 'POST',
 		json: true,
 		body: {
-			text: "Received a new order"
+			text: message
 		}
 	};
 
