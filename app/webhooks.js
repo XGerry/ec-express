@@ -107,7 +107,6 @@ module.exports = {
 	route: function(app) {
 		app.post('/webhooks/new-order', jsonParser, function(req, res) {
 			var orders = req.body;
-			
 			orders.forEach((order) => {
 		    var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
 				var newOrder = new Order();
@@ -122,8 +121,7 @@ module.exports = {
 
 		app.post('/webhooks/new-customer', jsonParser, function(req, res) {
 			var customers = req.body;
-
-			customer.forEach((customer) => {
+			customers.forEach((customer) => {
 				sendCustomerToSlack(customer);
 			});
 
@@ -132,7 +130,6 @@ module.exports = {
 
 		app.post('/webhooks/new-product', jsonParser, function(req, res) {
 			var products = req.body;
-
 			products.forEach((product) => {
 				sendNewProductToSlack(product)
 			});
