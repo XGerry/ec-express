@@ -799,7 +799,7 @@ function saveItemFromQB(settings, item, qbItem, callback) {
   var amazonStock = 0;
 
   if (qbItem.QuantityOnHand > 10) {
-    walmartStock = 2;
+    //walmartStock = 2;
     amazonStock = 2;
     //usStock -= 2; // fixme
     //canStock -= 2;
