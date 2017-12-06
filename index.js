@@ -59,6 +59,6 @@ api.route(app, passport, qbws, io);
 facebook.route(app);
 events(io, qbws);
 routes(app, passport);
-webhooks.route(app);
+webhooks.route(app, qbws);
 require('./config/passport')(passport);
 require('./app/schedule')(qbws);

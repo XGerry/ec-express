@@ -9,7 +9,6 @@ var helpers = require('./helpers');
 function updateOrderInfo(order, cartOrder) {
   order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
   order.cartOrder = cartOrder;
-  order.timecode = helpers.getTimeCode();
   order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   var itemList = [];
   if (cartOrder.OrderItemList) {
@@ -104,16 +103,26 @@ function sendNewProductToSlack(product) {
 }
 
 module.exports = {
-	route: function(app) {
+	route: function(app, qbws) {
 		app.post('/webhooks/new-order', jsonParser, function(req, res) {
 			var orders = req.body;
+			var timecode = helpers.getTimeCode();
 			orders.forEach((order) => {
 		    var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
 				var newOrder = new Order();
 				newOrder.imported = false;
 				newOrder.orderId = orderId;
+				newOrder.timecode = timecode;
 				updateOrderInfo(newOrder, order);
 				sendOrderToSlack(order);
+				qbws.emptyQueue();
+				helpers.createInvoices(qbws);
+				qbws.setFinalCallback(function() {
+					helpers.markCompletedOrdersAsProcessing(timecode, function(results) {
+						// send import report to slack.
+						console.log('done');
+					});
+				});
 			});
 
 			res.send('New order.');

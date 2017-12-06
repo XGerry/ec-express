@@ -15,6 +15,7 @@ var pixl = require('pixl-xml')
 var timecode = + new Date();
 
 function getTimeCode() {
+  setTimeCode();
   return timecode;
 }
 
@@ -655,7 +656,7 @@ function createInvoices(qbws) {
     } else if (orders.length != 0) {
       var invoiceRq = getInvoiceRq(orders);
       console.log(invoiceRq);
-      qbws.addRequest(invoiceRq);
+      qbws.addRequestQueue(invoiceRq);
       qbws.setCallback(function(response, returnObject, responseCallback) {
         var doc = pixl.parse(response);
         var invoiceRs = doc.QBXMLMsgsRs.InvoiceQueryRs;

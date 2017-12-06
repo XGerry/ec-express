@@ -23,14 +23,15 @@ var qbws,
     companyFile = '\\\\DESKTOP-1DLOLHU\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2014B.QBW', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
     req = [],
     orders = [],
-    finalCallback = function(response) {
-        // console.log(response);
+    finalCallback = function() {
+        console.log('done.');
     }
     callback = function(response, returnObject, responseCallback) {
         // console.log(response);
         responseCallback(returnObject);
     },
     callbacks = [];
+var queue = []; // any requests in the queue can get wiped. But these are added to the requests when the web connector is run.
 
 /**
  * Returns an array of sample QBXML requests
@@ -164,6 +165,10 @@ var addRequest = function(str) {
     req.push(str);
 }
 
+var addRequestQueue = function(str) {
+    queue.push(str);
+}
+
 var addOrder = function(order) {
     orders.push(order);
 }
@@ -179,6 +184,7 @@ var clearRequests = function() {
     callback = defaultCallback;
     connectionErrCounter = 0; // reset this too
     callbacks = [];
+    queue = [];
 }
 
 var setCallback = function(fnc) {
@@ -200,6 +206,10 @@ var defaultCallback = function(response, returnObject, responseCallback) {
 
 function getOrders() {
     return orders;
+}
+
+function emptyQueue() {
+    queue = [];
 }
 
 function generateOrderRequest(returnObject, responseCallback) {
@@ -485,6 +495,11 @@ function (args, sendCallback) {
         request = '';
 
     announceMethod('sendRequestXML', args);
+
+    if (queue.length > 0) {
+        req.concat(queue);
+        emptyQueue();
+    }
 
     total = req.length;
     console.log('Sending ' + total + ' requests to QBWC.');
@@ -806,6 +821,7 @@ module.exports = {
     removeOrder: removeOrder,
     getOrders: getOrders,
     generateOrderRequest: generateOrderRequest,
-    addCallback: addCallback
+    addCallback: addCallback,
+    emptyQueue: emptyQueue
 };
 
