@@ -26,9 +26,7 @@ function updateOrderInfo(order, cartOrder) {
     });
   }	
   
-  order.save(function(err, savedOrder) {
-    updateCustomerInfo(savedOrder, cartOrder);
-  });
+  return order.save();
 }
 
 function updateCustomerInfo(order, cartOrder) {
@@ -123,36 +121,39 @@ module.exports = {
 					newOrder.imported = false;
 					newOrder.orderId = orderId;
 					newOrder.timecode = timecode;
-					updateOrderInfo(newOrder, order);
+					var updatingOrder = updateOrderInfo(newOrder, order);
 					sendOrderToSlack(order);
-					qbws.emptyQueue();
-					helpers.createInvoices(qbws);
-					qbws.setFinalCallback(function() {
-						helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results) {
-							// send import report to slack.
-							orderBot({text: results.length + ' orders were successfully imported and moved to processing.'});
+					updatingOrder.then(function(updatedOrder) {
+						updateCustomerInfo(updatedOrder, order);
+						qbws.emptyQueue();
+						helpers.createInvoices(qbws);
+					});
+				});
 
-							// clear the timecodes from settings
-							var savedSettings = findSettings.then(function(settings) {
-								settings.lastImports = settings.timecodes;
-								settings.timecodes = [];
-								return settings.save();
-							});
+				qbws.setFinalCallback(function() {
+					helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results) {
+						// send import report to slack.
+						orderBot({text: results.length + ' orders were successfully imported and moved to processing.'});
 
-							savedSettings.then((settings) => {
-								var orderReport = helpers.getOrderReport(settings);
-								orderReport.then((report) => {
-									orderBot(helpers.getSlackOrderReport(report));
-									settings.lastImports = [];
-									settings.save();
-									Order.remove({imported: true});
-								});
+						// clear the timecodes from settings
+						var savedSettings = findSettings.then(function(settings) {
+							settings.lastImports = settings.timecodes;
+							settings.timecodes = [];
+							return settings.save();
+						});
+
+						savedSettings.then((settings) => {
+							var orderReport = helpers.getOrderReport(settings);
+							orderReport.then((report) => {
+								orderBot(helpers.getSlackOrderReport(report));
+								settings.lastImports = [];
+								settings.save();
+								Order.remove({imported: true});
 							});
 						});
 					});
 				});
 			});
-
 
 			res.send('New order.');
 		});
