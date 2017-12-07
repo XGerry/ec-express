@@ -9,7 +9,6 @@ var routes = require('./app/routes');
 var facebook = require('./app/facebook');
 var webhooks = require('./app/webhooks');
 var events = require('./app/events');
-var mailer = require('./app/mailer');
 
 var app = express();
 app.set('view engine', 'pug');
@@ -39,7 +38,7 @@ mongoose.connection.on('disconnected', () => { console.log('Database disconnecte
 
 // prepare server
 app.use(cors({
-  origin : /ecstasycrafts/g,
+  origin : ['https://www.ecstasycrafts.com','https://www.ecstasycrafts.ca'],
   optionsSuccessStatus : 200
 }));
 
