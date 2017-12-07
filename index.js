@@ -9,6 +9,7 @@ var routes = require('./app/routes');
 var facebook = require('./app/facebook');
 var webhooks = require('./app/webhooks');
 var events = require('./app/events');
+var mailer = require('./app/mailer');
 
 var app = express();
 app.set('view engine', 'pug');
@@ -62,3 +63,4 @@ routes(app, passport);
 webhooks.route(app, qbws);
 require('./config/passport')(passport);
 require('./app/schedule')(qbws);
+mailer.sendMail('Hey');
