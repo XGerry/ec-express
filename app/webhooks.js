@@ -6,7 +6,7 @@ var Customer = require('./model/customer');
 var Item = require('./model/item');
 var helpers = require('./helpers');
 var Settings = require('./model/settings');
-var mailer = require('./app/mailer');
+var mailer = require('./mailer');
 
 function updateOrderInfo(order, cartOrder) {
   order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
