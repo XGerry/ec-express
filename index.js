@@ -39,7 +39,7 @@ mongoose.connection.on('disconnected', () => { console.log('Database disconnecte
 
 // prepare server
 app.use(cors({
-  origin : 'https://www.ecstasycrafts.com',
+  origin : /ecstasycrafts/g,
   optionsSuccessStatus : 200
 }));
 
