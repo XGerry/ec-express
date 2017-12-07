@@ -1054,23 +1054,24 @@ function getSlackOrderReport(report) {
   var failFields = [];
 
   report.success.forEach((order) => {
+    var infoURL = 'https://www.ecstasycrafts.' + (order.canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.orderId;
     var field = {
-      title: order.orderId,
-      value: order.message,
+      title: order.name,
+      value: '<'+infoURL+'|'+order.orderId + '> ' + order.message,
       short: true
     };
     successFields.push(field);
   });
 
   report.fail.forEach((order) => {
+    var infoURL = 'https://www.ecstasycrafts.' + (order.canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.orderId;
     var field = {
-      title: order.orderId,
-      value: order.message,
+      title: order.name,
+      value: '<'+infoURL+'|'+order.orderId + '> ' + order.message,
       short: true
     };
     failFields.push(field);
   });
-
 
   var successAttachment = {
     fallback: successMessage,

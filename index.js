@@ -63,4 +63,3 @@ routes(app, passport);
 webhooks.route(app, qbws);
 require('./config/passport')(passport);
 require('./app/schedule')(qbws);
-mailer.sendMail('Hey');
