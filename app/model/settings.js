@@ -6,8 +6,14 @@ var settingSchema = new mongoose.Schema({
 	canadianDistribution: Number,
 	usDistribution: Number,
 	lastImport: Number,
-	timecodes: [Number],
-	lastImports : Number
+	timecodes: {
+		type: [Number],
+		default: []
+	},
+	lastImports: {
+		type: [Number],
+		default: []
+	}
 });
 
 module.exports = mongoose.model('Settings', settingSchema);

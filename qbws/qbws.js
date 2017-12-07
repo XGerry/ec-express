@@ -450,6 +450,11 @@ function (args) {
     // TODO: This shouldn't be hard coded
     serviceLog('    Password locally stored = ' + password);
 
+    if (queue.length > 0) {
+        req = req.concat(queue);
+        emptyQueue();
+    }
+
     if (args.strUserName.trim() === username && args.strPassword.trim() === password) {
         if (req.length === 0) {
             authReturn[1] = 'NONE';
@@ -497,7 +502,7 @@ function (args, sendCallback) {
     announceMethod('sendRequestXML', args);
 
     if (queue.length > 0) {
-        req.concat(queue);
+        req = req.concat(queue);
         emptyQueue();
     }
 
@@ -822,6 +827,7 @@ module.exports = {
     getOrders: getOrders,
     generateOrderRequest: generateOrderRequest,
     addCallback: addCallback,
-    emptyQueue: emptyQueue
+    emptyQueue: emptyQueue,
+    addRequestQueue: addRequestQueue
 };
 

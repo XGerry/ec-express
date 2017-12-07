@@ -587,6 +587,9 @@ function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
     if (settings) {
       var timecode = helpers.getTimeCode();
       settings.lastImport = timecode;
+      if (!Array.isArray(settings.lastImports)) {
+        settings.lastImports = [];
+      }
       settings.lastImports.push(timecode);
       settings.save();
     } else {
@@ -692,10 +695,9 @@ function getOrders(query, qbws, callback) {
       findSettings.then((settings) => {
         var orderReport = helpers.getOrderReport(settings);
         orderReport.then((report) => {
-          orderBot({
-            text: report.success.length + ' orders were successfully imported.\n' +
-              report.fail.length + ' orders were not imported.'
-          });
+          webhooks.orderBot(helpers.getSlackOrderReport(report));
+          settings.lastImports = [];
+          settings.save();
         });
       });
     });
@@ -753,8 +755,8 @@ function createOrdersInDB(orders, callback) {
 function updateOrderInfo(order, cartOrder, callback) {
   order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
   order.cartOrder = cartOrder;
-  order.timecode = helpers.getTimeCode();
   order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
+  order.timecode = helpers.getTimeCode();
   var itemList = [];
   if (cartOrder.OrderItemList) {
     cartOrder.OrderItemList.forEach(function(item) {

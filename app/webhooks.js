@@ -108,6 +108,7 @@ module.exports = {
 	route: function(app, qbws) {
 		app.post('/webhooks/new-order', jsonParser, function(req, res) {
 			var orders = req.body;
+			helpers.setTimeCode();
 			var timecode = helpers.getTimeCode();
 			var findSettings = Settings.findOne({});
 			findSettings.then(function(settings) {
@@ -125,7 +126,7 @@ module.exports = {
 					qbws.emptyQueue();
 					helpers.createInvoices(qbws);
 					qbws.setFinalCallback(function() {
-						helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results, docs) {
+						helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results) {
 							// send import report to slack.
 							orderBot({text: results.length + ' orders were successfully imported and moved to processing.'});
 
@@ -139,8 +140,10 @@ module.exports = {
 							savedSettings.then((settings) => {
 								var orderReport = helpers.getOrderReport(settings);
 								orderReport.then((report) => {
-									orderBot({ text: report.success.length + ' order were successfully imported.\n' +
-										report.fail.length + ' orders were not imported.'});
+									orderBot(helpers.getSlackOrderReport(report));
+									settings.lastImports = [];
+									settings.save();
+									Order.remove({imported: true});
 								});
 							});
 						});

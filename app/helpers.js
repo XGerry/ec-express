@@ -15,7 +15,6 @@ var pixl = require('pixl-xml')
 var timecode = + new Date();
 
 function getTimeCode() {
-  setTimeCode();
   return timecode;
 }
 
@@ -552,8 +551,7 @@ function markCompletedOrdersAsProcessing(timecodes, callback) {
             var orders = setOrderAsProcessing(canDocs);
             updateOrders(orders, function(err, canResults) {
               var merged = results.concat(canResults);
-              var merdedDocs = usDocs.concat(canDocs);
-              callback(err, merged, mergedDocs);
+              callback(err, merged);
             }, true)
           }
         });
@@ -1040,13 +1038,55 @@ function getOrderReport(settings) {
 
   return successOrders.then((successes) => {
     return failedOrders.then((failures) => {
-      var message = successes.length + ' invoices imported. ' + errors.length + ' errors.'
       return {
         success: successes,
         fail: failures
       }
     });
   });
+}
+
+function getSlackOrderReport(report) {
+  var failMessage = report.fail.length + ' orders were not imported.';
+  var successMessage = report.success.length + ' orders were successfully imported.';
+
+  var successFields = [];
+  var failFields = [];
+
+  report.success.forEach((order) => {
+    var field = {
+      title: order.orderId,
+      value: order.message,
+      short: true
+    };
+    successFields.push(field);
+  });
+
+  report.fail.forEach((order) => {
+    var field = {
+      title: order.orderId,
+      value: order.message,
+      short: true
+    };
+    failFields.push(field);
+  });
+
+
+  var successAttachment = {
+    fallback: successMessage,
+    pretext: successMessage,
+    fields: successFields
+  };
+
+  var failAttachment = {
+    fallback: failMessage,
+    pretext: failMessage,
+    fields: failFields
+  };
+
+  return {
+    attachments: [successAttachment, failAttachment]
+  }
 }
 
 module.exports = {
@@ -1081,5 +1121,6 @@ module.exports = {
   searchCustomer: searchCustomer,
   updateCustoemr: updateCustomer,
   saveCustomer: saveCustomer,
-  getOrderReport: getOrderReport
+  getOrderReport: getOrderReport,
+  getSlackOrderReport: getSlackOrderReport
 }
