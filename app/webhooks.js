@@ -133,7 +133,7 @@ module.exports = {
 				qbws.setFinalCallback(function() {
 					helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results) {
 						// send import report to slack.
-						orderBot({text: results.length + ' orders were successfully imported and moved to processing.'});
+						orderBot({text: results.length + ' orders were moved to processing.'});
 
 						// clear the timecodes from settings
 						var savedSettings = findSettings.then(function(settings) {
@@ -148,7 +148,13 @@ module.exports = {
 								orderBot(helpers.getSlackOrderReport(report));
 								settings.lastImports = [];
 								settings.save();
-								Order.remove({imported: true});
+								Order.remove({imported: true})
+								.then((removed) => {
+									console.log('Purged' + removed.length + ' orders.');
+								})
+								.err((err) => {
+									console.log(err);
+								});
 							});
 						});
 					});
