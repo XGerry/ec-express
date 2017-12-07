@@ -186,6 +186,7 @@ module.exports = {
 		app.post('/webhooks/contact', bodyParser, function(req, res) {
 			console.log(req.body);
 			mailer.sendEmail('Received an email from ' + req.body.firstName);
+			res.send('Received support request.');
 		});
 	},
 	orderBot: orderBot
