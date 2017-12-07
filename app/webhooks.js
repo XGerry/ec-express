@@ -6,6 +6,7 @@ var Customer = require('./model/customer');
 var Item = require('./model/item');
 var helpers = require('./helpers');
 var Settings = require('./model/settings');
+var mailer = require('./app/mailer');
 
 function updateOrderInfo(order, cartOrder) {
   order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
@@ -180,6 +181,11 @@ module.exports = {
 			});
 
 			res.send('New product.');
+		});
+
+		app.post('/webhooks/contact', bodyParser, function(req, res) {
+			console.log(req.body);
+			mailer.sendEmail('Received an email from ' + req.body.firstName);
 		});
 	},
 	orderBot: orderBot
