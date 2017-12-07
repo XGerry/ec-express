@@ -18,8 +18,10 @@ function updateOrderInfo(order, cartOrder) {
       var sku = item.ItemID.trim();
       var findingItem = Item.findOne({sku: sku});
       findingItem.then(function(doc) {
-        doc.lastOrderDate = new Date(cartOrder.OrderDate);
-        doc.save();
+      	if (doc) {
+        	doc.lastOrderDate = new Date(cartOrder.OrderDate);
+        	doc.save();
+      	}
       });
     });
   }	
