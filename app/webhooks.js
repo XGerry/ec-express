@@ -5,6 +5,7 @@ var Order = require('./model/order');
 var Customer = require('./model/customer');
 var Item = require('./model/item');
 var helpers = require('./helpers');
+var Settings = require('./model/settings');
 
 function updateOrderInfo(order, cartOrder) {
   order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
@@ -107,23 +108,37 @@ module.exports = {
 		app.post('/webhooks/new-order', jsonParser, function(req, res) {
 			var orders = req.body;
 			var timecode = helpers.getTimeCode();
-			orders.forEach((order) => {
-		    var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-				var newOrder = new Order();
-				newOrder.imported = false;
-				newOrder.orderId = orderId;
-				newOrder.timecode = timecode;
-				updateOrderInfo(newOrder, order);
-				sendOrderToSlack(order);
-				qbws.emptyQueue();
-				helpers.createInvoices(qbws);
-				qbws.setFinalCallback(function() {
-					helpers.markCompletedOrdersAsProcessing(timecode, function(results) {
-						// send import report to slack.
-						console.log('done');
+			var findSettings = Settings.findOne({});
+			findSettings.then(function(settings) {
+				settings.timecodes.push(timecode);
+				settings.save();
+
+				orders.forEach((order) => {
+			    var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+					var newOrder = new Order();
+					newOrder.imported = false;
+					newOrder.orderId = orderId;
+					newOrder.timecode = timecode;
+					updateOrderInfo(newOrder, order);
+					sendOrderToSlack(order);
+					qbws.emptyQueue();
+					helpers.createInvoices(qbws);
+					qbws.setFinalCallback(function() {
+						helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(results) {
+							// send import report to slack.
+							console.log('done');
+							// clear the timecodes from settings
+							findSettings.then(function(settings) {
+								settings.lastImports = settings.timecodes;
+								settings.timecodes = [];
+								settings.save();
+							});
+						});
 					});
 				});
 			});
+
+			Order.remove({imported: true}); // clean up the orders that have already been imported
 
 			res.send('New order.');
 		});

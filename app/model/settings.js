@@ -5,7 +5,9 @@ var settingSchema = new mongoose.Schema({
 	companyFile: String,
 	canadianDistribution: Number,
 	usDistribution: Number,
-	lastImport: Number
+	lastImport: Number,
+	timecodes: [Number],
+	lastImports : Number
 });
 
 module.exports = mongoose.model('Settings', settingSchema);

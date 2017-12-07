@@ -538,14 +538,14 @@ function updateOrders(orders, callback, canadian) {
   });
 }
 
-function markCompletedOrdersAsProcessing(timecode, callback) {
-  Order.find({imported: true, canadian: false, timecode: timecode}, function (err, docs) {
+function markCompletedOrdersAsProcessing(timecodes, callback) {
+  Order.find({imported: true, canadian: false, timecode: {$in: timecodes} }, function (err, docs) {
     if (err) {
       console.log('Error getting the results');
     } else {
       var orders = setOrderAsProcessing(docs);
       updateOrders(orders, function(err, results) {
-        Order.find({imported: true, canadian: true, timecode: timecode}, function(err, docs) {
+        Order.find({imported: true, canadian: true, timecode: {$in: timecodes} }, function(err, docs) {
           if (err) {
             console.log(err);
           } else {

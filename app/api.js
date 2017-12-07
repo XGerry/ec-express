@@ -335,7 +335,7 @@ module.exports = {
 
     app.get('/api/orders/updateCompleted', function(req, res) {
       Settings.findOne({}, function(err, settings) {
-        helpers.markCompletedOrdersAsProcessing(settings.lastImport, function(error, response, body) {
+        helpers.markCompletedOrdersAsProcessing([settings.lastImport], function(error, response, body) {
           console.log('Marked orders as processing.');
           console.log(response);
           console.log(body);
