@@ -12,6 +12,7 @@ var secureUrlCa = 'https://www.ecstasycrafts.ca';
  var Customer = require('./model/customer');
  var Receipt = require('./model/receipt');
  var helpers = require('./helpers');
+ var webhooks = require('./webhooks');
  var pixl = require('pixl-xml')
 
 /**
@@ -584,11 +585,15 @@ function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
   helpers.setTimeCode();
   Settings.findOne({}, function(err, settings) {
     if (settings) {
-      settings.lastImport = helpers.getTimeCode();
+      var timecode = helpers.getTimeCode();
+      settings.lastImport = timecode;
+      settings.lastImports.push(timecode);
       settings.save();
     } else {
       var newSettings = new Settings();
-      newSettings.lastImport = helpers.getTimeCode();
+      var timecode = helpers.getTimeCode();
+      newSettings.lastImport = timecode;
+      newSettings.lastImports.push(timecode);
       newSettings.save();
     }
   });
@@ -682,6 +687,18 @@ function getOrders(query, qbws, callback) {
     // all orders now should be in the {imported: false} state if
     // they need to be imported
     helpers.createInvoices(qbws);
+    qbws.setFinalCallback(function() {
+      var findSettings = Settings.findOne({});
+      findSettings.then((settings) => {
+        var orderReport = helpers.getOrderReport(settings);
+        orderReport.then((report) => {
+          orderBot({
+            text: report.success.length + ' orders were successfully imported.\n' +
+              report.fail.length + ' orders were not imported.'
+          });
+        });
+      });
+    });
     Order.find({imported: false}, function(err, orders) {
       callback(orders.length);
     });

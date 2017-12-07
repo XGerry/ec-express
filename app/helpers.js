@@ -539,20 +539,21 @@ function updateOrders(orders, callback, canadian) {
 }
 
 function markCompletedOrdersAsProcessing(timecodes, callback) {
-  Order.find({imported: true, canadian: false, timecode: {$in: timecodes} }, function (err, docs) {
+  Order.find({imported: true, canadian: false, timecode: {$in: timecodes} }, function (err, usDocs) {
     if (err) {
       console.log('Error getting the results');
     } else {
-      var orders = setOrderAsProcessing(docs);
+      var orders = setOrderAsProcessing(usDocs);
       updateOrders(orders, function(err, results) {
-        Order.find({imported: true, canadian: true, timecode: {$in: timecodes} }, function(err, docs) {
+        Order.find({imported: true, canadian: true, timecode: {$in: timecodes} }, function(err, canDocs) {
           if (err) {
             console.log(err);
           } else {
-            var orders = setOrderAsProcessing(docs);
+            var orders = setOrderAsProcessing(canDocs);
             updateOrders(orders, function(err, canResults) {
               var merged = results.concat(canResults);
-              callback(err, merged);
+              var merdedDocs = usDocs.concat(canDocs);
+              callback(err, merged, mergedDocs);
             }, true)
           }
         });
@@ -1033,6 +1034,21 @@ function cleanDatabase(callback) {
   });
 }
 
+function getOrderReport(settings) {
+  var successOrders = Order.find({imported: true, timecode: {$in: settings.lastImports}});
+  var failedOrders = Order.find({imported: false, timecode: {$in: settings.lastImports}});
+
+  return successOrders.then((successes) => {
+    return failedOrders.then((failures) => {
+      var message = successes.length + ' invoices imported. ' + errors.length + ' errors.'
+      return {
+        success: successes,
+        fail: failures
+      }
+    });
+  });
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1064,5 +1080,6 @@ module.exports = {
   searchSKU: searchSKU,
   searchCustomer: searchCustomer,
   updateCustoemr: updateCustomer,
-  saveCustomer: saveCustomer
+  saveCustomer: saveCustomer,
+  getOrderReport: getOrderReport
 }

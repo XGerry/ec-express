@@ -54,6 +54,16 @@ function updateCustomer(customer, order, cartOrder) {
   customer.save();
 }
 
+function orderBot(body) {
+	var options = {
+		url: 'https://hooks.slack.com/services/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',
+		method: 'POST',
+		json: true,
+		body: body
+	};
+	request(options);
+}
+
 function sendOrderToSlack(order) {
 	var canadian = order.InvoiceNumberPrefix == 'CA-';
 	var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
@@ -62,16 +72,7 @@ function sendOrderToSlack(order) {
 	message += ' placed an order for $' + order.OrderAmount.toFixed(2) + '.';
 	message += ' <'+infoURL+'|'+orderId+'>';
 
-	var options = {
-		url: 'https://hooks.slack.com/services/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',
-		method: 'POST',
-		json: true,
-		body: {
-			text: message
-		}
-	};
-
-	request(options);
+	orderBot({ text: message });
 }
 
 function sendCustomerToSlack(customer) {
@@ -124,21 +125,29 @@ module.exports = {
 					qbws.emptyQueue();
 					helpers.createInvoices(qbws);
 					qbws.setFinalCallback(function() {
-						helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(results) {
+						helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results, docs) {
 							// send import report to slack.
-							console.log('done');
+							orderBot({text: results.length + ' orders were successfully imported and moved to processing.'});
+
 							// clear the timecodes from settings
-							findSettings.then(function(settings) {
+							var savedSettings = findSettings.then(function(settings) {
 								settings.lastImports = settings.timecodes;
 								settings.timecodes = [];
-								settings.save();
+								return settings.save();
+							});
+
+							savedSettings.then((settings) => {
+								var orderReport = helpers.getOrderReport(settings);
+								orderReport.then((report) => {
+									orderBot({ text: report.success.length + ' order were successfully imported.\n' +
+										report.fail.length + ' orders were not imported.'});
+								});
 							});
 						});
 					});
 				});
 			});
 
-			Order.remove({imported: true}); // clean up the orders that have already been imported
 
 			res.send('New order.');
 		});
@@ -160,6 +169,7 @@ module.exports = {
 
 			res.send('New product.');
 		});
-	}
+	},
+	orderBot: orderBot
 }
 
