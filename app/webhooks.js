@@ -101,7 +101,11 @@ function customerSupportBot(supportRequest) {
 			fields: [{
 				title: 'Subject',
 				value: supportRequest.subject,
-				short: false
+				short: true
+			}, {
+				title: 'Country',
+				value: supportRequest.country,
+				short: true
 			}, {
 				title: 'Email',
 				value: supportRequest.email,
@@ -114,9 +118,6 @@ function customerSupportBot(supportRequest) {
 				title: 'Message',
 				value: supportRequest.message,
 				short: false
-			}, {
-				title: 'Country',
-				value: supportRequest.country
 			}]
 		}]
 	};
@@ -224,15 +225,16 @@ module.exports = {
 
 		app.post('/webhooks/contact', jsonParser, function(req, res) {
 			var support = req.body;
+			customerSupportBot(support);
 			mailer.sendMail(support.firstName, 
 				support.lastName, 
 				support.email,
 				support.phone,
 				support.country,
 				support.subject,
-				support.message);
-			customerSupportBot(support);
-			res.send('Received support request.');
+				support.message, function(err) {
+					res.send('Received support request.');
+				});
 		});
 	},
 	orderBot: orderBot

@@ -1,6 +1,6 @@
 var nodemailer = require('nodemailer');
 
-function sendMail(firstname, lastname, email, phone, country, subject, message) {
+function sendMail(firstname, lastname, email, phone, country, subject, message, callback) {
 	var transporter = nodemailer.createTransport({
 		service: 'gmail',
 		auth: {
@@ -25,11 +25,7 @@ function sendMail(firstname, lastname, email, phone, country, subject, message) 
 	};
 
 	transporter.sendMail(mailOptions, function(err, info) {
-		if (err) {
-			console.log(err);
-		} else {
-			console.log('Email sent: ' + info.response);
-		}
+		callback(err, info);
 	});
 }
 
