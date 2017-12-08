@@ -187,7 +187,7 @@ module.exports = {
 		app.post('/webhooks/contact', formParser, function(req, res) {
 			console.log('got post request');
 			console.log(req.body);
-			mailer.sendEmail('Received an email from ' + req.body.firstName);
+			mailer.sendMail('Received an email from ' + req.body.firstName);
 			res.send('Received support request.');
 		});
 	},
