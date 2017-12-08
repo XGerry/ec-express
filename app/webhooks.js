@@ -92,6 +92,42 @@ function sendCustomerToSlack(customer) {
 	request(options);
 }
 
+function customerSupportBot(supportRequest) {
+	var text = 'New support request from ' + supportRequest.firstName + ' ' supportRequest.lastName + '.';
+	var body = {
+		attachments: [{
+			fallback: text,
+			pretext: text,
+			fields: [{
+				title: 'Subject',
+				value: supportRequest.subject,
+				short: false
+			}, {
+				title: 'Email',
+				value: supportRequest.email,
+				short: true
+			}, {
+				title: 'Phone',
+				value: supportRequest.phone,
+				short: true
+			}, {
+				title: 'Message',
+				value: supportRequest.message,
+				short: false
+			}]
+		}]
+	};
+
+	var options = {
+		url: 'https://hooks.slack.com/services/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',
+		method: 'POST',
+		json: true,
+		body: body
+	};
+
+	request(options);
+}
+
 function sendNewProductToSlack(product) {
 	var message = 'New item ' + product.SKUInfo.SKU + ' added.';
 	var options = {
@@ -185,9 +221,14 @@ module.exports = {
 		});
 
 		app.post('/webhooks/contact', jsonParser, function(req, res) {
-			console.log('got post request');
-			console.log(req.body);
-			mailer.sendMail('Received an email from ' + req.body.firstName);
+			var support = req.body;
+			mailer.sendMail(support.firstName, 
+				support.lastName, 
+				support.email,
+				support.phone,
+				support.subject,
+				support.message);
+			customerSupportBot(support);
 			res.send('Received support request.');
 		});
 	},
