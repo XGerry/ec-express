@@ -93,7 +93,7 @@ function sendCustomerToSlack(customer) {
 }
 
 function customerSupportBot(supportRequest) {
-	var text = 'New support request from ' + supportRequest.firstName + ' ' supportRequest.lastName + '.';
+	var text = 'New support request from ' + supportRequest.firstName + ' ' + supportRequest.lastName + '.';
 	var body = {
 		attachments: [{
 			fallback: text,
@@ -138,7 +138,6 @@ function sendNewProductToSlack(product) {
 			text: message
 		}
 	};
-
 	request(options);
 }
 
