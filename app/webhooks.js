@@ -1,6 +1,7 @@
 var request = require('request');
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json({limit : '50mb'});
+var formParser = bodyParser.urlencoded({limit : '50mb'});
 var Order = require('./model/order');
 var Customer = require('./model/customer');
 var Item = require('./model/item');
@@ -183,7 +184,8 @@ module.exports = {
 			res.send('New product.');
 		});
 
-		app.post('/webhooks/contact', bodyParser, function(req, res) {
+		app.post('/webhooks/contact', formParser, function(req, res) {
+			console.log('got post request');
 			console.log(req.body);
 			mailer.sendEmail('Received an email from ' + req.body.firstName);
 			res.send('Received support request.');
@@ -191,4 +193,3 @@ module.exports = {
 	},
 	orderBot: orderBot
 }
-
