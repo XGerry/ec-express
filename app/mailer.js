@@ -1,6 +1,6 @@
 var nodemailer = require('nodemailer');
 
-function sendMail(firstname, lastname, email, phone, subject, message) {
+function sendMail(firstname, lastname, email, phone, country, subject, message) {
 	var transporter = nodemailer.createTransport({
 		service: 'gmail',
 		auth: {
@@ -12,6 +12,7 @@ function sendMail(firstname, lastname, email, phone, subject, message) {
 	var emailContent = 'Customer support request from ' + firstname + ' ' + lastname + '.\n';
 	emailContent += 'Email: ' + email + '\n';
 	emailContent += 'Phone: ' + phone + '\n';
+	emailContent += 'Country: ' + country + '\n';
 	emailContent += 'Meesage:\n';
 	emailContent += message;
 

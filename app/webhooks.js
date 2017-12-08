@@ -114,6 +114,9 @@ function customerSupportBot(supportRequest) {
 				title: 'Message',
 				value: supportRequest.message,
 				short: false
+			}, {
+				title: 'Country',
+				value: supportRequest.country
 			}]
 		}]
 	};
@@ -225,6 +228,7 @@ module.exports = {
 				support.lastName, 
 				support.email,
 				support.phone,
+				support.country,
 				support.subject,
 				support.message);
 			customerSupportBot(support);
