@@ -184,7 +184,7 @@ module.exports = {
 			res.send('New product.');
 		});
 
-		app.post('/webhooks/contact', formParser, function(req, res) {
+		app.post('/webhooks/contact', jsonParser, function(req, res) {
 			console.log('got post request');
 			console.log(req.body);
 			mailer.sendMail('Received an email from ' + req.body.firstName);
