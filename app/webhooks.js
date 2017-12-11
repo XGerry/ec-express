@@ -92,7 +92,31 @@ function sendCustomerToSlack(customer) {
 	request(options);
 }
 
-function customerSupportBot(supportRequest) {
+function customerSupportBot(payload) {
+	var options = {
+		url: 'https://hooks.slack.com/services/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',
+		method: 'POST',
+		json: true,
+		body: payload
+	};
+
+	request(options);
+}
+
+function sendNewProductToSlack(product) {
+	var message = 'New item ' + product.SKUInfo.SKU + ' added.';
+	var options = {
+		url: 'https://hooks.slack.com/services/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',
+		method: 'POST',
+		json: true,
+		body: {
+			text: message
+		}
+	};
+	request(options);
+}
+
+function packageSupportRequest(supportRequest) {
 	var text = 'New support request from ' + supportRequest.firstName + ' ' + supportRequest.lastName + '.';
 	var body = {
 		attachments: [{
@@ -122,27 +146,45 @@ function customerSupportBot(supportRequest) {
 		}]
 	};
 
-	var options = {
-		url: 'https://hooks.slack.com/services/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',
-		method: 'POST',
-		json: true,
-		body: body
-	};
-
-	request(options);
+	return body;
 }
 
-function sendNewProductToSlack(product) {
-	var message = 'New item ' + product.SKUInfo.SKU + ' added.';
-	var options = {
-		url: 'https://hooks.slack.com/services/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',
-		method: 'POST',
-		json: true,
-		body: {
-			text: message
-		}
+function packageWholesaleRequest(wholesaleRequest) {
+	var text = 'New wholesale application from ' + wholesaleRequest.companyName + '.\n';
+	text +='Full application was sent via email.';
+	var body = {
+		attachments: [{
+			fallback: text,
+			pretext: text,
+			fields: [{
+				title: 'First Name',
+				value: wholesaleRequest.firstName,
+				short: true
+			}, {
+				title: 'Last Name',
+				value: wholesaleRequest.lastName,
+				short: true
+			}, {
+				title: 'Company Name',
+				value: wholesaleRequest.companyName,
+				short: true
+			}, {
+				title: 'Email',
+				value: wholesaleRequest.email,
+				short: true
+			}, {
+				title: 'Phone',
+				value: wholesaleRequest.phone,
+				short: true
+			}, {
+				title: 'Country',
+				value: wholesaleRequest.country,
+				short: true
+			}]
+		}]
 	};
-	request(options);
+
+	return body;
 }
 
 module.exports = {
@@ -225,8 +267,8 @@ module.exports = {
 
 		app.post('/webhooks/contact', jsonParser, function(req, res) {
 			var support = req.body;
-			customerSupportBot(support);
-			mailer.sendMail(support.firstName, 
+			customerSupportBot(packageSupportRequest(support));
+			mailer.sendSupportMail(support.firstName, 
 				support.lastName, 
 				support.email,
 				support.phone,
@@ -235,6 +277,35 @@ module.exports = {
 				support.message, function(err) {
 					res.send('Received support request.');
 				});
+		});
+
+		app.post('/webhooks/wholesale', jsonParser, function(req, res) {
+			var wholesaleApp = req.body;
+			var slackMessage = packageWholesaleRequest(wholesaleApp);
+			customerSupportBot(slackMessage);
+
+			var mailOptions = {
+				from: 'support@ecstasycrafts.com',
+				replyTo: wholesaleApp.email,
+				to: 'support@ecstasycrafts.com',
+				subject: '[Wholesale Application] from ' + wholesaleApp.companyName
+			};
+
+			var emailContent = 'Wholesale application request from ' + wholesaleApp.firstName + ' ' + wholesaleApp.lastName + '.\n';
+			emailContent += 'Company Name: ' + wholesaleApp.companyName;
+			emailContent += 'Email: ' + wholesaleApp.email + '\n';
+			emailContent += 'Phone: ' + wholesaleApp.phone + '\n';
+			emailContent += 'Website: ' + wholesaleApp.website + '\n';
+			emailContent += 'Address 1: ' + wholesaleApp.address1 + '\n';
+			emailContent += 'Address 2: ' + wholesaleApp.address2 + '\n';
+			emailContent += 'City: ' + wholesaleApp.city + '\n';
+			emailContent += 'State: ' + wholesaleApp.state + '\n';
+			emailContent += 'Zip: ' + wholesaleApp.zip + '\n';
+			emailContent += 'Country: ' + wholesaleApp.country + '\n';
+			emailContent += 'Tax ID: ' + wholesaleApp.taxId + '\n';
+			emailContent += 'References: ' + wholesaleApp.references + '\n';
+
+			mailer.sendMail(mailOptions);
 		});
 	},
 	orderBot: orderBot

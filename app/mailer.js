@@ -1,19 +1,11 @@
 var nodemailer = require('nodemailer');
 
-function sendMail(firstname, lastname, email, phone, country, subject, message, callback) {
-	var transporter = nodemailer.createTransport({
-		service: 'gmail',
-		auth: {
-			user: 'matt@ecstasycrafts.com',
-			pass: process.env.GMAIL_PASS
-		}
-	});
-
+function sendSupportMail(firstname, lastname, email, phone, country, subject, message, callback) {
 	var emailContent = 'Customer support request from ' + firstname + ' ' + lastname + '.\n';
 	emailContent += 'Email: ' + email + '\n';
 	emailContent += 'Phone: ' + phone + '\n';
 	emailContent += 'Country: ' + country + '\n';
-	emailContent += 'Meesage:\n';
+	emailContent += 'Message:\n';
 	emailContent += message;
 
 	var mailOptions = {
@@ -24,11 +16,24 @@ function sendMail(firstname, lastname, email, phone, country, subject, message, 
 		text: emailContent
 	};
 
+	sendMail(mailOptions);
+}
+
+function sendMail(mailOptions) {
+	var transporter = nodemailer.createTransport({
+		service: 'gmail',
+		auth: {
+			user: 'matt@ecstasycrafts.com',
+			pass: process.env.GMAIL_PASS
+		}
+	});
+
 	transporter.sendMail(mailOptions, function(err, info) {
 		callback(err, info);
 	});
 }
 
 module.exports = {
+	sendSupportMail: sendSupportMail,
 	sendMail: sendMail
 }
