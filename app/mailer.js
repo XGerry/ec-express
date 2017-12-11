@@ -16,10 +16,10 @@ function sendSupportMail(firstname, lastname, email, phone, country, subject, me
 		text: emailContent
 	};
 
-	sendMail(mailOptions);
+	sendMail(mailOptions, callback);
 }
 
-function sendMail(mailOptions) {
+function sendMail(mailOptions, callback) {
 	var transporter = nodemailer.createTransport({
 		service: 'gmail',
 		auth: {

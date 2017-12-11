@@ -276,6 +276,7 @@ module.exports = {
 				support.subject,
 				support.message, 
 				function(err, info) {
+					console.log('sent the email');
 					res.send('Received support request.');
 				});
 			res.send('Received support');
