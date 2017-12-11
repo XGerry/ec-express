@@ -306,6 +306,8 @@ module.exports = {
 			emailContent += 'Tax ID: ' + wholesaleApp.taxId + '\n';
 			emailContent += 'References: ' + wholesaleApp.references + '\n';
 
+			mailOptions.text = emailContent;
+
 			mailer.sendMail(mailOptions, function(err, info) {
 				res.send('Received wholesale application.');
 			});
