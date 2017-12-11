@@ -293,7 +293,7 @@ module.exports = {
 			};
 
 			var emailContent = 'Wholesale application request from ' + wholesaleApp.firstName + ' ' + wholesaleApp.lastName + '.\n';
-			emailContent += 'Company Name: ' + wholesaleApp.companyName;
+			emailContent += 'Company Name: ' + wholesaleApp.companyName + '\n';
 			emailContent += 'Email: ' + wholesaleApp.email + '\n';
 			emailContent += 'Phone: ' + wholesaleApp.phone + '\n';
 			emailContent += 'Website: ' + wholesaleApp.website + '\n';
