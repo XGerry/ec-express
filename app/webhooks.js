@@ -275,6 +275,8 @@ module.exports = {
 				support.country,
 				support.subject,
 				support.message, function(err, info) {
+					console.log(err);
+					console.log(info);
 					res.send('Received support request.');
 				});
 		});
