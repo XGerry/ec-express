@@ -274,7 +274,7 @@ module.exports = {
 				support.phone,
 				support.country,
 				support.subject,
-				support.message, function(err) {
+				support.message, function(err, info) {
 					res.send('Received support request.');
 				});
 		});
@@ -305,7 +305,9 @@ module.exports = {
 			emailContent += 'Tax ID: ' + wholesaleApp.taxId + '\n';
 			emailContent += 'References: ' + wholesaleApp.references + '\n';
 
-			mailer.sendMail(mailOptions);
+			mailer.sendMail(mailOptions, function(err, info) {
+				res.send('Received wholesale application.');
+			});
 		});
 	},
 	orderBot: orderBot
