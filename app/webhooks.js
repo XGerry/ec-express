@@ -312,6 +312,11 @@ module.exports = {
 				res.send('Received wholesale application.');
 			});
 		});
+
+		app.post('/webhooks/mailchimp', jsonParser, function(req, res) {
+			console.log(req.body);
+			res.send('Received webhook notification');
+		});
 	},
 	orderBot: orderBot
 }
