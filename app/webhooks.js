@@ -313,7 +313,7 @@ module.exports = {
 			});
 		});
 
-		app.post('/webhooks/mailchimp', jsonParser, function(req, res) {
+		app.get('/webhooks/mailchimp', jsonParser, function(req, res) {
 			console.log(req.body);
 			res.send('Received webhook notification');
 		});
