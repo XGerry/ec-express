@@ -314,8 +314,12 @@ module.exports = {
 		});
 
 		app.get('/webhooks/mailchimp', jsonParser, function(req, res) {
-			console.log(req.body);
 			res.send('Received webhook notification');
+		});
+
+		app.post('/webhooks/mailchimp', formParser, function(req, res) {
+			console.log(req.body);
+			res.send('Received noti');
 		});
 	},
 	orderBot: orderBot

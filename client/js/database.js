@@ -164,6 +164,20 @@ $(document).ready(function() {
 			saveItem(theItem);
 		}
 	});
+
+	$('#hideProductsButton').click(() => {
+		selectedItems.forEach((item) => {
+			item.hidden = true;
+		});
+		socket.emit('bulkSaveItems', selectedItems);
+	});
+
+	$('#unhideProductsButton').click(() => {
+		selectedItems.forEach((item) => {
+			item.hidden = false;
+		});
+		socket.emit('bulkSaveItems', selectedItems);
+	});
 });
 
 socket.on('searchSKUFinished', function(items) {

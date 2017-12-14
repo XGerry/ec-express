@@ -1462,7 +1462,7 @@ function updateCategories(categories, finalCallback) {
   });
 }
 
-function saveItem(item, qbws) {
+function saveItem(item, qbws, callback) {
   helpers.saveItem(item, qbws);
 
   if (!item.isOption) {
@@ -1498,8 +1498,7 @@ function saveItem(item, qbws) {
       ExtraField8: item.barcode,
       ExtraField9: item.countryOfOrigin,
       InventoryControl: control,
-      Hide: item.hidden,
-
+      Hide: item.hidden
     }];
 
     if (item.inactive == true) {
@@ -1559,6 +1558,9 @@ function saveItem(item, qbws) {
     request(options, function(err, response, body) {
       console.log('US Site:')
       console.log(body);
+      if (callback) {
+        callback(err);
+      }
     });
 
     options.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
@@ -1570,6 +1572,9 @@ function saveItem(item, qbws) {
     request(options, function(err, response, body) {
       console.log('CAN Site:');
       console.log(body);
+      if (callback) {
+        callback(err);
+      }
     });
   }
 }
@@ -1598,6 +1603,22 @@ function saveOrder(order, isCanadian, callback) {
   });
 }
 
+function saveItemMultiple(items, qbws) {
+  var requests = [];
+  async.eachLimit(items, 2, function(item, callback) {
+    function doSave() {
+      saveItem(item, qbws, callback);
+    }
+    setTimeout(doSave, 500);
+  }, function(err) {
+    if (err) {
+      console.log('Error!');
+    } else {
+      console.log('Saved everything.')
+    }
+  });
+}
+
 module.exports = {
  	getItems: getItems,
   refreshFrom3DCart: refreshFrom3DCart,
@@ -1614,6 +1635,7 @@ module.exports = {
   updateItemsFromDB: updateItemsFromDB,
   saveCategories: updateCategories,
   saveItem: saveItem,
+  saveItemMultiple: saveItemMultiple,
   saveOrder: saveOrder,
   getOrder: getOrder
 }

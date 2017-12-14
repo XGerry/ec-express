@@ -215,6 +215,10 @@
  			cart3d.saveItem(item, qbws);
  		});
 
+ 		socket.on('bulkSaveItems', (items) => {
+ 			cart3d.saveItemMultiple(items, qbws);
+ 		});
+
  		socket.on('saveCustomer', function(customer) {
  			helpers.saveCustomer(customer);
  		});
