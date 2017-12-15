@@ -1057,7 +1057,7 @@ function getSlackOrderReport(report) {
     var infoURL = 'https://www.ecstasycrafts.' + (order.canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.orderId;
     var field = {
       title: order.name,
-      value: '<'+infoURL+'|'+order.orderId + '> ' + (order.message == undefined) ? '' : order.message,
+      value: '<'+infoURL+'|'+order.orderId + '> ' + (order.message == undefined ? '' : order.message),
       short: true
     };
     successFields.push(field);
@@ -1067,7 +1067,7 @@ function getSlackOrderReport(report) {
     var infoURL = 'https://www.ecstasycrafts.' + (order.canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.orderId;
     var field = {
       title: order.name,
-      value: '<'+infoURL+'|'+order.orderId + '> ' + (order.message == undefined) ? '' : order.message,
+      value: '<'+infoURL+'|'+order.orderId + '> ' + (order.message == undefined ? '' : order.message),
       short: true
     };
     failFields.push(field);
