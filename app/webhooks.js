@@ -214,33 +214,35 @@ module.exports = {
 				});
 
 				qbws.setFinalCallback(function() {
+					// clear the timecodes from settings
+					var savedSettings = findSettings.then(function(settings) {
+						settings.lastImports = settings.timecodes;
+						settings.timecodes = [];
+						return settings.save();
+					});
+
+					savedSettings.then((settings) => {
+						var orderReport = helpers.getOrderReport(settings);
+						orderReport.then((report) => {
+							orderBot(helpers.getSlackOrderReport(report));
+							settings.lastImports = [];
+							settings.save();
+						});
+					});
+					/** Don't move them to processing until after they have been printed by the sorter.
 					helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results) {
 						// send import report to slack.
 						orderBot({text: results.length + ' orders were moved to processing.'});
-
-						// clear the timecodes from settings
-						var savedSettings = findSettings.then(function(settings) {
-							settings.lastImports = settings.timecodes;
-							settings.timecodes = [];
-							return settings.save();
-						});
-
-						savedSettings.then((settings) => {
-							var orderReport = helpers.getOrderReport(settings);
-							orderReport.then((report) => {
-								orderBot(helpers.getSlackOrderReport(report));
-								settings.lastImports = [];
-								settings.save();
-								Order.remove({imported: true})
-								.then((removed) => {
-									console.log('Purged' + removed.length + ' orders.');
-								})
-								.err((err) => {
-									console.log(err);
-								});
-							});
+						// Don't remove the order yet. The order should be purged after it's moved to processing
+						Order.remove({imported: true})
+						.then((removed) => {
+							console.log('Purged' + removed.length + ' orders.');
+						})
+						.err((err) => {
+							console.log(err);
 						});
 					});
+					*/
 				});
 			});
 
