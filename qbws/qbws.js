@@ -241,6 +241,7 @@ function checkError(response, returnObject, responseCallback) {
                         console.log('found an error: ' + doc.message);
                     } else {
                         doc.imported = true;
+                        doc.message = 'Success';
                     }
                     doc.save();
                 }
