@@ -72,5 +72,11 @@ mixin navbar(active)
 								else
 									li
 										a(href="/order-import") Import
+								if active == "show-order"
+									li.active
+										a(href="/show-order") Show Order
+								else
+									li
+										a(href="/show-order") Show Order
 						
 					ul.nav.navbar-nav.navbar-right#nav-right

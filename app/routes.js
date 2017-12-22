@@ -119,4 +119,8 @@ module.exports = function(app, passport) {
   app.get('/order-import', function(req, res) {
     res.render('order-import');
   });
+
+  app.get('/show-order', function(req, res) {
+    res.render('show-order');
+  });
 }

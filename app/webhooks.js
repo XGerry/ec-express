@@ -229,6 +229,7 @@ module.exports = {
 							settings.save();
 						});
 					});
+					
 					/** Don't move them to processing until after they have been printed by the sorter.
 					helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results) {
 						// send import report to slack.

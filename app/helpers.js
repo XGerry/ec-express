@@ -1090,6 +1090,37 @@ function getSlackOrderReport(report) {
   }
 }
 
+function calculateSubtotal(order) {
+  var total = 0;
+  var promises = [];
+  var message = '';
+
+  order.forEach(function(item) {
+    promises.push(Item.findOne({sku: item.sku}));
+  });
+
+  return Promise.all(promises).then((dbItems) => {
+    dbItems.forEach((dbItem) => {
+      order.forEach(function(item) {
+        if (dbItem == null) {
+          message = 'One or more items was not found in the database. The subtotal will not reflect these items.';
+        } else {
+          if (item.sku == dbItem.sku) {
+            var lineTotal = (dbItem.usPrice / 2) * item.quantity;
+            total += lineTotal; // wholesale prices
+            item.total = lineTotal;
+          }
+        }
+      });
+    });
+
+    return {
+      total: total.toFixed(2),
+      message: message
+    }
+  });
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1123,5 +1154,6 @@ module.exports = {
   updateCustoemr: updateCustomer,
   saveCustomer: saveCustomer,
   getOrderReport: getOrderReport,
-  getSlackOrderReport: getSlackOrderReport
+  getSlackOrderReport: getSlackOrderReport,
+  calculateSubtotal: calculateSubtotal
 }

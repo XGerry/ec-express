@@ -326,6 +326,13 @@
  			});
  		});
 
+ 		socket.on('calculateSubtotal', function(order) {
+ 			var calculating = helpers.calculateSubtotal(order);
+ 			calculating.then((total) => {
+ 				socket.emit('calculateSubtotalFinished', total);
+ 			});
+ 		});
+
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {

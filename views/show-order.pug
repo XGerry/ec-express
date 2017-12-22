@@ -1,0 +1,158 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title New Order
+	body
+		+navbar("show-order")
+		.container
+			.starter-template
+				h1 Show Order
+				p.lead Enter the new order here.
+
+		.container
+			.alert.alert-warning.alert-dismissible(role="alert")#orderAlert
+				button(type="button").close#dismissAlertButton &times;
+				strong Warning 
+				span#alert-message
+		.container
+			.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#itemPanel") Order Sheet
+				#itemPanel.panel-collapse.collapse.in.panel-body
+					.form-group.row
+						.col-lg-3.col-sm-3
+							label(for="itemSKU") SKU
+							input#itemSKU.form-control.input-lg(type="text", list="itemList")
+							datalist#itemList
+						.col-lg-3.col-sm-3
+							label(for="itemQuantity") Quantity
+							.input-group.input-group-lg
+								span.input-group-btn
+									button.btn.btn-default(type="button")#decreaseQuantity
+										i.fa.fa-minus
+								input#itemQuantity.form-control(type="number", value="1")
+								span.input-group-btn
+									button.btn.btn-default(type="button")#increaseQuantity
+										i.fa.fa-plus
+						.col-lg-5.col-sm-5
+							button.btn.btn-primary.btn-lg.add-item-button#addItemButton(type="button") Add Item
+					#orderSheet
+					.row
+						.col-lg-6.col-sm-6
+							.btn-toolbar
+								button.btn.btn-success(type="button")#subtotalButton Calculate Totals
+						.col-lg-3.col-sm-3
+							h3 Sub-Total:
+						.col-lg-3.col-sm-3
+							h3#subtotal
+
+			.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#customerPanel") Customer
+				#customerPanel.panel-collapse.collapse.in.panel-body
+					.btn-toolbar
+						button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") Add Customer
+					table.table.table-striped.table-hover#customerTable
+						thead
+							tr
+								th Name
+								th Email
+								th Phone
+								th Shipping Address
+								th Shipping City
+						tbody#customerTableBody
+
+	#customerModal.modal.fade(role="dialog")
+			.modal-dialog
+				.modal-content
+					.modal-header
+						button.close(data-dismiss="modal") &times;
+						h4#customerName New Customer
+					.modal-body
+						.form-group.row
+							.col-lg-6
+								label(for="customerFirstName") First Name
+								input#customerFirstName.form-control(type="text")
+							.col-lg-6
+								label(for="customerLastName") Last Name
+								input#customerLastName.form-control(type="text")
+						.form-group.row
+							.col-lg-6
+								label(for="customerEmailModal") Email
+								input#customerEmailModal.form-control(type="text")
+							.col-lg-6
+								label(for="customerPhone") Phone
+								input#customerPhone.form-control(type="text")
+						.panel.panel-default
+							.panel-heading
+								h4.panel-title
+									a(data-toggle="collapse", data-target="#customerBillingAddress") Billing
+							#customerBillingAddress.panel-collapse.collapse.in
+								.panel-body
+									.form-group.row
+										.col-lg-4
+											label(for="billingAddress") Address
+											input#billingAddress.form-control(type="text")
+										.col-lg-4
+											label(for="billingAddress2") Address 2
+											input#billingAddress2.form-control(type="text")
+										.col-lg-4
+											label(for="billingCity") City
+											input#billingCity.form-control(type="text")
+									.form-group.row
+										.col-lg-4
+											label(for="billingState") State
+											input#billingState.form-control(type="text")
+										.col-lg-4
+											label(for="billingCountry") Country
+											input#billingCountry.form-control(type="text")
+										.col-lg-4
+											label(for="billingZip") Zip/Postal Code
+											input#billingZip.form-control(type="text")
+									button.btn-primary.btn#sameAsShippingButton(type="button") Same as Shipping Address
+							.panel-heading
+								h4.panel-title
+									a(data-toggle="collapse", data-target="#customerShippingAddress") Shipping
+							#customerShippingAddress.panel-collapse.collapse
+								.panel-body
+									.form-group.row
+										.col-lg-4
+											label(for="shippingAddress") Address
+											input#shippingAddress.form-control(type="text")
+										.col-lg-4
+											label(for="shippingAddress2") Address 2
+											input#shippingAddress2.form-control(type="text")
+										.col-lg-4
+											label(for="shippingCity") City
+											input#shippingCity.form-control(type="text")
+									.form-group.row
+										.col-lg-4
+											label(for="shippingState") State
+											input#shippingState.form-control(type="text")
+										.col-lg-4
+											label(for="shippingCountry") Country
+											input#shippingCountry.form-control(type="text")
+										.col-lg-4
+											label(for="shippingZip") Zip/Postal Code
+											input#shippingZip.form-control(type="text")
+						.form-group.row
+							.col-lg-6
+								label(for="websiteSelect") Website
+								select.form-control#websiteSelect
+									option(value="us") U.S.
+									option(value="canada") Canada
+							.col-lg-6
+								label(for="profileSelect") Profile
+								select.form-control#profileSelect
+									option(value="wholesale") Wholesale - 50%
+									option(value="retail") Retail
+										
+					.modal-footer
+						button#saveCustomerButton.btn.btn-success(type="button") Add
+						button.btn.btn-default(type="button", data-dismiss="modal") Cancel
+
+	include includes/end
+		script(src="/js/show-order.js")
