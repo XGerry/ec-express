@@ -187,6 +187,18 @@ function packageWholesaleRequest(wholesaleRequest) {
 	return body;
 }
 
+function getOrders() {
+	var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders', 'GET', false);
+	options.qs = {
+		orderstatus: 1,
+		limit: 1
+	};
+	request(options, function(err, response, body) {
+		console.log('got the orders');
+		adjustInventory(body);
+	});
+}
+
 function adjustInventory(cartOrders) {
 	cartOrders.forEach((order) => {
 		var canadian = order.InvoiceNumberPrefix == 'CA-';
@@ -196,9 +208,9 @@ function adjustInventory(cartOrders) {
 			var sku = item.ItemID.trim();
 			var findItem = Item.findOne({sku: sku});
 			var productUpdate = findItem.then((dbItem) => {
-				if (dbItem.isOption) {
-					advancedOptionUpdate(dbItem, item.ItemUnitStock, canadian);
-				} else {
+				if (dbItem != null && dbItem.isOption) {
+					advancedOptionUpdate(dbItem, item.ItemUnitStock, !canadian);
+				} else if (dbItem != null && !dbItem.isOption) {
 					var productUpdate = {
 						SKUInfo: {
 							SKU: dbItem.sku,
@@ -210,14 +222,26 @@ function adjustInventory(cartOrders) {
 					dbItem.usStock = item.ItemUnitStock;
 					dbItem.canStock = item.ItemUnitStock;
 					dbItem.save();
+				} else {
+					console.log('item not found: ' + sku);
+					console.log('order: ' + order.OrderID);
+					console.log('order: ' + order.InvoiceNumberPrefix + order.InvoiceNumber);
 				}
+				return null;
 			});
 			promises.push(productUpdate);
 		});
 
 		Promise.all(promises).then((productUpdates) => {
+			var index = productUpdates.indexOf(null);
+			while (index != -1) {
+				productUpdates.splice(index, 1);
+				index = productUpdates.indexOf(null);
+			}
+			console.log(productUpdates);
+
 			var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products', 
-				'PUT', canadian);
+				'PUT', !canadian);
 			options.body = productUpdates;
 			request(options, function(err, response, body) {
 				console.log('saved items');
@@ -228,30 +252,18 @@ function adjustInventory(cartOrders) {
 }
 
 function advancedOptionUpdate(dbItem, stock, canadian) {
-	var options = {
-    url: '',
-    method: 'PUT',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    json: true
-  };
+
+  var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+dbItem.catalogId+'/AdvancedOptions/'+dbItem.optionId;
+  if (canadian) {
+  	url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+dbItem.catalogIdCan+'/AdvancedOptions/'+dbItem.optionIdCan; 
+  }
+
+	var options = helpers.get3DCartOptions(url, 'PUT', canadian);
 
   options.body = {
     AdvancedOptionStock: stock,
     AdvancedOptionSufix: dbItem.sku
   };
-
-  var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogId+'/AdvancedOptions/'+item.optionId;
-  options.url = url;
-
-  if (canadian) {
-  	options.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
-  	options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
-  	options.headers.Token = process.env.CART_TOKEN_CANADA;
-  }
 
   request(options, function(err, response, body) {
   	console.log('saved option ' + dbItem.sku);

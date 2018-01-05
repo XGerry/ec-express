@@ -793,8 +793,8 @@ function findItemAndSave(settings, qbItem, callback) {
 }
 
 function saveItemFromQB(settings, item, qbItem, callback) {
-  var usStock = (qbItem.QuantityOnHand * settings.usDistribution).toFixed();
-  var canStock = (qbItem.QuantityOnHand - usStock);
+  var usStock = qbItem.QuantityOnHand;
+  var canStock = qbItem.QuantityOnHand;
   var walmartStock = 0;
   var amazonStock = 0;
 
@@ -1129,7 +1129,8 @@ function get3DCartOptions(url, method, canadian) {
       SecureUrl: 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com'),
       PrivateKey: process.env.CART_PRIVATE_KEY,
       Token: canadian ? process.env.CART_TOKEN_CANADA : process.env.CART_TOKEN 
-    }
+    },
+    json: true
   }
   return options;
 }
