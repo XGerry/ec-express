@@ -4,16 +4,19 @@ var secureUrlCa = 'https://www.ecstasycrafts.ca';
 /**
  * This will be a helper class for doing the common functions involving 3D Cart
  */
- var request = require('request');
- var async = require('async');
- var Item = require('./model/item');
- var Order = require('./model/order');
- var Settings = require('./model/settings');
- var Customer = require('./model/customer');
- var Receipt = require('./model/receipt');
- var helpers = require('./helpers');
- var webhooks = require('./webhooks');
- var pixl = require('pixl-xml')
+var request = require('request');
+var async = require('async');
+var Item = require('./model/item');
+var Order = require('./model/order');
+var ShowOrder = require('./model/showOrder');
+var Settings = require('./model/settings');
+var Customer = require('./model/customer');
+var Receipt = require('./model/receipt');
+var helpers = require('./helpers');
+var webhooks = require('./webhooks');
+var pixl = require('pixl-xml');
+var rp = require('request-promise-native');
+
 
 /**
  * Refreshes the inventory in our DB so we know what to use in quickbooks
@@ -1579,10 +1582,17 @@ function saveItem(item, qbws, callback) {
   }
 }
 
-function saveOrder(order, isCanadian, callback) {
+function saveOrder(order, orderId, isCanadian) {
+  var method = 'POST';
+  var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders';
+  if (orderId != null) {
+    method = 'PUT';
+    url += '/'+orderId;
+  }
+
   var options = {
-    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-    method: 'POST',
+    url: url,
+    method: method,
     headers : {
       SecureUrl : 'https://www.ecstasycrafts.com',
       PrivateKey : process.env.CART_PRIVATE_KEY,
@@ -1597,10 +1607,7 @@ function saveOrder(order, isCanadian, callback) {
   }
 
   options.body = order;
-
-  request(options, function(err, response, body) {
-    callback(body);
-  });
+  return rp(options);
 }
 
 function saveItemMultiple(items, qbws) {
@@ -1616,6 +1623,106 @@ function saveItemMultiple(items, qbws) {
     } else {
       console.log('Saved everything.')
     }
+  });
+}
+
+function saveShowOrder(order) {
+  var promises = [];
+  var total = 0;
+  var customer = order.customer;
+
+  var findShowOrder = ShowOrder.findOne({orderId: order.orderId});
+  var savedOrder = findShowOrder.then((showOrder) => {
+    if (showOrder) {
+      showOrder.customer = order.customer;
+      showOrder.showItems = order.showItems;
+      showOrder.markModified('customer');
+      showOrder.markModified('showItems');
+      return showOrder.save();
+    } else {
+      var newOrder = new ShowOrder();
+      newOrder.customer = order.customer;
+      newOrder.showItems = order.showItems;
+      return newOrder.save();
+    }
+  });
+
+  order.showItems.forEach(function(item) {
+    promises.push(Item.findOne({sku: item.sku}));
+  });
+
+  return savedOrder.then((dbShowOrder) => {
+    return Promise.all(promises).then((dbItems) => {
+      var cartOrder = {
+        BillingFirstName: customer.firstname,
+        BillingLastName: customer.lastname,
+        BillingAddress: customer.billingAddress,
+        BillingAddress2: customer.billingAddress2,
+        BillingCompany: customer.companyName,
+        BillingCity: customer.billingCity,
+        BillingCountry: customer.billingCountry,
+        BillingZipCode: customer.billingZipCode,
+        BillingPhoneNumber: customer.phone,
+        BillingEmail: customer.email,
+        BillingPaymentMethod: 'On Account',
+        BillingPaymentMethodID: '49', // need to look up all of these
+        ShipmentList: [{
+          ShipmentOrderStatus: 1, // NEW
+          ShipmentFirstName: customer.firstname,
+          ShipmentLastName: customer.lastname,
+          ShipmentAddress: customer.shippingAddress,
+          ShipmentCity: customer.shippingCity,
+          ShipmentState: customer.shippingState,
+          ShipmentCountry: customer.shippingCountry,
+          ShipmentZipCode: customer.shippingZipCode,
+          ShipmentPhone: customer.phone
+        }],
+        OrderItemList: [],
+        SalesTax: '0.00',
+        OrderStatusID: 1 // NEW
+      };
+
+      dbItems.forEach((dbItem) => {
+        var orderItem = {};
+        order.showItems.forEach(function(item) {
+          if (dbItem == null) {
+            // item not in database, but we still need to send it
+            orderItem = {
+              ItemID: item.sku,
+              ItemQuantity: item.quantity,
+              ItemUnitPrice: '0.00',
+              ItemDescription: 'Future Item'
+            };
+          } else {
+            if (item.sku == dbItem.sku) {
+              var lineTotal = (dbItem.usPrice / 2) * item.quantity;
+              total += lineTotal; // wholesale prices
+              item.total = lineTotal;
+
+              orderItem = {
+                ItemID: item.sku,
+                ItemQuantity: item.quantity,
+                ItemUnitPrice: (dbItem.usPrice / 2),
+                ItemDescription: dbItem.name
+              };
+            }
+          }
+        });
+        cartOrder.OrderItemList.push(orderItem);
+      });
+
+      console.log(order);
+      var saveToWebsite = saveOrder(cartOrder, dbShowOrder.orderId, false);
+      return saveToWebsite.then((response) => {
+        if (response[0].Status == '201') { // success
+          dbShowOrder.orderId = response[0].Value;
+          dbShowOrder.save();
+        } 
+        return response;
+      }).catch((message) => {
+        console.log(message);
+      });
+    });
   });
 }
 
@@ -1637,5 +1744,6 @@ module.exports = {
   saveItem: saveItem,
   saveItemMultiple: saveItemMultiple,
   saveOrder: saveOrder,
+  saveShowOrder: saveShowOrder,
   getOrder: getOrder
 }

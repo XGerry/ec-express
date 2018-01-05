@@ -1,0 +1,33 @@
+mixin tableRow(order)
+	tr
+		td
+			a(href="/show-order?orderId="+order.orderId)=order.orderId
+		td=order.customer.firstname + ' ' + order.customer.lastname
+		td=order.showItems.length
+
+doctype html
+include mixins
+html
+	include includes/head
+		title List Orders
+	body
+		+navbar("list-orders")
+		.container
+			.starter-template
+				h1 All Show Orders
+				p.lead Select and order to see it in more detail.
+		section
+			.container
+				.row
+					.col-lg-12
+						table.table-hover.table
+							thead
+								tr
+									th Order Number
+									th Customer Name
+									th Items
+							tbody
+								each order in orders
+									+tableRow(order)
+
+	include includes/end

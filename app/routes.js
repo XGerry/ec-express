@@ -1,6 +1,7 @@
 var bodyParser = require('body-parser');
 var path = require('path');
 var Settings = require('./model/settings');
+var ShowOrder = require('./model/showOrder');
 
 // application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
@@ -121,6 +122,22 @@ module.exports = function(app, passport) {
   });
 
   app.get('/show-order', function(req, res) {
-    res.render('show-order');
+    var orderId = req.query.orderId;
+    var findOrders = ShowOrder.findOne({orderId: orderId});
+    findOrders.then((showOrder) => {
+      console.log(showOrder);
+      res.render('show-order', {
+        order: showOrder
+      });
+    });
+  });
+
+  app.get('/list-orders', (req, res) => {
+    var findOrders = ShowOrder.find({});
+    findOrders.then((showOrders) => {
+      res.render('list-orders', {
+        orders: showOrders
+      });
+    });
   });
 }

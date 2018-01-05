@@ -202,10 +202,10 @@
  		});
 
  		socket.on('saveOrder', function(order, isCanadian) {
- 			console.log('saving order');
- 			cart3d.saveOrder(order, isCanadian, function(response) {
- 				console.log(response);
- 			});
+ 			console.log('saving order'); // FIXME
+ 			// cart3d.saveOrder(order, isCanadian, function(response) {
+ 			// 	console.log(response);
+ 			// });
  		});
 
  		/**
@@ -333,6 +333,14 @@
  			});
  		});
 
+ 		socket.on('saveShowOrder', function(order) {
+ 			var savingOrder = cart3d.saveShowOrder(order);
+ 			savingOrder.then((response) => {
+ 				console.log('finished the promise');
+ 				socket.emit('saveShowOrderFinished', response);
+ 			});
+ 		});
+
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {
@@ -355,6 +363,6 @@
 	 				});
  				});
  			});
- 		})
+ 		});
  	});
  }

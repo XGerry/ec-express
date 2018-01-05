@@ -78,5 +78,11 @@ mixin navbar(active)
 								else
 									li
 										a(href="/show-order") Show Order
+								if active == "list-orders"
+									li.active
+										a(href="/list-orders") List Orders
+								else
+									li
+										a(href="/list-orders") List Orders
 						
 					ul.nav.navbar-nav.navbar-right#nav-right

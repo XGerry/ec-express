@@ -187,10 +187,83 @@ function packageWholesaleRequest(wholesaleRequest) {
 	return body;
 }
 
+function adjustInventory(cartOrders) {
+	cartOrders.forEach((order) => {
+		var canadian = order.InvoiceNumberPrefix == 'CA-';
+		var promises = [];
+
+		order.OrderItemList.forEach((item) => {
+			var sku = item.ItemID.trim();
+			var findItem = Item.findOne({sku: sku});
+			var productUpdate = findItem.then((dbItem) => {
+				if (dbItem.isOption) {
+					advancedOptionUpdate(dbItem, item.ItemUnitStock, canadian);
+				} else {
+					var productUpdate = {
+						SKUInfo: {
+							SKU: dbItem.sku,
+							Stock: item.ItemUnitStock
+						}
+					};
+					return productUpdate;
+					dbItem.stock = item.ItemUnitStock;
+					dbItem.usStock = item.ItemUnitStock;
+					dbItem.canStock = item.ItemUnitStock;
+					dbItem.save();
+				}
+			});
+			promises.push(productUpdate);
+		});
+
+		Promise.all(promises).then((productUpdates) => {
+			var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products', 
+				'PUT', canadian);
+			options.body = productUpdates;
+			request(options, function(err, response, body) {
+				console.log('saved items');
+				console.log(body);
+			});
+		});
+	});
+}
+
+function advancedOptionUpdate(dbItem, stock, canadian) {
+	var options = {
+    url: '',
+    method: 'PUT',
+    headers : {
+      SecureUrl : 'https://www.ecstasycrafts.com',
+      PrivateKey : process.env.CART_PRIVATE_KEY,
+      Token : process.env.CART_TOKEN
+    },
+    json: true
+  };
+
+  options.body = {
+    AdvancedOptionStock: stock,
+    AdvancedOptionSufix: dbItem.sku
+  };
+
+  var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogId+'/AdvancedOptions/'+item.optionId;
+  options.url = url;
+
+  if (canadian) {
+  	options.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
+  	options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
+  	options.headers.Token = process.env.CART_TOKEN_CANADA;
+  }
+
+  request(options, function(err, response, body) {
+  	console.log('saved option ' + dbItem.sku);
+  	console.log(body);
+  });
+}
+
 module.exports = {
 	route: function(app, qbws) {
 		app.post('/webhooks/new-order', jsonParser, function(req, res) {
 			var orders = req.body;
+			adjustInventory(orders);
 			helpers.setTimeCode();
 			var timecode = helpers.getTimeCode();
 			var findSettings = Settings.findOne({});
@@ -246,7 +319,6 @@ module.exports = {
 					*/
 				});
 			});
-
 			res.send('New order.');
 		});
 

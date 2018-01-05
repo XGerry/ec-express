@@ -1121,6 +1121,19 @@ function calculateSubtotal(order) {
   });
 }
 
+function get3DCartOptions(url, method, canadian) {
+  var options = {
+    url: url,
+    method: method,
+    headers: {
+      SecureUrl: 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com'),
+      PrivateKey: process.env.CART_PRIVATE_KEY,
+      Token: canadian ? process.env.CART_TOKEN_CANADA : process.env.CART_TOKEN 
+    }
+  }
+  return options;
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1155,5 +1168,6 @@ module.exports = {
   saveCustomer: saveCustomer,
   getOrderReport: getOrderReport,
   getSlackOrderReport: getSlackOrderReport,
-  calculateSubtotal: calculateSubtotal
+  calculateSubtotal: calculateSubtotal,
+  get3DCartOptions: get3DCartOptions
 }

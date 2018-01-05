@@ -13,7 +13,6 @@ html
 		.container
 			.alert.alert-warning.alert-dismissible(role="alert")#orderAlert
 				button(type="button").close#dismissAlertButton &times;
-				strong Warning 
 				span#alert-message
 		.container
 			.panel.panel-default
@@ -43,6 +42,7 @@ html
 						.col-lg-6.col-sm-6
 							.btn-toolbar
 								button.btn.btn-success(type="button")#subtotalButton Calculate Totals
+								button.btn.btn-primary(type="button")#saveOrderButton Save Order
 						.col-lg-3.col-sm-3
 							h3 Sub-Total:
 						.col-lg-3.col-sm-3
@@ -156,3 +156,5 @@ html
 
 	include includes/end
 		script(src="/js/show-order.js")
+		script.
+			loadOrder(!{JSON.stringify(order)});
