@@ -18,7 +18,7 @@ html
 			.panel.panel-default
 				.panel-heading
 					h2.panel-title
-						a(data-toggle="collapse", data-target="#itemPanel") Order Sheet
+						a(data-toggle="collapse", data-target="#itemPanel", href="itemPanel") Order Sheet
 				#itemPanel.panel-collapse.collapse.in.panel-body
 					.form-group.row
 						.col-lg-3.col-sm-3
@@ -51,7 +51,7 @@ html
 			.panel.panel-default
 				.panel-heading
 					h2.panel-title
-						a(data-toggle="collapse", data-target="#customerPanel") Customer
+						a(data-toggle="collapse", data-target="#customerPanel", href="#customerPanel") Customer
 				#customerPanel.panel-collapse.collapse.in.panel-body
 					.btn-toolbar
 						button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") Add Customer
@@ -68,7 +68,7 @@ html
 			.panel.panel-default
 				.panel-heading
 					h2.panel-title
-						a(data-toggle="collapse", data-target="#notesPanel") Notes
+						a(data-toggle="collapse", data-target="#notesPanel", href="#notesPanel") Notes
 				#notesPanel.panel-collapse.collapse.panel-body
 					textarea.form-control(rows="5")#notesArea
 
