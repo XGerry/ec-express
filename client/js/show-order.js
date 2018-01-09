@@ -22,14 +22,12 @@ $(document).ready(function() {
 	});
 
 	$('#addItemButton').click(function() {
-		var sku = $('#itemSKU').val();
-		var quantity = $('#itemQuantity').val();
-		addItemToOrder(sku, quantity);
+		addItem();
 	});
 
 	$('#subtotalButton').click(function() {
-		console.log(showItems);
-		socket.emit('calculateSubtotal', showItems);
+		if (validateOrder())
+			socket.emit('calculateSubtotal', showItems);
 	});
 
 	$('#dismissAlertButton').click(function() {
@@ -41,18 +39,26 @@ $(document).ready(function() {
 	});
 
 	$('#saveOrderButton').click(function() {
-		if (validateCustomer()) {
+		if (validateCustomer() && validateOrder()) {
 			console.log('saving order');
 			saveOrder();
-		} else {
-			console.log('invalid order');
-			$('#alert-message').text('Customer information is not completed.');
-			$('#orderAlert').show();
 		}
 	});
 
 	$('#sameAsShippingButton').click(function(e) {
 		copyBillingToShipping();
+	});
+
+	$('#itemSKU').on('keydown', (e) => {
+		if (e.which == 13) {
+			addItem();
+		}
+	});
+
+	$('#itemQuantity').on('keydown', (e) => {
+		if (e.which == 13) {
+			addItem();
+		}
 	});
 });
 
@@ -67,6 +73,7 @@ socket.on('calculateSubtotalFinished', function(response) {
 });
 
 socket.on('saveShowOrderFinished', (response) => {
+	doneLoading();
 	if (response[0].Status == '201') {
 		order.orderId = response[0].Value;
 		$('#alert-message').text('The order was successfully saved to 3D Cart. Order ID: ' + response[0].Value);
@@ -82,12 +89,24 @@ socket.on('saveShowOrderFinished', (response) => {
 	}
 });
 
+function addItem() {
+	var sku = $('#itemSKU').val();
+	var quantity = $('#itemQuantity').val();
+	addItemToOrder(sku, quantity);
+	$('#itemSKU').val('');
+	$('#itemSKU').select();
+}
+
 function loadOrder(dbOrder) {
 	console.log(dbOrder);
 	if (dbOrder.showItems != null) {
 		order = dbOrder;
 		customer = dbOrder.customer;
 		showItems = order.showItems;
+
+		if (dbOrder.notes != undefined) {
+			$('#notesArea').val(dbOrder.notes);
+		}
 
 		addCustomerRow(customer);
 		showItems.forEach((item) => {addItemRow(item)});
@@ -174,7 +193,7 @@ function addItemRow(item) {
 		item.sku = newSku;
 	});
 
-	$('#itemSKU').select();
+	skuInput.select();
 }
 
 function addItemToOrder(sku, quantity) {
@@ -214,6 +233,12 @@ function validateCustomer() {
 		customer.shippingCountry != null &&
 		customer.shippingState != null &&
 		customer.shippingZipCode != null;
+	
+	if (!validCustomer) {
+		$('#alert-message').text('Customer information is not completed.');
+		$('#orderAlert').show();
+	}
+
 	return validCustomer;
 }
 
@@ -287,6 +312,34 @@ function setCustomerModalFields(customer) {
 
 function saveOrder() {
 	order.showItems = showItems;
+	order.notes = $('#notesArea').val();
 	order.customer = customer;
 	socket.emit('saveShowOrder', order);
+	showLoading();
+}
+
+function showLoading() {
+	$('#saveOrderButton').button('loading');
+}
+
+function doneLoading() {
+	$('#saveOrderButton').button('reset');
+}
+
+function validateOrder() {
+	var duplicate = false;
+	for(var i = 0; i < showItems.length; i++) {
+		var item = showItems[i];
+		for (var j = 0; j < showItems.length; j++) {
+			var tempItem = showItems[j];
+			if (item.sku == tempItem.sku && i != j) {
+				duplicate = true;
+			}
+		}
+	}
+	if (duplicate) {
+		$('#alert-message').text('There are duplicate items in the order. Please make sure all items are unique');
+		$('#orderAlert').show();
+	}
+	return !duplicate;
 }

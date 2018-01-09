@@ -10,7 +10,8 @@ var orderSchema = new mongoose.Schema({
 		quantity: Number,
 		message: String,
 		total: Number
-	}]
+	}],
+	notes: String
 });
 
 module.exports = mongoose.model('ShowOrder', orderSchema);

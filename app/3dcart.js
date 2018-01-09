@@ -17,7 +17,6 @@ var webhooks = require('./webhooks');
 var pixl = require('pixl-xml');
 var rp = require('request-promise-native');
 
-
 /**
  * Refreshes the inventory in our DB so we know what to use in quickbooks
  */
@@ -1638,11 +1637,13 @@ function saveShowOrder(order) {
       showOrder.showItems = order.showItems;
       showOrder.markModified('customer');
       showOrder.markModified('showItems');
+      showOrder.notes = order.notes;
       return showOrder.save();
     } else {
       var newOrder = new ShowOrder();
       newOrder.customer = order.customer;
       newOrder.showItems = order.showItems;
+      newOrder.notes = order.notes;
       return newOrder.save();
     }
   });
@@ -1678,6 +1679,8 @@ function saveShowOrder(order) {
           ShipmentPhone: customer.phone
         }],
         OrderItemList: [],
+        CustomerComments: dbShowOrder.notes,
+        InternalComments: 'Show Order',
         SalesTax: '0.00',
         OrderStatusID: 1 // NEW
       };
