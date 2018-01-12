@@ -855,17 +855,19 @@ function saveItemFromQB(settings, item, qbItem, callback) {
 
 function addItemProperties(data, item) {
   if (data.DataExtName == 'barcode' || data.DataExtName == 'Barcode') {
-    if (item.barcode != data.DataExtValue) {
+    if (item.barcode != data.DataExtValue && data.DataExtValue != '') {
       item.barcode = data.DataExtValue;
     }
   } else if (data.DataExtName == 'Location') {
     if (item.location != data.DataExtValue) {
       item.location = data.DataExtValue;
     }
-  } else if (data.DataExtName == 'Country') {
+  } else if (data.DataExtName == 'Country' || data.DataExtName == 'C Origin') {
     if (item.countryOfOrigin != data.DataExtValue) {
-      item.countryOfOrigin = data.DataExtValue;
+      item.countryOfOrigin = data.DataExtValue.toUpperCase();
     }
+  } else if (data.DataExtName == 'HTC Code') {
+    item.htcCode = data.DataExtValue;
   }
 }
 

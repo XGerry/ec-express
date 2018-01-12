@@ -32,6 +32,7 @@ var itemSchema = new mongoose.Schema({
 	location: String,
 	barcode: String,
 	countryOfOrigin: String,
+	htcCode: String,
 	listId: String, // need this to modify the item in quickbooks
 	editSequence: String, // also need this in order to modify the item in qb
 	isOption: Boolean,

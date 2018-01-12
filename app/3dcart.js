@@ -559,22 +559,84 @@ function getOrder(query, canadian, callback) {
 /**
  * Just get the order information
  */
-function getOrdersFull(query, callback) {
-  query.countonly = 1;
+function loadOrders(query, canadian) {
+  console.log(query);
+  var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+      'GET',
+      canadian);
+  options.qs = query;
+  return rp(options);
+}
 
-  var options = {
-    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    qs : query
-  };
+/** 
+ * Get the order information, but also the item info
+ */
+function loadOrdersForManifest(query, canadian) {
+  var loadingOrders = loadOrders(query, canadian);
+  return loadingOrders.then((orders) => {
+    var promises = [];
+    var htcPromises  = [];
+    orders.forEach((order) => {
+      var totalItems = 0;
+      var totalValue = 0;
+      order.OrderItemList.forEach((item) => {
+        totalItems += item.ItemQuantity;
+        totalValue += item.ItemQuantity * item.ItemUnitPrice;
 
-  request(options, function(err, response, body) {
-    console.log(body);
+        var findItem = Item.findOne({sku: item.ItemID});
+        var saveOrderItem = findItem.then(dbItem => {
+          if (dbItem) {
+            if (dbItem.countryOfOrigin != undefined && dbItem.countryOfOrigin != '') {
+              item.CountryOfOrigin = dbItem.countryOfOrigin.toUpperCase();
+            } else {
+              item.CountryOfOrigin = 'CHINA'; // default
+            }
+            if (dbItem.htcCode != undefined && dbItem.countryOfOrigin != '') {
+              item.HTC = dbItem.htcCode;
+            } else {
+              item.HTC = '9503.00.00.90'; // default
+            }
+          } else { // assign defaults
+            item.CountryOfOrigin = 'CHINA';
+            item.HTC = '9503.00.00.90';
+          }
+        });
+        order.totalItems = totalItems;
+        order.totalValue = totalValue;
+        promises.push(saveOrderItem);
+      });
+
+      var htcPromise = Promise.all(promises).then(() => {
+        // order now contains all the manifest information
+        order.htcMap = generateHTCMap(order);
+      });
+      htcPromises.push(htcPromise);
+
+    });
+    return Promise.all(htcPromises).then(() => {
+      return orders;
+    });
   });
+}
+
+// generate the htcMap
+function generateHTCMap(order) {
+  htcMap = {};
+  order.OrderItemList.forEach((item) => {
+    if (!htcMap.hasOwnProperty(item.HTC)) {
+      htcMap[item.HTC] = {};
+    }
+    var htcObj = htcMap[item.HTC];
+    if (!htcObj.hasOwnProperty(item.CountryOfOrigin)) {
+      htcObj[item.CountryOfOrigin] = {
+        quantity: 0,
+        value: 0
+      };
+    }
+    htcMap[item.HTC][item.CountryOfOrigin].quantity += item.ItemQuantity;
+    htcMap[item.HTC][item.CountryOfOrigin].value += item.ItemQuantity * item.ItemUnitPrice;
+  });
+  return htcMap;
 }
 
 /**
@@ -1748,5 +1810,7 @@ module.exports = {
   saveItemMultiple: saveItemMultiple,
   saveOrder: saveOrder,
   saveShowOrder: saveShowOrder,
-  getOrder: getOrder
+  getOrder: getOrder,
+  loadOrders: loadOrders,
+  loadOrdersForManifest: loadOrdersForManifest
 }

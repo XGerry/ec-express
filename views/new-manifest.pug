@@ -1,0 +1,55 @@
+mixin manifestRow(order)
+	.row
+		.col-lg-12
+			.panel.panel-default
+				
+
+doctype html
+include mixins
+html
+	include includes/head
+		title New Customs Manifest
+	body
+		+navbar("customs")
+		.container
+			.starter-template
+				h1 New Manifest
+				p.lead Generate the customs manifest using the buttons below.
+		
+		section.container#manifest
+
+
+			.row.top-25
+				.col-lg-12
+					.panel.panel-default
+						.panel-heading AB-12345
+						.panel-body
+							.row
+								.col-lg-4
+									h4 Company Name and Person
+									p Address 1 #[br] Address 2 #[br] City #[br] State #[br] Zip
+								.col-lg-8
+									table.table.table-striped
+										thead
+											tr
+												th HTC Code
+												th Country of Origin
+												th Quantity
+												th Value
+										tbody
+											tr
+												td 1029394
+												td China
+												td 30
+												td $423.23
+										tfoot
+											tr
+												th
+												th Total
+												th 30
+												th $423.23
+
+
+
+		include includes/end
+			script(src="js/customs.js")

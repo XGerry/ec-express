@@ -2,6 +2,7 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
+var cart3d = require('./3dcart');
 
 // application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
@@ -83,6 +84,18 @@ module.exports = function(app, passport) {
 
   app.get('/customs', function(req, res) {
     res.render('customs');
+  });
+
+  app.get('/new-manifest', function(req, res) {
+    var loadOrders = cart3d.loadOrders({
+      orderstatus: 4,
+      limit: 1
+    });
+    loadOrders.then((orders) => {
+      res.render('new-manifest', {
+        orders: orders
+      });
+    });
   });
 
   app.get('/3dcart', function(req, res) {

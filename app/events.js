@@ -86,6 +86,41 @@
  		});
 
  		/**
+ 		 * Load orders from 3D Cart
+ 		 */
+ 		socket.on('loadOrders', (query, site) => {
+ 			if (site == null) { // both US and Canadian
+ 				var loadUSOrders = cart3d.loadOrders(query, false);
+ 				var loadCAOrders = cart3d.loadOrders(query, true);
+ 				Promise.all([loadUSOrders, loadCAOrders]).then((responses) => {
+ 					socket.emit('loadOrdersFinished', response);
+ 				}).catch((err) => {
+ 					console.log(err);
+ 				});
+ 			} else if (site == 'US') {
+ 				var loadOrders = cart3d.loadOrders(query, false);
+ 				loadOrders.then((response) => {
+ 					socket.emit('loadOrdersFinished', response);
+ 				}).catch((err) => {
+ 					console.log(err);
+ 				});
+ 			} else if (site == 'CA') {
+ 				var loadOrders = cart3d.loadOrders(query, true);
+ 				loadOrders.then((response) => {
+ 					socket.emit('loadOrdersFinished', response);
+ 				});
+ 			}
+ 		});
+
+ 		socket.on('loadOrdersForManifest', (query, site) => {
+ 			var loadOrders = cart3d.loadOrdersForManifest(query, false);
+ 			loadOrders.then((orders) => {
+ 				console.log('loading orders for manifest finished');
+ 				socket.emit('loadOrdersFinished', orders);
+ 			})
+ 		});
+
+ 		/**
  		 * Get all the information on the items based on a query
  		 */
  		socket.on('getItemsFull', function(query) {

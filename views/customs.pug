@@ -2,37 +2,97 @@ doctype html
 include mixins
 html
 	include includes/head
-		title Custom Tools
+		title Manifest
 	body
 		+navbar("customs")
 		.container
-			.starter-template
+			.starter-template.hide-printer
 				h1 Customs
 				p.lead Generate the customs manifest using the buttons below.
-		.container.panel.with-nav-tabs
-			.panel-heading
-				ul.nav.nav-tabs
-					li.active
-						a(data-toggle="tab" href="#step1") Get Invoices
-					li
-						a(data-toggle="tab" href="#step2") Get Items
-					li
-						a(data-toggle="tab" href="#step3") Generate Manifest
+		
+		section.container.hide-printer
+			.row
+				.col-lg-12
+					h2 Load Orders
+					p This will automatically bring in all orders that have the Shipped status.
+					button.btn.btn-default(type="button")#getOrdersButton Get Orders
+		
+		section.container.top-25#manifest
 
-			.panel-body.tab-content
-				.tab-pane.fade.in.active#step1
-					form#customsForm.form-horizontal
-						.form-group
-							.col-lg-6
-								label(for="startDate") Start Date
-								input.form-control#startDate(type="date", name="startDate")
-							.col-lg-6
-								label(for="endDate") End Date
-								input.form-control#endDate(type="date", name="endDate")
-					button.btn.btn-default#generateRequest(type="button") Generate Request for Orders
-				.tab-pane.fade.in#step2
-					button.btn.btn-default#generateRequestForItems(type="button") Generate Request for Items
-				.tab-pane.fade.in#step3
-					button.btn.btn-default#generateManifest(type="button") Generate Manifest
+	#orderModal.modal.fade(role="dialog")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					button.close(data-dismiss="modal") &times;
+					h4#customerName Manifest Order
+				.modal-body
+					.panel.panel-default
+						.panel-heading 
+							a(data-toggle="collapse", data-target="#shippingInfo").panel-title Shipping Address
+						.panel-body.panel-collapse.collapse.in#shippingInfo
+							.form-group.row
+								.col-lg-6.col-md-6.col-sm-6
+									label(for="customerFirstName") First Name
+									input#customerFirstName.form-control(type="text")
+								.col-lg-6.col-md-6.col-sm-6
+									label(for="customerLastName") Last Name
+									input#customerLastName.form-control(type="text")
+							.form-group.row
+								.col-lg-6.col-md-6.col-sm-6
+									label(for="customerEmailModal") Email
+									input#customerEmailModal.form-control(type="text")
+								.col-lg-6.col-md-6.col-sm-6
+									label(for="customerPhone") Phone
+									input#customerPhone.form-control(type="text")
+							.form-group.row
+								.col-lg-4.col-md-4.col-sm-4
+									label(for="shippingAddress") Address
+									input#shippingAddress.form-control(type="text")
+								.col-lg-4.col-md-4.col-sm-4
+									label(for="shippingAddress2") Address 2
+									input#shippingAddress2.form-control(type="text")
+								.col-lg-4.col-md-4.col-sm-4
+									label(for="shippingCity") City
+									input#shippingCity.form-control(type="text")
+							.form-group.row
+								.col-lg-4.col-md-4.col-sm-4
+									label(for="shippingState") State
+									input#shippingState.form-control(type="text")
+								.col-lg-4.col-md-4.col-sm-4
+									label(for="shippingCountry") Country
+									input#shippingCountry.form-control(type="text")
+								.col-lg-4.col-md-4.col-sm-4
+									label(for="shippingZip") Zip/Postal Code
+									input#shippingZip.form-control(type="text")
+					.panel.panel-default
+						.panel-heading
+							a(data-toggle="collapse", data-target="#itemDetails").panel-title Item Details
+						.panel-body.panel-collapse.collapse.in#itemDetails
+							.row
+								.col-lg-3
+									strong HTC Code
+								.col-lg-4
+									strong Country of Origin
+								.col-lg-2
+									strong Quantity
+								.col-lg-3
+									strong Value
+							#itemDetailModal
+								.row
+									.col-lg-3.form-group
+										input.form-control(type="text", value="2342340234")
+									.col-lg-4
+										.form-group
+											input.form-control(type="text", value="CHINA")
+									.col-lg-2 
+										.form-group
+											input.form-control(type="number", value="10")
+									.col-lg-3
+										.form-group
+											input.form-control(type="number", value="7.21")
+
+				.modal-footer
+					button#doneEditingButton.btn.btn-success(type="button") Done
+
 		include includes/end
 			script(src="js/customs.js")

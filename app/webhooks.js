@@ -73,6 +73,9 @@ function sendOrderToSlack(order) {
 	var message = order.BillingFirstName + ' ' + order.BillingLastName;
 	message += ' placed an order for $' + order.OrderAmount.toFixed(2) + '.';
 	message += ' <'+infoURL+'|'+orderId+'>';
+	if (order.BillingCompany != '') {
+		message += ' - ' + order.BillingCompany + ' (Wholesale)';
+	}
 
 	orderBot({ text: message });
 }
