@@ -104,17 +104,19 @@ function addItem() {
 
 function loadOrder(dbOrder) {
 	console.log(dbOrder);
-	if (dbOrder.showItems != null) {
-		order = dbOrder;
-		customer = dbOrder.customer;
-		showItems = order.showItems;
+	if (dbOrder) {
+		if (dbOrder.showItems != null) {
+			order = dbOrder;
+			customer = dbOrder.customer;
+			showItems = order.showItems;
 
-		if (dbOrder.notes != undefined) {
-			$('#notesArea').val(dbOrder.notes);
+			if (dbOrder.notes != undefined) {
+				$('#notesArea').val(dbOrder.notes);
+			}
+
+			addCustomerRow(customer);
+			showItems.forEach((item) => {addItemRow(item)});
 		}
-
-		addCustomerRow(customer);
-		showItems.forEach((item) => {addItemRow(item)});
 	}
 }
 
