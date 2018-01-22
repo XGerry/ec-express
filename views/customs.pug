@@ -15,17 +15,34 @@ html
 				.col-lg-12
 					h2 Load Orders
 					p This will automatically bring in all orders that have the Shipped status.
-					button.btn.btn-default(type="button")#getOrdersButton Get Orders
+					.btn-toolbar
+						button.btn.btn-default(type="button")#getOrdersButton Get Orders
+						button.btn.btn-info(type="button")#newOrderButton New Order
 		
 		section.container.top-25#manifest
 
 	#orderModal.modal.fade(role="dialog")
-		.modal-dialog
+		.modal-dialog.modal-lg
 			.modal-content
 				.modal-header
 					button.close(data-dismiss="modal") &times;
 					h4#customerName Manifest Order
 				.modal-body
+					.panel.panel-default
+						.panel-heading
+							a(data-toggle="collapse", data-target="#orderInfo").panel-title Order Info
+						.panel-body.panel-collapse.collapse.in#orderInfo
+							.form-group.row
+								.col-lg-4
+									label Invoice Number Prefix
+									input#invoicePrefix.form-control(type="text")
+								.col-lg-4
+									label Invoice Number
+									input#invoiceNumber.form-control(type="number")
+								.col-lg-4
+									label Total Weight
+									input#orderWeight.form-control(type="number")
+
 					.panel.panel-default
 						.panel-heading 
 							a(data-toggle="collapse", data-target="#shippingInfo").panel-title Shipping Address
@@ -64,9 +81,11 @@ html
 								.col-lg-4.col-md-4.col-sm-4
 									label(for="shippingZip") Zip/Postal Code
 									input#shippingZip.form-control(type="text")
+
 					.panel.panel-default
-						.panel-heading
-							a(data-toggle="collapse", data-target="#itemDetails").panel-title Item Details
+						.panel-heading(style="padding-bottom:20px;")
+							a(data-toggle="collapse", data-target="#itemDetails" style="display:inline-block;").panel-title Item Details
+							button.btn.btn-default.pull-right(type="button")#addHTCRowButton Add Row
 						.panel-body.panel-collapse.collapse.in#itemDetails
 							.row
 								.col-lg-3

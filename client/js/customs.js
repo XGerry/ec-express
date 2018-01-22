@@ -1,6 +1,7 @@
 var socket = io();
 var theOrder = {};
 var oldRow = {};
+var rowsToSave = [];
 
 $(document).ready(function() {
 	$('#getOrdersButton').click(() => {
@@ -9,11 +10,50 @@ $(document).ready(function() {
 	});
 
 	$('#doneEditingButton').click(e => {
+		// save new HTCs
+		rowsToSave.forEach(fn => {
+			fn();
+		});
 		recalculateTotals(theOrder);
 		saveShippingInfo(theOrder);
-		oldRow.remove();
+		if (oldRow)
+			oldRow.remove();
 		addManifestRow(theOrder);
 		$('#orderModal').modal('hide');
+	});
+
+	$('#newOrderButton').click(e => {
+		var newOrder = {
+			ShipmentList: [{
+				ShipmentFirstName: '',
+				ShipmentLastName: '',
+				BillingEmail: '',
+				ShipmentPhone: '',
+				ShipmentAddress: '',
+				ShipmentAddress2: '',
+				ShipmentCity: '',
+				ShipmentState: '',
+				ShipmentCountry: '',
+				ShipmentZipCode: ''
+			}],
+			htcMap: {
+				'12345': {
+					'Canada': {
+						quantity: 5,
+						value: 5
+					}
+				}
+			}
+		};
+		recalculateTotals(newOrder);
+		theOrder = newOrder;
+		oldRow = null;
+		populateOrderModal(newOrder);
+		$('#orderModal').modal();
+	});
+
+	$('#addHTCRowButton').click(e => {
+		addEditableHTCRow();
 	});
 });
 
@@ -43,10 +83,17 @@ function recalculateTotals(order) {
 }
 
 function saveShippingInfo(order) {
-	order.ShipmentFirstName = $('#customerFirstName').val();
-	order.ShipmentFirstName = $('#customerFirstName').val();
-	order.ShipmentFirstName = $('#customerFirstName').val();
-	order.ShipmentFirstName = $('#customerFirstName').val();
+	var shipmentInfo = order.ShipmentList[0];
+	shipmentInfo.ShipmentFirstName = $('#customerFirstName').val();
+	shipmentInfo.ShipmentLastName = $('#customerLastName').val();
+	shipmentInfo.BillingEmail = $('#customerEmailModal').val();
+	shipmentInfo.ShipmentPhone = $('#customerPhone').val();
+	shipmentInfo.ShipmentAddress = $('#shippingAddress').val();
+	shipmentInfo.ShipmentAddress2 = $('#shippingAddress2').val();
+	shipmentInfo.ShipmentCity = $('#shippingCity').val();
+	shipmentInfo.ShipmentState = $('#shippingState').val();
+	shipmentInfo.ShipmentCountry = $('#shippingCountry').val();
+	shipmentInfo.ShipmentZipCode = $('#shippingZip').val();
 }
 
 function buildManifest(orders) {
@@ -60,7 +107,7 @@ function buildManifest(orders) {
 function addManifestRow(order) {
 	var row = $('<div class="row"></div>');
 	var innerCol = $('<div class="col-lg-12"></div>');
-	var panel = $('<div class="panel panel-default"></div>');
+	var panel = $('<div class="panel"></div>');
 	var panelHeading = $('<div class="panel-heading"></div>');
 	var panelBody = $('<div class="panel-body"></div>');
 	var panelRow = $('<div class="row"></div>');
@@ -140,7 +187,13 @@ function addManifestRow(order) {
 	innerCol.append(panel);
 	row.append(innerCol);
 
-	$('#manifest').append(row);
+	if (order.totalValue > 800) {
+		panel.addClass('panel-danger');
+	} else {
+		panel.addClass('panel-default');
+	}
+
+	$('#manifest').prepend(row);
 
 	// Button Events
 	editButton.click(e => {
@@ -175,6 +228,10 @@ function generateOrderDetailRow(htc, country, quantity, value) {
 
 function populateOrderModal(order) {
 	theOrder = order;
+
+	$('#invoicePrefix').val(order.InvoiceNumberPrefix);
+	$('#invoiceNumber').val(order.InvoiceNumber);
+
 	var shipmentInfo = order.ShipmentList[0];
 	$('#customerFirstName').val(shipmentInfo.ShipmentFirstName);
 	$('#customerLastName').val(shipmentInfo.ShipmentLastName);
@@ -189,6 +246,7 @@ function populateOrderModal(order) {
 	$('#shippingZip').val(shipmentInfo.ShipmentZipCode);
 
 	$('#itemDetailModal').empty();
+	rowsToSave =[];
 	populateHTCTable(order);
 }
 
@@ -205,12 +263,63 @@ function populateHTCTable(order) {
 	}
 }
 
-function buildHTCTableRow(htc, coo, quantity, value, htcMap) {
+function addEditableHTCRow() {
 	var row = $('<div class="row"></div>');
 	var htcCol = $('<div class="col-lg-3 form-group"></div>'); 
 	var cooCol = $('<div class="col-lg-4 form-group"></div>'); 
 	var quantityCol = $('<div class="col-lg-2 form-group"></div>'); 
 	var valueCol = $('<div class="col-lg-3 form-group"></div>'); 
+
+	var htcInput = $('<input type="text" class="form-control">');
+	var cooInput = $('<input type="text" class="form-control">');
+	var quantityInput = $('<input type="number" class="form-control">');
+	var valueInput = $('<input type="number" class="form-control">');
+
+	htcCol.append(htcInput);
+	cooCol.append(cooInput);
+	quantityCol.append(quantityInput);
+	valueCol.append(valueInput);
+
+	row.append(htcCol);
+	row.append(cooCol);
+	row.append(quantityCol);
+	row.append(valueCol);
+
+	$('#itemDetailModal').append(row);
+
+	function saveNewHTCRow() {
+		var htc = htcInput.val();
+		console.log(htc);
+		var coo = cooInput.val().toUpperCase();
+		var quantity = parseInt(quantityInput.val());
+		var value = parseFloat(valueInput.val());
+		addHTCtoMap(htc, coo, quantity, value);
+	}
+	rowsToSave.push(saveNewHTCRow);
+}
+
+function addHTCtoMap(htc, coo, quantity, value) {
+	var htcMap = theOrder.htcMap;
+	if (!htcMap.hasOwnProperty(htc)) {
+    htcMap[htc] = {};
+  }
+  var htcObj = htcMap[htc];
+  if (!htcObj.hasOwnProperty(coo)) {
+    htcObj[coo] = {
+      quantity: 0,
+      value: 0
+    };
+  }
+  htcMap[htc][coo].quantity = quantity;
+  htcMap[htc][coo].value = value;
+}
+
+function buildHTCTableRow(htc, coo, quantity, value, htcMap) {
+	var row = $('<div class="row"></div>');
+	var htcCol = $('<div class="col-lg-3 form-group"></div>'); 
+	var cooCol = $('<div class="col-lg-4 form-group"></div>'); 
+	var quantityCol = $('<div class="col-lg-2 form-group"></div>'); 
+	var valueCol = $('<div class="col-lg-3 form-group"></div>');
 
 	htcCol.text(htc);
 	cooCol.text(country);

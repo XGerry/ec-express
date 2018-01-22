@@ -988,23 +988,12 @@ function getItemsFull(query, progressCallback, finalCallback) {
 		delete query.onsale;
 	}
 
-  var options = {
-    url: url,
-    method: 'GET',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    }
-  };
-
   if (query.canadian != 'undefined' && query.canadian == true) {
-    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
     canadian = true;
   }
   delete query.canadian;
 
+  var options = helpers.get3DCartOptions(url, 'GET', canadian);
   options.qs = query;
 
   request(options, function(err, response, body) {
@@ -1328,6 +1317,21 @@ function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) {
   	var merged = [].concat.apply([], responses);
     console.log('Finished Update.');
   	finalCallback(merged);
+  });
+}
+
+function updateInventory() {
+  var findAllItems = Item.find({});
+
+  findAllItems.then(items => {
+    var itemsToSend = [];
+    items.forEach(item => {
+      var itemToSend = {
+        SKUInfo: {
+          SKU: item.sku
+        }
+      }
+    });
   });
 }
 
@@ -1723,6 +1727,7 @@ function saveShowOrder(order) {
         BillingAddress2: customer.billingAddress2,
         BillingCompany: customer.companyName,
         BillingCity: customer.billingCity,
+        BillingState: customer.billingState,
         BillingCountry: customer.billingCountry,
         BillingZipCode: customer.billingZipCode,
         BillingPhoneNumber: customer.phone,

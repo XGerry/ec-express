@@ -73,19 +73,24 @@ socket.on('calculateSubtotalFinished', function(response) {
 });
 
 socket.on('saveShowOrderFinished', (response) => {
+	console.log(response);
 	doneLoading();
-	if (response[0].Status == '201') {
-		order.orderId = response[0].Value;
-		$('#alert-message').text('The order was successfully saved to 3D Cart. Order ID: ' + response[0].Value);
-		$('#orderAlert').show();
-	} else if (response[0].Status == '200') {
-		$('#alert-message').text('The order was successfully updated');
-		$('#orderAlert').show();
-	}
-	else {
-		console.log(response);
-		$('#alert-message').text('There was an error saving the order to 3D Cart');
-		$('#orderAlert').show();
+	if (response) {
+		if (response[0].Status == '201') {
+			order.orderId = response[0].Value;
+			$('#alert-message').text('The order was successfully saved to 3D Cart. Order ID: ' + response[0].Value);
+			$('#orderAlert').show();
+		} else if (response[0].Status == '200') {
+			$('#alert-message').text('The order was successfully updated');
+			$('#orderAlert').show();
+		}
+		else {
+			console.log(response);
+			$('#alert-message').text('There was an error saving the order to 3D Cart');
+			$('#orderAlert').show();
+		}
+	} else {
+		console.log('No response');
 	}
 });
 
