@@ -137,17 +137,13 @@ module.exports = function(app, passport) {
 
   app.get('/show-order', function(req, res) {
     var orderId = req.query.orderId;
-    if (orderId) {
-      var findOrders = ShowOrder.findOne({orderId: orderId});
-      findOrders.then((showOrder) => {
-        console.log(showOrder);
-        res.render('show-order', {
-          order: showOrder
-        });
+    var findOrders = ShowOrder.findOne({orderId: orderId});
+    findOrders.then((showOrder) => {
+      console.log(showOrder);
+      res.render('show-order', {
+        order: showOrder
       });
-    } else {
-      res.render('show-order');
-    }
+    });
   });
 
   app.get('/list-orders', (req, res) => {
