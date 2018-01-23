@@ -2,6 +2,7 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
+var Manifest = require('./model/manifest');
 var cart3d = require('./3dcart');
 
 // application/x-www-form-urlencoded
@@ -156,5 +157,9 @@ module.exports = function(app, passport) {
         orders: showOrders
       });
     });
+  });
+
+  app.get('/list-manifests', (req, res) => {
+    var findManifests = Manifest.find({});
   });
 }

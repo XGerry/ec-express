@@ -117,7 +117,7 @@
  			loadOrders.then((orders) => {
  				console.log('loading orders for manifest finished');
  				socket.emit('loadOrdersFinished', orders);
- 			})
+ 			});
  		});
 
  		/**

@@ -16,12 +16,21 @@ mixin navbar(active)
 						else
 							li
 								a(href="/") Home
-						if active == "customs"
-							li.active
-								a(href="/customs") Customs
-						else
-							li
-								a(href="/customs") Customs
+						li.dropdown
+							a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="fasle") Customs #[span.caret]
+							ul.dropdown-menu
+								if active == "customs"
+									li.active
+										a(href="/customs") New Manifest
+								else
+									li
+										a(href="/customs") New Manifest
+								if active == "list-manifest"
+									li.active
+										a(href="/list-manifests") List Manifests
+								else
+									li
+										a(href="/list-manifests") List Manifests
 						li.dropdown
 							a.dropdown-toggle(href="#", data-toggle="dropdown",role="button",aria-haspopup="true",aria-expanded="false") 3D Cart Tools #[span.caret]
 							ul.dropdown-menu

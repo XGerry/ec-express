@@ -578,11 +578,12 @@ function loadOrdersForManifest(query, canadian) {
     var htcPromises  = [];
     orders.forEach((order) => {
       var totalItems = 0;
+      var totalWeight = 0;
       var totalValue = 0;
       order.OrderItemList.forEach((item) => {
         totalItems += item.ItemQuantity;
         totalValue += item.ItemQuantity * item.ItemUnitPrice;
-
+        totalWeight += parseFloat(item.ItemWeight);
         var findItem = Item.findOne({sku: item.ItemID});
         var saveOrderItem = findItem.then(dbItem => {
           if (dbItem) {
@@ -603,6 +604,7 @@ function loadOrdersForManifest(query, canadian) {
         });
         order.totalItems = totalItems;
         order.totalValue = totalValue;
+        order.totalWeight = totalWeight;
         promises.push(saveOrderItem);
       });
 
@@ -1706,7 +1708,9 @@ function saveShowOrder(order) {
       showOrder.notes = order.notes;
       return showOrder.save();
     } else {
+      helpers.setTimeCode();
       var newOrder = new ShowOrder();
+      newOrder.orderId = helpers.getTimeCode();
       newOrder.customer = order.customer;
       newOrder.showItems = order.showItems;
       newOrder.notes = order.notes;
@@ -1784,10 +1788,10 @@ function saveShowOrder(order) {
       console.log(order);
       var saveToWebsite = saveOrder(cartOrder, dbShowOrder.orderId, false);
       return saveToWebsite.then((response) => {
-        if (response[0].Status == '201') { // success
+        if (response[0].Status == '201' || response[0].Status == '200') { // success
           dbShowOrder.orderId = response[0].Value;
           dbShowOrder.save();
-        } 
+        }
         return response;
       }).catch((message) => {
         console.log(message);

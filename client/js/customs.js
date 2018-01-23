@@ -2,11 +2,12 @@ var socket = io();
 var theOrder = {};
 var oldRow = {};
 var rowsToSave = [];
+var allOrders = [];
 
 $(document).ready(function() {
 	$('#getOrdersButton').click(() => {
 		$('#getOrdersButton').button('loading');
-		socket.emit('loadOrdersForManifest', {orderstatus: 4, limit: 2}, 'US');
+		socket.emit('loadOrdersForManifest', {orderstatus: 4, limit: 200}, 'US');
 	});
 
 	$('#doneEditingButton').click(e => {
@@ -16,6 +17,7 @@ $(document).ready(function() {
 		});
 		recalculateTotals(theOrder);
 		saveShippingInfo(theOrder);
+		saveOrderInfo(theOrder);
 		if (oldRow)
 			oldRow.remove();
 		addManifestRow(theOrder);
@@ -25,6 +27,8 @@ $(document).ready(function() {
 	$('#newOrderButton').click(e => {
 		var newOrder = {
 			ShipmentList: [{
+				ShipmentBoxes: 1,
+				ShipmentCompany: '',
 				ShipmentFirstName: '',
 				ShipmentLastName: '',
 				BillingEmail: '',
@@ -36,24 +40,29 @@ $(document).ready(function() {
 				ShipmentCountry: '',
 				ShipmentZipCode: ''
 			}],
-			htcMap: {
-				'12345': {
-					'Canada': {
-						quantity: 5,
-						value: 5
-					}
-				}
-			}
+			htcMap: {}
 		};
 		recalculateTotals(newOrder);
 		theOrder = newOrder;
 		oldRow = null;
 		populateOrderModal(newOrder);
+		allOrders.push(newOrder);
 		$('#orderModal').modal();
 	});
 
 	$('#addHTCRowButton').click(e => {
 		addEditableHTCRow();
+	});
+
+	$('#calculateTotals').click(e => {
+		calculateTotalsForManifest();
+	});
+
+	$('#doneTotalsButton').click(e => {
+		$('#totalParcels').text($('#totalParcelsInput').val());
+		$('#totalWeight').text($('#totalWeightInput').val());
+		$('#totalValue').text($('#totalValueInput').val());
+		$('#totalsModal').modal('hide');
 	});
 });
 
@@ -62,6 +71,21 @@ socket.on('loadOrdersFinished', (response) => {
 	console.log(response);
 	buildManifest(response);
 });
+
+function calculateTotalsForManifest() {
+	var totalValue = 0;
+	var totalParcels = 0;
+	var totalWeight = 0;
+	allOrders.forEach(order => {
+		totalValue += order.totalValue;
+		totalParcels += order.ShipmentList[0].ShipmentBoxes;
+		totalWeight += order.totalWeight;
+	});
+
+	$('#totalParcels').text(totalParcels);
+	$('#totalValue').text(totalValue.toFixed(2));
+	$('#totalWeight').text(totalWeight.toFixed(2));
+}
 
 function recalculateTotals(order) {
 	var newTotalQuantity = 0;
@@ -84,6 +108,7 @@ function recalculateTotals(order) {
 
 function saveShippingInfo(order) {
 	var shipmentInfo = order.ShipmentList[0];
+	shipmentInfo.ShipmentCompany = $('#companyName').val();
 	shipmentInfo.ShipmentFirstName = $('#customerFirstName').val();
 	shipmentInfo.ShipmentLastName = $('#customerLastName').val();
 	shipmentInfo.BillingEmail = $('#customerEmailModal').val();
@@ -96,7 +121,15 @@ function saveShippingInfo(order) {
 	shipmentInfo.ShipmentZipCode = $('#shippingZip').val();
 }
 
+function saveOrderInfo(order) {
+	order.InvoiceNumberPrefix = $('#invoicePrefix').val();
+	order.InvoiceNumber = $('#invoiceNumber').val();
+	order.totalWeight = parseFloat($('#orderWeight').val());
+	order.ShipmentList[0].ShipmentBoxes = parseInt($('#orderParcels').val());
+}
+
 function buildManifest(orders) {
+	allOrders = orders;
 	$('#manifest').empty();
 
 	orders.forEach((order) => {
@@ -114,7 +147,7 @@ function addManifestRow(order) {
 	var addressCol = $('<div class="col-lg-4 col-md-4 col-sm-4"></div>');
 	var orderDetailCol = $('<div class="col-lg-8 col-md-8 col-sm-8"></div>');
 
-	var invoiceID = order.InvoiceNumberPrefix + order.InvoiceNumber;
+	var invoiceID = '' + order.InvoiceNumberPrefix + order.InvoiceNumber;
 	panelHeading.append($('<h4 style="display: inline-block;">'+invoiceID+'</h4>'));
 	var buttonGroup = $('<div class="btn-toolbar pull-right hide-printer"></div>');
 	var editButton = $('<button class="btn btn-default" type="button">Edit</button>');
@@ -127,6 +160,7 @@ function addManifestRow(order) {
 	var shipmentInfo = order.ShipmentList[0];
 	var addressInfo = $('<address></address>');
 	var html = '';
+	console.log(shipmentInfo);
 	if (shipmentInfo.ShipmentCompany != '') {
 		html += '<strong>' + shipmentInfo.ShipmentCompany + '</strong><br>'; 
 	}
@@ -232,7 +266,11 @@ function populateOrderModal(order) {
 	$('#invoicePrefix').val(order.InvoiceNumberPrefix);
 	$('#invoiceNumber').val(order.InvoiceNumber);
 
+	$('#orderWeight').val(order.totalWeight);
+
 	var shipmentInfo = order.ShipmentList[0];
+	$('#orderParcels').val(shipmentInfo.ShipmentBoxes);
+	$('#companyName').val(shipmentInfo.ShipmentCompany);
 	$('#customerFirstName').val(shipmentInfo.ShipmentFirstName);
 	$('#customerLastName').val(shipmentInfo.ShipmentLastName);
 	$('#customerEmailModal').val(order.BillingEmail);
@@ -270,13 +308,41 @@ function addEditableHTCRow() {
 	var quantityCol = $('<div class="col-lg-2 form-group"></div>'); 
 	var valueCol = $('<div class="col-lg-3 form-group"></div>'); 
 
-	var htcInput = $('<input type="text" class="form-control">');
-	var cooInput = $('<input type="text" class="form-control">');
+	var htcSelect = $('<select class="form-control"></select>');
+	var htcOption1 = $('<option val="9503.00.00.90">9503.00.00.90</option>');
+	var htcOption2 = $('<option val="4901.99.00.93">4901.99.00.93</option>');
+
+	htcSelect.append(htcOption1);
+	htcSelect.append(htcOption2);
+
+	var cooSelect = $('<select class="form-control"></select>');
+	var cooOption1 = $('<option val="CHINA">CHINA</option>');
+	var cooOption2 = $('<option val="USA">USA</option>');
+	var cooOption3 = $('<option val="CANADA">CANADA</option>');
+	var cooOption4 = $('<option val="NETHERLANDS">NETHERLANDS</option>');
+	var cooOption5 = $('<option val="ITALY">ITALY</option>');
+	var cooOption6 = $('<option val="GERMANY">GERMANY</option>');
+	var cooOption7 = $('<option val="UK">UK</option>');
+	var cooOption8 = $('<option val="THAILAND">THAILAND</option>');
+	var cooOption9 = $('<option val="POLAND">POLAND</option>');
+	var cooOption10 = $('<option val="JAPAN">JAPAN</option>');
+
+	cooSelect.append(cooOption1);
+	cooSelect.append(cooOption2);
+	cooSelect.append(cooOption3);
+	cooSelect.append(cooOption4);
+	cooSelect.append(cooOption5);
+	cooSelect.append(cooOption6);
+	cooSelect.append(cooOption7);
+	cooSelect.append(cooOption8);
+	cooSelect.append(cooOption9);
+	cooSelect.append(cooOption10);
+
 	var quantityInput = $('<input type="number" class="form-control">');
 	var valueInput = $('<input type="number" class="form-control">');
 
-	htcCol.append(htcInput);
-	cooCol.append(cooInput);
+	htcCol.append(htcSelect);
+	cooCol.append(cooSelect);
 	quantityCol.append(quantityInput);
 	valueCol.append(valueInput);
 
@@ -288,9 +354,9 @@ function addEditableHTCRow() {
 	$('#itemDetailModal').append(row);
 
 	function saveNewHTCRow() {
-		var htc = htcInput.val();
+		var htc = htcSelect.val();
 		console.log(htc);
-		var coo = cooInput.val().toUpperCase();
+		var coo = cooSelect.val().toUpperCase();
 		var quantity = parseInt(quantityInput.val());
 		var value = parseFloat(valueInput.val());
 		addHTCtoMap(htc, coo, quantity, value);

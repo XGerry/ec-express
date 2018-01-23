@@ -18,8 +18,21 @@ html
 					.btn-toolbar
 						button.btn.btn-default(type="button")#getOrdersButton Get Orders
 						button.btn.btn-info(type="button")#newOrderButton New Order
+						button.btn.btn-success(type="button")#calculateTotals Calculate Totals
+						button.btn.btn-default(type="button", data-target="#totalsModal", data-toggle="modal")#getOrdersButton Enter Totals
 		
 		section.container.top-25#manifest
+		section.container
+			.row
+				.col-lg-4.col-md-4.col-sm-4
+					h4 Total Parcels: #[span#totalParcels]
+				.col-lg-4.col-md-4.col-sm-4
+					h4 Total Weight: #[span#totalWeight]
+				.col-lg-4.col-md-4.col-sm-4
+					h4 Total Value: $#[span#totalValue]
+
+		include includes/end
+			script(src="js/customs.js")
 
 	#orderModal.modal.fade(role="dialog")
 		.modal-dialog.modal-lg
@@ -33,20 +46,32 @@ html
 							a(data-toggle="collapse", data-target="#orderInfo").panel-title Order Info
 						.panel-body.panel-collapse.collapse.in#orderInfo
 							.form-group.row
-								.col-lg-4
+								.col-lg-3
 									label Invoice Number Prefix
 									input#invoicePrefix.form-control(type="text")
-								.col-lg-4
+								.col-lg-3
 									label Invoice Number
 									input#invoiceNumber.form-control(type="number")
-								.col-lg-4
+								.col-lg-3
 									label Total Weight
 									input#orderWeight.form-control(type="number")
+								.col-lg-3
+									label Total Parcels
+									input#orderParcels.form-control(type="number")
 
 					.panel.panel-default
 						.panel-heading 
 							a(data-toggle="collapse", data-target="#shippingInfo").panel-title Shipping Address
 						.panel-body.panel-collapse.collapse.in#shippingInfo
+							.form-group.row
+								.col-lg-6.col-md-6.col-sm-6
+									label(for="presetAddress") Preset
+									select#presetAddress.form-control
+										option(value="") Amazon US
+										option(value="") Amazon CA
+								.col-lg-6.col-md-6.col-sm-6
+									label(for="companyName") Company
+									input#companyName.form-control(type="text")
 							.form-group.row
 								.col-lg-6.col-md-6.col-sm-6
 									label(for="customerFirstName") First Name
@@ -101,5 +126,22 @@ html
 				.modal-footer
 					button#doneEditingButton.btn.btn-success(type="button") Done
 
-		include includes/end
-			script(src="js/customs.js")
+	#totalsModal.modal.fade(role="dialog")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					button.close(data-dismiss="modal") &times;
+					h4 Totals
+				.modal-body
+					.form-group.row
+						.col-lg-4.col-md-4
+							label Total Parcels
+							input#totalParcelsInput.form-control(type="number")
+						.col-lg-4.col-md-4
+							label Total Weight
+							input#totalWeightInput.form-control(type="number")
+						.col-lg-4.col-md-4
+							label Total Value
+							input#totalValueInput.form-control(type="number")
+				.modal-footer
+					button#doneTotalsButton.btn.btn-success(type="button") Done
