@@ -2,7 +2,7 @@ doctype html
 include mixins
 html
 	include includes/head
-		title New Order
+		title Import
 	body
 		+navbar("order-import")
 		.container
@@ -13,3 +13,9 @@ html
 			.row
 				.col-lg-12
 					h3 Load Order
+					label.btn.btn-default.btn-file Browse
+						input(type="file" style="display: none;")#fileInput
+					h4#fileName
+
+	include includes/end
+		script(src="/js/order-import.js")
