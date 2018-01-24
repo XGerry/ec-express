@@ -376,6 +376,20 @@
  			});
  		});
 
+ 		socket.on('saveManifest', function(manifest) {
+ 			var savingManifest = helpers.saveManifest(manifest);
+ 			savingManifest.then(newManifest => {
+ 				socket.emit('saveManifestFinished', newManifest);
+ 			});
+ 		});
+
+ 		socket.on('deleteManifest', manifest => {
+ 			var removingManifest = helpers.removeManifest(manifest);
+ 			removingManifest.then(old => {
+ 				socket.emit('deleteManifestFinished');
+ 			})
+ 		});
+
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {

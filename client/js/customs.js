@@ -3,9 +3,14 @@ var theOrder = {};
 var oldRow = {};
 var rowsToSave = [];
 var allOrders = [];
+var totalValue = 0;
+var totalParcels = 0;
+var totalWeight = 0;
+var theManifest = {};
 
 $(document).ready(function() {
-	$('#getOrdersButton').click(() => {
+	$('#getOrdersButton').click(e => {
+		e.preventDefault();
 		$('#getOrdersButton').button('loading');
 		socket.emit('loadOrdersForManifest', {orderstatus: 4, limit: 200}, 'US');
 	});
@@ -54,16 +59,53 @@ $(document).ready(function() {
 		addEditableHTCRow();
 	});
 
+	$('#enterTotalsButton').click(e => {
+		e.preventDefault();
+		$('#totalParcelsInput').val(totalParcels);
+		$('#totalWeightInput').val(totalWeight);
+		$('#totalValueInput').val(totalValue);
+		$('#totalsModal').modal();
+	});
+
 	$('#calculateTotals').click(e => {
+		e.preventDefault();
 		calculateTotalsForManifest();
 	});
 
 	$('#doneTotalsButton').click(e => {
-		$('#totalParcels').text($('#totalParcelsInput').val());
-		$('#totalWeight').text($('#totalWeightInput').val());
-		$('#totalValue').text($('#totalValueInput').val());
+		totalParcels = parseInt($('#totalParcelsInput').val());
+		totalWeight = parseFloat($('#totalWeightInput').val());
+		totalValue = parseFloat($('#totalValueInput').val());
+
+		setTotalFields();
 		$('#totalsModal').modal('hide');
 	});
+
+	$('#saveButton').click(e => {
+		var shipDate = new Date($('#shipDate').val());
+		shipDate.setHours(shipDate.getHours() + (shipDate.getTimezoneOffset() / 60));
+		console.log(shipDate);
+		theManifest.shipDate = shipDate;
+		theManifest.orders = allOrders;
+		theManifest.totalWeight = totalWeight;
+		theManifest.totalValue = totalValue;
+		theManifest.totalParcels = totalParcels;
+		socket.emit('saveManifest', theManifest);
+	});
+
+	$('#deleteManifest').click(e => {
+		e.preventDefault();
+		socket.emit('deleteManifest', theManifest);
+	});
+});
+
+socket.on('deleteManifestFinished', () => {
+	window.location = '/list-manifests';
+});
+
+socket.on('saveManifestFinished', newManifest => {
+	theManifest = newManifest;
+	setDateFields();
 });
 
 socket.on('loadOrdersFinished', (response) => {
@@ -72,19 +114,45 @@ socket.on('loadOrdersFinished', (response) => {
 	buildManifest(response);
 });
 
+function loadManifest(manifest) {
+	if (manifest) {
+		console.log(manifest);
+		theManifest = manifest;
+		totalValue = theManifest.totalValue;
+		totalParcels = theManifest.totalParcels;
+		totalWeight = theManifest.totalWeight;
+
+		setTotalFields();
+		setDateFields();
+		buildManifest(theManifest.orders);
+	}
+}
+
+function setDateFields() {
+	var modifiedDate = new Date(theManifest.lastModified);
+	var shipDate = new Date(theManifest.shipDate);
+	$('#lastModified').text(modifiedDate.toDateString() + ' ' + modifiedDate.getHours() + ':' + modifiedDate.getMinutes() + ':' + modifiedDate.getSeconds());
+	$('#shipDate').val(shipDate.toISOString().split('T')[0]);
+}
+
+function setTotalFields() {
+	$('#totalParcels').text(totalParcels);
+	$('#totalValue').text(totalValue.toFixed(2));
+	$('#totalWeight').text(totalWeight.toFixed(2));
+}
+
 function calculateTotalsForManifest() {
-	var totalValue = 0;
-	var totalParcels = 0;
-	var totalWeight = 0;
+	totalValue = 0;
+	totalParcels = 0;
+	totalWeight = 0;
+
 	allOrders.forEach(order => {
 		totalValue += order.totalValue;
 		totalParcels += order.ShipmentList[0].ShipmentBoxes;
 		totalWeight += order.totalWeight;
 	});
 
-	$('#totalParcels').text(totalParcels);
-	$('#totalValue').text(totalValue.toFixed(2));
-	$('#totalWeight').text(totalWeight.toFixed(2));
+	setTotalFields();
 }
 
 function recalculateTotals(order) {
@@ -130,7 +198,7 @@ function saveOrderInfo(order) {
 
 function buildManifest(orders) {
 	allOrders = orders;
-	$('#manifest').empty();
+	//$('#manifest').empty();
 
 	orders.forEach((order) => {
 		addManifestRow(order);
@@ -160,7 +228,6 @@ function addManifestRow(order) {
 	var shipmentInfo = order.ShipmentList[0];
 	var addressInfo = $('<address></address>');
 	var html = '';
-	console.log(shipmentInfo);
 	if (shipmentInfo.ShipmentCompany != '') {
 		html += '<strong>' + shipmentInfo.ShipmentCompany + '</strong><br>'; 
 	}

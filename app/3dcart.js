@@ -593,13 +593,13 @@ function loadOrdersForManifest(query, canadian) {
               item.CountryOfOrigin = 'CHINA'; // default
             }
             if (dbItem.htcCode != undefined && dbItem.countryOfOrigin != '') {
-              item.HTC = dbItem.htcCode;
+              item.HTC = dbItem.htcCode.replace(/\./g, ' ');
             } else {
-              item.HTC = '9503.00.00.90'; // default
+              item.HTC = '9503 00 00 90'; // default
             }
           } else { // assign defaults
             item.CountryOfOrigin = 'CHINA';
-            item.HTC = '9503.00.00.90';
+            item.HTC = '9503 00 00 90';
           }
         });
         order.totalItems = totalItems;

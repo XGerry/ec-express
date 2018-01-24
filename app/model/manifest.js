@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 
 var manifestSchema = new mongoose.Schema({
-	name : String,
-	createdDate: Date,
-	orders: [Object],
+	lastModified: Date,
+	shipDate: Date,
+	orders: Object,
 	totalWeight: Number,
 	totalValue: Number,
 	totalParcels: Number

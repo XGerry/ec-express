@@ -5,21 +5,32 @@ html
 		title Manifest
 	body
 		+navbar("customs")
-		.container
-			.starter-template.hide-printer
-				h1 Customs
-				p.lead Generate the customs manifest using the buttons below.
-		
-		section.container.hide-printer
+		nav.navbar.navbar-default.navbar-fixed-top.top-50(style="z-index:1;")
+			.container
+				h4.navbar-text Ship Date
+				form.navbar-form.navbar-left
+					.form-group
+						input#shipDate(type="date").form-control
+				button.btn.btn-info.navbar-btn.navbar-left(type="button")#newOrderButton New Order
+				p.navbar-text Last Modified: #[span#lastModified]
+				ul.nav.navbar-nav.navbar-right
+					li.dropdown
+						a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") Actions #[span.caret]
+						ul.dropdown-menu
+							li 
+								a#getOrdersButton(href="#") Get Orders
+							li 
+								a#calculateTotals(href="#") Calculate Totals
+							li
+								a#enterTotalsButton(href="#") Enter Totals
+							li.divider(role="separator")
+							li
+								a#deleteManifest(href="#") Delete
+					button.btn.btn-success.navbar-btn(type="button")#saveButton Save
+		section.container.hide-printer.top-50
 			.row
 				.col-lg-12
-					h2 Load Orders
-					p This will automatically bring in all orders that have the Shipped status.
-					.btn-toolbar
-						button.btn.btn-default(type="button")#getOrdersButton Get Orders
-						button.btn.btn-info(type="button")#newOrderButton New Order
-						button.btn.btn-success(type="button")#calculateTotals Calculate Totals
-						button.btn.btn-default(type="button", data-target="#totalsModal", data-toggle="modal")#getOrdersButton Enter Totals
+					h2 Manifest
 		
 		section.container.top-25#manifest
 		section.container
@@ -33,6 +44,9 @@ html
 
 		include includes/end
 			script(src="js/customs.js")
+			script.
+				loadManifest(!{JSON.stringify(manifest)});
+
 
 	#orderModal.modal.fade(role="dialog")
 		.modal-dialog.modal-lg

@@ -1,7 +1,5 @@
 var socket = io();
 
-var usDistribution = 0.5;
-var canDistribution = 0.5;
 var theItem = {};
 var allItems = [];
 var selectedItems = [];
@@ -80,19 +78,8 @@ $(document).ready(function() {
 	// update stock automatically
 	$('#stock').change(function() {
 		var totalStock = $('#stock').val();
-		var usStock = (totalStock * usDistribution).toFixed()
-		$('#usStock').val(usStock);
-		$('#canStock').val(totalStock - usStock);
-	});
-
-	$('#usStock').on('input change', function() {
-		var totalStock = parseInt($('#usStock').val()) + parseInt($('#canStock').val());
-		$('#stock').val(totalStock);
-	});
-
-	$('#canStock').on('input change', function() {
-		var totalStock = parseInt($('#usStock').val()) + parseInt($('#canStock').val());
-		$('#stock').val(totalStock);
+		$('#usStock').val(totalStock);
+		$('#canStock').val(totalStock);
 	});
 
 	// calculate sale prices automatically

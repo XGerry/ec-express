@@ -6,6 +6,7 @@ var builder = require('xmlbuilder');
 var request = require('request');
 var Order = require('./model/order');
 var Settings = require('./model/settings');
+var Manifest = require('./model/manifest');
 var Customer = require('./model/customer');
 var Item = require('./model/item');
 var async = require('async');
@@ -1137,6 +1138,35 @@ function get3DCartOptions(url, method, canadian) {
   return options;
 }
 
+function saveManifest(manifest) {
+  if (manifest._id) {
+    var findManifest = Manifest.findOne({_id: manifest._id});
+    return findManifest.then(dbManifest => {
+      return updateManifest(dbManifest, manifest);
+    });
+  } else {
+    var newManifest = new Manifest();
+    return updateManifest(newManifest, manifest);
+  }
+}
+
+function updateManifest(dbManifest, manifest) {
+  setTimeCode();
+  dbManifest.lastModified = getTimeCode();
+  dbManifest.shipDate = manifest.shipDate;
+  dbManifest.orders = manifest.orders;
+  dbManifest.totalWeight = manifest.totalWeight;
+  dbManifest.totalValue = manifest.totalValue;
+  dbManifest.totalParcels = manifest.totalParcels;
+  dbManifest.markModified('orders');
+  dbManifest.markModified('lastModified');
+  return dbManifest.save();
+}
+
+function removeManifest(manifest) {
+  return Manifest.remove({_id: manifest._id});
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1172,5 +1202,7 @@ module.exports = {
   getOrderReport: getOrderReport,
   getSlackOrderReport: getSlackOrderReport,
   calculateSubtotal: calculateSubtotal,
-  get3DCartOptions: get3DCartOptions
+  get3DCartOptions: get3DCartOptions,
+  saveManifest: saveManifest,
+  removeManifest: removeManifest
 }

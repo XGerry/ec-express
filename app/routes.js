@@ -84,7 +84,17 @@ module.exports = function(app, passport) {
   });
 
   app.get('/customs', function(req, res) {
-    res.render('customs');
+    var id = req.query.id;
+    if (id) {
+      var findManifest = Manifest.findOne({_id: id});
+      findManifest.then(manifest => {
+        res.render('customs', {
+          manifest: manifest
+        });     
+      });
+    } else {
+      res.render('customs');
+    }
   });
 
   app.get('/new-manifest', function(req, res) {
@@ -161,5 +171,10 @@ module.exports = function(app, passport) {
 
   app.get('/list-manifests', (req, res) => {
     var findManifests = Manifest.find({});
+    findManifests.then(manifests => {
+      res.render('list-manifests', {
+        manifests: manifests
+      });
+    });
   });
 }
