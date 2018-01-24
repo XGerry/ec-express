@@ -142,6 +142,7 @@ function setTotalFields() {
 }
 
 function calculateTotalsForManifest() {
+	console.log(allOrders);
 	totalValue = 0;
 	totalParcels = 0;
 	totalWeight = 0;
@@ -197,7 +198,7 @@ function saveOrderInfo(order) {
 }
 
 function buildManifest(orders) {
-	allOrders = orders;
+	allOrders = allOrders.concat(orders);
 	//$('#manifest').empty();
 
 	orders.forEach((order) => {
