@@ -84,7 +84,6 @@ $(document).ready(function() {
 	$('#saveButton').click(e => {
 		var shipDate = new Date($('#shipDate').val());
 		shipDate.setHours(shipDate.getHours() + (shipDate.getTimezoneOffset() / 60));
-		console.log(shipDate);
 		theManifest.shipDate = shipDate;
 		theManifest.orders = allOrders;
 		theManifest.totalWeight = totalWeight;
@@ -103,12 +102,17 @@ socket.on('deleteManifestFinished', () => {
 	window.location = '/list-manifests';
 });
 
-socket.on('saveManifestFinished', newManifest => {
-	theManifest = newManifest;
-	setDateFields();
+socket.on('saveManifestFinished', (err, newManifest) => {
+	if (err) {
+		console.log(err);
+		return;
+	} else {
+		theManifest = newManifest;
+		setDateFields();
+	}
 });
 
-socket.on('loadOrdersFinished', (response) => {
+socket.on('loadOrdersFinished', response => {
 	$('#getOrdersButton').button('reset');
 	console.log(response);
 	buildManifest(response);
@@ -142,7 +146,6 @@ function setTotalFields() {
 }
 
 function calculateTotalsForManifest() {
-	console.log(allOrders);
 	totalValue = 0;
 	totalParcels = 0;
 	totalWeight = 0;
@@ -371,14 +374,14 @@ function populateHTCTable(order) {
 
 function addEditableHTCRow() {
 	var row = $('<div class="row"></div>');
-	var htcCol = $('<div class="col-lg-3 form-group"></div>'); 
-	var cooCol = $('<div class="col-lg-4 form-group"></div>'); 
-	var quantityCol = $('<div class="col-lg-2 form-group"></div>'); 
-	var valueCol = $('<div class="col-lg-3 form-group"></div>'); 
+	var htcCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>'); 
+	var cooCol = $('<div class="col-lg-4 col-md-4 col-sm-4 form-group"></div>'); 
+	var quantityCol = $('<div class="col-lg-2 col-md-2 col-sm-2 form-group"></div>'); 
+	var valueCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>'); 
 
 	var htcSelect = $('<select class="form-control"></select>');
-	var htcOption1 = $('<option val="9503.00.00.90">9503.00.00.90</option>');
-	var htcOption2 = $('<option val="4901.99.00.93">4901.99.00.93</option>');
+	var htcOption1 = $('<option val="9503 00 00 90">9503 00 00 90</option>');
+	var htcOption2 = $('<option val="4901 99 00 93">4901 99 00 93</option>');
 
 	htcSelect.append(htcOption1);
 	htcSelect.append(htcOption2);
@@ -423,7 +426,6 @@ function addEditableHTCRow() {
 
 	function saveNewHTCRow() {
 		var htc = htcSelect.val();
-		console.log(htc);
 		var coo = cooSelect.val().toUpperCase();
 		var quantity = parseInt(quantityInput.val());
 		var value = parseFloat(valueInput.val());
@@ -450,10 +452,10 @@ function addHTCtoMap(htc, coo, quantity, value) {
 
 function buildHTCTableRow(htc, coo, quantity, value, htcMap) {
 	var row = $('<div class="row"></div>');
-	var htcCol = $('<div class="col-lg-3 form-group"></div>'); 
-	var cooCol = $('<div class="col-lg-4 form-group"></div>'); 
-	var quantityCol = $('<div class="col-lg-2 form-group"></div>'); 
-	var valueCol = $('<div class="col-lg-3 form-group"></div>');
+	var htcCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>'); 
+	var cooCol = $('<div class="col-lg-4 col-md-4 col-sm-4 form-group"></div>'); 
+	var quantityCol = $('<div class="col-lg-2 col-md-2 col-sm-2 form-group"></div>'); 
+	var valueCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>');
 
 	htcCol.text(htc);
 	cooCol.text(country);
@@ -473,10 +475,8 @@ function buildHTCTableRow(htc, coo, quantity, value, htcMap) {
 
 	// events
 	quantityInput.on('change', e => {
-		console.log('input changed');
 		var newQuantity = parseInt(quantityInput.val());
 		htcMap[htc][coo].quantity = newQuantity;
-		console.log(htcMap);
 	});
 
 	valueInput.on('change', e => {

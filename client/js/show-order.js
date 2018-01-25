@@ -60,6 +60,23 @@ $(document).ready(function() {
 			addItem();
 		}
 	});
+
+	$('#fileInput').on('change', e => {
+		console.log('file change');
+		$('#fileName').text(e.target.files[0].name);
+
+		$('#fileInput').parse({
+			config: {
+				complete: function(results, file) {
+					loadFromTemplate(results.data);
+				},
+				header: true
+			},
+			complete: function() {
+				console.log('all files done');
+			}
+		});
+	});
 });
 
 socket.on('calculateSubtotalFinished', function(response) {
@@ -72,26 +89,19 @@ socket.on('calculateSubtotalFinished', function(response) {
 	}
 });
 
-socket.on('saveShowOrderFinished', (response) => {
-	console.log(response);
+socket.on('saveShowOrderFinished', (showOrder) => {
+	console.log(showOrder);
 	doneLoading();
-	if (response) {
-		if (response[0].Status == '201') {
-			order.orderId = response[0].Value;
-			$('#alert-message').text('The order was successfully saved to 3D Cart. Order ID: ' + response[0].Value);
-			$('#orderAlert').show();
-		} else if (response[0].Status == '200') {
-			$('#alert-message').text('The order was successfully updated');
-			$('#orderAlert').show();
-		}
-		else {
-			console.log(response);
-			$('#alert-message').text('There was an error saving the order to 3D Cart');
-			$('#orderAlert').show();
-		}
-	} else {
-		console.log('No response');
+	if (showOrder.orderId) {
+		order.orderId = showOrder.orderId;
+		$('#alert-message').text('The order was successfully saved to 3D Cart. Order ID: ' + showOrder.orderId);
+		$('#orderAlert').show();
+	}	else {
+		console.log(response);
+		$('#alert-message').text('There was an error saving the order to 3D Cart');
+		$('#orderAlert').show();
 	}
+	order._id = showOrder._id;
 });
 
 function addItem() {
@@ -100,6 +110,12 @@ function addItem() {
 	addItemToOrder(sku, quantity);
 	$('#itemSKU').val('');
 	$('#itemSKU').select();
+}
+
+function loadFromTemplate(items) {
+	items.forEach((item) => {
+		addItemToOrder(item.sku, item.quantity);
+	});
 }
 
 function loadOrder(dbOrder) {
@@ -253,6 +269,7 @@ function saveCustomer() {
 	$('#customerModal').modal('hide');
 
 	// save the customer to the database
+	customer.companyName = $('#companyName').val();
 	customer.firstname = $('#customerFirstName').val();
 	customer.lastname = $('#customerLastName').val();
 	customer.email = $('#customerEmailModal').val();

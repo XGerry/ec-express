@@ -379,7 +379,10 @@
  		socket.on('saveManifest', function(manifest) {
  			var savingManifest = helpers.saveManifest(manifest);
  			savingManifest.then(newManifest => {
- 				socket.emit('saveManifestFinished', newManifest);
+ 				socket.emit('saveManifestFinished', null, newManifest);
+ 			}).catch(err => {
+ 				console.log(err);
+ 				socket.emit('saveManifestFinished', err, null);
  			});
  		});
 

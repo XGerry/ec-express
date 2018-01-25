@@ -146,9 +146,9 @@ module.exports = function(app, passport) {
   });
 
   app.get('/show-order', function(req, res) {
-    var orderId = req.query.orderId;
+    var orderId = req.query.id
     if (orderId) {
-      var findOrders = ShowOrder.findOne({orderId: orderId});
+      var findOrders = ShowOrder.findOne({_id: orderId});
       findOrders.then((showOrder) => {
         console.log(showOrder);
         res.render('show-order', {

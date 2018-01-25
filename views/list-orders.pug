@@ -1,7 +1,7 @@
 mixin tableRow(order)
 	tr
 		td
-			a(href="/show-order?orderId="+order.orderId)=order.orderId
+			a(href="/show-order?id="+order._id)=order.orderId
 		td=order.customer.firstname + ' ' + order.customer.lastname
 		td=order.showItems.length
 

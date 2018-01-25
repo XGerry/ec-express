@@ -1652,7 +1652,7 @@ function saveItem(item, qbws, callback) {
 function saveOrder(order, orderId, isCanadian) {
   var method = 'POST';
   var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders';
-  if (orderId != null) {
+  if (orderId != null && orderId != '') {
     method = 'PUT';
     url += '/'+orderId;
   }
@@ -1698,7 +1698,7 @@ function saveShowOrder(order) {
   var total = 0;
   var customer = order.customer;
 
-  var findShowOrder = ShowOrder.findOne({orderId: order.orderId});
+  var findShowOrder = ShowOrder.findOne({_id: order._id});
   var savedOrder = findShowOrder.then((showOrder) => {
     if (showOrder) {
       showOrder.customer = order.customer;
@@ -1708,9 +1708,7 @@ function saveShowOrder(order) {
       showOrder.notes = order.notes;
       return showOrder.save();
     } else {
-      helpers.setTimeCode();
       var newOrder = new ShowOrder();
-      newOrder.orderId = helpers.getTimeCode();
       newOrder.customer = order.customer;
       newOrder.showItems = order.showItems;
       newOrder.notes = order.notes;
@@ -1756,33 +1754,36 @@ function saveShowOrder(order) {
         OrderStatusID: 1 // NEW
       };
 
-      dbItems.forEach((dbItem) => {
+      if (customer.companyName) {
+        cartOrder.BillingCompany = customer.companyName;
+        cartOrder.ShipmentList[0].ShipmentCompany = customer.companyName;
+      }
+
+      order.showItems.forEach(item => {
+        // find the item in the db
         var orderItem = {};
-        order.showItems.forEach(function(item) {
-          if (dbItem == null) {
-            // item not in database, but we still need to send it
+        var foundItem = false;
+        dbItems.forEach(dbItem => {
+          if (dbItem && item.sku == dbItem.sku) {
+            var lineTotal = (dbItem.usPrice / 2) * item.quantity;
+            total += lineTotal; // wholesale prices
+            item.total = lineTotal;
+            foundItem = true;
             orderItem = {
               ItemID: item.sku,
               ItemQuantity: item.quantity,
-              ItemUnitPrice: '0.00',
-              ItemDescription: 'Future Item'
+              ItemUnitPrice: (dbItem.usPrice / 2),
+              ItemDescription: dbItem.name
             };
-          } else {
-            if (item.sku == dbItem.sku) {
-              var lineTotal = (dbItem.usPrice / 2) * item.quantity;
-              total += lineTotal; // wholesale prices
-              item.total = lineTotal;
-
-              orderItem = {
-                ItemID: item.sku,
-                ItemQuantity: item.quantity,
-                ItemUnitPrice: (dbItem.usPrice / 2),
-                ItemDescription: dbItem.name
-              };
-            }
           }
         });
-        cartOrder.OrderItemList.push(orderItem);
+
+        if (foundItem) {
+          cartOrder.OrderItemList.push(orderItem);
+        } else {
+          cartOrder.CustomerComments += '\nFuture Item: ' + item.sku + ' Quantity: ' + item.quantity + '.';
+        }
+
       });
 
       console.log(order);
@@ -1790,9 +1791,10 @@ function saveShowOrder(order) {
       return saveToWebsite.then((response) => {
         if (response[0].Status == '201' || response[0].Status == '200') { // success
           dbShowOrder.orderId = response[0].Value;
-          dbShowOrder.save();
+          return dbShowOrder.save();
+        } else {
+          return dbShowOrder;
         }
-        return response;
       }).catch((message) => {
         console.log(message);
       });
