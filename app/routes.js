@@ -170,7 +170,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/list-manifests', (req, res) => {
-    var findManifests = Manifest.find({});
+    var findManifests = Manifest.find({}).sort({shipDate: -1});
     findManifests.then(manifests => {
       res.render('list-manifests', {
         manifests: manifests
