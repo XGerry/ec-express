@@ -409,7 +409,7 @@ module.exports = {
 
 		app.post('/webhooks/mailchimp', formParser, function(req, res) {
 			console.log(req.body);
-			res.send('Received noti');
+			res.send('Received notification');
 		});
 	},
 	orderBot: orderBot

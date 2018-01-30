@@ -8,6 +8,10 @@ var totalParcels = 0;
 var totalWeight = 0;
 var theManifest = {};
 
+var presetAddresses = {
+
+}
+
 $(document).ready(function() {
 	$('#getOrdersButton').click(e => {
 		e.preventDefault();
@@ -140,9 +144,12 @@ function setDateFields() {
 }
 
 function setTotalFields() {
-	$('#totalParcels').text(totalParcels);
-	$('#totalValue').text(totalValue.toFixed(2));
-	$('#totalWeight').text(totalWeight.toFixed(2));
+	if (totalParcels)
+		$('#totalParcels').text(totalParcels);
+	if (totalValue)
+		$('#totalValue').text(totalValue.toFixed(2));
+	if (totalWeight)
+		$('#totalWeight').text(totalWeight.toFixed(2));
 }
 
 function calculateTotalsForManifest() {
@@ -308,6 +315,8 @@ function addManifestRow(order) {
 	});
 
 	removeButton.click(e => {
+		var i = allOrders.indexOf(order);
+		allOrders.splice(i, 1);
 		row.remove();
 	});
 }

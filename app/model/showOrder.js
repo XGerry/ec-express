@@ -11,7 +11,12 @@ var orderSchema = new mongoose.Schema({
 		message: String,
 		total: Number
 	}],
-	notes: String
+	notes: String,
+	coupon: String,
+	discount: {
+		type: Number,
+		default: 0
+	}
 });
 
 module.exports = mongoose.model('ShowOrder', orderSchema);

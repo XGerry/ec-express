@@ -1004,7 +1004,7 @@ function getItemsFull(query, progressCallback, finalCallback) {
       console.log(response);
   		finalCallback([]);
   	} else {
-	  	var responseObject = JSON.parse(body);
+	  	var responseObject = body;
 	  	console.log(responseObject);
 	  	var totalItems = responseObject.TotalCount;
 	  	// can only get 200 items back per request
@@ -1027,7 +1027,7 @@ function getItemsFull(query, progressCallback, finalCallback) {
             if (err) {
               callback(err);
             } else {
-              var items = JSON.parse(body);
+              var items = body;
               progressCallback(++counter, numOfRequests, items);
               items.forEach(function(cartItem) {
                 var sku = cartItem.SKUInfo.SKU.trim();
@@ -1657,21 +1657,7 @@ function saveOrder(order, orderId, isCanadian) {
     url += '/'+orderId;
   }
 
-  var options = {
-    url: url,
-    method: method,
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    json: true
-  };
-
-  if (isCanadian) {
-    options.headers.SecureUrl = secureUrlCa;
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-  }
+  var options = helpers.get3DCartOptions(url, method, isCanadian);
 
   options.body = order;
   return rp(options);
@@ -1706,12 +1692,16 @@ function saveShowOrder(order) {
       showOrder.markModified('customer');
       showOrder.markModified('showItems');
       showOrder.notes = order.notes;
+      showOrder.coupon = order.coupon;
+      //showOrder.discount = order.discount;
       return showOrder.save();
     } else {
       var newOrder = new ShowOrder();
       newOrder.customer = order.customer;
       newOrder.showItems = order.showItems;
       newOrder.notes = order.notes;
+      newOrder.coupon = order.coupon;
+      //newOrder.discount = order.discount;
       return newOrder.save();
     }
   });
@@ -1777,17 +1767,14 @@ function saveShowOrder(order) {
             };
           }
         });
-
         if (foundItem) {
           cartOrder.OrderItemList.push(orderItem);
         } else {
-          cartOrder.CustomerComments += '\nFuture Item: ' + item.sku + ' Quantity: ' + item.quantity + '.';
+          cartOrder.CustomerComments += '\n Item: ' + item.sku + ' Quantity: ' + item.quantity + '.';
         }
-
       });
 
-      console.log(order);
-      var saveToWebsite = saveOrder(cartOrder, dbShowOrder.orderId, false);
+      var saveToWebsite = saveOrder(cartOrder, dbShowOrder.orderId, customer.website == 'canada');
       return saveToWebsite.then((response) => {
         if (response[0].Status == '201' || response[0].Status == '200') { // success
           dbShowOrder.orderId = response[0].Value;
@@ -1800,6 +1787,15 @@ function saveShowOrder(order) {
       });
     });
   });
+}
+
+function searchCustomer(email, canadian) {
+  var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers', 'GET', canadian);
+  options.qs = {
+    email: email
+  };
+
+  return rp(options);
 }
 
 module.exports = {
@@ -1823,5 +1819,6 @@ module.exports = {
   saveShowOrder: saveShowOrder,
   getOrder: getOrder,
   loadOrders: loadOrders,
-  loadOrdersForManifest: loadOrdersForManifest
+  loadOrdersForManifest: loadOrdersForManifest,
+  searchCustomer: searchCustomer
 }

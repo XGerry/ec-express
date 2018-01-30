@@ -23,6 +23,83 @@ html
 					label.btn.btn-default.btn-file Browse
 						input(type="file" style="display: none;")#fileInput
 					h4#fileName
+			
+			.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#customerPanel") Customer
+				#customerPanel.panel-collapse.collapse.in.panel-body
+					.btn-toolbar
+						button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") Add Customer
+					table.table.table-striped.table-hover#customerTable
+						thead
+							tr
+								th Name
+								th Email
+								th Phone
+								th Shipping Address
+								th Shipping City
+						tbody#customerTableBody
+
+			//.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#itemPanel") Item
+				#itemPanel.panel-collapse.collapse.in.panel-body
+					.form-group.row
+						.col-lg-2
+							label(for="itemSKU") SKU
+							input#itemSKU.form-control(type="text", list="itemList")
+							datalist#itemList
+						.col-lg-3
+							label(for="itemName") Name/Description
+							input#itemName.form-control(type="text")
+						.col-lg-2
+							label(for="itemQuantity") Quantity
+							input#itemQuantity.form-control(type="number", value="1")
+						.col-lg-2
+							label(for="itemPrice") Item Price
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input#itemPrice.form-control(type="number", step="any")
+						.col-lg-3
+							label(for="lineTotal") Line Total
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input#lineTotal.form-control(type="number", readonly)
+								span.input-group-btn
+									button.btn.btn-primary#addItemButton(type="button") Add Item			
+			//.panel.panel-default
+				.panel-heading
+					h2.panel-title
+						a(data-toggle="collapse", data-target="#orderPanel") Order
+				#orderPanel.panel-body.panel-collapse.collapse.in
+					table.table.table-striped.table-hover#orderTable
+						thead
+							tr
+								th SKU
+								th Name
+								th Quantity
+								th Price
+								th Total
+						tbody#orderTableBody
+					.row.form-group
+						.col-lg-2.col-lg-offset-8
+							p Subtotal
+						.col-lg-2
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input.form-control#subtotal(type="number", readonly)
+					.row.form-group
+						.col-lg-2.text-right
+							label(for="taxOptions") Tax
+						.col-lg-2
+							select#taxOptions.form-control
+								option(value=0) No Tax - 0%
+								option(value=13) HST - 13%
 
 			.panel.panel-default
 				.panel-heading
@@ -57,29 +134,24 @@ html
 						.col-lg-3.col-sm-3
 							h3#subtotal
 
-			.panel.panel-default
-				.panel-heading
-					h2.panel-title
-						a(data-toggle="collapse", data-target="#customerPanel", href="#customerPanel") Customer
-				#customerPanel.panel-collapse.collapse.in.panel-body
-					.btn-toolbar
-						button.btn.btn-primary#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") Add Customer
-					table.table.table-striped.table-hover#customerTable
-						thead
-							tr
-								th Name
-								th Email
-								th Phone
-								th Shipping Address
-								th Shipping City
-						tbody#customerTableBody
 
 			.panel.panel-default
 				.panel-heading
 					h2.panel-title
-						a(data-toggle="collapse", data-target="#notesPanel", href="#notesPanel") Notes
-				#notesPanel.panel-collapse.collapse.panel-body
-					textarea.form-control(rows="5")#notesArea
+						a(data-toggle="collapse", data-target="#notesPanel") Misc.
+				#notesPanel.panel-collapse.collapse.panel-body.in
+					.form-group.row
+						.col-lg-6
+							label Coupon Code
+							input(type="text")#couponCode.form-control
+						.col-lg-6
+							label Coupon Discount
+							.input-group
+								input(type="number")#discount.form-control
+								.input-group-addon %
+					.row.form-group
+						.col-lg-12
+							textarea.form-control(rows="5")#notesArea
 
 	#customerModal.modal.fade(role="dialog")
 		.modal-dialog
@@ -89,9 +161,24 @@ html
 					h4#customerName New Customer
 				.modal-body
 					.form-group.row
-						.col-lg-12
-							label Company Name
-							input#companyName.form-control(type="text")
+						.col-lg-6.col-md-6.col-sm-6
+							label(for="websiteSelect") Website
+							select.form-control#websiteSelect
+								option(value="us") U.S.
+								option(value="canada") Canada
+						.col-lg-6.col-md-6.col-sm-6
+							label(for="profileSelect") Profile
+							select.form-control#profileSelect
+								option(value="2") Wholesale - 50%
+								option(value="0") Retail
+					.form-group.row
+						.col-lg-12.col-md-12
+							label(for="customerEmailModal") Email
+							.input-group
+								input#customerEmailModal.form-control(type="email")
+								span.input-group-btn
+									button.btn.btn-primary(type="button")#searchCustomerButton Search
+							p#emailSearchInfo
 					.form-group.row
 						.col-lg-6.col-md-6.col-sm-6
 							label(for="customerFirstName") First Name
@@ -101,15 +188,15 @@ html
 							input#customerLastName.form-control(type="text")
 					.form-group.row
 						.col-lg-6.col-md-6.col-sm-6
-							label(for="customerEmailModal") Email
-							input#customerEmailModal.form-control(type="text")
+							label Company Name
+							input#companyName.form-control(type="text")
 						.col-lg-6.col-md-6.col-sm-6
 							label(for="customerPhone") Phone
 							input#customerPhone.form-control(type="text")
 					.panel.panel-default
-						.panel-heading
-							h4.panel-title
-								a(data-toggle="collapse", data-target="#customerBillingAddress") Billing
+						.panel-heading(style="padding-bottom:20px;")
+							a(data-toggle="collapse", data-target="#customerBillingAddress", style="display:inline-block;").panel-title Billing
+							button.btn-primary.btn.pull-right#sameAsShippingButton(type="button") Same as Shipping Address
 						#customerBillingAddress.panel-collapse.collapse.in
 							.panel-body
 								.form-group.row
@@ -132,11 +219,10 @@ html
 									.col-lg-4.col-md-4.col-sm-4
 										label(for="billingZip") Zip/Postal Code
 										input#billingZip.form-control(type="text")
-								button.btn-primary.btn#sameAsShippingButton(type="button") Same as Shipping Address
 						.panel-heading
 							h4.panel-title
 								a(data-toggle="collapse", data-target="#customerShippingAddress") Shipping
-						#customerShippingAddress.panel-collapse.collapse
+						#customerShippingAddress.panel-collapse.collapse.in
 							.panel-body
 								.form-group.row
 									.col-lg-4.col-md-4.col-sm-4
@@ -158,17 +244,6 @@ html
 									.col-lg-4.col-md-4.col-sm-4
 										label(for="shippingZip") Zip/Postal Code
 										input#shippingZip.form-control(type="text")
-					.form-group.row
-						.col-lg-6.col-md-6.col-sm-6
-							label(for="websiteSelect") Website
-							select.form-control#websiteSelect
-								option(value="us") U.S.
-								option(value="canada") Canada
-						.col-lg-6.col-md-6.col-sm-6
-							label(for="profileSelect") Profile
-							select.form-control#profileSelect
-								option(value="wholesale") Wholesale - 50%
-								option(value="retail") Retail
 									
 				.modal-footer
 					button#saveCustomerButton.btn.btn-success(type="button") Add

@@ -236,6 +236,15 @@
  			});
  		});
 
+ 		socket.on('searchCustomer3DCart', (email, canadian) => {
+ 			var findCustomer = cart3d.searchCustomer(email, canadian);
+ 			findCustomer.then((body, response) => {
+ 				socket.emit('searchCustomer3DCartFinished', null, body);
+ 			}).catch(err => {
+ 				socket.emit('searchCustomer3DCartFinished', err, null);
+ 			});
+ 		});
+
  		socket.on('saveOrder', function(order, isCanadian) {
  			console.log('saving order'); // FIXME
  			// cart3d.saveOrder(order, isCanadian, function(response) {
@@ -372,7 +381,9 @@
  			var savingOrder = cart3d.saveShowOrder(order);
  			savingOrder.then((response) => {
  				console.log('finished the promise');
- 				socket.emit('saveShowOrderFinished', response);
+ 				socket.emit('saveShowOrderFinished', null, response);
+ 			}).catch(err => {
+ 				socket.emit('saveShowOrderFinished', err, null)
  			});
  		});
 

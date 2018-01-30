@@ -77,6 +77,25 @@ $(document).ready(function() {
 			}
 		});
 	});
+
+	$('#searchCustomerButton').click(e => {
+		var customerEmail = $('#customerEmailModal').val();
+		socket.emit('searchCustomer3DCart', customerEmail, $('#websiteSelect').val() == 'canada');
+	});
+});
+
+socket.on('searchCustomer3DCartFinished', (err, customer) => {
+	if (err) {
+		console.log(err);
+		$('#emailSearchInfo').text('An error has occurred');
+	} else {
+		if (customer.length > 0) {
+			$('#emailSearchInfo').text(customer.length + ' customer(s) were found.');
+			populateCustomerInfo(customer[0]);
+		} else {
+			$('#emailSearchInfo').text('No customers were found.');
+		}
+	}
 });
 
 socket.on('calculateSubtotalFinished', function(response) {
@@ -89,20 +108,49 @@ socket.on('calculateSubtotalFinished', function(response) {
 	}
 });
 
-socket.on('saveShowOrderFinished', (showOrder) => {
+socket.on('saveShowOrderFinished', (err, showOrder) => {
 	console.log(showOrder);
 	doneLoading();
-	if (showOrder.orderId) {
-		order.orderId = showOrder.orderId;
-		$('#alert-message').text('The order was successfully saved to 3D Cart. Order ID: ' + showOrder.orderId);
-		$('#orderAlert').show();
-	}	else {
-		console.log(response);
+	if (showOrder) {
+		if (showOrder.orderId) {
+			order.orderId = showOrder.orderId;
+			$('#alert-message').text('The order was successfully saved to 3D Cart. Order ID: ' + showOrder.orderId);
+			$('#orderAlert').show();
+		}	else {
+			console.log(showOrder);
+			$('#alert-message').text('There was an error saving the order to 3D Cart');
+			$('#orderAlert').show();
+		}
+		order._id = showOrder._id;
+	} else if (err) {
+		console.log(err);
 		$('#alert-message').text('There was an error saving the order to 3D Cart');
 		$('#orderAlert').show();
 	}
-	order._id = showOrder._id;
 });
+
+function populateCustomerInfo(customer) {
+	console.log(customer);
+	$('#customerName').val(customer.BillingFirstName + customer.BillingLastName);
+	$('#companyName').val(customer.ShippingCompany);
+	$('#customerFirstName').val(customer.BillingFirstName);
+	$('#customerLastName').val(customer.BillingLastName);
+	$('#customerPhone').val(customer.BillingPhoneNumber);
+	$('#billingAddress').val(customer.BillingAddress1);
+	$('#billingAddress2').val(customer.BillingAddress2);
+	$('#billingCity').val(customer.BillingCity);
+	$('#billingState').val(customer.BillingState);
+	$('#billingCountry').val(customer.BillingCountry);
+	$('#billingZip').val(customer.BillingZipCode);
+	$('#shippingAddress').val(customer.ShippingAddress1);
+	$('#shippingAddress2').val(customer.ShippingAddress2);
+	$('#shippingCity').val(customer.ShippingCity);
+	$('#shippingState').val(customer.ShippingState);
+	$('#shippingCountry').val(customer.ShippingCountry);
+	$('#shippingZip').val(customer.ShippingZipCode);
+
+	$('#profileSelect').val(customer.CustomerGroupID);
+}
 
 function addItem() {
 	var sku = $('#itemSKU').val();
@@ -128,6 +176,10 @@ function loadOrder(dbOrder) {
 
 			if (dbOrder.notes != undefined) {
 				$('#notesArea').val(dbOrder.notes);
+			}
+
+			if (dbOrder.coupon != undefined) {
+				$('#couponCode').val(dbOrder.coupon);
 			}
 
 			addCustomerRow(customer);
@@ -286,6 +338,8 @@ function saveCustomer() {
 	customer.shippingState = $('#shippingState').val();
 	customer.shippingCountry = $('#shippingCountry').val();
 	customer.shippingZipCode = $('#shippingZip').val();
+	customer.profile = $('#profileSelect').val();
+	customer.website = $('#websiteSelect').val();
 
 	addCustomerRow(customer);
 }
@@ -332,12 +386,15 @@ function setCustomerModalFields(customer) {
 	$('#shippingState').val(customer.shippingState);
 	$('#shippingCountry').val(customer.shippingCountry);
 	$('#shippingZip').val(customer.shippingZipCode);
+	$('#profileSelect').val(customer.profile);
+	$('#websiteSelect').val(customer.website);
 }
 
 function saveOrder() {
 	order.showItems = showItems;
 	order.notes = $('#notesArea').val();
 	order.customer = customer;
+	order.coupon = $('#couponCode').val();
 	socket.emit('saveShowOrder', order);
 	showLoading();
 }
