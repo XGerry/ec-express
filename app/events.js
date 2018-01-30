@@ -404,6 +404,20 @@
  			})
  		});
 
+ 		socket.on('searchAddress', address => {
+ 			var findAddress = helpers.searchAddress(address);
+ 			findAddress.then(results => {
+ 				socket.emit('searchAddressFinished', results);
+ 			});
+ 		});
+
+ 		socket.on('saveAddress', shipmentInfo => {
+ 			var savingAddress = helpers.saveAddress(shipmentInfo);
+ 			savingAddress.then(newAddress => {
+ 				console.log('saved address');
+ 			});
+ 		});
+
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {

@@ -9,6 +9,7 @@ var Settings = require('./model/settings');
 var Manifest = require('./model/manifest');
 var Customer = require('./model/customer');
 var Item = require('./model/item');
+var Address = require('./model/address');
 var async = require('async');
 var xmlParser = require('xml2js').parseString; 
 var pixl = require('pixl-xml')
@@ -1167,6 +1168,40 @@ function removeManifest(manifest) {
   return Manifest.remove({_id: manifest._id});
 }
 
+function searchAddress(address) {
+  var pattern = '^'+address;
+  return Address.find({AddressName: {$regex: pattern, $options:'gi'}}).limit(100);
+}
+
+function saveAddress(shipmentInfo) {
+  var name = '';
+  name += shipmentInfo.ShipmentAddress + ', ' + shipmentInfo.ShipmentCity + ', ' + shipmentInfo.ShipmentState;
+  var findAddress = Address.findOne({AddressName: name});
+  return findAddress.then(dbAddress => {
+    if (dbAddress) {
+      return updateAddress(dbAddress, shipmentInfo);
+    } else {
+      var newAddress = new Address();
+      newAddress.AddressName = name;
+      return updateAddress(newAddress, shipmentInfo);
+    }
+  });
+}
+
+function updateAddress(dbAddress, shipmentInfo) {
+  dbAddress.ShipmentCompany = shipmentInfo.ShipmentCompany;
+  dbAddress.ShipmentAddress = shipmentInfo.ShipmentAddress;
+  dbAddress.ShipmentAddress2 = shipmentInfo.ShipmentAddress2;
+  dbAddress.ShipmentCity = shipmentInfo.ShipmentCity;
+  dbAddress.ShipmentState = shipmentInfo.ShipmentState;
+  dbAddress.ShipmentCountry = shipmentInfo.ShipmentCountry;
+  dbAddress.ShipmentZipCode = shipmentInfo.ShipmentZipCode;
+  dbAddress.ShipmentFirstName = shipmentInfo.ShipmentFirstName;
+  dbAddress.ShipmentLastName = shipmentInfo.ShipmentLastName;
+
+  return dbAddress.save();
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1204,5 +1239,7 @@ module.exports = {
   calculateSubtotal: calculateSubtotal,
   get3DCartOptions: get3DCartOptions,
   saveManifest: saveManifest,
-  removeManifest: removeManifest
+  removeManifest: removeManifest,
+  searchAddress: searchAddress,
+  saveAddress: saveAddress
 }

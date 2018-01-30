@@ -7,10 +7,7 @@ var totalValue = 0;
 var totalParcels = 0;
 var totalWeight = 0;
 var theManifest = {};
-
-var presetAddresses = {
-
-}
+var addresses = {};
 
 $(document).ready(function() {
 	$('#getOrdersButton').click(e => {
@@ -100,6 +97,35 @@ $(document).ready(function() {
 		e.preventDefault();
 		socket.emit('deleteManifest', theManifest);
 	});
+
+	$('#addressSearch').on('input propertychange', e => {
+		socket.emit('searchAddress', $('#addressSearch').val());
+	});
+
+	$('#addressSearch').on('keydown', e => {
+		if (e.keyCode == 13) {
+			applyAddress($('#addressSearch').val());
+		}
+	});
+
+	$('#applyAddressButton').click(e => {
+		applyAddress($('#addressSearch').val());
+	});
+});
+
+socket.on('searchAddressFinished', results => {
+	$('#addressList').empty();
+	addresses = {};
+	results.forEach(address => {
+		$('#addressList').append($('<option>'+address.AddressName+'</option>'));
+		addresses[address.AddressName] = address;
+	});
+
+	if (results.length == 0) {
+		$('#addressInfo').text('No addresses found.');
+	} else {
+		$('#addressInfo').empty();
+	}
 });
 
 socket.on('deleteManifestFinished', () => {
@@ -118,9 +144,22 @@ socket.on('saveManifestFinished', (err, newManifest) => {
 
 socket.on('loadOrdersFinished', response => {
 	$('#getOrdersButton').button('reset');
-	console.log(response);
 	buildManifest(response);
 });
+
+function applyAddress(addressName) {
+	var address = addresses[addressName];
+	$('#companyName').val(address.ShipmentCompany);
+	$('#customerFirstName').val(address.ShipmentFirstName);
+	$('#customerLastName').val(address.ShipmentLastName);
+
+	$('#shippingAddress').val(address.ShipmentAddress);
+	$('#shippingAddress2').val(address.ShipmentAddress2);
+	$('#shippingCity').val(address.ShipmentCity);
+	$('#shippingState').val(address.ShipmentState);
+	$('#shippingCountry').val(address.ShipmentCountry);
+	$('#shippingZip').val(address.ShipmentZipCode);
+}
 
 function loadManifest(manifest) {
 	if (manifest) {
@@ -198,6 +237,8 @@ function saveShippingInfo(order) {
 	shipmentInfo.ShipmentState = $('#shippingState').val();
 	shipmentInfo.ShipmentCountry = $('#shippingCountry').val();
 	shipmentInfo.ShipmentZipCode = $('#shippingZip').val();
+
+	socket.emit('saveAddress', shipmentInfo);
 }
 
 function saveOrderInfo(order) {
