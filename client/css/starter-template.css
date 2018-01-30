@@ -91,4 +91,16 @@ body {
 	.hide-printer {
 		display: none;
 	}
+	.panel-body {
+		padding: 5px;
+	}
+	.panel-heading {
+		padding: 5px;
+	}
+	.panel {
+		margin-bottom: 0px;
+	}
+	h4 {
+		margin: 0px;
+	}
 }
