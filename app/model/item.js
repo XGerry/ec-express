@@ -15,6 +15,8 @@ var itemSchema = new mongoose.Schema({
 	htc: String,
 	usPrice: Number,
 	canPrice: Number,
+	usWholesalePrice: Number,
+	canWholesalePrice: Number,
 	walmartStock: {
 		type: Number,
 		default: 0

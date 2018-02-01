@@ -1082,6 +1082,7 @@ function updateItemFields(item, cartItem, canadian) {
     item.catalogIdCan = cartItem.SKUInfo.CatalogID;
     item.canLink = cartItem.ProductLink;
     item.canStock = cartItem.SKUInfo.Stock;
+    item.canWholesalePrice = cartItem.PriceLevel7; // Canadian Wholesale Price
   }
   else {
     item.usPrice = cartItem.SKUInfo.Price;
@@ -1089,6 +1090,7 @@ function updateItemFields(item, cartItem, canadian) {
     item.usLink = cartItem.ProductLink;
     item.manufacturerId = cartItem.ManufacturerID;
     item.usStock = cartItem.SKUInfo.Stock;
+    item.usWholesalePrice = cartItem.PriceLevel2; // US Wholesale Price
   }
 
   if (cartItem.AdvancedOptionList.length > 0) {
@@ -1122,30 +1124,6 @@ function updateItemFields(item, cartItem, canadian) {
     item.length = cartItem.Height;
   }
   
-  /*
-  cartItem.FeatureList.forEach(function(feature) {
-    if (feature.FeatureTitle == 'Size' || 
-        feature.FeatureTitle == 'size' ||
-        feature.FeatureTitle == 'Size:' ||
-        feature.FeatureTitle == 'size:') {
-      var size = feature.FeatureDescription;
-      var tempSize = size;
-      if (tempSize.indexOf('Largest') > -1) {
-        tempSize = tempSize.substring(tempSize.indexOf('Largest'));
-      }
-
-      item.size = size;
-      tempSize = tempSize.replace(/[a-w]|[yz]|:|"| /gi, '');
-      var middle = tempSize.indexOf('x');
-      var width = tempSize.substring(0, middle);
-      var length = tempSize.substring(middle + 1);
-
-      item.width = width;
-      item.length = length;
-    }
-  });
-  */
-  
   item.save();
 }
 
@@ -1174,7 +1152,7 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
 /**
  * toFixed() has some rounding issues
  */
-function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) {
+function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) { // careful with this function
 	var itemsToSend = [];
 	cartItems.forEach(function(item) {
 		// apply bulk updates
@@ -1188,7 +1166,6 @@ function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) {
       item.SKUInfo.Price = newPrice;
 			item.SKUInfo.RetailPrice = newPrice;
 			item.PriceLevel2 = (newPrice / 2).toFixed(2); // U.S. Wholesale
-			item.PriceLevel7 = (newPrice / 2).toFixed(2); // Canadian Wholesale
 			item.SKUInfo.Canadian = newPrice * 1.10; // Canadian Markup
 		}
 
@@ -1319,21 +1296,6 @@ function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) {
   	var merged = [].concat.apply([], responses);
     console.log('Finished Update.');
   	finalCallback(merged);
-  });
-}
-
-function updateInventory() {
-  var findAllItems = Item.find({});
-
-  findAllItems.then(items => {
-    var itemsToSend = [];
-    items.forEach(item => {
-      var itemToSend = {
-        SKUInfo: {
-          SKU: item.sku
-        }
-      }
-    });
   });
 }
 
@@ -1560,8 +1522,6 @@ function saveItem(item, qbws, callback) {
         SalePrice: item.usSalePrice
       },
       PriceLevel1: item.usPrice,
-      PriceLevel2: (item.usPrice/2).toFixed(2),
-      PriceLevel7: (item.usPrice/2).toFixed(2),
       MFGID: item.sku,
       WarehouseLocation: item.location,
       GTIN: item.barcode,
@@ -1591,8 +1551,6 @@ function saveItem(item, qbws, callback) {
     options.body[0].SKUInfo.SalePrice = item.canSalePrice;
     options.body[0].SKUInfo.Stock = item.canStock;
     options.body[0].PriceLevel1 = item.canPrice;
-    options.body[0].PriceLevel2 = (item.canPrice/2).toFixed(2);
-    options.body[0].PriceLevel7 = (item.canPrice/2).toFixed(2);
 
     if (item.canStock > 0) {
       options.body[0].InventoryControl = 3;
@@ -1681,7 +1639,6 @@ function saveItemMultiple(items, qbws) {
 
 function saveShowOrder(order) {
   var promises = [];
-  var total = 0;
   var customer = order.customer;
 
   var findShowOrder = ShowOrder.findOne({_id: order._id});
@@ -1693,7 +1650,6 @@ function saveShowOrder(order) {
       showOrder.markModified('showItems');
       showOrder.notes = order.notes;
       showOrder.coupon = order.coupon;
-      //showOrder.discount = order.discount;
       return showOrder.save();
     } else {
       var newOrder = new ShowOrder();
@@ -1701,7 +1657,6 @@ function saveShowOrder(order) {
       newOrder.showItems = order.showItems;
       newOrder.notes = order.notes;
       newOrder.coupon = order.coupon;
-      //newOrder.discount = order.discount;
       return newOrder.save();
     }
   });
@@ -1755,15 +1710,32 @@ function saveShowOrder(order) {
         var foundItem = false;
         dbItems.forEach(dbItem => {
           if (dbItem && item.sku == dbItem.sku) {
-            var lineTotal = (dbItem.usPrice / 2) * item.quantity;
-            total += lineTotal; // wholesale prices
-            item.total = lineTotal;
+            var price = 0;
+            var stock = 0;
+            var quantity = 0;
+            if (customer.website == 'canada') {
+              price = dbItem.canPrice;
+              stock = dbItem.canStock;
+            } else {
+              price = dbItem.usPrice;
+              stock = dbItem.usStock;
+            }
+            if (customer.profile == '2' || customer.profile == '14') { // wholesale
+              price = price / 2;
+            }
+            if (stock <= 0) { // Item is out of stock so 0 it out on the order
+              quantity = 0;
+            } else {
+              quantity = item.quantity;
+            }
+
             foundItem = true;
             orderItem = {
               ItemID: item.sku,
-              ItemQuantity: item.quantity,
-              ItemUnitPrice: (dbItem.usPrice / 2),
-              ItemDescription: dbItem.name
+              ItemQuantity: quantity,
+              ItemUnitPrice: price,
+              ItemDescription: dbItem.name,
+              ItemUnitStock: stock
             };
           }
         });
@@ -1783,7 +1755,7 @@ function saveShowOrder(order) {
           return dbShowOrder;
         }
       }).catch((message) => {
-        console.log(message);
+        return Promise.reject(new Error(message));
       });
     });
   });

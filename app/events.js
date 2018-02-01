@@ -383,7 +383,9 @@
  				console.log('finished the promise');
  				socket.emit('saveShowOrderFinished', null, response);
  			}).catch(err => {
- 				socket.emit('saveShowOrderFinished', err, null)
+ 				console.log('caught an error');
+ 				console.log(err);
+ 				socket.emit('saveShowOrderFinished', err, null);
  			});
  		});
 

@@ -214,17 +214,18 @@ function adjustInventory(cartOrders) {
 				if (dbItem != null && dbItem.isOption) {
 					advancedOptionUpdate(dbItem, item.ItemUnitStock, !canadian);
 				} else if (dbItem != null && !dbItem.isOption) {
-					var productUpdate = {
+					var newStock = item.ItemUnitStock - item.ItemQuantity;
+					var newProductStock = {
 						SKUInfo: {
 							SKU: dbItem.sku,
-							Stock: item.ItemUnitStock
+							Stock: newStock
 						}
 					};
-					return productUpdate;
-					dbItem.stock = item.ItemUnitStock;
-					dbItem.usStock = item.ItemUnitStock;
-					dbItem.canStock = item.ItemUnitStock;
+					dbItem.stock = newStock;
+					dbItem.usStock = newStock;
+					dbItem.canStock = newStock;
 					dbItem.save();
+					return newProductStock;
 				} else {
 					console.log('item not found: ' + sku);
 					console.log('order: ' + order.OrderID);

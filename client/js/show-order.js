@@ -81,10 +81,12 @@ $(document).ready(function() {
 	$('#searchCustomerButton').click(e => {
 		var customerEmail = $('#customerEmailModal').val();
 		socket.emit('searchCustomer3DCart', customerEmail, $('#websiteSelect').val() == 'canada');
+		$('#searchCustomerButton').button('loading');
 	});
 });
 
 socket.on('searchCustomer3DCartFinished', (err, customer) => {
+	$('#searchCustomerButton').button('reset');
 	if (err) {
 		console.log(err);
 		$('#emailSearchInfo').text('An error has occurred');
