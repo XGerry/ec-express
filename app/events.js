@@ -268,9 +268,10 @@
  		});
 
  		socket.on('loadFrom3DCart', function(prefix, orderNumber) {
- 			cart3d.getOrder({
+ 			var getOrder = cart3d.getOrder({
  				invoicenumber: orderNumber
- 			}, prefix == 'CA', function(response) {
+ 			}, prefix == 'CA');
+ 			getOrder.then(response => {
  				socket.emit('receivedOrder', response);
  			});
  		});

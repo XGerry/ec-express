@@ -533,27 +533,10 @@ function doRebuild(canadian, cartItems, finalCallback) {
 	});
 }
 
-function getOrder(query, canadian, callback) {
-  var options = {
-    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    qs : query
-  };
-
-  if (canadian) {
-    options.headers.SecureUrl = secureUrlCa;
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-  }
-
-  console.log(options);
-
-  request(options, function(err, response, body) {
-    callback(JSON.parse(body));
-  });
+function getOrder(query, canadian) {
+  var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders', 'GET', canadian);
+  options.qs = query;
+  return rp(options);
 }
 
 /**
@@ -805,15 +788,15 @@ function createOrdersInDB(orders, callback) {
 
   async.parallel(operations, function(err) {
     // Hubspot update
-    helpers.updateContacts(contacts, function(message) {
-      console.log('Hubspot Response:')
-      if (message) {
-        console.log(message.statusCode);
-        if (message.statusCode == 400) {
-          console.log(message);
-        }
-      }
-    });
+    // helpers.updateContacts(contacts, function(message) {
+    //   console.log('Hubspot Response:')
+    //   if (message) {
+    //     console.log(message.statusCode);
+    //     if (message.statusCode == 400) {
+    //       console.log(message);
+    //     }
+    //   }
+    // });
     callback();
   });
 }
@@ -1721,12 +1704,16 @@ function saveShowOrder(order) {
               stock = dbItem.usStock;
             }
             if (customer.profile == '2' || customer.profile == '14') { // wholesale
-              price = price / 2;
+              price = (price / 2); // this should actually use the real wholesale pricing
             }
-            if (stock <= 0) { // Item is out of stock so 0 it out on the order
-              quantity = 0;
+            if (stock < quantity) { // Item is out of stock so 0 it out on the order
+              quantity = stock;
             } else {
               quantity = item.quantity;
+            }
+
+            if (stock <= 0) { // back order it
+              quantity = 0;
             }
 
             foundItem = true;

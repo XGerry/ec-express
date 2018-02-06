@@ -93,5 +93,14 @@ mixin navbar(active)
 								else
 									li
 										a(href="/list-orders") List Orders
+						li.dropdown
+							a.dropdown-toggle(href="#", data-toggle="dropdown",role="button",aria-haspopup="true",aria-expanded="false") Picking #[span.caret]
+							ul.dropdown-menu
+								if active == "picksheet"
+									li.active
+										a(href="/picksheet") Pick Sheet
+								else
+									li
+										a(href="/picksheet") Pick Sheet
 						
 					ul.nav.navbar-nav.navbar-right#nav-right

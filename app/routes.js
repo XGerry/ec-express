@@ -2,6 +2,7 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
+var Order = require('./model/order');
 var Manifest = require('./model/manifest');
 var cart3d = require('./3dcart');
 
@@ -143,6 +144,32 @@ module.exports = function(app, passport) {
 
   app.get('/order-import', function(req, res) {
     res.render('order-import');
+  });
+
+  app.get('/picksheet', function(req, res) {
+    var orderId = req.query.orderId;
+    var id = req.query.id;
+    if (id) {
+      var findOrder = Order.findOne({_id: orderId});
+      findOrder.then(order => {
+        res.render('picksheet', {
+          order: order
+        });
+      });
+    } else if (orderId) {
+      var prefix = orderId.split('-')[0];
+      var invoiceId = orderId.split('-')[1];
+      var getOrder = cart3d.getOrder({invoicenumber: invoiceId}, prefix == 'CA');
+      getOrder.then((orders) => {
+        res.render('picksheet', {
+          order: orders[0]
+        });
+      }).catch(err => {
+        res.render('picksheet');
+      });
+    } else {
+      res.render('picksheet');
+    }
   });
 
   app.get('/show-order', function(req, res) {
