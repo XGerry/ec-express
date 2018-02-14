@@ -4,6 +4,7 @@ var request = require('request');
 var builder = require('xmlbuilder');
 var Item = require('./model/item');
 var qs = require('qs');
+var rp = require('request-promise-native');
 
 function generateSignature(fullURL, httpMethod, timestamp) {
 	var stringToSign = process.env.WM_CONSUMER_ID + '\n' +
@@ -105,10 +106,12 @@ function updateAllInventory() {
 	var savingItems = [];
 	findAllItems.then(function(items) {
 		items.forEach(function(item) {
-			if (item.stock > 30) {
+			if (item.stock > 10) {
 				item.walmartStock = 2;
-				savingItems.push(item.save());
+			} else {
+				item.walmartStock = 0;
 			}
+			savingItems.push(item.save());
 		});
 	});
 	

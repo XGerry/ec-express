@@ -377,9 +377,9 @@ module.exports = {
 			customerSupportBot(slackMessage);
 
 			var mailOptions = {
-				from: 'support@ecstasycrafts.com',
+				from: 'sales@ecstasycrafts.com',
 				replyTo: wholesaleApp.email,
-				to: 'support@ecstasycrafts.com',
+				to: 'sales@ecstasycrafts.com',
 				subject: '[Wholesale Application] from ' + wholesaleApp.companyName
 			};
 

@@ -51,7 +51,7 @@ function createShippingAddress(order) {
 }
 
 function addCustomerRq(order, requestID) {
-  console.log('Creating customer ' + order.BillingFirstName);
+  console.log('Creating customer ' + order.BillingFirstName + ' ' + order.BillingLastName);
 
   // figure out what tax code they will get based on their billing address
   var shippingAddress = createShippingAddress(order);

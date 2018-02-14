@@ -1633,6 +1633,7 @@ function saveShowOrder(order) {
       showOrder.markModified('showItems');
       showOrder.notes = order.notes;
       showOrder.coupon = order.coupon;
+      showOrder.discount = order.discount;
       return showOrder.save();
     } else {
       var newOrder = new ShowOrder();
@@ -1640,6 +1641,7 @@ function saveShowOrder(order) {
       newOrder.showItems = order.showItems;
       newOrder.notes = order.notes;
       newOrder.coupon = order.coupon;
+      newOrder.discount = order.discount;
       return newOrder.save();
     }
   });
@@ -1650,6 +1652,7 @@ function saveShowOrder(order) {
 
   return savedOrder.then((dbShowOrder) => {
     return Promise.all(promises).then((dbItems) => {
+      var skus = [];
       var cartOrder = {
         BillingFirstName: customer.firstname,
         BillingLastName: customer.lastname,
@@ -1688,6 +1691,7 @@ function saveShowOrder(order) {
       }
 
       order.showItems.forEach(item => {
+        skus.push(item.sku);
         // find the item in the db
         var orderItem = {};
         var foundItem = false;
@@ -1706,7 +1710,14 @@ function saveShowOrder(order) {
             if (customer.profile == '2' || customer.profile == '14') { // wholesale
               price = (price / 2); // this should actually use the real wholesale pricing
             }
-            if (stock < quantity) { // Item is out of stock so 0 it out on the order
+
+            if (order.discount != 0 && order.discount != '') {
+              var discountPercentage = order.discount / 100;
+              discountPercentage = 1 - discountPercentage;
+              price = price * discountPercentage;
+            }
+
+            if (stock < item.quantity) {
               quantity = stock;
             } else {
               quantity = item.quantity;
@@ -1718,12 +1729,17 @@ function saveShowOrder(order) {
 
             foundItem = true;
             orderItem = {
-              ItemID: item.sku,
+              ItemID: item.sku.trim(),
               ItemQuantity: quantity,
               ItemUnitPrice: price,
               ItemDescription: dbItem.name,
               ItemUnitStock: stock
             };
+            if (customer.website == 'canada') {
+              orderItem.CatalogID = dbItem.catalogIdCan;
+            } else {
+              orderItem.CatalogID = dbItem.catalogId;
+            }
           }
         });
         if (foundItem) {
@@ -1733,6 +1749,8 @@ function saveShowOrder(order) {
         }
       });
 
+      console.log(dbShowOrder.orderId);
+
       var saveToWebsite = saveOrder(cartOrder, dbShowOrder.orderId, customer.website == 'canada');
       return saveToWebsite.then((response) => {
         if (response[0].Status == '201' || response[0].Status == '200') { // success
@@ -1741,7 +1759,9 @@ function saveShowOrder(order) {
         } else {
           return dbShowOrder;
         }
+        console.log(response);
       }).catch((message) => {
+        console.log(message);
         return Promise.reject(new Error(message));
       });
     });

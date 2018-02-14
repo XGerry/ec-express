@@ -83,6 +83,12 @@ $(document).ready(function() {
 		socket.emit('searchCustomer3DCart', customerEmail, $('#websiteSelect').val() == 'canada');
 		$('#searchCustomerButton').button('loading');
 	});
+
+	$('#clearOrderButton').click(e => {
+		showItems = [];
+		order.showItems = [];
+		$('#orderSheet').empty();
+	});
 });
 
 socket.on('searchCustomer3DCartFinished', (err, customer) => {
@@ -163,6 +169,7 @@ function addItem() {
 }
 
 function loadFromTemplate(items) {
+	$('#orderSheet').empty();
 	items.forEach((item) => {
 		addItemToOrder(item.sku, item.quantity);
 	});
@@ -185,6 +192,7 @@ function loadOrder(dbOrder) {
 			}
 
 			addCustomerRow(customer);
+			$('#orderSheet').empty();
 			showItems.forEach((item) => {addItemRow(item)});
 		}
 	}
@@ -397,6 +405,7 @@ function saveOrder() {
 	order.notes = $('#notesArea').val();
 	order.customer = customer;
 	order.coupon = $('#couponCode').val();
+	order.discount = $('#discount').val();
 	socket.emit('saveShowOrder', order);
 	showLoading();
 }

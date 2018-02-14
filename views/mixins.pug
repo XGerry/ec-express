@@ -46,20 +46,27 @@ mixin navbar(active)
 								else
 									li
 										a(href="/inventory") Inventory
-						if active == "database"
-							li
-								a(href="/database") Database
-						else
-							li
-								a(href="/database") Database
-						if active == "amazon"
-							li
-								a(href="/amazon") Feeds
-						else
-							li
-								a(href="/amazon") Feeds
-						li
-							a(href="/product-upload.html") Product Upload
+						li.dropdown
+							a.dropdown-toggle(href="#", data-toggle="dropdown",role="button",aria-haspopup="true",aria-expanded="false") Products #[span.caret]
+							ul.dropdown-menu
+								if active == "database"
+									li.active
+										a(href="/database") Database
+								else
+									li
+										a(href="/database") Database
+								if active == "amazon"
+									li.active
+										a(href="/amazon") Feeds
+								else
+									li
+										a(href="/amazon") Feeds
+								if active == "upload"
+									li.active
+										a(href="/product-upload") Upload
+								else
+									li
+										a(href="/product-upload") Upload
 						li.dropdown
 							a.dropdown-toggle(href="#", data-toggle="dropdown",role="button",aria-haspopup="true",aria-expanded="false") Orders #[span.caret]
 							ul.dropdown-menu

@@ -204,4 +204,8 @@ module.exports = function(app, passport) {
       });
     });
   });
+
+  app.get('/product-upload', (req, res) => {
+    res.render('product-upload');
+  });
 }

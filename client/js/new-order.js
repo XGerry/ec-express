@@ -16,7 +16,7 @@ var updatingOrder = false;
 
 $(document).ready(function() {
 	$('#itemSKU').on('input propertychange', function() {
-		socket.emit('searchSKU', $('#itemSKU').val());
+		//socket.emit('searchSKU', $('#itemSKU').val());
 	});
 
 	$('#itemSKU').on('keydown', function(e) {
@@ -24,6 +24,8 @@ $(document).ready(function() {
 		if (code === 9) {
 			var sku = $('#itemSKU').val().toUpperCase().trim();
 			socket.emit('searchDB', {sku: sku});
+		} else if (e.ctrlKey && code === 40) { // down arrow
+			socket.emit('searchSKU', $('#itemSKU').val());
 		}
 	});
 
@@ -49,15 +51,14 @@ $(document).ready(function() {
 	});
 
 	$('#addItemButton').click(function(e) {
-		theItem.quantity = $('#itemQuantity').val();
-		theItem.salesPrice = $('#itemPrice').val();
-		itemsInOrder.push(theItem);
-		addItemRow(theItem);
-		theItem = {};
-		$('#addItemButton').prop('disabled', 'disabled');
-		emptyItemLine();
-		$('#itemSKU').focus();
-		calculateTotals();
+		addItemToOrder();
+	});
+
+	$('#lineTotal').on('keydown', e => {
+		if (e.keyCode == 9) { // tab
+			e.preventDefault();
+			addItemToOrder();
+		}
 	});
 
 	$('#saveToSiteButton').click(function(e) {
@@ -81,8 +82,10 @@ $(document).ready(function() {
 		calculateTotals();
 	});
 
-	$('#customerSearch').on('input propertychange', function() {
-		socket.emit('searchCustomer', $('#customerSearch').val());
+	$('#searchCustomerButton').click(e => {
+		var customerEmail = $('#customerEmailModal').val();
+		socket.emit('searchCustomer3DCart', customerEmail, $('#websiteSelect').val() == 'canada');
+		$('#searchCustomerButton').button('loading');
 	});
 
 	$('#loadFrom3DCartButton').click(function() {
@@ -152,11 +155,44 @@ socket.on('searchSKUFinished', function(items) {
 
 socket.on('searchFinished', function(items) {
 	// just want the first item
-	var item = items[0];
-	fillItemLine(item);
-	calculateLineTotal();
-	theItem = item;
+	if (items.length == 0) {
+		console.log('not found');
+		socket.emit('searchSKU', $('#itemSKU').val());
+		$('#itemSKU').focus();
+	} else {
+		var item = items[0];
+		fillItemLine(item);
+		calculateLineTotal();
+		theItem = item;
+	}
 });
+
+socket.on('searchCustomer3DCartFinished', (err, customer) => {
+	$('#searchCustomerButton').button('reset');
+	if (err) {
+		console.log(err);
+		$('#emailSearchInfo').text('An error has occurred');
+	} else {
+		if (customer.length > 0) {
+			$('#emailSearchInfo').text(customer.length + ' customer(s) were found.');
+			populateCustomerInfo(customer[0]);
+		} else {
+			$('#emailSearchInfo').text('No customers were found.');
+		}
+	}
+});
+
+function addItemToOrder() {
+	theItem.quantity = $('#itemQuantity').val();
+	theItem.salesPrice = $('#itemPrice').val();
+	itemsInOrder.push(theItem);
+	addItemRow(theItem);
+	theItem = {};
+	$('#addItemButton').prop('disabled', 'disabled');
+	emptyItemLine();
+	$('#itemSKU').focus();
+	calculateTotals();
+}
 
 function fillItemLine(item) {
 	$('#itemName').val(item.name);
@@ -226,6 +262,7 @@ function saveCustomer() {
 	$('#customerModal').modal('hide');
 
 	// save the customer to the database
+	theCustomer.companyName = $('#companyName').val();
 	theCustomer.firstname = $('#customerFirstName').val();
 	theCustomer.lastname = $('#customerLastName').val();
 	theCustomer.email = $('#customerEmailModal').val();
@@ -242,8 +279,9 @@ function saveCustomer() {
 	theCustomer.shippingState = $('#shippingState').val();
 	theCustomer.shippingCountry = $('#shippingCountry').val();
 	theCustomer.shippingZipCode = $('#shippingZip').val();
+	theCustomer.profile = $('#profileSelect').val();
+	theCustomer.website = $('#websiteSelect').val();
 
-	socket.emit('saveCustomer', theCustomer);
 	addCustomerRow(theCustomer);
 }
 
@@ -289,6 +327,29 @@ function setCustomerModalFields(customer) {
 	$('#shippingState').val(customer.shippingState);
 	$('#shippingCountry').val(customer.shippingCountry);
 	$('#shippingZip').val(customer.shippingZipCode);
+	$('#profileSelect').val(customer.profile);
+	$('#websiteSelect').val(customer.website);
+}
+
+function populateCustomerInfo(customer) {
+	$('#customerName').val(customer.BillingFirstName + customer.BillingLastName);
+	$('#companyName').val(customer.ShippingCompany);
+	$('#customerFirstName').val(customer.BillingFirstName);
+	$('#customerLastName').val(customer.BillingLastName);
+	$('#customerPhone').val(customer.BillingPhoneNumber);
+	$('#billingAddress').val(customer.BillingAddress1);
+	$('#billingAddress2').val(customer.BillingAddress2);
+	$('#billingCity').val(customer.BillingCity);
+	$('#billingState').val(customer.BillingState);
+	$('#billingCountry').val(customer.BillingCountry);
+	$('#billingZip').val(customer.BillingZipCode);
+	$('#shippingAddress').val(customer.ShippingAddress1);
+	$('#shippingAddress2').val(customer.ShippingAddress2);
+	$('#shippingCity').val(customer.ShippingCity);
+	$('#shippingState').val(customer.ShippingState);
+	$('#shippingCountry').val(customer.ShippingCountry);
+	$('#shippingZip').val(customer.ShippingZipCode);
+	$('#profileSelect').val(customer.CustomerGroupID);
 }
 
 function setItemModalFields(item) {
@@ -340,7 +401,6 @@ function calculateTotals() {
 	var tax = 0;
 	subTotal = 0;
 	total = 0;
-
 
 	itemsInOrder.forEach(function(item) {
 		var itemTotal = item.quantity * item.salesPrice;
