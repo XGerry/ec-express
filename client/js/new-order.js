@@ -1,18 +1,11 @@
 var socket = io();
 
 var itemsInOrder = [];
-var usOrder = false;
-var customerProfile = 'retail';
 var theItem = {};
 var theOrder = {};
 var theCustomer = {};
 var theEditItem = {};
-var salesTax = 0;
-var subTotal = 0;
-var shipping = 0;
-var total = 0;
-var paymentMethod = 'On Account';
-var updatingOrder = false;
+var loadingOrder = false;
 
 $(document).ready(function() {
 	$('#itemSKU').on('input propertychange', function() {
@@ -31,15 +24,6 @@ $(document).ready(function() {
 
 	$('#profileSelect').change(function(e) {
 		customerProfile = $('#profileSelect').val();
-	});
-
-	$('#websiteSelect').change(function(e) {
-		var site = $('#websiteSelect').val();
-		if (site === 'canada') {
-			usOrder = false;
-		} else {
-			usOrder = true;
-		}
 	});
 
 	$('#itemQuantity').change(function(e) {
@@ -62,7 +46,8 @@ $(document).ready(function() {
 	});
 
 	$('#saveToSiteButton').click(function(e) {
-		socket.emit('saveOrder', generateOrder(), !usOrder);
+		$('#saveToSiteButton').button('loading');
+		socket.emit('saveCustomOrder', generateOrder());
 	});
 
 	$('#sameAsShippingButton').click(function(e) {
@@ -82,67 +67,117 @@ $(document).ready(function() {
 		calculateTotals();
 	});
 
+	$('#shipping').change(e => {
+		calculateTotals();
+	});
+
+	$('#discount').change(e => {
+		calculateTotals();
+	});
+
+	$('#discountType').change(e => {
+		var type = $('#discountType').val();
+		if (type == 'percentage') {
+			$('#typeSymbol').text('%');
+		} else {
+			$('#typeSymbol').text('$');
+		}
+	});
+
 	$('#searchCustomerButton').click(e => {
+		loadingOrder = false;
 		var customerEmail = $('#customerEmailModal').val();
 		socket.emit('searchCustomer3DCart', customerEmail, $('#websiteSelect').val() == 'canada');
 		$('#searchCustomerButton').button('loading');
 	});
 
-	$('#loadFrom3DCartButton').click(function() {
-		socket.emit('loadFrom3DCart', $('#prefixSelect').val(), $('#orderNumber').val());
+	$('#findOrderButton').click(function() {
+		socket.emit('loadFrom3DCart', $('#orderPrefix').val(), $('#orderNumber').val());
+		$('#orderImportModal').modal('hide');
+	});
+
+	$('#clearItemsButton').click(e => {
+		e.preventDefault();
+		itemsInOrder = [];
+		buildOrderTable();
+		calculateTotals();
+	});
+
+	$('#browseButton').click(e => {
+		e.preventDefault();
+		$('#fileInput').val('');
+		$('#fileInput').click();
+	});
+
+	$('#removeFromOrderButton').click(e => {
+		var i = itemsInOrder.indexOf(theEditItem);
+		itemsInOrder.splice(i, 1);
+		buildOrderTable();
+		calculateTotals();
+		$('#itemModal').modal('hide');
+	});
+
+	$('#fileInput').on('change', e => {
+		console.log('file change');
+		$('#fileName').text(e.target.files[0].name);
+
+		$('#fileInput').parse({
+			config: {
+				complete: function(results, file) {
+					loadFromFile(results.data);
+				},
+				header: true
+			},
+			complete: function() {
+				console.log('all files done');
+			}
+		});
 	});
 });
 
 socket.on('receivedOrder', function(orders) {
-	theOrder = orders[0];
-	theCustomer = {
-		billingAddress: theOrder.BillingAddress,
-		billingAddress2: theOrder.BillingAddress2,
-		billingCity: theOrder.BillingCity,
-		companyName: theOrder.BillingCompany,
-		email: theOrder.BillingEmail,
-		firstname: theOrder.BillingFirstName,
-		lastname: theOrder.BillingLastName,
-		billingState: theOrder.BillingState,
-		billingZipCode: theOrder.BillingZipCode,
-		shippingAddress: theOrder.ShipmentList[0].ShipmentAddress,
-		shippingAddress2: theOrder.ShipmentList[0].ShipmentAddress2,
-		shippingCity: theOrder.ShipmentList[0].ShipmentCity,
-		companyName: theOrder.ShipmentList[0].ShipmentCompany,
-		shippingState: theOrder.ShipmentList[0].ShipmentState,
-		shippingZipCode: theOrder.ShipmentList[0].ShipmentZipCode,
-		phone: theOrder.BillingPhoneNumber
-	};
+	loadingOrder = true;
+	var cartOrder = orders[0];
+	console.log(cartOrder);
 
-	usOrder = theOrder.InvoicePrefix == "AB-";
+	var website = cartOrder.InvoiceNumberPrefix == 'CA-' ? 'canada' : 'us';
+	var customerEmail = cartOrder.BillingEmail.trim();
+	$('#websiteSelect').val(website);
+	console.log(website);
+	socket.emit('searchCustomer3DCart', customerEmail, website == 'canada');
 
 	itemsInOrder = [];
-	theOrder.OrderItemList.forEach(function(item) {
+	cartOrder.OrderItemList.forEach(function(item) {
 		var orderItem = {
 			name: item.ItemDescription,
 			sku: item.ItemID,
 			quantity: item.ItemQuantity,
 			imageURL: item.ItemImage1,
-			salesPrice: item.ItemUnitPrice
+			salesPrice: item.ItemUnitPrice,
+			usStock: item.ItemUnitStock,
+			canStock: item.ItemUnitStock,
+			location: item.ItemWarehouseLocation
 		}
 		itemsInOrder.push(orderItem);
 	});
 
-	addCustomerRow(theCustomer);
+	$('#orderStatus').val(cartOrder.OrderStatusID);
+
+	$('#shipping').val(cartOrder.ShipmentList[0].ShipmentCost);
+	$('#discountType').val('dollar');
+	$('#discount').val(cartOrder.OrderDiscountPromotion);
+	$('#notesArea').val(cartOrder.CustomerComments);
+	$('#taxes').val(cartOrder.SalesTax);
+
+	if (theCustomer.billingState == 'ON') {
+		$('#taxOptions').val(13);
+	}
+	
+	theOrder.items = itemsInOrder;
+	theOrder.orderId = cartOrder.OrderID;
+
 	buildOrderTable();
 	calculateTotals();
-});
-
-socket.on('searchCustomerFinished', function(customers) {
-	$('#emailList').empty();
-	customers.forEach(function(customer) {
-		$('#emailList').append('<option>'+customer.email+'</option>');
-	});
-
-	if (customers.length == 1) {
-		// load the customer fields in
-		setCustomerModalFields(customers[0]);
-	}
 });
 
 socket.on('searchSKUFinished', function(items) {
@@ -176,11 +211,36 @@ socket.on('searchCustomer3DCartFinished', (err, customer) => {
 		if (customer.length > 0) {
 			$('#emailSearchInfo').text(customer.length + ' customer(s) were found.');
 			populateCustomerInfo(customer[0]);
+			if (loadingOrder) {
+				$('#customerEmailModal').val(customer[0].Email);
+				saveCustomer();
+			}
 		} else {
 			$('#emailSearchInfo').text('No customers were found.');
 		}
 	}
 });
+
+socket.on('findingItemsFinished', items => {
+	console.log('received the items');
+	console.log(items);
+	items.forEach(item => {
+		item.salesPrice = determineItemPrice(item);
+		itemsInOrder.push(item);
+		addItemRow(item);
+	});
+	calculateTotals();
+});
+
+socket.on('saveCustomOrderFinished', order => {
+	theOrder = order;
+	$('#saveToSiteButton').button('reset');
+	// put the notes in
+});
+
+function loadFromFile(items) {
+	socket.emit('findItemsForOrder', items);
+}
 
 function addItemToOrder() {
 	theItem.quantity = $('#itemQuantity').val();
@@ -196,19 +256,35 @@ function addItemToOrder() {
 
 function fillItemLine(item) {
 	$('#itemName').val(item.name);
+	var price = determineItemPrice(item);
+	$('#itemPrice').val(price.toFixed(2));
+}
 
+function determineItemPrice(item) {
 	var price = 0;
-	if (usOrder) {
-		price = item.usPrice;
+	if (theCustomer.website == 'canada') {
+		if (item.onSale) {
+			price = item.canSalePrice;
+		} else {
+			price = item.canPrice;
+		}
 	}
 	else {
-		price = item.canPrice;
+		if (item.onSale) {
+			price = item.usSalePrice;
+		} else {
+			price = item.usPrice;
+		}
 	}
 
-	if (customerProfile === 'wholesale') {
-		price = price / 2;
+	if (theCustomer.profile == '2' || theCustomer.profile == '14') { // wholesale
+		if (theCustomer.website == 'canada') {
+			price = item.canWholesalePrice;
+		} else {
+			price = item.usWholesalePrice;
+		}
 	}
-	$('#itemPrice').val(price.toFixed(2));
+	return price;
 }
 
 function calculateLineTotal() {
@@ -223,7 +299,8 @@ function addItemRow(item) {
 	var sku = $('<td></td>').text(item.sku);
 	var name = $('<td></td>').text(item.name);
 	var quantity = $('<td></td>').text(item.quantity);
-	var price = $('<td></td>').text('$'+item.salesPrice);
+	var salesPrice = parseFloat(item.salesPrice);
+	var price = $('<td></td>').text('$'+salesPrice.toFixed(2));
 	var lineTotal = item.quantity * item.salesPrice;
 	var linePrice = $('<td></td>').text('$'+lineTotal.toFixed(2));
 
@@ -399,63 +476,49 @@ function buildOrderTable() {
 
 function calculateTotals() {
 	var tax = 0;
-	subTotal = 0;
-	total = 0;
+	var subTotal = 0;
+	var total = 0;
+	var discount = 0;
+	var shipping = 0;
 
 	itemsInOrder.forEach(function(item) {
 		var itemTotal = item.quantity * item.salesPrice;
 		subTotal += itemTotal;
 	});
 
-	tax = $('#taxOptions').val() / 100;
-	salesTax = tax * subTotal;
+	var discountType = $('#discountType').val();
+	if (discountType == 'percentage') {
+		var discPercentage = parseFloat($('#discount').val());
+		if (discPercentage > 0) {
+			discPercentage = discPercentage / 100;
+		} else {
+			discPercentage = 0;
+		}
+		discount = subTotal * discPercentage;
+	} else {
+		discount = parseFloat($('#discount').val());
+	}
 
-	total = subTotal + salesTax + shipping;
+	shipping = parseFloat($('#shipping').val());
+	tax = parseFloat($('#taxOptions').val()) / 100;
+	var salesTax = tax * (subTotal - discount + shipping);
+	total = subTotal - discount + salesTax + shipping;
 
-	$('#subtotal').val(subTotal.toFixed(2));
+	$('#subTotalTable').text('$'+subTotal.toFixed(2));
+	$('#totalDiscount').val(discount.toFixed(2));
 	$('#taxes').val(salesTax.toFixed(2));
 	$('#total').val(total.toFixed(2));
+
+	theOrder.total = total.toFixed(2);
+	theOrder.subTotal = subTotal.toFixed(2);
+	theOrder.discount = discount.toFixed(2);
+	theOrder.tax = salesTax.toFixed(2);
+	theOrder.shipping = shipping.toFixed(2);
 }
 
 function generateOrder() {
-	var order = {
-		BillingFirstName: theCustomer.firstname,
-		BillingLastName: theCustomer.lastname,
-		BillingAddress: theCustomer.billingAddress,
-		BillingAddress2: theCustomer.billingAddress2,
-		BillingCompany: theCustomer.companyName,
-		BillingCity: theCustomer.billingCity,
-		BillingCountry: theCustomer.billingCountry,
-		BillingZipCode: theCustomer.billingZipCode,
-		BillingPhoneNumber: theCustomer.phone,
-		BillingEmail: theCustomer.email,
-		BillingPaymentMethod: paymentMethod,
-		BillingPaymentMethodID: '49', // need to look up all of these
-		ShipmentList: [{
-			ShipmentOrderStatus: 1, // NEW
-			ShipmentFirstName: theCustomer.firstname,
-      ShipmentLastName: theCustomer.lastname,
-      ShipmentAddress: theCustomer.shippingAddress,
-      ShipmentCity: theCustomer.shippingCity,
-      ShipmentState: theCustomer.shippingState,
-      ShipmentCountry: theCustomer.shippingCountry,
-      ShipmentZipCode: theCustomer.shippingZipCode,
-      ShipmentPhone: theCustomer.phone
-		}],
-		OrderItemList: [],
-		SalesTax: salesTax,
-		OrderStatusID: 1 // NEW
-	};
-
-	itemsInOrder.forEach(function(item) {
-		var orderItem = {
-			ItemID: item.sku,
-			ItemQuantity: item.quantity,
-			ItemUnitPrice: item.salesPrice,
-			ItemDescription: item.name
-		}
-		order.OrderItemList.push(orderItem);
-	});
-
-	return order;
+	theOrder.customer = theCustomer;
+	theOrder.items = itemsInOrder;
+	theOrder.comments = $('#notesArea').val();
+	return theOrder;
 }

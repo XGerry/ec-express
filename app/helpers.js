@@ -1202,6 +1202,37 @@ function updateAddress(dbAddress, shipmentInfo) {
   return dbAddress.save();
 }
 
+function findItemsForOrder(itemList) {
+  var skus = [];
+  
+  // remove duplicates
+  for (var i = 0; i < itemList.length; i++) {
+    for (var j = 0; j < itemList.length; j++) {
+      if (itemList[i].sku == itemList[j].sku && i != j) { // duplicate
+        var quantity = parseInt(itemList[i].quantity) + parseInt(itemList[j].quantity);
+        itemList[i].quantity = quantity;
+        // now remove it from the list
+        itemList.splice(j, 1);
+        j--;
+      }
+    }
+    skus.push(itemList[i].sku);
+  }
+
+  var findItems = Item.find({sku: {$in: skus}}).lean();
+  return findItems.then(items => {
+    items.forEach(dbItem => {
+      itemList.forEach(item => {
+        if (dbItem.sku == item.sku) {
+          dbItem.quantity = item.quantity;
+        }
+      });
+    });
+
+    return items;
+  });
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1241,5 +1272,6 @@ module.exports = {
   saveManifest: saveManifest,
   removeManifest: removeManifest,
   searchAddress: searchAddress,
-  saveAddress: saveAddress
+  saveAddress: saveAddress,
+  findItemsForOrder: findItemsForOrder
 }

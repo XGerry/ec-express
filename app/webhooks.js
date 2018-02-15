@@ -215,6 +215,9 @@ function adjustInventory(cartOrders) {
 					advancedOptionUpdate(dbItem, item.ItemUnitStock, !canadian);
 				} else if (dbItem != null && !dbItem.isOption) {
 					var newStock = item.ItemUnitStock - item.ItemQuantity;
+					if (newStock < 0) {
+						newStock = 0;
+					}
 					var newProductStock = {
 						SKUInfo: {
 							SKU: dbItem.sku,

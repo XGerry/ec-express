@@ -215,9 +215,15 @@
  		});
 
  		socket.on('searchDB', function(query) {
- 			console.log(query);
  			helpers.search(query, function(err, items) {
  				socket.emit('searchFinished', items);
+ 			});
+ 		});
+
+ 		socket.on('findItemsForOrder', itemList => {
+ 			var findItems = helpers.findItemsForOrder(itemList)
+ 			findItems.then(items => {
+ 				socket.emit('findingItemsFinished', items);
  			});
  		});
 
@@ -245,11 +251,11 @@
  			});
  		});
 
- 		socket.on('saveOrder', function(order, isCanadian) {
- 			console.log('saving order'); // FIXME
- 			// cart3d.saveOrder(order, isCanadian, function(response) {
- 			// 	console.log(response);
- 			// });
+ 		socket.on('saveCustomOrder', order => {
+ 			var savingOrder = cart3d.saveCustomOrder(order);
+ 			savingOrder.then(response => {
+ 				socket.emit('saveCustomOrderFinished', response);
+ 			});
  		});
 
  		/**

@@ -5,20 +5,35 @@ html
 		title New Order
 	body
 		+navbar("new-order")
-		nav.navbar.navbar-default.navbar-fixed-top.top-50(style="z-index:1;")
+		nav.navbar.navbar-default.navbar-fixed-top.top-50(style="z-index:100;")
 			.container
 				h4.navbar-text New Order
+				form.navbar-form.navbar-left
+					.form-group
+						select.form-control#orderStatus
+							option(value=1) New
+							option(value=2) Processing
+							option(value=4) Shipped
+							option(value=6) Hold
+							option(value=8) Completed
+							option(value=5) Cancel
 				ul.nav.navbar-nav.navbar-right
+					li.dropdown
+						a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") Actions #[span.caret]
+						ul.dropdown-menu
+							li
+								a(href="#")#clearItemsButton Clear Items
+							li.divider(role="separator")
+							li
+								a#deleteOrder(href="#") Delete
 					li.dropdown
 						a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") Import #[span.caret]
 						ul.dropdown-menu
 							li 
-								a#browseButton(href="#") Browse for file
+								a(href="#")#browseButton Browse for file
+								input(type="file", style="display:none;")#fileInput
 							li 
-								a#calculateTotals(href="#") Enter invoice number
-							li.divider(role="separator")
-							li
-								a#deleteOrder(href="#") Delete
+								a(href="#", data-toggle="modal", data-target="#orderImportModal") Enter invoice number
 					button.btn.btn-success.navbar-btn(type="button")#saveToSiteButton Save
 		.container(style="margin-top:75px;")
 			.panel.panel-default
@@ -73,61 +88,80 @@ html
 								th Name
 								th Quantity
 								th Price
-								th Total
+								th Line Total
 						tbody#orderTableBody
+						tfoot
+							tr
+								th
+								th
+								th
+								th Sub Total
+								th#subTotalTable
 
 			.panel.panel-default
 				.panel-heading
-					a.panel-title(data-toggle="collapse", data-target="#miscPanel") Shipping and Taxes
+					a.panel-title(data-toggle="collapse", data-target="#miscPanel") Misc.
 				#miscPanel.panel-collapse.collapse.panel-body
-					.row.form-group
-						.col-lg-2.col-lg-offset-8
-							p Subtotal
-						.col-lg-2
+					.form-group.row
+						.col-lg-3
+							label Coupon Code
+							input(type="text")#couponCode.form-control
+						.col-lg-3
+							label Discount Type
+							select.form-control#discountType
+								option(value="percentage") Percentage
+								option(value="dollar") Dollar Value
+						.col-lg-3
+							label Discount
+							.input-group
+								input(type="number", value="0")#discount.form-control
+								.input-group-addon#typeSymbol %
+						.col-lg-3
+							label Calculated Discount
 							.input-group
 								span.input-group-addon
 									i.fa.fa-dollar
-								input.form-control#subtotal(type="number", readonly)
+								input.form-control#totalDiscount(type="number" readonly)
 					.row.form-group
-						.col-lg-2.text-right
-							label(for="taxOptions") Tax
-						.col-lg-2
+						.col-lg-3
+							label(for="shippingOptions") Shipping Method
+							select#shippingOptions.form-control
+								option Best Way
+								option UPS
+								option Canada Post
+								option USPS
+						.col-lg-3
+							label(for="shipping") Shipping Value
+							.input-group
+								span.input-group-addon
+									i.fa.fa-dollar
+								input.form-control#shipping(type="number", value="0")
+						.col-lg-3
+							label(for="taxOptions") Tax Code
 							select#taxOptions.form-control
 								option(value=0) No Tax - 0%
 								option(value=13) HST - 13%
 								option(value=5) GST - 5%
-						.col-lg-2.col-lg-offset-4
-							p Tax
-						.col-lg-2
+						.col-lg-3
+							label Tax
 							.input-group
 								span.input-group-addon
 									i.fa.fa-dollar
 								input.form-control#taxes(type="number", readonly)
 					.row.form-group
-						.col-lg-2.text-right
-							label(for="shippingOptions") Shipping
-						.col-lg-2
-							select#shippingOptions.form-control
-								option UPS
-								option Canada Post
-								option USPS
-						.col-lg-2.col-lg-offset-4
-							p Shipping
-						.col-lg-2
-							.input-group
-								span.input-group-addon
-									i.fa.fa-dollar
-								input.form-control#shipping(type="number")
-					.row.form-group
-						.col-lg-2.col-lg-offset-8
-							p Total
-						.col-lg-2
+						.col-lg-12
+							label Total
 							.input-group
 								span.input-group-addon
 									i.fa.fa-dollar
 								input.form-control#total(type="number", readonly)
+					.row.form-group
+						.col-lg-12
+							label Comments
+							textarea.form-control(rows="5")#notesArea
 
 	include includes/end
+		script(src="/js/papaparse.min.js")
 		script(src="/js/new-order.js")
 
 	#customerModal.modal.fade(role="dialog")
@@ -226,6 +260,26 @@ html
 				.modal-footer
 					button#saveCustomerButton.btn.btn-success(type="button") Add
 					button.btn.btn-default(type="button", data-dismiss="modal") Cancel
+
+	#orderImportModal.modal.fade(role="dialog")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					button.close(data-dismiss="modal") &times;
+					h4#itemNameTitle Import
+				.modal-body
+					.form-group.row
+						.col-lg-6
+							label(for="orderPrefix") Prefix
+							select#orderPrefix.form-control
+								option AB
+								option AZ
+								option CA
+						.col-lg-6
+							label Number
+							input#orderNumber.form-control(type="number")
+				.modal-footer
+					button.btn.btn-success#findOrderButton Search
 
 	#itemModal.modal.fade(role="dialog")
 		.modal-dialog

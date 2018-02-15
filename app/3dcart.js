@@ -9,6 +9,7 @@ var async = require('async');
 var Item = require('./model/item');
 var Order = require('./model/order');
 var ShowOrder = require('./model/showOrder');
+var CustomOrder = require('./model/customOrder');
 var Settings = require('./model/settings');
 var Customer = require('./model/customer');
 var Receipt = require('./model/receipt');
@@ -1116,11 +1117,13 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
     advancedOption.optionIdCan = optionItem.AdvancedOptionCode;
     advancedOption.catalogIdCan = cartItem.SKUInfo.CatalogID; // Parent Item
     advancedOption.canPrice = optionItem.AdvancedOptionPrice;
+    advancedOption.canWholesalePrice = cartItem.PriceLevel7;
     advancedOption.canLink = cartItem.ProductLink;
     advancedOption.canStock = optionItem.AdvancedOptionStock;
   }
   else {
     advancedOption.usPrice = optionItem.AdvancedOptionPrice;
+    advancedOption.usWholesalePrice = cartItem.PriceLevel2;
     advancedOption.catalogId = cartItem.SKUInfo.CatalogID; // Parent Item
     advancedOption.optionId = optionItem.AdvancedOptionCode;
     advancedOption.usLink = cartItem.ProductLink;
@@ -1768,6 +1771,125 @@ function saveShowOrder(order) {
   });
 }
 
+function saveCustomOrder(order) {
+  var findOrder;
+  if (order._id) {
+    findOrder = CustomOrder.findOne({_id: order._id});
+  } else {
+    findOrder = CustomOrder.findOne({orderId: order.orderId, "customer.website": order.customer.website});
+  }
+  var savingOrder = findOrder.then(dbOrder => {
+    if (dbOrder) {
+      dbOrder.customer = order.customer;
+      dbOrder.items = order.items;
+      dbOrder.discount = order.discount;
+      dbOrder.tax = order.tax;
+      dbOrder.shipping = order.shipping;
+      dbOrder.comments = order.comments;
+      dbOrder.markModified('customer');
+      dbOrder.markModified('items');
+      return dbOrder.save();
+    } else {
+      var newOrder = new CustomOrder();
+      newOrder.customer = order.customer;
+      newOrder.items = order.items;
+      newOrder.discount = order.discount;
+      newOrder.tax = order.tax;
+      newOrder.shipping = order.shipping;
+      newOrder.comments = order.comments;
+      return newOrder.save();
+    }
+  });
+
+  return savingOrder.then(dbOrder => {
+    var cartOrder = buildCartOrder(dbOrder.customer);
+    cartOrder.InternalComments = 'Custom Order';
+    cartOrder.CustomerComments = dbOrder.comments;
+    cartOrder.SalesTax = dbOrder.tax;
+    cartOrder.ShipmentList[0].ShipmentCost = dbOrder.shipping;
+    cartOrder.ShipmentList[0].ShipmentMethodName = 'Test method';
+    cartOrder.OrderDiscountPromotion = dbOrder.discount;
+
+    dbOrder.items.forEach(item => {
+      var orderItem = buildOrderItem(item, dbOrder.customer);
+      cartOrder.OrderItemList.push(orderItem);
+    });
+
+    var saveToWebsite = saveOrder(cartOrder, dbOrder.orderId, dbOrder.customer.website == 'canada');
+    return saveToWebsite.then((response) => {
+      if (response[0].Status == '201' || response[0].Status == '200') { // success
+        dbOrder.orderId = response[0].Value;
+        return dbOrder.save();
+      } else {
+        return dbOrder;
+      }
+      console.log(response);
+    }).catch((message) => {
+      console.log(message);
+      return Promise.reject(new Error(message));
+    });
+  });
+}
+
+function buildOrderItem(item, customer) {
+  var quantity = item.quantity;
+  var stock = item.stock;
+
+  if (customer.website == 'canada') {
+    stock = item.canStock;
+  } else {
+    stock = item.usStock;
+  }
+
+  if (stock < quantity) {
+    quantity = stock;
+  }
+  if (stock == 0) {
+    quantity = 0;
+  }
+
+  var orderItem = {
+    ItemID: item.sku,
+    ItemQuantity: quantity,
+    ItemUnitPrice: item.salesPrice,
+    ItemDescription: item.name,
+    ItemUnitStock: stock
+  };
+  return orderItem;
+}
+
+function buildCartOrder(customer) {
+  var cartOrder = {
+    BillingFirstName: customer.firstname,
+    BillingLastName: customer.lastname,
+    BillingAddress: customer.billingAddress,
+    BillingAddress2: customer.billingAddress2,
+    BillingCompany: customer.companyName,
+    BillingCity: customer.billingCity,
+    BillingState: customer.billingState,
+    BillingCountry: customer.billingCountry,
+    BillingZipCode: customer.billingZipCode,
+    BillingPhoneNumber: customer.phone,
+    BillingEmail: customer.email,
+    BillingPaymentMethod: 'On Account',
+    BillingPaymentMethodID: '49', // need to look up all of these
+    ShipmentList: [{
+      ShipmentOrderStatus: 1, // NEW
+      ShipmentFirstName: customer.firstname,
+      ShipmentLastName: customer.lastname,
+      ShipmentAddress: customer.shippingAddress,
+      ShipmentCity: customer.shippingCity,
+      ShipmentState: customer.shippingState,
+      ShipmentCountry: customer.shippingCountry,
+      ShipmentZipCode: customer.shippingZipCode,
+      ShipmentPhone: customer.phone
+    }],
+    OrderItemList: [],
+    OrderStatusID: 1 // NEW
+  };
+  return cartOrder;
+}
+
 function searchCustomer(email, canadian) {
   var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers', 'GET', canadian);
   options.qs = {
@@ -1799,5 +1921,6 @@ module.exports = {
   getOrder: getOrder,
   loadOrders: loadOrders,
   loadOrdersForManifest: loadOrdersForManifest,
-  searchCustomer: searchCustomer
+  searchCustomer: searchCustomer,
+  saveCustomOrder: saveCustomOrder
 }
