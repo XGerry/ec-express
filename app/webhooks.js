@@ -212,7 +212,7 @@ function adjustInventory(cartOrders) {
 			var findItem = Item.findOne({sku: sku});
 			var productUpdate = findItem.then((dbItem) => {
 				if (dbItem != null && dbItem.isOption) {
-					advancedOptionUpdate(dbItem, item.ItemUnitStock, !canadian);
+					advancedOptionUpdate(dbItem, item.ItemUnitStock - item.ItemQuantity, !canadian);
 				} else if (dbItem != null && !dbItem.isOption) {
 					var newStock = item.ItemUnitStock - item.ItemQuantity;
 					if (newStock < 0) {
@@ -259,10 +259,13 @@ function adjustInventory(cartOrders) {
 }
 
 function advancedOptionUpdate(dbItem, stock, canadian) {
-
   var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+dbItem.catalogId+'/AdvancedOptions/'+dbItem.optionId;
   if (canadian) {
   	url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+dbItem.catalogIdCan+'/AdvancedOptions/'+dbItem.optionIdCan; 
+  }
+
+  if (stock < 0) {
+  	stock = 0;
   }
 
 	var options = helpers.get3DCartOptions(url, 'PUT', canadian);
@@ -272,8 +275,13 @@ function advancedOptionUpdate(dbItem, stock, canadian) {
     AdvancedOptionSufix: dbItem.sku
   };
 
+  dbItem.stock = stock;
+  dbItem.usStock = stock;
+  dbItem.canStock = stock;
+
+  dbItem.save();
+
   request(options, function(err, response, body) {
-  	console.log('saved option ' + dbItem.sku);
   	console.log(body);
   });
 }

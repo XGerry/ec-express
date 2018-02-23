@@ -138,7 +138,6 @@ socket.on('saveShowOrderFinished', (err, showOrder) => {
 });
 
 function populateCustomerInfo(customer) {
-	console.log(customer);
 	$('#customerName').val(customer.BillingFirstName + customer.BillingLastName);
 	$('#companyName').val(customer.ShippingCompany);
 	$('#customerFirstName').val(customer.BillingFirstName);
@@ -156,7 +155,6 @@ function populateCustomerInfo(customer) {
 	$('#shippingState').val(customer.ShippingState);
 	$('#shippingCountry').val(customer.ShippingCountry);
 	$('#shippingZip').val(customer.ShippingZipCode);
-
 	$('#profileSelect').val(customer.CustomerGroupID);
 }
 

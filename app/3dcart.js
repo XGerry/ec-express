@@ -235,8 +235,6 @@ function quickSaveItems(query, progressCallback, finalCallback) {
   }
   delete query.canadian;
 
-  console.log(query);
-
   Item.find(query, function(err, items) {
     if (err) {
       console.log(err);
@@ -299,13 +297,7 @@ function buildCartItem(item, canadian) {
 
   if (item.inactive && !item.hasOptions) {
     cartItem.SKUInfo.Stock = 0;
-  } else if (item.inactive && item.hasOptions) {
-    cartItem.SKUInfo.Stock = 1;
   }
-
-  var control = 3;
-  if (item.usStock > 0)
-    cartItem.InventoryControl = control;
 
   return cartItem;
 }
@@ -1138,7 +1130,7 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
 /**
  * toFixed() has some rounding issues
  */
-function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) { // careful with this function
+function updateItems(cartItems, bulkUpdates, progressCallback, finalCallback) { // careful with this function!!
 	var itemsToSend = [];
 	cartItems.forEach(function(item) {
 		// apply bulk updates
@@ -1484,18 +1476,10 @@ function saveItem(item, qbws, callback) {
   helpers.saveItem(item, qbws);
 
   if (!item.isOption) {
-    // save to us website
-    var options = {
-      url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-      method: 'PUT',
-      headers : {
-        SecureUrl : 'https://www.ecstasycrafts.com',
-        PrivateKey : process.env.CART_PRIVATE_KEY,
-        Token : process.env.CART_TOKEN
-      }
-    };
-
-    var control = 3;
+    // US Website
+    var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+      'PUT',
+      false);
 
     var body = [{
       SKUInfo: {
@@ -1513,7 +1497,6 @@ function saveItem(item, qbws, callback) {
       GTIN: item.barcode,
       ExtraField8: item.barcode,
       ExtraField9: item.countryOfOrigin,
-      InventoryControl: control,
       Hide: item.hidden
     }];
 
@@ -1522,73 +1505,56 @@ function saveItem(item, qbws, callback) {
     }
 
     options.body = body;
-    options.json = true;
 
-    request(options, function(err, response, body) {
-      console.log('US Site:');
-      console.log(body);
-    });
+    var usSave = rp(options);
 
     // save to canadian site
-    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-    options.body[0].SKUInfo.Price = item.canPrice;
-    options.body[0].SKUInfo.RetailPrice = item.canPrice;
-    options.body[0].SKUInfo.SalePrice = item.canSalePrice;
-    options.body[0].SKUInfo.Stock = item.canStock;
-    options.body[0].PriceLevel1 = item.canPrice;
+    var canOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+      'PUT',
+      true); 
+    canOptions.body = body;
+    canOptions.body[0].SKUInfo.Price = item.canPrice;
+    canOptions.body[0].SKUInfo.RetailPrice = item.canPrice;
+    canOptions.body[0].SKUInfo.SalePrice = item.canSalePrice;
+    canOptions.body[0].SKUInfo.Stock = item.canStock;
+    canOptions.body[0].PriceLevel1 = item.canPrice;
 
-    if (item.canStock > 0) {
-      options.body[0].InventoryControl = 3;
-    }
+    var canSave = rp(canOptions);
 
-    request(options, function(err, response, body) {
-      console.log('CAN Site:');
-      console.log(body);
+    Promise.all([canSave, usSave]).then(responses => {
+      console.log('saved item for both sites');
+      console.log(responses);
     });
   } else {
-    // save the option
-    var options = {
-      url: '',
-      method: 'PUT',
-      headers : {
-        SecureUrl : 'https://www.ecstasycrafts.com',
-        PrivateKey : process.env.CART_PRIVATE_KEY,
-        Token : process.env.CART_TOKEN
-      },
-      json: true
-    };
+    // Options
+    var options = helpers.get3DCartOptions('', 'PUT', false);
 
-    options.body = {
+    var optionBody = {
       AdvancedOptionStock: item.usStock,
       AdvancedOptionSufix: item.sku,
       AdvancedOptionPrice: item.usPrice,
       AdvancedOptionName: item.name
     }
 
+    options.body = optionBody;
+
     var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogId+'/AdvancedOptions/'+item.optionId;
     options.url = url;
 
-    request(options, function(err, response, body) {
-      console.log('US Site:')
-      console.log(body);
-      if (callback) {
-        callback(err);
-      }
-    });
+    var usSave = rp(options);
 
-    options.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
-    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-    options.body.AdvancedOptionPrice = item.canPrice;
-    options.body.AdvancedOptionStock = item.canStock;
+    var canOptions = helpers.get3DCartOptions('', 'PUT', true);
 
-    request(options, function(err, response, body) {
-      console.log('CAN Site:');
-      console.log(body);
-      if (callback) {
-        callback(err);
-      }
+    canOptions.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
+    canOptions.body = optionBody;
+    canOptions.body.AdvancedOptionPrice = item.canPrice;
+    canOptions.body.AdvancedOptionStock = item.canStock;
+
+    var canSave = rp(canOptions);
+
+    Promise.all([usSave, canSave]).then(responses => {
+      console.log('Saved options for both sites');
+      console.log(reposnses);
     });
   }
 }
