@@ -1810,7 +1810,7 @@ function buildOrderItem(item, customer) {
   if (stock < quantity) {
     quantity = stock;
   }
-  if (stock == 0) {
+  if (quantity <= 0) {
     quantity = 0;
   }
 
