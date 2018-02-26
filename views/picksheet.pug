@@ -52,19 +52,41 @@ mixin customerInfoPanel(order)
 				.col-lg-2
 					+shippingAddress(order.ShipmentList[0])
 				.col-lg-8
-					table.table.table-striped
-						thead
-							tr
-								th Phone
-								th Email
-								th Ship Method
-								th Order Date
-						tbody
-							tr
-								td= order.ShipmentList[0].ShipmentPhone
-								td= order.BillingEmail
-								td= order.ShipmentList[0].ShipmentMethodName
-								td= formatDate(order.OrderDate)
+					.row
+						.col-lg-12
+							table.table.table-striped
+								thead
+									tr
+										th Phone
+										th Email
+										th Ship Method
+										th Order Date
+								tbody
+									tr
+										td= order.ShipmentList[0].ShipmentPhone
+										td= order.BillingEmail
+										td= order.ShipmentList[0].ShipmentMethodName
+										td= formatDate(order.OrderDate)
+					.row
+						.col-lg-6
+							h4 Status
+							label.checkbox-inline
+								input(type="checkbox")
+								| Completed (Ship)
+							label.checkbox-inline
+								input(type="checkbox")
+								| Hold (Do Not Ship)
+						.col-lg-6
+							h4 Reason
+							label.checkbox-inline
+								input(type="checkbox")
+								| Back Order
+							label.checkbox-inline
+								input(type="checkbox")
+								| Awaiting Payment
+							label.checkbox-inline
+								input(type="checkbox")
+								| Other
 			.row
 				.col-lg-12
 					h4 Comments

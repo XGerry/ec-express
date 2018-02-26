@@ -150,7 +150,7 @@ body {
 		page-break-after: always;
 	}
 	.odd td {
-		background-color: #f9f9f9 !important; 
+		background-color: #cacaca !important; 
 	}
 	-webkit-print-color-adjust: exact;
 }
