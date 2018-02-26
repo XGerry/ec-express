@@ -147,13 +147,14 @@ module.exports = function(app, passport) {
   });
 
   app.get('/picksheet', function(req, res) {
+    var orderStatus = req.query.orderStatus;
     var orderId = req.query.orderId;
     var id = req.query.id;
     if (id) {
-      var findOrder = Order.findOne({_id: orderId});
+      var findOrder = cart3d.findOne({_id: orderId});
       findOrder.then(order => {
         res.render('picksheet', {
-          order: order
+          orders: order
         });
       });
     } else if (orderId) {
@@ -167,8 +168,18 @@ module.exports = function(app, passport) {
       }).catch(err => {
         res.render('picksheet');
       });
+    } else if (orderStatus) {
+      var usOrders = cart3d.getOrder({orderstatus: orderStatus}, false);
+      var canOrders = cart3d.getOrder({orderstatus: orderStatus}, true);
+
+      Promise.all([usOrders, canOrders]).then(responses => {
+        var combined = responses[0].concat(responses[1]);
+        res.render('picksheet', {
+          orders: combined
+        });
+      });
     } else {
-      res.render('picksheet');
+      res.render('print-orders');
     }
   });
 
@@ -207,5 +218,9 @@ module.exports = function(app, passport) {
 
   app.get('/product-upload', (req, res) => {
     res.render('product-upload');
+  });
+
+  app.get('/print-orders', (req, res) => {
+    res.render('print-orders');
   });
 }

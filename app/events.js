@@ -93,7 +93,8 @@
  				var loadUSOrders = cart3d.loadOrders(query, false);
  				var loadCAOrders = cart3d.loadOrders(query, true);
  				Promise.all([loadUSOrders, loadCAOrders]).then((responses) => {
- 					socket.emit('loadOrdersFinished', response);
+ 					var combined = responses[0].concat(responses[1]);
+ 					socket.emit('loadOrdersFinished', combined);
  				}).catch((err) => {
  					console.log(err);
  				});

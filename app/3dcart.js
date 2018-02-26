@@ -536,7 +536,6 @@ function getOrder(query, canadian) {
  * Just get the order information
  */
 function loadOrders(query, canadian) {
-  console.log(query);
   var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
       'GET',
       canadian);

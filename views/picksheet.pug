@@ -5,7 +5,7 @@ mixin billingAddress(order)
 		br
 		if (order.BillingCompany)
 			strong=order.BillingCompany
-			br
+			br 
 		=order.BillingAddress
 		br
 		if (order.BillingAddress2)
@@ -36,10 +36,65 @@ mixin pickTableRow(item)
 	tr
 		td= item.ItemWarehouseLocation
 		td= item.ItemID
-		td= item.ItemDescription
 		td= item.ItemQuantity
-		td 0
+		td Test
+		td= item.ItemDescription
 		td= item.ItemUnitStock
+
+mixin customerInfoPanel(order)
+	.panel.panel-default
+		.panel-heading 
+			a(data-toggle="collapse", data-target="#orderInfo").panel-title=order.InvoiceNumberPrefix + order.InvoiceNumber
+		.panel-body.panel-collapse.collapse.in#orderInfo
+			.row
+				.col-lg-2
+					+billingAddress(order)
+				.col-lg-2
+					+shippingAddress(order.ShipmentList[0])
+				.col-lg-8
+					table.table.table-striped
+						thead
+							tr
+								th Phone
+								th Email
+								th Ship Method
+								th Order Date
+						tbody
+							tr
+								td= order.ShipmentList[0].ShipmentPhone
+								td= order.BillingEmail
+								td= order.ShipmentList[0].ShipmentMethodName
+								td= formatDate(order.OrderDate)
+			.row
+				.col-lg-12
+					h4 Comments
+					.well
+						p=order.CustomerComments
+
+mixin orderItemPanel(order)
+	.panel.panel-default
+		.panel-heading
+			a(data-toggle="collapse", data-target="#pickSheet").panel-title Pick Sheet
+		.panel-body.panel-collapse.collapse.in#pickSheet
+			.row
+				.col-lg-12
+					table.table.table-striped.table-hover(id="pickTable"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+						thead
+							tr
+								th Location
+								th SKU
+								th Order Quantity
+								th Picked
+								th Adjustments
+								th Description
+								th Stock Level
+						tbody(id="pickTableBody"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+
+mixin orderSection(order)
+	.container
+		+customerInfoPanel(order)
+		+orderItemPanel(order)
+	.pagebreak
 
 doctype html
 include mixins
@@ -54,53 +109,17 @@ html
 		-}
 
 		.container.top-25
-			.panel.panel-default
-					.panel-heading 
-						a(data-toggle="collapse", data-target="#orderInfo").panel-title=order.InvoiceNumberPrefix + order.InvoiceNumber
-					.panel-body.panel-collapse.collapse.in#orderInfo
-						.row
-							.col-lg-2
-								+billingAddress(order)
-							.col-lg-2
-								+shippingAddress(order.ShipmentList[0])
-							.col-lg-8
-								table.table.table-striped
-									thead
-										tr
-											th Phone
-											th Email
-											th Ship Method
-											th Order Date
-									tbody
-										tr
-											td= order.ShipmentList[0].ShipmentPhone
-											td= order.BillingEmail
-											td= order.ShipmentList[0].ShipmentMethodName
-											td= formatDate(order.OrderDate)
-						.row
-							.col-lg-12
-								h4 Comments
-								.well
-									p=order.CustomerComments
-
-			.panel.panel-default
-				.panel-heading
-					a(data-toggle="collapse", data-target="#pickSheet").panel-title Pick Sheet
-				.panel-body.panel-collapse.collapse.in#pickSheet
-					.row
-						.col-lg-12
-							table.table.table-striped.table-hover#pickTable
-								thead
-									tr
-										th Location
-										th SKU
-										th Description
-										th Order Quantity
-										th Pick Quantity
-										th Stock Level
-								tbody#pickTableBody
+			if (order)
+				+orderSection(order)
+			else
+				for order in orders
+					+orderSection(order)
 
 	include includes/end
 		script(type="text/javascript", src="js/picksheet.js")
-		script.
-			buildPickTable(!{JSON.stringify(order)});
+		if (order)
+			script.
+				buildPickTable(!{JSON.stringify(order)});
+		else if (orders)
+			script.
+				buildPickTables(!{JSON.stringify(orders)});

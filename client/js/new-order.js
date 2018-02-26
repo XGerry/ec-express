@@ -6,6 +6,7 @@ var theOrder = {};
 var theCustomer = {};
 var theEditItem = {};
 var loadingOrder = false;
+var originalCSV = null;
 
 $(document).ready(function() {
 	$('#itemSKU').on('input propertychange', function() {
@@ -222,8 +223,6 @@ socket.on('searchCustomer3DCartFinished', (err, customer) => {
 });
 
 socket.on('findingItemsFinished', items => {
-	console.log('received the items');
-	console.log(items);
 	items.forEach(item => {
 		item.salesPrice = determineItemPrice(item);
 		itemsInOrder.push(item);
@@ -239,6 +238,7 @@ socket.on('saveCustomOrderFinished', order => {
 });
 
 function loadFromFile(items) {
+	originalCSV = items;
 	socket.emit('findItemsForOrder', items);
 }
 
@@ -262,6 +262,19 @@ function fillItemLine(item) {
 
 function determineItemPrice(item) {
 	var price = 0;
+
+	if (originalCSV) { // check to see if there were prices in the spreadsheet
+		if (originalCSV[0].hasOwnProperty('price')) { // if price wasn't included in the csv then skip it
+			// loop through the list of items until we find the corresponding one
+			for (var i = 0; i < originalCSV.length; i++) {
+				if (item.sku == originalCSV[i].sku) {
+					return parseFloat(originalCSV[i].price);
+				}
+			}
+		}
+	}
+
+
 	if (theCustomer.website == 'canada') {
 		if (item.onSale) {
 			price = item.canSalePrice;

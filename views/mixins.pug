@@ -109,5 +109,11 @@ mixin navbar(active)
 								else
 									li
 										a(href="/picksheet") Pick Sheet
+								if active == "print-orders"
+									li.active
+										a(href="/print-orders") Print Orders
+								else
+									li
+										a(href="/print-orders") Print Orders
 						
 					ul.nav.navbar-nav.navbar-right#nav-right

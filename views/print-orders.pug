@@ -1,0 +1,41 @@
+mixin tableRow(order)
+	tr
+		td
+			a(href="/picksheet?id="+order._id)=order.InvoiceNumberPrefix + order.InvoiceNumber
+		td=order.BillingFirstName + ' ' + order.BillingLastName
+		td=order.OrderType
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Print Orders
+	body
+		+navbar("print-orders")
+		.container
+			.starter-template
+				h1 All Orders
+				p.lead Select and order to see it in more detail.
+		section
+			.container
+				.row.form-group
+					.col-lg-12
+						label Order Status
+						select.form-control#orderStatus
+							option(value=1) New
+				.btn-toolbar
+					button.btn-primary.btn(type="button")#printAllButton Print All
+			.container
+				.row
+					.col-lg-12
+						table.table-hover.table
+							thead
+								tr
+									th Order Number
+									th Customer Name
+									th Company Name
+									th Number of Items
+							tbody#orderTableBody
+
+	include includes/end
+		script(src="./js/print-orders.js")
