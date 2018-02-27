@@ -345,15 +345,27 @@ function addInvoiceRq(order, requestID) {
   });
 
   // look for any discounts in the order
-  order.PromotionList.forEach(function (item) {
+  // order.PromotionList.forEach(function (item) {
+  //   invoiceAdds.push({
+  //     ItemRef : {
+  //       FullName : "DISC"
+  //     },
+  //     Desc : item.PromotionName,
+  //     Rate: item.DiscountAmount
+  //   });
+  // });
+
+  // another place there could be a discount
+  // let's just add all the discounts lumped into one line
+  if (order.OrderDiscount > 0) {
     invoiceAdds.push({
       ItemRef : {
         FullName : "DISC"
       },
-      Desc : item.PromotionName,
-      Rate: item.DiscountAmount
+      Desc : 'All discounts on order',
+      Rate: order.OrderDiscount
     });
-  });  
+  }
 
   // add the shipping cost as a line item
   invoiceAdds.push({

@@ -59,14 +59,16 @@ mixin customerInfoPanel(order)
 									tr
 										th Phone
 										th Email
-										th Ship Method
+										th(style="width: 30%") Ship Method
 										th Order Date
+										th Total Items
 								tbody
 									tr
 										td= order.ShipmentList[0].ShipmentPhone
 										td= order.BillingEmail
 										td= order.ShipmentList[0].ShipmentMethodName
 										td= formatDate(order.OrderDate)
+										td(id="totalItems"+order.InvoiceNumberPrefix+order.InvoiceNumber)
 					.row
 						.col-lg-6
 							h4 Status
@@ -87,11 +89,12 @@ mixin customerInfoPanel(order)
 							label.checkbox-inline
 								input(type="checkbox")
 								| Other
-			.row
-				.col-lg-12
-					h4 Comments
-					.well
-						p=order.CustomerComments
+			if (order.CustomerComments)
+				.row
+					.col-lg-12
+						h4 Comments
+						.well
+							p=order.CustomerComments
 
 mixin orderItemPanel(order)
 	.panel.panel-default

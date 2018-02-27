@@ -2,6 +2,8 @@ $(document).ready(e => {
 });
 
 function buildPickTable(order) {
+	console.log(order);
+	var totalItems = 0;
 	order.OrderItemList.forEach(item => {
 		var row = $('<tr></tr>');
 		var locationCol = $('<td></td>');
@@ -12,6 +14,7 @@ function buildPickTable(order) {
 		descriptionCol.text(item.ItemDescription);
 		var orderQuantityCol = $('<td></td>');
 		orderQuantityCol.text(item.ItemQuantity);
+		totalItems += parseInt(item.ItemQuantity);
 		var pickQuantityCol = $('<td></td>');
 		pickQuantityCol.text('');
 		var stockCol = $('<td></td>');
@@ -30,6 +33,8 @@ function buildPickTable(order) {
 
 		$('#pickTableBody'+order.InvoiceNumberPrefix+order.InvoiceNumber).append(row);
 	});
+
+	$('#totalItems'+order.InvoiceNumberPrefix+order.InvoiceNumber).text(totalItems);
 
 	$('#pickTable'+order.InvoiceNumberPrefix+order.InvoiceNumber).DataTable({
 		bDestroy: true,

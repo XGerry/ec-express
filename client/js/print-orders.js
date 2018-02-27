@@ -31,16 +31,27 @@ function buildTableRow(order) {
 	customerNameCol.text(order.BillingFirstName + ' ' + order.BillingLastName);
 	var companyNameCol = $('<td></td>');
 	companyNameCol.text(order.BillingCompany);
+	var skusCol = $('<td></td>');
+	skusCol.text(order.OrderItemList.length);
+
 	var itemNumberCol = $('<td></td>');
-	itemNumberCol.text(order.OrderItemList.length)
+	var totalItems = 0;
+	order.OrderItemList.forEach(item => {
+		totalItems += parseInt(item.ItemQuantity);
+	});
+	itemNumberCol.text(totalItems);
+
+	var orderValueCol = $('<td></td>');
+	orderValueCol.text('$' + order.OrderAmount.toFixed(2));
 
 	row.append(invoiceNumberCol);
 	row.append(customerNameCol);
 	row.append(companyNameCol);
+	row.append(skusCol);
 	row.append(itemNumberCol);
+	row.append(orderValueCol);
 
 	row.click(e => {
-		console.log('clicked the row');
 		window.open("/picksheet?orderId="+order.InvoiceNumberPrefix+order.InvoiceNumber);
 	});
 
