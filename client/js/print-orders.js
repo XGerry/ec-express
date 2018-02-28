@@ -11,6 +11,13 @@ $(document).ready(e => {
 		console.log(status);
 		window.open('/picksheet?orderStatus='+status);
 	});
+
+	$('#orderStatus').on('change', e => {
+		socket.emit('loadOrders', {
+			orderstatus: $('#orderStatus').val(),
+			limit: 200
+		});
+	});
 });
 
 socket.on('loadOrdersFinished', orders => {
@@ -18,6 +25,7 @@ socket.on('loadOrdersFinished', orders => {
 });
 
 function buildOrderTable(orders) {
+	$('#orderTableBody').empty();
 	orders.forEach(order => {
 		$('#orderTableBody').append(buildTableRow(order));
 	});

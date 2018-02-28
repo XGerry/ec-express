@@ -47,30 +47,31 @@ mixin customerInfoPanel(order)
 			a(data-toggle="collapse", data-target="#orderInfo").panel-title=order.InvoiceNumberPrefix + order.InvoiceNumber
 		.panel-body.panel-collapse.collapse.in#orderInfo
 			.row
-				.col-lg-2
+				.col-lg-12.col-sm-12
+					table.table.table-striped.table-hover
+						thead
+							tr
+								th Phone
+								th(style="width:25%") Email
+								th Ship Method
+								th(style="width:25%") Order Date
+								th Total Items
+						tbody#infoTableBody
+							tr
+								td= order.ShipmentList[0].ShipmentPhone
+								td= order.BillingEmail
+								td= order.ShipmentList[0].ShipmentMethodName
+								td= moment(new Date(order.OrderDate)).format('dddd MMM Do YYYY, h:mm:ss a')
+								td(id="totalItems"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+
+			.row
+				.col-lg-2.col-sm-2
 					+billingAddress(order)
-				.col-lg-2
+				.col-lg-2.col-sm-2
 					+shippingAddress(order.ShipmentList[0])
-				.col-lg-8
+				.col-lg-8.col-sm-8
 					.row
-						.col-lg-12
-							table.table.table-striped
-								thead
-									tr
-										th Phone
-										th Email
-										th(style="width: 30%") Ship Method
-										th Order Date
-										th Total Items
-								tbody
-									tr
-										td= order.ShipmentList[0].ShipmentPhone
-										td= order.BillingEmail
-										td= order.ShipmentList[0].ShipmentMethodName
-										td= formatDate(order.OrderDate)
-										td(id="totalItems"+order.InvoiceNumberPrefix+order.InvoiceNumber)
-					.row
-						.col-lg-6
+						.col-lg-6.col-sm-6
 							h4 Status
 							label.checkbox-inline
 								input(type="checkbox")
@@ -78,20 +79,24 @@ mixin customerInfoPanel(order)
 							label.checkbox-inline
 								input(type="checkbox")
 								| Hold (Do Not Ship)
-						.col-lg-6
+						.col-lg-6.col-sm-6
 							h4 Reason
 							label.checkbox-inline
 								input(type="checkbox")
-								| Back Order
+								| Back-Order
+							label.checkbox-inline
+								input(type="checkbox")
+								| Pre-Order
 							label.checkbox-inline
 								input(type="checkbox")
 								| Awaiting Payment
 							label.checkbox-inline
 								input(type="checkbox")
 								| Other
+			
 			if (order.CustomerComments)
 				.row
-					.col-lg-12
+					.col-lg-12.col-sm-12
 						h4 Comments
 						.well
 							p=order.CustomerComments
@@ -102,22 +107,23 @@ mixin orderItemPanel(order)
 			a(data-toggle="collapse", data-target="#pickSheet").panel-title Pick Sheet
 		.panel-body.panel-collapse.collapse.in#pickSheet
 			.row
-				.col-lg-12
-					table.table.table-striped.table-hover(id="pickTable"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+				.col-lg-12.col-sm-12
+					table.table.table-striped.table-hover(id="pickTable"+order.InvoiceNumberPrefix+order.InvoiceNumber).pick-table
 						thead
 							tr
-								th Location
-								th SKU
-								th Order Quantity
-								th Picked
+								th.text-center(style="width:14%") Location
+								th.text-center SKU
+								th.text-center Quantity
+								th.text-center Picked
 								th Adjustments
-								th Description
+								th(style="width:30%") Description
 								th Stock Level
 						tbody(id="pickTableBody"+order.InvoiceNumberPrefix+order.InvoiceNumber)
 
 mixin orderSection(order)
 	.container
 		+customerInfoPanel(order)
+	.container
 		+orderItemPanel(order)
 	.pagebreak
 
@@ -128,10 +134,6 @@ html
 		title Pick Sheet
 	body
 		+navbar("picksheet")
-		
-		-var formatDate = function(dateString) {
-			-return dateString.split('T')[0];
-		-}
 
 		.container.top-25
 			if (order)
@@ -141,6 +143,7 @@ html
 					+orderSection(order)
 
 	include includes/end
+		script(type="text/javascript", src="js/moment.js")
 		script(type="text/javascript", src="js/picksheet.js")
 		if (order)
 			script.

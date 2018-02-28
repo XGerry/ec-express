@@ -103,10 +103,10 @@ mixin navbar(active)
 						li.dropdown
 							a.dropdown-toggle(href="#", data-toggle="dropdown",role="button",aria-haspopup="true",aria-expanded="false") Picking #[span.caret]
 							ul.dropdown-menu
-								if active == "picksheet"
+								//if active == "picksheet"
 									li.active
 										a(href="/picksheet") Pick Sheet
-								else
+								//else
 									li
 										a(href="/picksheet") Pick Sheet
 								if active == "print-orders"

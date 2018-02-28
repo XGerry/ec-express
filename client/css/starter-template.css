@@ -56,7 +56,7 @@ body {
 	.col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
     float: left;
 	}
-	.col-sm-12 {
+	.col-sm-12, .col-xs-12 {
     width: 100%;
 	}
 	.col-sm-11 {
@@ -140,9 +140,6 @@ body {
 	.panel-heading {
 		padding: 5px;
 	}
-	.panel {
-		margin-bottom: 0px;
-	}
 	h4 {
 		margin: 0px;
 	}
@@ -152,5 +149,65 @@ body {
 	.odd td {
 		background-color: #cacaca !important; 
 	}
-	-webkit-print-color-adjust: exact;
+	.panel {
+	 	margin-bottom: 20px;
+	}
+	@supports (-moz-appearance:meterbar) {
+	  .container {
+	    margin: 0;
+	    width: 100%;
+	    font-size: 12px;
+	  }
+	  .datatable-wrapper {
+	  	width: 100%;
+	  }
+	  table {
+	  	table-layout: fixed;
+	  	width: 100%;
+	  }
+	  h4 {
+	  	margin-top: 0px;
+	  	font-size: 18px;
+	  }
+	  h3 {
+	  	margin-top: 0px;
+	  	font-size: 20px;
+	  }
+	  .pick-table {
+	  	margin-right: 20px;
+	  	width: 80%;
+	  }
+	  .pick-table tbody tr td {
+	  	font-size: 11px;
+	  	padding: 2px;
+	  }
+	  table thead tr th {
+	  	font-size: 10px;
+	  }
+	  #infoTableBody tr td {
+	  	font-size: 10px;
+	  }
+	  label {
+	  	font-size: 10px;
+	  }
+	  .panel-title {
+	  	font-size: 18px;
+	  }
+	}
+
+	-moz-document {
+    h1 {
+        color: red;
+    }
+    body {
+    	color: blue;
+    }
+	}
+	/*html, body {
+		width: 100%;
+		overflow-x: hidden;
+		overflow-y: hidden;
+	}*/
+	
 }
+/* -webkit-print-color-adjust: exact; */

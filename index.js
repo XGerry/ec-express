@@ -11,6 +11,7 @@ var webhooks = require('./app/webhooks');
 var events = require('./app/events');
 
 var app = express();
+app.locals.moment = require('moment');
 app.set('view engine', 'pug');
 
 // prepare DB
@@ -46,6 +47,7 @@ app.use('/', express.static(__dirname + '/client'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/js', express.static(__dirname + '/node_modules/papaparse')); // redirect Papaparse
+app.use('/js', express.static(__dirname + '/node_modules/moment')); // redirect Moment
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 var server = app.listen(process.env.PORT || 3000, function() {
