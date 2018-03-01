@@ -13,6 +13,7 @@ $(document).ready(e => {
 	});
 
 	$('#orderStatus').on('change', e => {
+		$('#printAllButton').button('loading');
 		socket.emit('loadOrders', {
 			orderstatus: $('#orderStatus').val(),
 			limit: 200
@@ -21,6 +22,7 @@ $(document).ready(e => {
 });
 
 socket.on('loadOrdersFinished', orders => {
+	$('#printAllButton').button('reset');
 	buildOrderTable(orders);
 });
 
