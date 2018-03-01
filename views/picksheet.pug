@@ -65,7 +65,6 @@ mixin customerInfoPanel(order)
 								td= order.BillingPaymentMethod
 								td= moment(new Date(order.OrderDate)).format('dddd MMM Do YYYY, h:mm:ss a')
 								td(id="totalItems"+order.InvoiceNumberPrefix+order.InvoiceNumber)
-
 			.row
 				.col-lg-2.col-sm-2
 					+billingAddress(order)
@@ -95,6 +94,13 @@ mixin customerInfoPanel(order)
 							label.checkbox-inline
 								input(type="checkbox")
 								| Other
+					.row.form-group
+						.col-lg-8
+							label Card Number
+							input(type="text" readonly).form-control
+						.col-lg-4
+							label Expiry
+							input(type="text" readonly).form-control
 			
 			if (order.CustomerComments)
 				.row
