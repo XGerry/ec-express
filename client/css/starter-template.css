@@ -152,7 +152,8 @@ body {
 	.panel {
 	 	margin-bottom: 20px;
 	}
-	@supports (-moz-appearance:meterbar) {
+	
+	@-moz-document url-prefix() {
 	  .container {
 	    margin: 0;
 	    width: 100%;
@@ -194,20 +195,6 @@ body {
 	  	font-size: 18px;
 	  }
 	}
-
-	-moz-document {
-    h1 {
-        color: red;
-    }
-    body {
-    	color: blue;
-    }
-	}
-	/*html, body {
-		width: 100%;
-		overflow-x: hidden;
-		overflow-y: hidden;
-	}*/
 	
 }
 /* -webkit-print-color-adjust: exact; */

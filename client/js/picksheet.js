@@ -11,7 +11,9 @@ function buildPickTable(order) {
 		var skuCol = $('<td></td>');
 		skuCol.text(item.ItemID); 
 		var descriptionCol = $('<td></td>');
-		descriptionCol.text(item.ItemDescription);
+		descriptionCol.html(item.ItemDescription);
+		var descriptionText = descriptionCol.text();
+		console.log(descriptionText);
 		var orderQuantityCol = $('<td></td>');
 		orderQuantityCol.text(item.ItemQuantity);
 		totalItems += parseInt(item.ItemQuantity);
