@@ -13,7 +13,7 @@ $(document).ready(function() {
 	$('#getOrdersButton').click(e => {
 		e.preventDefault();
 		$('#getOrdersButton').button('loading');
-		socket.emit('loadOrdersForManifest', {orderstatus: 4, limit: 200}, 'US');
+		socket.emit('loadOrdersForManifest', {orderstatus: 13, limit: 200}, 'US');
 	});
 
 	$('#doneEditingButton').click(e => {

@@ -13,7 +13,6 @@ function buildPickTable(order) {
 		var descriptionCol = $('<td></td>');
 		descriptionCol.html(item.ItemDescription);
 		var descriptionText = descriptionCol.text();
-		console.log(descriptionText);
 		var orderQuantityCol = $('<td></td>');
 		orderQuantityCol.text(item.ItemQuantity);
 		totalItems += parseInt(item.ItemQuantity);

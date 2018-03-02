@@ -2,20 +2,46 @@ doctype html
 include mixins
 html
 	include includes/head
-		title Import
+		title Tools
 	body
 		+navbar("order-import")
 		.container
 			.starter-template
-				h1 Order Import
-				p.lead Select your order using the buttons below.
+				h1 Order Tools
 		.container
-			.row
+			.row.form-group
 				.col-lg-12
-					h3 Load Order
-					label.btn.btn-default.btn-file Browse
-						input(type="file" style="display: none;")#fileInput
-					h4#fileName
+					h2 Move Orders
+				.col-lg-4
+					label Website
+					select.form-control#websiteSelect
+						option(value="can") Canada (.ca)
+						option(value="us") U.S. (.com)
+				.col-lg-4
+					label From
+					select.form-control#fromStatusSelect
+						option(value=1) New
+						option(value=2) Processing
+						option(value=3) Backorder
+						option(value=6) Pre-order
+						option(value=9) Awaiting Payment
+						option(value=13) Awaiting Shipment
+						option(value=4) Shipped
+						option(value=8) Completed
+				.col-lg-4
+					label To
+					select.form-control#toStatusSelect
+						option(value=1) New
+						option(value=2) Processing
+						option(value=3) Backorder
+						option(value=6) Pre-order
+						option(value=9) Awaiting Payment
+						option(value=13) Awaiting Shipment
+						option(value=4) Shipped
+						option(value=8) Completed
+			.row.button-toolbar
+				.col-lg-12
+					button.btn.btn-primary#moveOrdersButton(type="button") Move
 
 	include includes/end
 		script(src="/js/papaparse.min.js")

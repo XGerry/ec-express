@@ -1876,6 +1876,36 @@ function searchCustomer(email, canadian) {
   return rp(options);
 }
 
+function moveOrders(from, to, canadian) {
+  var getCount = loadOrders({orderstatus: from, countonly: 1}, canadian);
+  console.log('is canadian? ' + canadian);
+  getCount.then(async info => {
+    var totalCount = info.TotalCount;
+    var numOfRequests = Math.ceil(totalCount / 50);
+    console.log('we need to send ' + numOfRequests + ' requests.');
+
+    for (var i = 0; i < numOfRequests; i++) {
+      var doOrderRequest = loadOrders({orderstatus: from, limit: 50}, canadian);
+      var saveOrders = doOrderRequest.then(orders => {
+        console.log('Moving ' + orders.length + ' orders to status code: ' + to);
+        var ordersToSave = [];
+        orders.forEach(order => {
+          var toOrder = {
+            OrderID: order.OrderID,
+            OrderStatusID: to
+          };
+          ordersToSave.push(toOrder);
+        });
+        var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders', 'PUT', canadian);
+        options.body = ordersToSave;
+        return rp(options);
+      });
+      var response = await saveOrders; // save the orders first, before we try to get the next batch
+      console.log(response);
+    }
+  });
+}
+
 module.exports = {
  	getItems: getItems,
   refreshFrom3DCart: refreshFrom3DCart,
@@ -1899,5 +1929,6 @@ module.exports = {
   loadOrders: loadOrders,
   loadOrdersForManifest: loadOrdersForManifest,
   searchCustomer: searchCustomer,
-  saveCustomOrder: saveCustomOrder
+  saveCustomOrder: saveCustomOrder,
+  moveOrders: moveOrders
 }

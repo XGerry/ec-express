@@ -428,6 +428,10 @@
  			});
  		});
 
+ 		socket.on('moveOrders', (from, to, website) => {
+ 			var moveOrders = cart3d.moveOrders(from, to, website == 'can');
+ 		});
+
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {
