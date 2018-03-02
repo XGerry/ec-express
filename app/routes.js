@@ -169,8 +169,8 @@ module.exports = function(app, passport) {
         res.render('picksheet');
       });
     } else if (orderStatus) {
-      var usOrders = cart3d.getOrder({orderstatus: orderStatus}, false);
-      var canOrders = cart3d.getOrder({orderstatus: orderStatus}, true);
+      var usOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 200}, false);
+      var canOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 200}, true);
 
       Promise.all([usOrders, canOrders]).then(responses => {
         var combined = responses[0].concat(responses[1]);
