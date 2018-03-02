@@ -529,7 +529,13 @@ function doRebuild(canadian, cartItems, finalCallback) {
 function getOrder(query, canadian) {
   var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders', 'GET', canadian);
   options.qs = query;
-  return rp(options);
+  var doRequest = rp(options);
+  return doRequest.then(orders => {
+    return orders;
+  }).catch(err => {
+    console.log(err);
+    return [];
+  });
 }
 
 /**
@@ -540,7 +546,13 @@ function loadOrders(query, canadian) {
       'GET',
       canadian);
   options.qs = query;
-  return rp(options);
+  var doRequest = rp(options);
+  return doRequest.then(orders => {
+    return orders;
+  }).catch(err => {
+    console.log(err);
+    return [];
+  });
 }
 
 /** 

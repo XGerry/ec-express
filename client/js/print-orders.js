@@ -28,6 +28,16 @@ socket.on('loadOrdersFinished', orders => {
 
 function buildOrderTable(orders) {
 	$('#orderTableBody').empty();
+
+	orders.sort((a, b) => {
+		var keyA = a.InvoiceNumberPrefix+a.InvoiceNumber;
+		var keyB = b.InvoiceNumberPrefix+b.InvoiceNumber;
+
+		if (keyA < keyB) return -1;
+		if (keyA > keyB) return 1;
+		return 0; 
+	});
+
 	orders.forEach(order => {
 		$('#orderTableBody').append(buildTableRow(order));
 	});

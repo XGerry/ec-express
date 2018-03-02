@@ -174,6 +174,14 @@ module.exports = function(app, passport) {
 
       Promise.all([usOrders, canOrders]).then(responses => {
         var combined = responses[0].concat(responses[1]);
+        combined.sort((a, b) => {
+          var keyA = a.InvoiceNumberPrefix+a.InvoiceNumber;
+          var keyB = b.InvoiceNumberPrefix+b.InvoiceNumber;
+
+          if (keyA < keyB) return -1;
+          if (keyA > keyB) return 1;
+          return 0; 
+        });
         res.render('picksheet', {
           orders: combined
         });
