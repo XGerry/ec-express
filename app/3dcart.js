@@ -215,25 +215,12 @@ function getItemsQuick(canadian, notifyCallback, finalCallback) {
  * Takes the current state of the db and saves it to 3D Cart.
  */ 
 function quickSaveItems(query, progressCallback, finalCallback) {
-  var options = {
-    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-    method: 'PUT',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    json : true
-  };
-
-  var canadian = false;
-
-  if (query.canadian == true) {
-    options.headers.SecureUrl = secureUrlCa;
-    canadian = true;
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-  }
+  var canadian = query.canadian;
   delete query.canadian;
+
+  var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+    'PUT',
+    canadian);
 
   Item.find(query, function(err, items) {
     if (err) {
@@ -278,7 +265,7 @@ function quickSaveItems(query, progressCallback, finalCallback) {
   });
 }
 
-function buildCartItem(item, canadian) {
+async function buildCartItem(item, canadian) {
   var cartItem = {
     SKUInfo: {
       SKU: item.sku,
@@ -297,6 +284,29 @@ function buildCartItem(item, canadian) {
 
   if (item.inactive && !item.hasOptions) {
     cartItem.SKUInfo.Stock = 0;
+  }
+
+  if (item.hasOptions) {
+    var query = {};
+    if (canadian) {
+      query.catalogIdCan = item.catalogIdCan;
+    }
+    else {
+      query.catalogId = item.catalogId;
+    }
+    query.isOption = true;
+    var findAllOptions = Item.find(query);
+    var getTotalStock = findAllOptions.then(options => {
+      var stock = 0;
+      console.log('found ' + options.length + ' options');
+      options.forEach(option => {
+        stock += canadian ? option.canStock : option.usStock;
+      });
+      console.log(stock);
+      return stock;
+    });
+
+    cartItem.SKUInfo.Stock = await getTotalStock;
   }
 
   return cartItem;
@@ -1873,7 +1883,12 @@ function searchCustomer(email, canadian) {
     email: email
   };
 
-  return rp(options);
+  var findCustomer = rp(options);
+  return findCustomer.then(response => {
+    return response;
+  }).catch(err => {
+    return [];
+  });
 }
 
 function moveOrders(from, to, canadian) {

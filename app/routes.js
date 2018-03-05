@@ -166,11 +166,22 @@ module.exports = function(app, passport) {
       var getOrder = cart3d.getOrder({invoicenumber: invoiceId}, prefix == 'CA');
       var promises = [];
       getOrder.then((orders) => {
-        var setItems = helpers.setItemFieldsForAmazon(orders[0]);
+        var order = orders[0];
+        var setItems = helpers.setItemFieldsForAmazon(order);
+        var updateCustomer = cart3d.searchCustomer(order.BillingEmail, order.InvoiceNumberPrefix == 'CA-');
+        var setCustomer = updateCustomer.then(customers => {
+          console.log(customers);
+          if (customers[0]) {
+            order.CustomerGroupID = customers[0].CustomerGroupID;
+          } else {
+            order.CustomerGroupID = 0;
+          }
+        });
         promises.push(setItems);
+        promises.push(setCustomer);
         Promise.all(promises).then(() => {
           res.render('picksheet', {
-            order: orders[0]
+            order: order
           });
         });
       }).catch(err => {
@@ -180,7 +191,7 @@ module.exports = function(app, passport) {
     } else if (orderStatus) {
       var usOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 300}, false);
       var canOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 300}, true);
-
+      var promises = [];
       Promise.all([usOrders, canOrders]).then(responses => {
         var combined = responses[0].concat(responses[1]);
         combined.sort((a, b) => {
@@ -191,9 +202,19 @@ module.exports = function(app, passport) {
           if (keyA > keyB) return 1;
           return 0; 
         });
+
         combined.forEach(order => {
           var setFields = helpers.setItemFieldsForAmazon(order);
+          var updateCustomer = cart3d.searchCustomer(order.BillingEmail, order.InvoiceNumberPrefix == 'CA-');
+          var setCustomer = updateCustomer.then(customers => {
+            if (customers[0]) {
+              order.CustomerGroupID = customers[0].CustomerGroupID;
+            } else {
+              order.CustomerGroupID = 0;
+            }
+          });
           promises.push(setFields);
+          promises.push(setCustomer);
         });
 
         Promise.all(promises).then(() => {
