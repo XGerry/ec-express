@@ -731,8 +731,7 @@ function inventorySyncCallback(response, returnObject, responseCallback) {
     xmlParser(response, {explicitArray: false}, function(err, result) {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
       var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.ItemInventoryAssemblyQueryRs;
-      console.log(itemInventoryRs);
-      console.log(itemInventoryAssemblyRs);
+
       if (itemInventoryRs) {
         console.log('Inventory Part');
         if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
@@ -858,6 +857,7 @@ function saveItemFromQB(settings, item, qbItem, callback) {
     }
     item.inactive = false;
   }
+
   item.save(function(err) {
     if (err) {
       callback(err);
@@ -1245,6 +1245,30 @@ function findItemsForOrder(itemList) {
   });
 }
 
+function setItemFieldsForAmazon(order) {
+    var promises = [];
+    order.OrderItemList.forEach(item => {
+      var findItem = Item.findOne({sku: item.ItemID});
+      var updateItem = findItem.then(dbItem => {
+        if (dbItem) {
+          if (order.InvoiceNumberPrefix == 'AZ-') {
+            item.ItemUnitStock = dbItem.usStock;
+            item.ItemWarehouseLocation = dbItem.location;
+          } else {
+            if (dbItem.isOption) { // needs the location
+              item.ItemWarehouseLocation = dbItem.location;
+            }
+          }
+        }
+      });
+      promises.push(updateItem);
+    });
+    return Promise.all(promises).then(() => {
+      return order;
+    });
+  return order;
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1285,5 +1309,6 @@ module.exports = {
   removeManifest: removeManifest,
   searchAddress: searchAddress,
   saveAddress: saveAddress,
-  findItemsForOrder: findItemsForOrder
+  findItemsForOrder: findItemsForOrder,
+  setItemFieldsForAmazon: setItemFieldsForAmazon
 }

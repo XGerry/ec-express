@@ -3,8 +3,11 @@ var path = require('path');
 var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
 var Order = require('./model/order');
+var Item = require('./model/item');
 var Manifest = require('./model/manifest');
 var cart3d = require('./3dcart');
+var helpers = require('./helpers');
+
 
 // application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
@@ -161,16 +164,22 @@ module.exports = function(app, passport) {
       var prefix = orderId.split('-')[0];
       var invoiceId = orderId.split('-')[1];
       var getOrder = cart3d.getOrder({invoicenumber: invoiceId}, prefix == 'CA');
+      var promises = [];
       getOrder.then((orders) => {
-        res.render('picksheet', {
-          order: orders[0]
+        var setItems = helpers.setItemFieldsForAmazon(orders[0]);
+        promises.push(setItems);
+        Promise.all(promises).then(() => {
+          res.render('picksheet', {
+            order: orders[0]
+          });
         });
       }).catch(err => {
+        console.log(err);
         res.render('picksheet');
       });
     } else if (orderStatus) {
-      var usOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 200}, false);
-      var canOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 200}, true);
+      var usOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 300}, false);
+      var canOrders = cart3d.getOrder({orderstatus: orderStatus, limit: 300}, true);
 
       Promise.all([usOrders, canOrders]).then(responses => {
         var combined = responses[0].concat(responses[1]);
@@ -182,9 +191,17 @@ module.exports = function(app, passport) {
           if (keyA > keyB) return 1;
           return 0; 
         });
-        res.render('picksheet', {
-          orders: combined
+        combined.forEach(order => {
+          var setFields = helpers.setItemFieldsForAmazon(order);
+          promises.push(setFields);
         });
+
+        Promise.all(promises).then(() => {
+          res.render('picksheet', {
+            orders: combined
+          });
+        });
+
       });
     } else {
       res.render('print-orders');

@@ -148,16 +148,22 @@ html
 		.container.top-25
 			if (order)
 				+orderSection(order)
-			else
+			else if (orders)
 				for order in orders
 					+orderSection(order)
+			else
+				h1 Error
 
 	include includes/end
 		script(type="text/javascript", src="js/moment.js")
 		script(type="text/javascript", src="js/picksheet.js")
 		if (order)
 			script.
-				buildPickTable(!{JSON.stringify(order)});
+				$(document).ready(e=> {
+					buildPickTable(!{JSON.stringify(order)});
+				});
 		else if (orders)
 			script.
-				buildPickTables(!{JSON.stringify(orders)});
+				$(document).ready(e=> {
+					buildPickTables(!{JSON.stringify(orders)});
+				});
