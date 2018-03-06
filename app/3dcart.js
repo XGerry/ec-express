@@ -69,199 +69,75 @@ function updateItemsFromSKUInfo(item, skuInfo, canadian) {
 /**
  * Gets items from 3D cart and saves them to the db
  */
-function getItems(qbws, notifyCallback, finalCallback) {
-  var usProgress = 0;
-  var canProgress = 0;
+function getItems(qbws, notifyCallback) {
+  var canGetItems = getItemsQuick(true, notifyCallback);
+  var usGetItems = getItemsQuick(false, notifyCallback);
+  return Promise.all([canGetItems, usGetItems]);
+}
 
- 	// Get the product list from US 3D Cart first
-  function usUpdate(callback) {
-    getItemsQuick(false, function(progress, total, items) {
-      usProgress = progress;
-      notifyCallback(usProgress + canProgress, total*2);
-
-      items.forEach(function(skuInfo) {
-        var sku = skuInfo.SKU.trim();
-        Item.findOne({sku: sku}, function(err, item) {
-          if (err) {
-            console.log('error!');
-          } else {
-            if (item) {
-              updateItemsFromSKUInfo(item, skuInfo, false);
-            } else {
-              var newItem = new Item();
-              newItem.sku = sku;
-              updateItemsFromSKUInfo(newItem, skuInfo, false);
-            }
-          }
-        });
-      });
-    }, function(err) {
-      callback(null);
-    });
-  }
-
-  // Get product list from Canadian website
-  function canUpdate(callback) {
-    getItemsQuick(true, function(progress, total, items) {
-      canProgress = progress;
-      notifyCallback(usProgress + canProgress, total*2);
-
-      items.forEach(function(skuInfo) {
-        var sku = skuInfo.SKU.trim();
-        Item.findOne({sku: sku}, function(err, item) {
-          if (err) {
-            console.log('error!');
-          } else {
-            if (item) {
-              updateItemsFromSKUInfo(item, skuInfo, true);
-            } else {
-              var newItem = new Item();
-              newItem.sku = sku;
-              updateItemsFromSKUInfo(newItem, skuInfo, true);
-            }
-          }
-        });
-      });
-    }, function(err) {
-      callback(null);
-    });
-  }
-
-  async.parallel([usUpdate, canUpdate], function(err) {
-    // Query all the items in our database (including the options)
-    helpers.queryAllItems(qbws, function() {
-      finalCallback();
+function createItemsInDB(items, canadian) {
+  items.forEach(skuInfo => {
+    var sku = skuInfo.SKU.trim();
+    var findItem = Item.findOne({sku: sku});
+    findItem.then(dbItem => {
+      if (dbItem) {
+        updateItemsFromSKUInfo(dbItem, skuInfo, canadian);
+      } else {
+        var newItem = new Item();
+        newItem.sku = sku;
+        updateItemsFromSKUInfo(newItem, skuInfo, canadian);
+      }
     });
   });
 }
 
-function getItemsQuick(canadian, notifyCallback, finalCallback) {
-  var options = {
-    url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/skuinfo',
-    headers : {
-      SecureUrl : secureUrlUs,
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    qs: {
-      countonly: 1
-    }
+function getItemsQuick(canadian, notifyCallback) {
+  var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products/skuinfo',
+    'GET',
+    canadian);
+  options.qs = {
+    countonly: 1
   }
 
-  if (canadian == true) {
-    options.headers.SecureUrl = secureUrlCa;
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-  }
-
-  request(options, function(err, response, body) {
-    var responseObject = {
-      TotalCount: 0
-    };
-    try {
-      responseObject = JSON.parse(body);
-    } catch (e) {
-      console.log(e);
-      console.log('Request Failed');
-    }
-    var totalItems = responseObject.TotalCount;
-
+  return rp(options).then(async body => {
+    var totalItems = body.TotalCount;
     var numOfRequests = Math.ceil(totalItems / 200);
-    console.log('We need to send '+numOfRequests+' requests to get all the items.');
-    var requests = [];
-
+    console.log('We need to send ' + numOfRequests + ' requests to get all the items.');
+    options.qs.countonly = 0;
     for (var i = 0; i < numOfRequests; i++) {
-      options.qs.countonly = 0;
+      notifyCallback(i, numOfRequests - 1);
       options.qs.offset = i * 200;
       options.qs.limit = 200;
-      requests.push(JSON.parse(JSON.stringify(options)));
+      var newInfos = await rp(options);
+      createItemsInDB(newInfos, canadian);
     }
-
-    var counter = 0;
-    async.eachLimit(requests, 2, function(option, callback) {
-      function doRequest() {
-        request(option, function(err, response, body) {
-          if (err) {
-            callback(err);
-          } else {
-            callback(null);
-          }
-          counter++;
-          var jsonBody = [];
-          try {
-            jsonBody = JSON.parse(body);
-          } catch (e) {
-            console.log(e);
-            console.log(body);
-            console.log('Options:');
-            console.log(option);
-            console.log('Call Failed');
-            notifyCallback(counter, numOfRequests, jsonBody);
-          }
-          notifyCallback(counter, numOfRequests, jsonBody);
-        });
-      }
-      setTimeout(doRequest, 1000);
-    }, function (err) {
-      if (err) {
-        console.log(err);
-      } else {
-        finalCallback();
-      }
-    });
+    return 'Done';
   });
 }
 
 /**
  * Takes the current state of the db and saves it to 3D Cart.
  */ 
-function quickSaveItems(query, progressCallback, finalCallback) {
-  var canadian = query.canadian;
-  delete query.canadian;
-
+function quickSaveItems(query, progressCallback, canadian) {
   var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
     'PUT',
     canadian);
 
-  Item.find(query, function(err, items) {
-    if (err) {
-      console.log(err);
-    } else {
-      var body = [];
-      items.forEach(function(item) {
-        body.push(buildCartItem(item, canadian));
-      });
+  return Item.find(query).then(async items => {
+    var body = [];
+    items.forEach(function(item) {
+      body.push(buildCartItem(item, canadian));
+    });
 
-      var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
-      console.log('We need to send ' + numOfRequests + ' requests.');
-      var requests = [];
-      for (var i = 0; i < numOfRequests; i++) {
-        options.body = body.slice(i*100, (i+1)*100);
-        requests.push(JSON.parse(JSON.stringify(options)));
-      }
-
-      var counter = 0;
-      async.mapLimit(requests, 2, function(option, callback) {
-        function doRequest() {
-          request(option, function(err, response, body) {
-            if (err) {
-              callback(err);
-            } else {
-              callback(null, body);
-              body.forEach(function(response) {
-                if (response.Status != '200') {
-                  console.log(response);
-                }
-              });
-              progressCallback(++counter, numOfRequests);
-            }
-          });
-        };
-        setTimeout(doRequest, 1000);
-      }, function(err, responses) {
-        var merged = [].concat.apply([], responses);
-        finalCallback(merged);
-      });
+    var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
+    console.log('We need to send ' + numOfRequests + ' requests.');
+    var requests = [];
+    for (var i = 0; i < numOfRequests; i++) {
+      progressCallback(i, numOfRequests - 1);
+      options.body = body.slice(i * 100, (i + 1) * 100);
+      await rp(options);
     }
+    return 'Done';
   });
 }
 
@@ -312,7 +188,7 @@ async function buildCartItem(item, canadian) {
   return cartItem;
 }
 
-function saveItems(query, progressCallback, finalCallback) {
+function saveItems(query, progressCallback) {
   if (query == null || query == undefined) {
     query = {
       isOption: false,
@@ -321,119 +197,47 @@ function saveItems(query, progressCallback, finalCallback) {
     };
   }
 
-  var usProgress = 0;
-  var canProgress = 0;
+  var usSaveItems = quickSaveItems(query, progressCallback, false);
+  var canSaveItems = quickSaveItems(query, progressCallback, true);
 
-  function saveUSSite(callback) {
-    quickSaveItems(query, function(progress, total) {
-      console.log('US SAVE: ' + ((progress/total)*100).toFixed() + '%');
-      usProgress = progress;
-      progressCallback(canProgress+usProgress, total*2);
-    }, function(responses) {
-      callback(null);
-    });
-  };
-
-  function saveCanSite(callback) {
-    query.canadian = true;
-    quickSaveItems(query, function(progress, total) {
-      console.log('CAN SAVE: ' + ((progress/total)*100).toFixed() + '%');
-      canProgress = progress;
-      progressCallback(canProgress+usProgress, total*2);
-    }, function(responses) {
-      callback(null);
-    });
-  };
-
-  async.parallel([saveUSSite, saveCanSite], function(err) {
-    finalCallback([]);
-  });
+  return Promise.all([usSaveItems, canSaveItems]);
 }
 
 /**
  * Takes the current state of the db (for items that are options and that are updated)
  * and saves it to 3D Cart.
  */
-function saveOptionItems(progressCallback, finalCallback) {
-  Item.find({isOption: true, inactive: false, updated: true}, function(err, items) {
-    if (err) {
-      console.log(err);
+
+function doSaveOptionItems(canadian, items, progress) {
+  var options = helpers.get3DCartOptions('',
+    'PUT',
+    canadian);
+  items.forEach(async (item, index) => {
+    options.body = {
+      AdvancedOptionSufix: item.sku
+    };
+    var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/';
+    if (canadian) {
+      url += item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;   
+      options.body.AdvancedOptionStock = item.canStock;
     } else {
-      console.log('There are ' + items.length + ' options that need updating.');
-      
-      var requests = [];
-
-      var options = {
-        url: '',
-        method: 'PUT',
-        headers : {
-          SecureUrl : 'https://www.ecstasycrafts.com',
-          PrivateKey : process.env.CART_PRIVATE_KEY,
-          Token : process.env.CART_TOKEN
-        },
-        json: true
-      }
-
-      items.forEach(function(item) {
-        options.headers.SecureUrl = 'https://www.ecstasycrafts.com';
-        options.headers.Token = process.env.CART_TOKEN;
-        options.body = {
-          AdvancedOptionStock: item.usStock,
-          AdvancedOptionSufix: item.sku
-        }
-        var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+
-          item.catalogId+'/AdvancedOptions/'+item.optionId;
-        options.url = url;
-        requests.push(JSON.parse(JSON.stringify(options)));
-
-        // now for the canadian site
-        options.headers.SecureUrl = 'https://www.ecstasycrafts.ca';
-        options.headers.Token = process.env.CART_TOKEN_CANADA;
-        options.body = {
-          AdvancedOptionStock: item.canStock,
-          AdvancedOptionSufix: item.sku
-        };
-        url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+
-          item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
-        options.url = url;
-        requests.push(JSON.parse(JSON.stringify(options)));
-      });
-
-      var total = requests.length;
-      var counter = 0;
-
-      async.mapLimit(requests, 4, function(option, callback) {
-        function doRequest() {
-          request(option, function(err, response, body) {
-            if (err) {
-              callback(err);
-            } else {
-              callback(null, body);
-              counter++;
-              if (Array.isArray(body)) {
-                body.forEach(function(response) {
-                  if (response.Status != '200') {
-                    console.log(response);
-                    console.log(option.url);
-                    console.log(option.headers.SecureUrl);
-                  }
-                });
-              } else {
-                if (body.Status != '200') {
-                  console.log(response);
-                }
-              }
-              progressCallback(counter, total);
-            }
-          });
-        }
-
-        setTimeout(doRequest, 1000);
-      }, function(err, responses) {
-        var merged = [].concat.apply([], responses);
-        finalCallback(merged);
-      });
+      url += item.catalogId+'/AdvancedOptions/'+item.optionId;
+      options.body.AdvancedOptionStock = item.usStock;
     }
+    options.url = url;
+    var response = await rp(options);
+    console.log(response);
+    progressCallback(index, items.length -1);
+  });
+  return 'Done';
+}
+
+function saveOptionItems(progressCallback, finalCallback) {
+  return Item.find({isOption: true, inactive: false, updated: true}).then(items => {
+    console.log('There are ' + items.length + ' options that need updating.');
+    var canSave = doSaveOptionItems(true, items, progressCallback);
+    var usSave = doSaveOptionItems(true, items, progressCallback);
+    return Promise.all([canSave, usSave]);
   });
 }
 
@@ -643,11 +447,10 @@ function generateHTCMap(order) {
  * For importing orders into quickbooks
  */
 
-function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
-  var canadian = false;
-
+function getOrdersQuick(query) {
   helpers.setTimeCode();
-  Settings.findOne({}, function(err, settings) {
+  var findSettings = Settings.findOne({});
+  findSettings.then(settings => {
     if (settings) {
       var timecode = helpers.getTimeCode();
       settings.lastImport = timecode;
@@ -666,212 +469,90 @@ function getOrdersQuick(query, qbws, progressCallback, finalCallback) {
   });
 
   query.countonly = 1;
+  var usOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    'GET',
+    false);
+  usOptions.qs = query;
+  var canOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
+    'GET',
+    true);
+  canOptions.qs = query;
 
-  var options = {
-    url: 'https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-    headers: {
-      SecureUrl: secureUrlUs,
-      PrivateKey: process.env.CART_PRIVATE_KEY,
-      Token: process.env.CART_TOKEN
-    },
-    qs: query
-  };
+  return Promise.all([doOrderRequest(usOptions), doOrderRequest(canOptions)]).then(responses => {
+    return [].concat.apply([], responses);
+  });
+}
 
-  if (query.canadian == true) {
-    canadian = true;
-    options.headers.SecureUrl = secureUrlCa;
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-  }
-  delete query.canadian;
-
-  console.log(query);
-
-  request(options, function(err, response, body) {
-    delete query.countonly;
-    console.log(options.headers.SecureUrl)
-    console.log(body);
-    var numberOfOrders = JSON.parse(body).TotalCount;
-    console.log(numberOfOrders);
+function doOrderRequest(options) {
+  var getOrderCount = rp(options);
+  return getOrderCount.then(body => {
+    options.qs.countonly = 0;
+    var promises = [];
+    var numberOfOrders = body.TotalCount;
     var numOfRequests = Math.ceil(numberOfOrders / 200); // can always get 200 records
-    var requests = [];
-
-    if (canadian) {
-      console.log('Canada');
-    } else {
-      console.log('US');
-    }
     console.log('We need to do ' + numOfRequests + ' requests to get all the orders');
-
-    if (numOfRequests == 0) {
-      finalCallback();
-    } else {
-      for (var i = 0; i < numOfRequests; i++) {
-        query.offset = i * query.limit;
-        options.qs = query;
-        requests.push(JSON.parse(JSON.stringify(options)));
-      }
-
-      var counter = 0;
-      async.eachLimit(requests, 2, function(option, callback) {
-        function doRequest() {
-          request(option, function(err, response, body) {
-            progressCallback(++counter, numOfRequests);
-            createOrdersInDB(JSON.parse(body), function() {
-              console.log('finsihed saving the orders');
-              callback(null);
-            });
-          });
-        }
-        setTimeout(doRequest, 1000);
-      }, function(err) {
-        finalCallback();
-      });
+    for (var i = 0; i < numOfRequests; i++) {
+      options.qs.offset = i * 200;
+      promises.push(rp(options));
     }
+    return Promise.all(promises)
   });
 }
 
 function getOrders(query, qbws, callback) {
-  function usOrders(cb) {
-    getOrdersQuick(query, qbws, function(progress, total, orders) {
-      console.log('US: ' + ((progress/total)*100).toFixed() + '%');
-    }, function() {
-      // finished
-      cb();
+  var getAllOrders = getOrdersQuick(query);
+  return getAllOrders.then(responses => {
+    console.log('Successfully received the orders');
+    var merged = [].concat.apply([], responses);
+    var promises = [];
+    merged.forEach(order => {
+      promises.push(createOrderInDB(order));
     });
-  }
 
-  function canOrders(cb) {
-    query.canadian = true;
-    getOrdersQuick(query, qbws, function(progress, total, orders) {
-      console.log('CA: ' + ((progress/total)*100).toFixed() + '%');
-    }, function() {
-      // finished
-      cb();
-    });
-  }
-
-  async.parallel([usOrders, canOrders], function() {
-    // all orders now should be in the {imported: false} state if
-    // they need to be imported
-    helpers.createInvoices(qbws);
-    qbws.setFinalCallback(function() {
-      var findSettings = Settings.findOne({});
-      findSettings.then((settings) => {
-        var orderReport = helpers.getOrderReport(settings);
-        orderReport.then((report) => {
-          webhooks.orderBot(helpers.getSlackOrderReport(report));
-          settings.lastImports = [];
-          settings.save();
+    return Promise.all(promises).then(newOrders => {
+      helpers.createInvoices(qbws);
+      qbws.setFinalCallback(() => {
+        var findSettings = Settings.findOne({});
+        findSettings.then((settings) => {
+          var orderReport = helpers.getOrderReport(settings);
+          orderReport.then((report) => {
+            webhooks.orderBot(helpers.getSlackOrderReport(report));
+            settings.lastImports = [];
+            settings.save();
+          });
         });
       });
+      return newOrders.length;
     });
-    Order.find({imported: false}, function(err, orders) {
-      callback(orders.length);
-    });
+  }).catch(err => {
+    console.log(err);
+    return 0;
   });
 }
 
-function createOrdersInDB(orders, callback) {
-  // build requests and save this to the database
-  var operations = [];
-  var contacts = [];
-  orders.forEach(function(order) {
-    contacts.push(helpers.getCustomer(order)); // hubspot integration
-    var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-
-    operations.push(function(cb) {
-      Order.findOne({orderId: orderId}, function(err, dbOrder) {
-        if (err) {
-          console.log(err);
-        } else {
-          if (dbOrder) {
-            // We already have this order in the db.
-            dbOrder.retry = true;
-            updateOrderInfo(dbOrder, order, cb);
-          } else {
-            // create the order in our database
-            var newOrder = new Order();
-            newOrder.orderId = orderId;
-            newOrder.imported = false;
-            newOrder.retry = false;
-            updateOrderInfo(newOrder, order, cb);
-          }
-        }
-      });
-    });
-  });
-
-  async.parallel(operations, function(err) {
-    // Hubspot update
-    // helpers.updateContacts(contacts, function(message) {
-    //   console.log('Hubspot Response:')
-    //   if (message) {
-    //     console.log(message.statusCode);
-    //     if (message.statusCode == 400) {
-    //       console.log(message);
-    //     }
-    //   }
-    // });
-    callback();
-  });
-}
-
-function updateOrderInfo(order, cartOrder, callback) {
-  order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
-  order.cartOrder = cartOrder;
-  order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
-  order.timecode = helpers.getTimeCode();
-  var itemList = [];
-  if (cartOrder.OrderItemList) {
-    cartOrder.OrderItemList.forEach(function(item) {
-      // TODO
-      var sku = item.ItemID.trim();
-      var findingItem = Item.findOne({sku: sku});
-      findingItem.then(function(doc) {
-        doc.lastOrderDate = new Date(cartOrder.OrderDate);
-        doc.save();
-      });
-    });
-  } else {
-    console.log(cartOrder);
-  }
-  
-  order.save(function(err, savedOrder) {
-    updateCustomerInfo(savedOrder, cartOrder);
-    callback();
-  });
-}
-
-function updateCustomerInfo(order, cartOrder) {
-  var email = cartOrder.BillingEmail;
-  Customer.findOne({email: email}, function(err, customer) {
-    if (err) {
-      console.log(err);
+function createOrderInDB(order) {
+  var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+  var findOrder = Order.findOne({orderId: orderId});
+  return findOrder.then(dbOrder => {
+    if (dbOrder) {
+      dbOrder.retry = true;
+      return updateOrderInfo(dbOrder, order);
     } else {
-      if (customer) {
-        updateCustomer(customer, order, cartOrder);
-      } else {
-        var newCustomer = new Customer();
-        newCustomer.email = email;
-        updateCustomer(newCustomer, order, cartOrder);
-      }
+      var newOrder = new Order();
+      newOrder.orderId = orderId;
+      newOrder.imported = false;
+      newOrder.retry = false;
+      return updateOrderInfo(newOrder, order);
     }
   });
 }
 
-function updateCustomer(customer, order, cartOrder) {
-  customer.firstname = cartOrder.BillingFirstName;
-  customer.lastname = cartOrder.BillingLastName;
-  customer.lastOrderDate = new Date(cartOrder.OrderDate);
-  var contestStart = new Date();
-  contestStart.setFullYear(2017, 8, 29);
-  var contestEnd = new Date();
-  contestEnd.setFullYear(2017, 9, 2);
-  if (customer.lastOrderDate > contestStart && customer.lastOrderDate < contestEnd) {
-    customer.contestEntries++;
-  }
-  customer.orders.push(order._id);
-  customer.save();
+function updateOrderInfo(order, cartOrder) {
+  order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
+  order.cartOrder = cartOrder;
+  order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
+  order.timecode = helpers.getTimeCode();
+  return order.save();
 }
 
 function getSalesReceipts(qbws) {

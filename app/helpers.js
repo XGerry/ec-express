@@ -871,10 +871,12 @@ function addItemProperties(data, item) {
   if (data.DataExtName == 'barcode' || data.DataExtName == 'Barcode') {
     if (item.barcode != data.DataExtValue && data.DataExtValue != '') {
       item.barcode = data.DataExtValue;
+      item.updated = true;
     }
   } else if (data.DataExtName == 'Location') {
     if (item.location != data.DataExtValue) {
       item.location = data.DataExtValue;
+      item.updated = true;
     }
   } else if (data.DataExtName == 'Country' || data.DataExtName == 'C Origin') {
     if (item.countryOfOrigin != data.DataExtValue) {
@@ -1008,20 +1010,17 @@ function getItemInQuickbooks(item, qbws, callback) {
 /**
  * This is all the items and the options
  */
-function queryAllItems(qbws, callback) {
-  Item.find({}, function(err, items) {
-    if (err) {
-      console.log(err);
-    } else {
-      qbws.addRequest(getMultipleItemsRq(items));
-      qbws.addRequest(getMultipleItemAssemblyRq(items)); // how do we know if it's a bundle?
-      qbws.setCallback(inventorySyncCallback);
-      items.forEach(function(item) {
-        item.updated = false;
-        item.save();
-      });
-      callback();
-    }
+function queryAllItems(qbws) {
+  var promises = [];
+  return Item.find({}).then(items => {
+    qbws.addRequest(getMultipleItemsRq(items));
+    qbws.addRequest(getMultipleItemAssemblyRq(items)); // how do we know if it's a bundle?
+    qbws.setCallback(inventorySyncCallback);
+    items.forEach(item => {
+      item.updated = false;
+      promises.push(item.save());
+    });
+    return Promise.all(promises);
   });
 }
 

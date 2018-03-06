@@ -20,7 +20,9 @@
  					progress: counter,
  					total: total
  				});
- 			}, function(err) {
+ 			}).then((responses) => {
+ 				console.log(responses);
+ 				helpers.queryAllItems(qbws);
 				socket.emit('getItemsFinished');
  			});
  		});
@@ -30,26 +32,22 @@
  		 * This usually happens after an inventory sync.
  		 */
  		socket.on('saveItems', function() {
- 			cart3d.saveItems(null, function(progress, total) {
+ 			cart3d.saveItems(null, (progress, total) => {
  				socket.emit('saveItemsProgress', {
  					progress: progress,
  					total: total
  				});
- 			}, function(updatedItems) {
- 				socket.emit('saveItemsFinished', {
- 					items: updatedItems
- 				});
+ 			}).then(() => {
+ 				socket.emit('saveItemsFinished');
 
  				// also save the options
- 				cart3d.saveOptionItems(function(progress, total) {
+ 				cart3d.saveOptionItems((progress, total) => {
  					socket.emit('saveOptionItemsProgress', {
  						progress: progress,
  						total: total
  					});
- 				}, function(items) {
- 					socket.emit('saveOptionItemsFinished', {
- 						items: items
- 					});
+ 				}).then(() => {
+ 					socket.emit('saveOptionItemsFinished');
  					cart3d.calculateBaseItemStock();
  				});
  			});
@@ -69,7 +67,7 @@
  		 */
  		socket.on('getOrders', function(data) {
  			var query = {
-        limit : data.limit,
+ 				limit: 200,
         orderstatus : data.status, // Status of New = 1
         datestart : data.startDate,
         dateend : data.endDate
@@ -79,12 +77,14 @@
       	query.invoicenumber = data.number;
       }
 
-      console.log(query.limit);
-
- 			cart3d.getOrders(query, qbws, function(numberOfOrders) {
+ 			cart3d.getOrders(query, qbws).then(numberOfOrders => {
  				socket.emit('getOrdersFinished', numberOfOrders);
  			});
  		});
+
+ 		socket.on('importOrdersAndRunInventory', function(data) {
+
+ 		})
 
  		/**
  		 * Load orders from 3D Cart
@@ -440,7 +440,7 @@
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
  			cart3d.refreshFrom3DCart(function(items) {
- 				helpers.queryAllItems(qbws, function() {
+ 				helpers.queryAllItems(qbws).then(() => {
 					console.log('Run the web connector');
 	 				qbws.setFinalCallback(function() {
 	 					// now we can save the items?

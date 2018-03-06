@@ -664,7 +664,7 @@ module.exports = {
      * information about items to convert to a QBXML
      */
     app.get('/api/sync/inventory/qbxml', function(req, res) {
-      helpers.queryAllItems(qbws, function() {
+      helpers.queryAllItems(qbws).then(() => {
         res.send('Run the Web Connector.');
       });
     });
