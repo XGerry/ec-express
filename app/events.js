@@ -29,7 +29,7 @@
  		 * Saves the items to 3D Cart. 
  		 * This usually happens after an inventory sync.
  		 */
- 		socket.on('saveItems', function(query) {
+ 		socket.on('saveItems', function() {
  			cart3d.saveItems(null, function(progress, total) {
  				socket.emit('saveItemsProgress', {
  					progress: progress,
@@ -58,7 +58,6 @@
  			walmart.updateInventory();
  			// save the amazon inventory
  			amazon.updateInventory();
-
  		});
 
  		socket.on('orderRequest', function() {

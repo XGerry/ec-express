@@ -36,6 +36,15 @@ function buildPickTable(order) {
 	});
 
 	$('#totalItems'+order.InvoiceNumberPrefix+order.InvoiceNumber).text(totalItems);
+	var customerType = 'Retail';
+	if (order.CustomerGroupID == '2' || order.CustomerGroupID == '14') {
+		customerType = 'Wholesale';
+	} else if (order.CustomerGroupID == '3') {
+		customerType = 'Teacher';
+	} else if (order.CustomerGroupID == '4') {
+		customerType = 'Preferred Customer';
+	}
+	$('#customerType').text(customerType);
 
 	var pickTable = $('#pickTable'+order.InvoiceNumberPrefix+order.InvoiceNumber).DataTable({
 		bDestroy: true,
@@ -49,7 +58,6 @@ function buildPickTable(order) {
 		}]
 	});
 
-	//pickTable.destroy(false);
 }
 
 function buildPickTables(orders) {
