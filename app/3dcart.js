@@ -316,6 +316,7 @@ function saveItems(query, progressCallback, finalCallback) {
   if (query == null || query == undefined) {
     query = {
       isOption: false,
+      hasOptions: false,
       updated: true
     };
   }
@@ -1921,6 +1922,54 @@ function moveOrders(from, to, canadian) {
   });
 }
 
+function calculateBaseItemStock() {
+  var findItemsWithOptions = Item.find({hasOptions: true});
+  var promises = [];
+  findItemsWithOptions.then(async itemsWithOptions => {
+    console.log('found ' + itemsWithOptions.length);
+    itemsWithOptions.forEach(dbItem => {
+      var query = {
+        isOption: true,
+        catalogId: dbItem.catalogId
+      }
+      var findOptions = Item.find(query);
+      var getCartItem = findOptions.then(options => {
+        var stock = 0;
+        options.forEach(option => {
+          stock += option.usStock;
+        });
+        var cartItem = {
+          SKUInfo: {
+            SKU: dbItem.sku,
+            Stock: stock
+          }
+        };
+        return cartItem;
+      });
+
+      promises.push(getCartItem);
+    });
+    Promise.all(promises).then(async cartItems => {
+      var numOfRequests = Math.ceil(cartItems.length / 100);
+      var usCartOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+          'PUT',
+          false);
+      var canCartOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+          'PUT',
+          true);
+      console.log('We need to do ' + numOfRequests + ' requests');
+      for (var i = 0; i < numOfRequests; i++) {
+        var body = cartItems.slice(i * 100, (i + 1) * 100);
+        usCartOptions.body = body;
+        canCartOptions.body = body;
+        var response = await Promise.all([rp(usCartOptions), rp(canCartOptions)]);
+        console.log('Request number ' + (i + 1));
+      }
+      console.log('Done!');
+    });
+  });
+}
+
 module.exports = {
  	getItems: getItems,
   refreshFrom3DCart: refreshFrom3DCart,
@@ -1945,5 +1994,6 @@ module.exports = {
   loadOrdersForManifest: loadOrdersForManifest,
   searchCustomer: searchCustomer,
   saveCustomOrder: saveCustomOrder,
-  moveOrders: moveOrders
+  moveOrders: moveOrders,
+  calculateBaseItemStock: calculateBaseItemStock
 }

@@ -50,6 +50,7 @@
  					socket.emit('saveOptionItemsFinished', {
  						items: items
  					});
+ 					cart3d.calculateBaseItemStock();
  				});
  			});
 
@@ -57,6 +58,7 @@
  			walmart.updateInventory();
  			// save the amazon inventory
  			amazon.updateInventory();
+
  		});
 
  		socket.on('orderRequest', function() {
@@ -430,6 +432,10 @@
 
  		socket.on('moveOrders', (from, to, website) => {
  			var moveOrders = cart3d.moveOrders(from, to, website == 'can');
+ 		});
+
+ 		socket.on('calculateBaseItemStock', () => {
+ 			var calculateStock = cart3d.calculateBaseItemStock();
  		});
 
  		socket.on('refreshAllItems', function() {

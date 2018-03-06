@@ -88,6 +88,11 @@ $(document).ready(function() {
 		socket.emit('refreshAllItems');
 	});
 
+	$('#calculateBaseItemStock').click(e => {
+		console.log('calculating stock');
+		socket.emit('calculateBaseItemStock');
+	});
+
 	socket.emit('getSettings');
 });
 
