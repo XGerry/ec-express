@@ -482,7 +482,7 @@ function doOrderRequest(options) {
   });
 }
 
-function getOrders(query, qbws, callback) {
+function getOrders(query, qbws) {
   var getAllOrders = getOrdersQuick(query);
   return getAllOrders.then(responses => {
     console.log('Successfully received the orders');
@@ -493,18 +493,19 @@ function getOrders(query, qbws, callback) {
     });
 
     return Promise.all(promises).then(newOrders => {
-      helpers.createInvoices(qbws);
+      helpers.createInvoiceRequests(qbws);
       qbws.setFinalCallback(() => {
         var findSettings = Settings.findOne({});
-        findSettings.then((settings) => {
+        return findSettings.then((settings) => {
           var orderReport = helpers.getOrderReport(settings);
-          orderReport.then((report) => {
+          return orderReport.then((report) => {
             webhooks.orderBot(helpers.getSlackOrderReport(report));
             settings.lastImports = [];
-            settings.save();
+            return settings.save();
           });
         });
       });
+
       return newOrders.length;
     });
   }).catch(err => {
@@ -536,91 +537,6 @@ function updateOrderInfo(order, cartOrder) {
   order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   order.timecode = helpers.getTimeCode();
   return order.save();
-}
-
-function getSalesReceipts(qbws) {
-	var salesReceiptRq = helpers.querySalesReceiptRq('2017-08-10', '2017-08-11');
-	qbws.addRequest(salesReceiptRq);
-	qbws.setCallback(function(response, qbws, continueFunction) {
-		var doc = pixl.parse(response);
-    var salesRs = doc.QBXMLMsgsRs.SalesReceiptQueryRs;
-
-    if (salesRs) {
-    	var receipts = salesRs.SalesReceiptRet;
-
-    	receipts.forEach(function(receipt) {
-    		Receipt.findOne({id: receipt.RefNumber}, function(err, dbReceipt) {
-    			if (err) {
-    				console.log(err);
-    			} else {
-    				if (dbReceipt) {
-    					dbReceipt.qbObj = receipt;
-    					dbReceipt.save();
-    				} else {
-    					var newReceipt = new Receipt();
-    					newReceipt.id = receipt.RefNumber;
-    					newReceipt.qbObj = receipt;
-    					newReceipt.save();
-    				}
-    				console.log(receipt.RefNumber);
-    			}
-    		});
-    	});
-    }
-	});
-  continueFunction();
-}
-
-function addSalesReceipts(qbws) {
-	Receipt.find({}, function(err, receipts) {
-		if (err) {
-			console.log(err);
-		} else {
-			receipts.forEach(function(receipt) {
-				var addSalesReceipts = {
-					SalesReceiptAddRq: {
-						SalesReceiptAdd: {}
-					}
-				};
-
-				var salesAdd = {
-					TxnDate: receipt.qbObj.TxnDate,
-					RefNumber: receipt.qbObj.RefNumber,
-					SalesReceiptLineAdd: []
-				};
-
-				if (receipt.qbObj.SalesReceiptLineRet instanceof Array) {
-					receipt.qbObj.SalesReceiptLineRet.forEach(function(lineItem) {
-						if (lineItem.ItemRef) {
-							salesAdd.SalesReceiptLineAdd.push({
-								ItemRef: {
-									FullName: lineItem.ItemRef.FullName
-								},
-								Quantity: lineItem.Quantity,
-								Amount: lineItem.Amount
-							});
-						}
-					});
-				} else {
-					var lineItem = receipt.qbObj.SalesReceiptLineRet;
-					salesAdd.SalesReceiptLineAdd.push({
-						ItemRef: {
-							FullName: lineItem.ItemRef.FullName
-						},
-						Quantity: lineItem.Quantity,
-						Amount: lineItem.Amount
-					});
-				}
-
-				addSalesReceipts.SalesReceiptAddRq.SalesReceiptAdd = salesAdd;
-
-				var xmlDoc = helpers.getXMLRequest(addSalesReceipts);
-				var str = xmlDoc.end({pretty:true});
-				console.log(str);
-				qbws.addRequest(str);
-			});
-		}
-	});
 }
 
 function getItemsFull(query, progressCallback, finalCallback) {
@@ -1047,19 +963,13 @@ function updateItemsFromDB(progressCallback, finalCallback) {
  * Takes all the updated items in our database and writes them to Quickbooks
  * Pricing only
  */
-function updateQuickbooks(qbws, callback) {
-  Item.find({}, function(err, items) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('Modifying ' + items.length + ' items in quickbooks.');
-  
-      items.forEach(function(item) {
-        helpers.saveToQuickbooks(item, qbws);
-      });
-
-      callback();
-    }
+function updateQuickbooks(qbws) {
+  return Item.find({}).then(items => {
+    console.log('Modifying ' + items.length + ' items in quickbooks.');
+    items.forEach(function(item) {
+      helpers.saveToQuickbooks(item, qbws);
+    });
+    return 'Done';
   });
 }
 
@@ -1641,8 +1551,6 @@ module.exports = {
  	saveOptionItems: saveOptionItems,
  	saveAdvancedOptions: saveAdvancedOptions,
  	getOrders: getOrders,
- 	getSalesReceipts: getSalesReceipts,
- 	addSalesReceipts: addSalesReceipts,
  	getItemsFull: getItemsFull,
  	updateItems: updateItems,
   updateQuickbooks: updateQuickbooks,

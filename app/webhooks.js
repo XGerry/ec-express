@@ -294,6 +294,7 @@ module.exports = {
 			helpers.setTimeCode();
 			var timecode = helpers.getTimeCode();
 			var findSettings = Settings.findOne({});
+			
 			findSettings.then(function(settings) {
 				settings.timecodes.push(timecode);
 				settings.save();
@@ -308,8 +309,7 @@ module.exports = {
 					sendOrderToSlack(order);
 					updatingOrder.then(function(updatedOrder) {
 						updateCustomerInfo(updatedOrder, order);
-						qbws.emptyQueue();
-						helpers.createInvoices(qbws);
+						helpers.createInvoiceRequests(qbws);
 					});
 				});
 

@@ -60,7 +60,7 @@
  		});
 
  		socket.on('orderRequest', function() {
- 			qbws.generateOrderRequest();
+ 			helpers.createInvoiceRequests(qbws);
  		});
 
  		/**
@@ -82,10 +82,6 @@
  				socket.emit('getOrdersFinished', numberOfOrders);
  			});
  		});
-
- 		socket.on('importOrdersAndRunInventory', function(data) {
-
- 		})
 
  		/**
  		 * Load orders from 3D Cart
@@ -186,7 +182,7 @@
  		 * Update quickbooks with the recent changes
  		 */
  		socket.on('saveToQuickbooks', function() {
- 			cart3d.updateQuickbooks(qbws, function() {
+ 			cart3d.updateQuickbooks(qbws).then(() => {
  				socket.emit('quickbooksFinished');
  			});
  		});
@@ -443,18 +439,17 @@
  			cart3d.refreshFrom3DCart(function(items) {
  				helpers.queryAllItems(qbws).then(() => {
 					console.log('Run the web connector');
-	 				qbws.setFinalCallback(function() {
+	 				qbws.setFinalCallback(() => {
 	 					// now we can save the items?
 	 					console.log('Ready to save the items');
-	 					cart3d.saveItems({}, function(progress, total) {
+	 					return cart3d.saveItems({}, (progress, total) => {
 			 				console.log(((progress/total)*100).toFixed(2) + '%');
-			 			}, function(updatedItems) {
+			 			})
+			 			.then(() => {
 			 				console.log('Item inventory updated, now saving the options');
 			 				// also save the options
-			 				cart3d.saveOptionItems(function(progress, total) {
+			 				return cart3d.saveOptionItems((progress, total) => {
 			 					console.log(((progress/total)*100).toFixed(2) + '%');
-			 				}, function(items) {
-			 					console.log('All items and options updated.');
 			 				});
 			 			});
 	 				});

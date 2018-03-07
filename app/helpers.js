@@ -12,6 +12,7 @@ var Item = require('./model/item');
 var Address = require('./model/address');
 var async = require('async');
 var xmlParser = require('xml2js').parseString; 
+var xml2js = require('xml2js-es6-promise');
 var pixl = require('pixl-xml')
 
 var timecode = + new Date();
@@ -189,6 +190,16 @@ function getMultipleItemsRq(items) {
 
   qbRq.ItemInventoryQueryRq.FullName = names;
   //qbRq.ItemInventoryQueryRq.ActiveStatus = 'ALL';
+  qbRq.ItemInventoryQueryRq.IncludeRetElement = [
+    'ListID',
+    'EditSequence',
+    'Name',
+    'FullName',
+    'BarCodeValue',
+    'IsActive',
+    'QuantityOnHand',
+    'DataExtRet'
+  ];
   qbRq.ItemInventoryQueryRq.OwnerID = 0;
 
   var xmlDoc = getXMLRequest(qbRq);
@@ -661,151 +672,89 @@ function safePrint(value) {
 /**
  * orders are a 3D cart order
  */
-function createInvoices(qbws) {
-  // first request is a check to see if there are duplicate invoices
-  Order.find({imported: false}, function(err, orders) {
-    if (err) {
-      console.log(err);
-    } else if (orders.length != 0) {
-      var invoiceRq = getInvoiceRq(orders);
-      console.log(invoiceRq);
-      qbws.addRequestQueue(invoiceRq);
-      qbws.setCallback(function(response, returnObject, responseCallback) {
-        var doc = pixl.parse(response);
-        var invoiceRs = doc.QBXMLMsgsRs.InvoiceQueryRs;
-        var operations = [];
-
-        if (invoiceRs) {
-          if (invoiceRs.requestID == 'invoiceCheck') {
-            if (Array.isArray(invoiceRs.InvoiceRet)) {
-              invoiceRs.InvoiceRet.forEach(function(invoice) {
-                operations.push(function(cb) {
-                  updateDuplicateOrder(invoice, function() {
-                    cb();
-                  });
-                });
-              });
-            } else {
-              var invoice = invoiceRs.InvoiceRet;
-              if (invoice != null || invoice != undefined) {
-                operations.push(function(cb) {
-                  updateDuplicateOrder(invoice, function() {
-                    cb();
-                  });
-                });
-              }
-            }
-
-            async.parallel(operations, function() {
-              // now all the orders should only contain the ones we want to import
-              console.log('calling generate order request');
-              qbws.generateOrderRequest(returnObject, responseCallback);
-            });
-          }
+function createInvoiceRequests(qbws) {
+  Order.find({imported: false}).then(orders => {
+    var invoiceRq = getInvoiceRq(orders);
+    qbws.addRequest(invoiceRq, (response) => {
+      var promises = [];
+      xml2js(response).then(responseObject => {
+        var invoiceRs = responseObject.QBXMLMsgsRs.InvoiceQueryRs;
+        if (Array.isArray(invoiceRs.InvoiceRet)) {
+          invoiceRs.InvoiceRet.forEach(invoice => {
+            promises.push(updateDuplicateOrder(invoice));
+          });
         } else {
-          responseCallback({returnObject}); // default
+          promises.push(updateDuplicateOrder(invoiceRs.InvoiceRet));
         }
       });
-    }
+
+      Promise.all(promises).then(() => {
+        // now the duplicate orders have been purged
+        qbws.generateOrderRequest();
+      });
+    });
   });
 }
 
-function updateDuplicateOrder(invoice, callback) {
-  Order.findOne({orderId: invoice.RefNumber}, function(err, order) {
-    if (err) {
-      console.log(err);
+function updateDuplicateOrder(invoice) {
+  return Order.findOne({orderId: invoice.RefNumber}, function(err, order) {
+    // duplicate order
+    order.imported = true; // already imported
+    order.message = 'Duplicate order. Skipping.';
+    return order.save();
+  });
+}
+
+function updateInventoryPart(response) {
+  return xml2js(response, {explicitArray: false}).then(result => {
+    var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+    var promises = [];
+    if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
+      itemInventoryRs.ItemInventoryRet.forEach(qbItem => {
+        var updateItem = findItemAndSave(qbItem);
+        promises.push(updateItem);
+      });
     } else {
-      // duplicate order
-      order.imported = true; // already imported
-      order.message = 'Duplicate order. Skipping.';
-      order.save(function(err) {
-        callback();
-      });
+      promises.push(findItemAndSave(itemInventoryRs.ItemInventoryRet));
     }
+    return Promise.all(promises);
   });
 }
 
-function inventorySyncCallback(response, returnObject, responseCallback) {
-  var operations = [];
-  Settings.findOne({}, function(err, settings) {
-    xmlParser(response, {explicitArray: false}, function(err, result) {
-      var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-      var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.ItemInventoryAssemblyQueryRs;
-
-      if (itemInventoryRs) {
-        console.log('Inventory Part');
-        if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
-          itemInventoryRs.ItemInventoryRet.forEach(function(qbItem) {
-            operations.push(function(callback) {
-              findItemAndSave(settings, qbItem, callback);
-            });
-          });
-        } else {
-          operations.push(function(callback) {
-            findItemAndSave(settings, itemInventoryRs.ItemInventoryRet, callback);  
-          });
-        }
-        async.series(operations, function(err) {
-          if (err) {
-            console.log('An error occurred saving the items');
-            console.log(err);
-          } else {
-            console.log('Saved all items successfully.');
-            responseCallback(returnObject);
-          }
-        });
-      } else if (itemInventoryAssemblyRs) {
-        console.log('Iventory Assembly');
-        if (Array.isArray(itemInventoryAssemblyRs.ItemInventoryAssemblyRet)) {
-          itemInventoryAssemblyRs.ItemInventoryAssemblyRet.forEach((qbItemAssembly) => {
-            operations.push(function(callback) {
-              findItemAndSave(settings, qbItemAssembly, callback);
-            });
-          });
-        } else {
-          operations.push(function(callback) {
-            findItemAndSave(settings, itemInventoryAssemblyRs.ItemInventoryAssemblyRet, callback);
-          });
-        }
-        async.series(operations, function(err) {
-          if (err) {
-            console.log('An error occurred saving the items (assembly)');
-            console.log(err);
-          } else {
-            console.log('Saved all item assemblies successfully.');
-            responseCallback(returnObject);
-          }
-        });
-      } else {
-        console.log('Not an inventory response.');
-        console.log(result.QBXML);
-        responseCallback(returnObject);
-      }
-    });
+function updateInventoryAssembly(response) {
+  return xml2js(response, {explicitArray: false}).then(result => {
+    var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.ItemInventoryAssemblyQueryRs;
+    var promises = [];
+    if (Array.isArray(itemInventoryAssemblyRs.ItemInventoryAssemblyRet)) {
+      itemInventoryAssemblyRs.ItemInventoryAssemblyRet.forEach(qbItem => {
+        var updateItem = findItemAndSave(qbItem);
+        promises.push(updateItem);
+      });
+    } else {
+      promises.push(findItemAndSave(itemInventoryAssemblyRs.ItemInventoryAssemblyRet));
+    }
+    return Promise.all(promises);
   });
 }
 
-function findItemAndSave(settings, qbItem, callback) {
+function findItemAndSave(qbItem) {
   if (qbItem) {
-    Item.findOne({sku: qbItem.FullName}, function(err, item) {
-      if (err) {
-        console.log('Error finding the item');
-        console.log(err.message);
-        console.log(qbItem.FullName);
-      } else {
-        if (!item) {
-          console.log('Unable to find item ' + qbItem.FullName);
-          callback();
-        }
-        else {
-          saveItemFromQB(settings, item, qbItem, callback);
-        }
+    var sku = qbItem.FullName.trim();
+    return Item.findOne({sku: sku}).then(item => {
+      if (!item) {
+        console.log('Unable to find item ' + qbItem.FullName);
+        return null;
+      }
+      else {
+        return saveItemFromQB(item, qbItem);
       }
     });
+  } else {  
+    return 'No item to save';
   }
 }
 
-function saveItemFromQB(settings, item, qbItem, callback) {
+function saveItemFromQB(item, qbItem) {
   var usStock = qbItem.QuantityOnHand;
   var canStock = qbItem.QuantityOnHand;
   var walmartStock = 0;
@@ -858,13 +807,7 @@ function saveItemFromQB(settings, item, qbItem, callback) {
     item.inactive = false;
   }
 
-  item.save(function(err) {
-    if (err) {
-      callback(err);
-    } else {
-      callback();
-    }
-  });
+  return item.save();
 }
 
 function addItemProperties(data, item) {
@@ -938,10 +881,8 @@ function updateCustomer(dbCustomer, customer) {
 
 function saveItem(item, qbws) {
   // save the item in our db
-  Item.findOne({sku: item.sku}, function(err, theItem) {
-    if (err) {
-      console.log(err);
-    } else if (theItem) {
+  Item.findOne({sku: item.sku}).then(theItem => {
+    if (theItem) {
       // update the fields
       theItem.name = item.name;
       theItem.usPrice = item.usPrice;
@@ -959,22 +900,10 @@ function saveItem(item, qbws) {
       theItem.onSale = item.onSale;
       theItem.usSalePrice = item.usSalePrice;
       theItem.canSalePrice = item.canSalePrice;
-      theItem.save();
-
-      saveToQuickbooks(theItem, qbws, function(savedItem) {
-        console.log('\nadding inventory request\n');
-        qbws.addRequest(modifyInventoryRq(savedItem));
+      theItem.save().then(savedItem => {
+        saveToQuickbooks(savedItem, qbws);
       });
     }
-  });
-}
-
-function saveToQuickbooks(item, qbws, callback) {
-  getItemInQuickbooks(item, qbws, function(savedItem, inventoryResponse, continueFunction) {
-    console.log('\nadding modify item request\n');
-    qbws.addRequest(modifyItemRq(savedItem));
-    continueFunction();
-    callback(savedItem);
   });
 }
 
@@ -982,26 +911,26 @@ function saveToQuickbooks(item, qbws, callback) {
  * Gets the item from Quickbooks, updates the necessary information. Then
  * provides a callback function which takes the savedItem and the item from QB.
  */
-function getItemInQuickbooks(item, qbws, callback) {
+function saveToQuickbooks(item, qbws) {
   // create request in qb
   console.log('\nADDING GET ITEM REQUEST\n');
-  qbws.addRequest(getItemRq(item));
-  qbws.addCallback(function(response, continueFunction) {
-    xmlParser(response, {explicitArray: false}, function(err, result) {
+  qbws.addRequest(getItemRq(item), response => {
+    return xml2js(response, {explicitArray: false}).then(result => {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-      if (itemInventoryRs) {
-        if (itemInventoryRs.$.requestID == 'itemRequest-'+item.sku) {
-          console.log('\ngot the item request\n');
-          item.editSequence = itemInventoryRs.ItemInventoryRet.EditSequence;
-          item.listId = itemInventoryRs.ItemInventoryRet.ListID;
-          item.save(function(err, savedItem) {
-            callback(savedItem, itemInventoryRs.ItemInventoryRet, continueFunction);
+      if (itemInventoryRs.$.requestID == 'itemRequest-'+item.sku) {
+        console.log('\ngot the item request\n');
+        item.editSequence = itemInventoryRs.ItemInventoryRet.EditSequence;
+        item.listId = itemInventoryRs.ItemInventoryRet.ListID;
+        return item.save().then(savedItem => {
+          console.log('\nadding modify item request\n');
+          console.log('price: ' + item.usPrice);
+          console.log('stock: ' + item.stock);
+          qbws.addRequest(modifyItemRq(savedItem), (response) => {
+            console.log('\nadding inventory request\n');
+            qbws.addRequest(modifyInventoryRq(savedItem));
+            return Promise.resolve('Done.');
           });
-        } else {
-          continueFunction();
-        }
-      } else {
-        continueFunction();
+        });
       }
     });
   });
@@ -1012,10 +941,9 @@ function getItemInQuickbooks(item, qbws, callback) {
  */
 function queryAllItems(qbws) {
   var promises = [];
-  return Item.find({}).then(items => {
-    qbws.addRequest(getMultipleItemsRq(items));
-    qbws.addRequest(getMultipleItemAssemblyRq(items)); // how do we know if it's a bundle?
-    qbws.setCallback(inventorySyncCallback);
+  return Item.find({}).limit(10).then(items => {
+    qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart);
+    qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly); // how do we know if it's a bundle?
     items.forEach(item => {
       item.updated = false;
       promises.push(item.save());
@@ -1245,27 +1173,26 @@ function findItemsForOrder(itemList) {
 }
 
 function setItemFieldsForAmazon(order) {
-    var promises = [];
-    order.OrderItemList.forEach(item => {
-      var findItem = Item.findOne({sku: item.ItemID});
-      var updateItem = findItem.then(dbItem => {
-        if (dbItem) {
-          if (order.InvoiceNumberPrefix == 'AZ-') {
-            item.ItemUnitStock = dbItem.usStock;
+  var promises = [];
+  order.OrderItemList.forEach(item => {
+    var findItem = Item.findOne({sku: item.ItemID});
+    var updateItem = findItem.then(dbItem => {
+      if (dbItem) {
+        if (order.InvoiceNumberPrefix == 'AZ-') {
+          item.ItemUnitStock = dbItem.usStock;
+          item.ItemWarehouseLocation = dbItem.location;
+        } else {
+          if (dbItem.isOption) { // needs the location
             item.ItemWarehouseLocation = dbItem.location;
-          } else {
-            if (dbItem.isOption) { // needs the location
-              item.ItemWarehouseLocation = dbItem.location;
-            }
           }
         }
-      });
-      promises.push(updateItem);
+      }
     });
-    return Promise.all(promises).then(() => {
-      return order;
-    });
-  return order;
+    promises.push(updateItem);
+  });
+  return Promise.all(promises).then(() => {
+    return order;
+  });
 }
 
 module.exports = {
@@ -1288,14 +1215,12 @@ module.exports = {
   queryInvoiceRq: queryInvoiceRq,
   querySalesReceiptRq: querySalesReceiptRq,
   modifyItemRq: modifyItemRq,
-  inventorySyncCallback: inventorySyncCallback,
   search: search,
   saveItem: saveItem,
   saveToQuickbooks: saveToQuickbooks,
   queryAllItems: queryAllItems,
   getItemRq: getItemRq,
-  getItemInQuickbooks: getItemInQuickbooks,
-  createInvoices: createInvoices,
+  createInvoiceRequests: createInvoiceRequests,
   searchSKU: searchSKU,
   searchCustomer: searchCustomer,
   updateCustoemr: updateCustomer,

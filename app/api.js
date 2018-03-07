@@ -89,70 +89,6 @@ module.exports = {
       });
     });
 
-    app.get('/api/invoices', authenticate, function (req, res) {
-
-      if (!req.query.startDate || !req.query.endDate) {
-        res.send('Error. You must supply a start and an end date.');
-        return;
-      }
-
-      var name = req.query.name;
-
-      if (!name) {
-        name = 'default';
-      }
-
-      var invoiceQuery = {
-        InvoiceQueryRq : {
-          '@requestID' : 'manifest',
-          TxnDateRangeFilter : {
-            FromTxnDate : req.query.startDate,
-            ToTxnDate : req.query.endDate
-          },
-          IncludeLineItems : true,
-          OwnerID : 0
-        }
-      };
-
-      var request = helpers.getXMLRequest(invoiceQuery);
-      var str = request.end({'pretty': true});
-      qbws.addRequest(str);
-      qbws.setCallback(function (response) {
-        xmlParser(response, {explicitArray: false}, function(err, result) {
-          if (err) {
-            console.log('There was an error parsing the response.');
-          }
-          ordersFromQuickbooks = result;
-          var invoiceQueryRs = result.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
-          if (invoiceQueryRs) {
-            Report.findOne({name : name}, function (err, doc) {
-              if (doc) {
-                doc.invoices = invoiceQueryRs.InvoiceRet;
-                doc.save();
-              } else {
-                var newReport = new Report();
-                newReport.name = name;
-                newReport.invoices = invoiceQueryRs.InvoiceRet;
-                newReport.save();
-              }
-            });
-          }
-        });
-      });
-
-      res.send('Run the Web Connector to generate the invoices on the server.');
-    });
-
-    app.get('/api/quickbooks/salesreceipts', function(req, res) {
-      cart3d.getSalesReceipts(qbws);
-      res.send('Run Connector');
-    });
-
-    app.get('/api/quickbooks/add/salesreceipts', function(req, res) {
-      cart3d.addSalesReceipts(qbws);
-      res.send('Run Connector Again');
-    });
-
     // Pass in the name of the report you want to build the manifest for
     app.get('/api/generate/manifest', function (req, res) {
       var name = req.query.name;
@@ -251,42 +187,6 @@ module.exports = {
           }
 
         });
-      });
-    });
-
-    // Gets the items from quickbooks based on the invoices (or not) and saves them to a report
-    app.get('/api/items', function(req, res) {
-      // req should pass in a name
-      var name = req.query.name;
-
-      if (!name) {
-        name = 'default';
-      }
-
-      Report.findOne({name: name}, function(err, doc) {
-        if (!doc) {
-          res.send('No invoices found. Make sure you run the Web Connector.');
-          return;
-        }
-        var items = [];
-        doc.invoices.forEach(function(invoice) {
-          items = items.concat(invoice.InvoiceLineRet);
-        });
-
-        var str = helpers.queryItemRq(items);
-        qbws.addRequest(str);
-
-        qbws.setCallback(function(response) {
-          xmlParser(response, {explicitArray: false}, function(err, result) {
-            var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-            if (itemInventoryRs) {
-              doc.items = itemInventoryRs.ItemInventoryRet;
-              doc.save();
-            }
-          });
-        });
-
-        res.send(doc.invoices);
       });
     });
 
@@ -594,62 +494,6 @@ module.exports = {
       });
     });
 
-    app.post('/api/settings', authenticate, formParser, function(req, res) {
-      Settings.findOne({account : req.user}, function(err, doc) {
-        if (err) {
-          res.send(false);
-        }
-        if (doc) {
-          doc.companyFile = req.body.companyFile;
-          doc.save();
-          qbws.companyFile = req.body.companyFile;
-          res.send(true);
-        } else {
-          var newSettings = new Settings();
-          newSettings.companyFile = req.body.companyFile;
-          newSettings.save();
-          qbws.companyFile = newSettings.companyFile;
-          res.send(true);
-        }
-      });
-    });
-
-    app.get('/api/inventory', function(req, res) {
-      var reportName = req.query.reportName;
-      if (!reportName) {
-        reportName = 'default'
-      }
-
-      qbws.addRequest(helpers.queryItemRq());
-      qbws.setCallback(function(message) {
-        xmlParser(message, {explicitArray: false}, function(err, result) {
-          var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-          if (itemInventoryRs) {
-            Report.findOne({name: reportName}, function(err, doc) {
-              console.log(itemInventoryRs.ItemInventoryRet);
-              if (doc) {
-                doc.inventory = itemInventoryRs.ItemInventoryRet;
-                doc.save(function (err, updatedReport) {
-                  if (err) {
-                    console.log('Error saving report.');
-                    console.log(err);
-                  }
-                  console.log(updatedReport);
-                });
-              } else {
-                var newReport = new Report();
-                newReport.name = reportName;
-                newReport.inventory = itemInventoryRs.ItemInventoryRet;
-                newReport.save();
-              }
-            });
-          }
-        });
-      });
-
-      res.send('Inventory Query saved. Please run the Web Connector.');
-    });
-
     app.get('/api/sync/inventory', function(req, res) {
       cart3d.getItems(qbws, function(progress, total) {
         console.log(Math.floor(progress/total*100));
@@ -920,76 +764,6 @@ module.exports = {
 
           res.send('Run the Web Connector.');        
         }
-      });
-    });
-
-    app.get('/api/3dcart/inventory', function(req, res) {
-      var sku = req.query.sku;
-      var category = req.query.category;
-      var qbxml = req.query.qbxml;
-      var csv = req.query.csv;
-      var options = {
-        url : 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-        headers : {
-          SecureUrl : 'https://www.ecstasycrafts.com',
-          PrivateKey : process.env.CART_PRIVATE_KEY,
-          Token : process.env.CART_TOKEN
-        },
-        qs : {
-          limit: 500
-        }
-      };
-
-      if (sku) {
-        options.qs.sku = sku;
-      }
-
-      if (category) {
-        options.url = "https://apirest.3dcart.com/3dCartWebAPI/v1/Categories/" + category + "/Products";
-      }
-
-      request.get(options, function(err, response, body) {
-        if (!body) {
-          res.send('No products found');
-          return;
-        }
-        var products = JSON.parse(body);
-        var getItemsRq = helpers.queryItemRq(products);
-        if (qbxml) {
-          qbws.addRequest(getItemsRq);
-          qbws.setCallback(function(response) {
-            xmlParser(response, {explicitArray: false}, function(err, result) {
-              var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-              if (itemInventoryRs) {
-                itemInventoryRs.ItemInventoryRet.forEach(function(item) {
-                  var itemMod = {
-                    ListID: item.ListID,
-                    EditSequence: item.EditSequence,
-                    SalesPrice: item.SalesPrice
-                  };
-
-                  for (var i = 0; i < products.length; i++) {
-                    if (products[i].SKUInfo.SKU == item.FullName) {
-                      itemMod.SalesPrice = products[i].SKUInfo.Price
-                    }
-                  }
-
-                  var modRequest = helpers.modifyItemRq(itemMod);
-                  qbws.addRequest(modRequest);
-                });
-              }
-            });
-          });
-        }
-        
-        if (csv) {
-          var doc = '';
-          var headers = 'id, name, categories, mfgid, manufacturer, price, price2, price3, price4, stock, weight, image1, hide, keywords'
-          products.forEach(function(product) {
-            doc+=''
-          });
-        }
-        res.send(products);
       });
     });
 

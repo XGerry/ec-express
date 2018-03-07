@@ -5,6 +5,7 @@ var fs = require('fs');
 var builder = require('xmlbuilder');
 var uuid = require('uuid');
 var xmlParser = require('xml2js').parseString; 
+var xml2js = require('xml2js-es6-promise');
 var Order = require('../app/model/order');
 var Settings = require('../app/model/settings');
 var helpers = require('../app/helpers.js');
@@ -15,7 +16,6 @@ var qbws,
     counter = null,
     connectionErrCounter = null,
     errors = [],
-    requests = {},
     username = 'username',
     password = 'password',
     // Change companyFile to an empty string to use the company file
@@ -23,15 +23,8 @@ var qbws,
     companyFile = '\\\\DESKTOP-1DLOLHU\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2014B.QBW', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
     req = [],
     orders = [],
-    finalCallback = function() {
-        console.log('done.');
-    }
-    callback = function(response, returnObject, responseCallback) {
-        // console.log(response);
-        responseCallback(returnObject);
-    },
-    callbacks = [];
-var queue = []; // any requests in the queue can get wiped. But these are added to the requests when the web connector is run.
+    finalCallback = () => {return Promise.resolve('Done the requests')};
+var currentRequest = {};
 
 /**
  * Returns an array of sample QBXML requests
@@ -161,94 +154,84 @@ function buildRequest() {
     return request;
 }
 
-var addRequest = function(str) {
-    req.push(str);
-}
-
-var addRequestQueue = function(str) {
-    queue.push(str);
-}
-
-var addOrder = function(order) {
-    orders.push(order);
+var addRequest = function(str, fncs, unique) {
+  var arrayOfCallbacks = [];
+  if (!Array.isArray(fncs)) {
+    if (fncs) {
+      arrayOfCallbacks.push(fncs);
+    }
+  } else {
+    arrayOfCallbacks.concat(fncs);
+  }
+  if (unique) {
+    req.forEach(requestObject => {
+      if (requestObject.xml == str) { // duplicate
+        requestObject.callbacks.concat(arrayOfCallbacks);
+      }
+    });
+  } else {
+    req.push({
+      xml: str,
+      callbacks: arrayOfCallbacks
+    });
+  }
 }
 
 function removeOrder(index) {
-    if (index > -1)
-        orders.splice(index, 1);
+  if (index > -1)
+    orders.splice(index, 1);
 }
 
 var clearRequests = function() {
-    req = [];
-    orders = [];
-    callback = defaultCallback;
-    connectionErrCounter = 0; // reset this too
-    callbacks = [];
-    queue = [];
-}
-
-var setCallback = function(fnc) {
-    callback = fnc;
-}
-
-function addCallback(fnc) {
-    callbacks.push(fnc);
+  req = [];
+  orders = [];
+  connectionErrCounter = 0; // reset this too
 }
 
 function setFinalCallback(fnc) {
     finalCallback = fnc;
 }
 
-var defaultCallback = function(response, returnObject, responseCallback) {
-    console.log(response);
-    responseCallback(returnObject);
-}
-
 function getOrders() {
     return orders;
 }
 
-function emptyQueue() {
-    queue = [];
-}
-
-function generateOrderRequest(returnObject, responseCallback) {
-    setCallback(checkError); // don't end up here again
-    var requestNumber = 1;
-    Order.find({imported: false}, function(err, orders) {
-        orders.forEach(function(order) {
-            addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
-            var invoiceRqId = order.orderId;
-            var xmlInvoiceRequest = helpers.addInvoiceRq(order.cartOrder, invoiceRqId); // make the request ID the order ID!
-            addRequest(xmlInvoiceRequest);
-            order.requestID = invoiceRqId;
-            order.save();
-        });
-        responseCallback({string: 'Adding Requests'});
+function generateOrderRequest() {
+  var promises = [];
+  var requestNumber = 1;
+  return Order.find({imported: false}).then(orders => {
+    orders.forEach(order => {
+      addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
+      var invoiceRqId = order.orderId;
+      var xmlInvoiceRequest = helpers.addInvoiceRq(order.cartOrder, invoiceRqId); // make the request ID the order ID!
+      addRequest(xmlInvoiceRequest, checkError);
+      order.requestID = invoiceRqId;
+      promises.push(order.save());
     });
+    return Promise.all(promises);
+  });
 }
 
-function checkError(response, returnObject, responseCallback) {
-    xmlParser(response, {explicitArray: false}, function(err, result) {
-        var invoiceRs = result.QBXML.QBXMLMsgsRs.InvoiceAddRs;
-        if (invoiceRs) {
-            var requestID = invoiceRs.$.requestID;
-            Order.findOne({ orderId : requestID }, function(err, doc) {
-                if (doc) {
-                    if (invoiceRs.$.statusCode == '3140' || invoiceRs.$.statusCode == '3205') { // error
-                        doc.imported = false;
-                        doc.message = invoiceRs.$.statusMessage;
-                        console.log('found an error: ' + doc.message);
-                    } else {
-                        doc.imported = true;
-                        doc.message = 'Success';
-                    }
-                    doc.save();
-                }
-            });
+function checkError(response) {
+  return xml2js(response, {explicitArray: false}).then(result => {
+    var invoiceRs = result.QBXML.QBXMLMsgsRs.InvoiceAddRs;
+    if (invoiceRs) {
+      var requestID = invoiceRs.$.requestID;
+      return Order.findOne({ orderId : requestID }).then(doc => {
+        if (doc) {
+          if (invoiceRs.$.statusCode == '3140' || invoiceRs.$.statusCode == '3205') { // error
+            doc.imported = false;
+            doc.message = invoiceRs.$.statusMessage;
+            console.log('found an error: ' + doc.message);
+          } else {
+            doc.imported = true;
+            doc.message = 'Success';
+          }
+          return doc.save();
         }
-    });
-    responseCallback(returnObject);
+      });
+    }
+  });
 }
 
 /**
@@ -451,11 +434,6 @@ function (args) {
     // TODO: This shouldn't be hard coded
     serviceLog('    Password locally stored = ' + password);
 
-    if (queue.length > 0) {
-        req = req.concat(queue);
-        emptyQueue();
-    }
-
     if (args.strUserName.trim() === username && args.strPassword.trim() === password) {
         if (req.length === 0) {
             authReturn[1] = 'NONE';
@@ -497,38 +475,23 @@ function (args) {
 // - "" = No more request XML
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.sendRequestXML =
 function (args, sendCallback) {
-    var total,
-        request = '';
+  var total,
+    request = '';
 
-    announceMethod('sendRequestXML', args);
+  announceMethod('sendRequestXML', args);
 
-    if (queue.length > 0) {
-        req = req.concat(queue);
-        emptyQueue();
-    }
+  total = req.length;
+  console.log('Sending ' + total + ' requests to QBWC.');
 
-    total = req.length;
-    console.log('Sending ' + total + ' requests to QBWC.');
+  // just shift the next request off the stack
+  if (req.length > 0) {
+    currentRequest = req.shift();
+    request = currentRequest.xml;
+  }
 
-    // if (counter < total) {
-    //     request = req[counter];
-    //     serviceLog('    Sending request no = ' + (counter + 1));
-    //     counter = counter + 1;
-    // } else {
-    //     counter = 0;
-    //     request = '';
-    // }
-
-    // just shift the next request off the stack
-
-    if (req.length > 0) {
-        request = req.shift();
-    }
-
-    sendCallback({
-        sendRequestXMLResult: { string: request }
-    });
-
+  sendCallback({
+    sendRequestXMLResult: { string: request }
+  });
 };
 
 // WebMethod - closeConnection()
@@ -550,7 +513,10 @@ function (args) {
     // Resetting the connection error count and reset the requests
     connectionErrCounter = 0;
     clearRequests();
-    finalCallback();
+    finalCallback().then((val) => {
+      console.log(val);
+      finalCallback = () => { return Promise.resolve('Done all the requests!'); }
+    });
 
     serviceLog('    Return values:');
     serviceLog('        string retVal = ' + retVal);
@@ -740,95 +706,73 @@ function (args) {
 // Less than zero  = Custom Error codes
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.receiveResponseXML =
 function (args, responseCallback) {
-    var response = args.response,
-        hresult = args.hresult,
-        message = args.message,
-        retVal = 0,
-        percentage;
+  var response = args.response,
+      hresult = args.hresult,
+      message = args.message,
+      retVal = 0,
+      percentage;
 
-    announceMethod('receiveResponseXML', args);
+  announceMethod('receiveResponseXML', args);
 
-    // TODO: Create method for Object testing and property names length
-    if (typeof hresult === 'object' && Object.getOwnPropertyNames(hresult).length !== 0) {
-        // If there is an error with response received,
-        //     web service could also return a -ve int
-        serviceLog('    HRESULT = ' + hresult);
-        serviceLog('    Message = ' + message);
-        retVal = -101;
+  // TODO: Create method for Object testing and property names length
+  if (typeof hresult === 'object' && Object.getOwnPropertyNames(hresult).length !== 0) {
+      // If there is an error with response received,
+      //     web service could also return a -ve int
+      serviceLog('    HRESULT = ' + hresult);
+      serviceLog('    Message = ' + message);
+      retVal = -101;
+  } else {
+      serviceLog('    Length of response received = ' + response.length);
+  }
+
+  var promises = [];
+  console.log(currentRequest.callbacks[0]);
+  currentRequest.callbacks.forEach(callback => {
+    promises.push(callback(response));
+  });
+
+  Promise.all(promises).then(() => {
+    // the requests in the queue may have changed
+    if (req.length > 0) {
+      retVal = 50;
     } else {
-        serviceLog('    Length of response received = ' + response.length);
-
-        percentage = counter * 100 / req.length;
-        if (percentage >= 100) {
-            counter = 0;
-        }
-
-        // QBWC throws an error if if the return value contains a decimal
-        retVal = percentage.toFixed();
+      retVal = 100;
     }
 
-    //serviceLog('    Return values: ');
-    //serviceLog('        Number retVal = ' + retVal);
-
     var returnObject = {
-        receiveResponseXMLResult: { string: retVal }
+      receiveResponseXMLResult: { string: retVal }
     };
 
-    async.applyEach(callbacks, response, function() { // go over all the callbacks until it's finished
-        percentage = counter * 100 / req.length; // recalculate percentage because we may have added stuff
-        if (percentage >= 100) {
-            counter = 0;
-        }
-
-        // QBWC throws an error if if the return value contains a decimal
-        retVal = percentage.toFixed();
-
-        returnObject = {
-            receiveResponseXMLResult: { string: retVal }
-        };
-        callback(response, returnObject, responseCallback);
-    });
+    responseCallback(returnObject);
+  });
 };
-
-/*
-server = http.createServer(function requestListener(request,response) {
-    response.end('404: Not Found: ' + request.url);
-});
-*/
 
 module.exports = {
     run : function(app) {
-        // server should already be started
+      // server should already be started
 
-        var soapServer,
-            xml = fs.readFileSync(__dirname + '/wsdl/qbwc.wsdl', 'utf8');
+      var soapServer,
+        xml = fs.readFileSync(__dirname + '/wsdl/qbwc.wsdl', 'utf8');
 
-        //server.listen(process.env.PORT || 8000);
-        soapServer = soap.listen(app, '/wsdl', qbws, xml);
+      //server.listen(process.env.PORT || 8000);
+      soapServer = soap.listen(app, '/wsdl', qbws, xml);
 
-        soapServer.log = function soapServerLog(type, data) {
-            serviceLog(type + ': ' + JSON.stringify(data));
-        }
+      soapServer.log = function soapServerLog(type, data) {
+        serviceLog(type + ': ' + JSON.stringify(data));
+      }
 
-        soapServer.on('headers', function(headers, methodName) {
-            console.log('Headers were received');
-            console.log(headers);
-            console.log(methodName);
-        });
-
+      soapServer.on('headers', function(headers, methodName) {
+        console.log('Headers were received');
+        console.log(headers);
+        console.log(methodName);
+      });
     },
     addRequest : addRequest,
     clearRequests : clearRequests,
-    buildRequest : buildRequest,
-    setCallback : setCallback,
     setFinalCallback: setFinalCallback,
     companyFile : companyFile,
-    addOrder : addOrder,
     removeOrder: removeOrder,
     getOrders: getOrders,
-    generateOrderRequest: generateOrderRequest,
-    addCallback: addCallback,
-    emptyQueue: emptyQueue,
-    addRequestQueue: addRequestQueue
+    generateOrderRequest: generateOrderRequest
 };
 
