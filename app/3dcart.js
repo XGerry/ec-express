@@ -126,7 +126,9 @@ function quickSaveItems(query, progressCallback, canadian) {
   return Item.find(query).then(async items => {
     var body = [];
     items.forEach(item => {
-      body.push(buildCartItem(item, canadian));
+      var cartItem = buildCartItem(item, canadian);
+      console.log(cartItem);
+      body.push(cartItem);
     });
 
     var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
@@ -135,13 +137,18 @@ function quickSaveItems(query, progressCallback, canadian) {
     for (var i = 0; i < numOfRequests; i++) {
       progressCallback(i, numOfRequests - 1);
       options.body = body.slice(i * 100, (i + 1) * 100);
-      await rp(options);
+      try {
+        var response = await rp(options);
+        console.log(response);
+      } catch (err) {
+        console.log(options);
+      }
     }
     return 'Done';
   });
 }
 
-async function buildCartItem(item, canadian) {
+function buildCartItem(item, canadian) {
   var cartItem = {
     SKUInfo: {
       SKU: item.sku,
@@ -162,29 +169,6 @@ async function buildCartItem(item, canadian) {
     cartItem.SKUInfo.Stock = 0;
   }
 
-  if (item.hasOptions) {
-    var query = {};
-    if (canadian) {
-      query.catalogIdCan = item.catalogIdCan;
-    }
-    else {
-      query.catalogId = item.catalogId;
-    }
-    query.isOption = true;
-    var findAllOptions = Item.find(query);
-    var getTotalStock = findAllOptions.then(options => {
-      var stock = 0;
-      console.log('found ' + options.length + ' options');
-      options.forEach(option => {
-        stock += canadian ? option.canStock : option.usStock;
-      });
-      console.log(stock);
-      return stock;
-    });
-
-    cartItem.SKUInfo.Stock = await getTotalStock;
-  }
-
   return cartItem;
 }
 
@@ -192,7 +176,6 @@ function saveItems(query, progressCallback) {
   if (query == null || query == undefined) {
     query = {
       isOption: false,
-      hasOptions: false,
       updated: true
     };
   }

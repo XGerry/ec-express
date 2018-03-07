@@ -1017,7 +1017,7 @@ function queryAllItems(qbws) {
     qbws.addRequest(getMultipleItemAssemblyRq(items)); // how do we know if it's a bundle?
     qbws.setCallback(inventorySyncCallback);
     items.forEach(item => {
-      item.updated = true;
+      item.updated = false;
       promises.push(item.save());
     });
     return Promise.all(promises);
