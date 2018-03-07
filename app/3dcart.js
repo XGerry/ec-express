@@ -125,7 +125,7 @@ function quickSaveItems(query, progressCallback, canadian) {
 
   return Item.find(query).then(async items => {
     var body = [];
-    items.forEach(function(item) {
+    items.forEach(item => {
       body.push(buildCartItem(item, canadian));
     });
 

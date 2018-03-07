@@ -22,8 +22,9 @@
  				});
  			}).then((responses) => {
  				console.log(responses);
- 				helpers.queryAllItems(qbws);
-				socket.emit('getItemsFinished');
+ 				helpers.queryAllItems(qbws).then(() => {
+					socket.emit('getItemsFinished');
+ 				});
  			});
  		});
 
@@ -53,9 +54,9 @@
  			});
 
  			// save the walmart inventory
- 			walmart.updateInventory();
+ 			//walmart.updateInventory();
  			// save the amazon inventory
- 			amazon.updateInventory();
+ 			//amazon.updateInventory();
  		});
 
  		socket.on('orderRequest', function() {
