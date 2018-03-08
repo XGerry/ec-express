@@ -13,45 +13,59 @@ html
 			.panel-heading
 				ul.nav.nav-tabs
 					li.active
-						a(data-toggle="tab", href="#step1") Get Orders
-					li
-						a(data-toggle="tab", href="#step2")#run-connector Run Connector
+						a(data-toggle="tab", href="#quickSync") Sync Orders and Inventory
 					li
 						a(data-toggle="tab", href="#step3")#report Report
 			.tab-content.panel-body
-				#step1.tab-pane.fade.in.active
-					form
-						.form-group.row
-							.col-lg-12
-								label(for="orderStatus") Status
-								select.form-control#orderStatus
-									option(value="1") New
-									option(value="0") All
-									option(value="2") Processing
-						.form-group.row
-							.col-lg-6.col-md-6.col-sm-6.col-xs-6
-								label(for="startDate") Start Date
-								input#startDate.form-control(type="date")
-							.col-lg-6.col-md-6.col-sm-6.col-xs-6
-								label(for="endDate") End Date
-								input#endDate.form-control(type="date")
-						.form-group.row
-							.col-lg-12
-								label(for="limit") Limit
-								input.form-control#limit(type="number")
-						.form-group.row
-							.col-lg-12
-								label(for="discout") Discount
-								input.form-control#discount(type="text", value="DISC")
-								p.help-block The item code you want to use in Quickbooks for discounts.
-					.row.text-center
-						button#getOrdersButton.btn.btn-primary(type="button") Get Orders
-
-				#step2.tab-pane.fade
-					#notifications.alert.alert-dismissable.hidden(role="alert")
-						button.close(type="button", data-dismiss="alert", aria-label="Close") #[span(aria-hidden="true") &times;]
-						#message
-					#instructions
+				#quickSync.tab-pane.fade.in.active
+					.row
+						.col-lg-12
+							.btn-toolbar
+								button.btn.btn-success(type="button")#syncInventoryAndOrders Sync Inventory and Orders
+							h2 Status
+					.row
+						.col-lg-11
+							label Get Orders
+							.progress
+								#getOrdersProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+							p#orderInfo
+						.col-lg-1
+							i#quickGetOrders.fa.fa-square-o.fa-2x
+					.row
+						.col-lg-11
+							label Refresh Inventory
+							.progress
+								.refreshInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+						.col-lg-1
+							i#quickGetItems.fa.fa-square-o.fa-2x
+					.row
+						.col-lg-11
+							label Run the Web Connector
+							.progress
+								.connectorBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+						.col-lg-1
+							i#quickRunConnector.fa.fa-square-o.fa-2x
+					.row
+						.col-lg-11
+							label Saving Items
+							.progress
+								.saveInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+						.col-lg-1
+							i#quickSaveItems.fa.fa-square-o.fa-2x
+					.row
+						.col-lg-11
+							label Saving Options
+							.progress
+								.saveOptionsProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+						.col-lg-1
+							i#quickSaveOptions.fa.fa-square-o.fa-2x
+					.row
+						.col-lg-11
+							label Recalculating Base Items with Options
+							.progress
+								.baseStockProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+						.col-lg-1
+							i#quickRecalculate.fa.fa-square-o.fa-2x
 
 				#step3.tab-pane.fade
 					button(type="button").btn.btn-default#last-import Get Last Report
@@ -60,3 +74,4 @@ html
 
 				include includes/end
 					script(src="/js/orders.js")
+					script(src="/js/inventory.js")
