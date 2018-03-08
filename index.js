@@ -36,6 +36,7 @@ mongoose.connection.on('connecting',   () => { console.log('Database connecting.
 mongoose.connection.on('timeout',      () => { console.log('Database timeout...'); });
 mongoose.connection.on('error',        () => { console.log('Database error...'); });
 mongoose.connection.on('disconnected', () => { console.log('Database disconnected...'); });
+mongoose.set('debug', false);
 
 // prepare server
 app.use(cors({

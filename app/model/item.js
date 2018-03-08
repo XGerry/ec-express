@@ -63,6 +63,8 @@ var itemSchema = new mongoose.Schema({
 		default: 0
 	},
 	isBundle: Boolean
+}, {
+	usePushEach: true
 });
 
 module.exports = mongoose.model('Item', itemSchema);

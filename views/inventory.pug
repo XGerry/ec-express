@@ -15,12 +15,66 @@ html
 				li.active
 					a(data-toggle="tab", href="#quickSync") Quick Sync
 				li
+					a(data-toggle="tab", href="#basicSync") Basic Sync
+				li
 					a(data-toggle="tab", href="#advancedSync") Advanced Sync
 				li
 					a(data-toggle="tab", href="#settings") Inventory Settings
 			
 			.tab-content.list-group
 				#quickSync.tab-pane.fade.in.active
+					.list-group-item
+						.row
+							.col-lg-12
+								.btn-toolbar
+									button.btn.btn-success(type="button")#syncInventoryAndOrders Sync Inventory and Orders
+					.list-group-item
+						h2 Status
+						.row
+							.col-lg-11
+								label Get Orders
+								.progress
+									#getOrdersProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+								p#orderInfo
+							.col-lg-1
+								i#quickGetOrders.fa.fa-square-o.fa-2x
+						.row
+							.col-lg-11
+								label Refresh Inventory
+								.progress
+									.refreshInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+							.col-lg-1
+								i#quickGetItems.fa.fa-square-o.fa-2x
+						.row
+							.col-lg-11
+								label Run the Web Connector
+								.progress
+									.connectorBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+							.col-lg-1
+								i#quickRunConnector.fa.fa-square-o.fa-2x
+						.row
+							.col-lg-11
+								label Saving Items
+								.progress
+									.saveInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+							.col-lg-1
+								i#quickSaveItems.fa.fa-square-o.fa-2x
+						.row
+							.col-lg-11
+								label Saving Options
+								.progress
+									.saveOptionsProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+							.col-lg-1
+								i#quickSaveOptions.fa.fa-square-o.fa-2x
+						.row
+							.col-lg-11
+								label Recalculating Base Items with Options
+								.progress
+									.baseStockProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+							.col-lg-1
+								i#quickRecalculate.fa.fa-square-o.fa-2x
+
+				#basicSync.tab-pane.fade.in
 					.list-group-item
 						.row
 							.col-lg-1.text-center
@@ -33,7 +87,7 @@ html
 						.row
 							.col-lg-12
 								.progress
-									#getInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+									.refreshInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
 
 					.list-group-item
 						.row
@@ -55,7 +109,7 @@ html
 						.row
 							.col-lg-12
 								.progress
-									#saveInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+									.saveInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
 
 				#advancedSync.tab-pane.fade
 					.list-group-item
@@ -63,7 +117,7 @@ html
 							.col-lg-1.text-center
 								i#advancedStep1.fa.fa-square-o.fa-2x
 							.col-lg-8
-								p Refresh All Items from 3D Cart (US & CA)
+								p Refresh All Items from 3D Cart (US &amp; CA)
 							.col-lg-3
 								.btn-toolbar.right-float
 									button.btn.btn-success.bottom-10(type="button")#refreshAllItems Refresh
@@ -71,7 +125,7 @@ html
 						.row
 							.col-lg-12
 								.progress
-									#refreshItemsProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+									.refreshInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
 					.list-group-item
 						.row
 							.col-lg-1.text-center
@@ -87,7 +141,7 @@ html
 						.row
 							.col-lg-12
 								.progress
-									#saveInventoryProgressBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+									.saveInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
 				#settings.tab-pane.fade
 					.list-group-item
 						.form-group.row

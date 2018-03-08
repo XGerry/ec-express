@@ -221,6 +221,16 @@ function getMultipleItemAssemblyRq(items) {
   });
 
   qbRq.ItemInventoryAssemblyQueryRq.FullName = names;
+  qbRq.ItemInventoryAssemblyQueryRq.IncludeRetElement = [
+    'ListID',
+    'EditSequence',
+    'Name',
+    'FullName',
+    'BarCodeValue',
+    'IsActive',
+    'QuantityOnHand',
+    'DataExtRet'
+  ];
   qbRq.ItemInventoryAssemblyQueryRq.OwnerID = 0; // order matters
 
   var xmlDoc = getXMLRequest(qbRq);
@@ -306,6 +316,11 @@ function queryInvoiceRq(orders) {
  * orders are db orders
  */
 function getInvoiceRq(orders) {
+  if (orders.length == 0) {
+    orders.push({
+      orderId: 'AB-12345'
+    });
+  }
   var orderNumbers = [];
   orders.forEach(function(order) {
     orderNumbers.push(order.orderId);
@@ -677,30 +692,32 @@ function createInvoiceRequests(qbws) {
     var invoiceRq = getInvoiceRq(orders);
     qbws.addRequest(invoiceRq, (response) => {
       var promises = [];
-      xml2js(response).then(responseObject => {
-        var invoiceRs = responseObject.QBXMLMsgsRs.InvoiceQueryRs;
+      xml2js(response, {explicitArray: false}).then(responseObject => {
+        var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
         if (Array.isArray(invoiceRs.InvoiceRet)) {
           invoiceRs.InvoiceRet.forEach(invoice => {
             promises.push(updateDuplicateOrder(invoice));
           });
-        } else {
+        } else if (invoiceRs.InvoiceRet) {
           promises.push(updateDuplicateOrder(invoiceRs.InvoiceRet));
         }
       });
 
-      Promise.all(promises).then(() => {
+      return Promise.all(promises).then(() => {
         // now the duplicate orders have been purged
-        qbws.generateOrderRequest();
+        return qbws.generateOrderRequest();
       });
     });
   });
 }
 
 function updateDuplicateOrder(invoice) {
+  console.log(invoice);
   return Order.findOne({orderId: invoice.RefNumber}, function(err, order) {
     // duplicate order
     order.imported = true; // already imported
     order.message = 'Duplicate order. Skipping.';
+    console.log('Found duplicate: ' + invoice.RefNumber);
     return order.save();
   });
 }
@@ -824,9 +841,11 @@ function addItemProperties(data, item) {
   } else if (data.DataExtName == 'Country' || data.DataExtName == 'C Origin') {
     if (item.countryOfOrigin != data.DataExtValue) {
       item.countryOfOrigin = data.DataExtValue.toUpperCase();
+      item.updated = true;
     }
   } else if (data.DataExtName == 'HTC Code') {
     item.htcCode = data.DataExtValue;
+    item.updated = true;
   }
 }
 
@@ -941,7 +960,7 @@ function saveToQuickbooks(item, qbws) {
  */
 function queryAllItems(qbws) {
   var promises = [];
-  return Item.find({}).limit(10).then(items => {
+  return Item.find({}).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly); // how do we know if it's a bundle?
     items.forEach(item => {

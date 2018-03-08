@@ -14,6 +14,8 @@ var settingSchema = new mongoose.Schema({
 		type: [Number],
 		default: []
 	}
+}, {
+	usePushEach: true
 });
 
 module.exports = mongoose.model('Settings', settingSchema);

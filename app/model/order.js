@@ -19,6 +19,8 @@ var orderSchema = new mongoose.Schema({
 	retry: Boolean,
 	canadian: Boolean,
 	manual: Boolean
+}, {
+	usePushEach: true
 });
 
 module.exports = mongoose.model('Order', orderSchema);

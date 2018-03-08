@@ -28,19 +28,46 @@
  			});
  		});
 
- 		/**
- 		 * Saves the items to 3D Cart. 
- 		 * This usually happens after an inventory sync.
- 		 */
- 		socket.on('saveItems', function() {
- 			cart3d.saveItems(null, (progress, total) => {
+ 		socket.on('syncInventoryAndOrders', () => {
+ 			qbws.addStartingCallback(() => {
+ 				socket.emit('webConnectorStarted');
+ 				return Promise.resolve('Started!');
+ 			});
+
+ 			// First get the New orders from 3D Cart
+ 			cart3d.getOrders({
+ 				orderstatus: 1, // new
+ 				limit: 200
+ 			}, qbws).then(numberOfOrders => {
+ 				socket.emit('getOrdersFinished', numberOfOrders);
+ 				// Now, refresh the stock levels in 3D Cart
+ 				cart3d.getItems(qbws, (counter, total) => {
+ 					socket.emit('getItemsProgress', {
+ 						progress: counter,
+ 						total: total
+ 					});
+ 				}).then(responses => {
+ 					helpers.queryAllItems(qbws).then(() => {
+ 						qbws.addFinalCallback(() => {
+ 							socket.emit('webConnectorFinished');
+ 							return Promise.resolve('Finished');
+ 							// saveInventory();
+ 						});
+ 						socket.emit('getItemsFinished');
+ 						// Now we need to run the web connector
+ 					});
+ 				});
+ 			});
+ 		});
+
+ 		function saveInventory() {
+ 			return cart3d.saveItems(null, (progress, total) => {
  				socket.emit('saveItemsProgress', {
  					progress: progress,
  					total: total
  				});
  			}).then(() => {
  				socket.emit('saveItemsFinished');
-
  				// also save the options
  				cart3d.saveOptionItems((progress, total) => {
  					socket.emit('saveOptionItemsProgress', {
@@ -49,7 +76,12 @@
  					});
  				}).then(() => {
  					socket.emit('saveOptionItemsFinished');
- 					cart3d.calculateBaseItemStock();
+ 					cart3d.calculateBaseItemStock((progress, total) => {
+ 						socket.emit('calculateBaseStockProgress', {
+ 							progress: progress,
+ 							total: total
+ 						});
+ 					});
  				});
  			});
 
@@ -57,6 +89,14 @@
  			//walmart.updateInventory();
  			// save the amazon inventory
  			//amazon.updateInventory();
+ 		}
+
+ 		/**
+ 		 * Saves the items to 3D Cart. 
+ 		 * This usually happens after an inventory sync.
+ 		 */
+ 		socket.on('saveItems', function() {
+ 			saveInventory();
  		});
 
  		socket.on('orderRequest', function() {
@@ -439,7 +479,7 @@
  			cart3d.refreshFrom3DCart(function(items) {
  				helpers.queryAllItems(qbws).then(() => {
 					console.log('Run the web connector');
-	 				qbws.setFinalCallback(() => {
+	 				qbws.addFinalCallback(() => {
 	 					// now we can save the items?
 	 					console.log('Ready to save the items');
 	 					return cart3d.saveItems({}, (progress, total) => {

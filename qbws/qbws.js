@@ -23,8 +23,9 @@ var qbws,
     companyFile = '\\\\DESKTOP-1DLOLHU\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2014B.QBW', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
     req = [],
     orders = [],
-    finalCallback = () => {return Promise.resolve('Done the requests')};
+    finalCallbacks = [];
 var currentRequest = {};
+var startingCallbacks = [];
 
 /**
  * Returns an array of sample QBXML requests
@@ -177,6 +178,10 @@ var addRequest = function(str, fncs, unique) {
   }
 }
 
+function addStartingCallback(fnc) {
+  startingCallbacks.push(fnc);
+}
+
 function removeOrder(index) {
   if (index > -1)
     orders.splice(index, 1);
@@ -186,14 +191,16 @@ var clearRequests = function() {
   req = [];
   orders = [];
   connectionErrCounter = 0; // reset this too
+  finalCallbacks = [];
+  startingCallbacks = [];
 }
 
-function setFinalCallback(fnc) {
-    finalCallback = fnc;
+function addFinalCallback(fnc) {
+  finalCallbacks.push(fnc);
 }
 
 function getOrders() {
-    return orders;
+  return orders;
 }
 
 function generateOrderRequest() {
@@ -419,7 +426,7 @@ function (args) {
 // - "nvu" = not valid user
 // - any other string value = use this company file
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.authenticate =
-function (args) {
+function (args, callback) {
     var authReturn = [];
     announceMethod('authenticate', args);
 
@@ -450,9 +457,19 @@ function (args) {
     serviceLog('        string[] authReturn[0] = ' + authReturn[0]);
     serviceLog('        string[] authReturn[1] = ' + authReturn[1]);
 
-    return {
-        authenticateResult: { string: [authReturn[0], authReturn[1]] }
-    };
+    var promises = [];
+    startingCallbacks.forEach(cb => {
+      promises.push(cb());
+    });
+
+    Promise.all(promises).then((vals) => {
+      console.log(vals);
+      startingCallbacks = [];
+    });
+
+    callback({
+      authenticateResult: { string: [authReturn[0], authReturn[1]] }
+    });
 };
 
 // WebMethod - sendRequestXML()
@@ -512,10 +529,15 @@ function (args) {
 
     // Resetting the connection error count and reset the requests
     connectionErrCounter = 0;
-    clearRequests();
-    finalCallback().then((val) => {
-      console.log(val);
-      finalCallback = () => { return Promise.resolve('Done all the requests!'); }
+    var promises = [];
+    finalCallbacks.forEach(cb => {
+      promises.push(cb());
+    });
+
+    Promise.all(promises).then((vals) => {
+      console.log(vals);
+      finalCallbacks = [];
+      clearRequests();
     });
 
     serviceLog('    Return values:');
@@ -612,13 +634,13 @@ function (args) {
 // URL to a website
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.getInteractiveURL =
 function (args) {
-    var retVal = '';
+  var retVal = '';
 
-    announceMethod('getInteractiveURL', args);
+  announceMethod('getInteractiveURL', args);
 
-    return {
-        getInteractiveURLResult: { string: retVal }
-    };
+  return {
+    getInteractiveURLResult: { string: retVal }
+  };
 };
 
 // WebMethod - getLastError()
@@ -769,10 +791,11 @@ module.exports = {
     },
     addRequest : addRequest,
     clearRequests : clearRequests,
-    setFinalCallback: setFinalCallback,
+    addFinalCallback: addFinalCallback,
     companyFile : companyFile,
     removeOrder: removeOrder,
     getOrders: getOrders,
+    addStartingCallback: addStartingCallback,
     generateOrderRequest: generateOrderRequest
 };
 

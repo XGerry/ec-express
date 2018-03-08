@@ -294,7 +294,7 @@ module.exports = {
 			helpers.setTimeCode();
 			var timecode = helpers.getTimeCode();
 			var findSettings = Settings.findOne({});
-			
+
 			findSettings.then(function(settings) {
 				settings.timecodes.push(timecode);
 				settings.save();
@@ -313,7 +313,7 @@ module.exports = {
 					});
 				});
 
-				qbws.setFinalCallback(function() {
+				qbws.addFinalCallback(function() {
 					// clear the timecodes from settings
 					var savedSettings = findSettings.then(function(settings) {
 						settings.lastImports = settings.timecodes;

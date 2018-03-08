@@ -5,13 +5,28 @@ function showLoading(buttonId, iconId, progressBarId) {
 		$('#'+buttonId).addClass('disabled');
 	}
 	if (iconId) {
-		$('#'+iconId).removeClass('fa-square-o');
-		$('#'+iconId).removeClass('fa-check-square-o');	
-		$('#'+iconId).addClass('fa-refresh fa-spin');
+		showLoadingIcon(iconId);
 	}
 	if (progressBarId) {
 		$('#'+progressBarId).addClass('active');
 	}
+}
+
+function showLoadingIcon(iconId) {
+	$('#'+iconId).removeClass('fa-square-o');
+	$('#'+iconId).removeClass('fa-check-square-o');	
+	$('#'+iconId).addClass('fa-refresh fa-spin');
+}
+
+function doneLoadingIcon(iconId) {
+	$('#'+iconId).removeClass('fa-spin');
+	$('#'+iconId).addClass('fa-check-square-o');
+}
+
+function doneLoadingProgress(barClass) {
+	$('.'+barClass).css('width', '100%').text('Done');
+	$('.'+barClass).removeClass('active');
+	$('.'+barClass).removeClass('progress-bar-striped');
 }
 
 function doneLoading(buttonId, iconId, progressBarId) {
@@ -94,6 +109,25 @@ $(document).ready(function() {
 	});
 
 	socket.emit('getSettings');
+
+	$('#syncInventoryAndOrders').click(e => {
+		$('#syncInventoryAndOrders').button('loading');
+		$('#getOrdersProgress').addClass('active');
+		socket.emit('syncInventoryAndOrders');
+		showLoadingIcon('quickGetOrders');
+	});
+});
+
+socket.on('getOrdersFinished', numOfOrders => {
+	$('#orderInfo').text('Received ' + numOfOrders + ' orders from 3D Cart');
+	doneLoadingIcon('quickGetOrders');
+	$('#getOrdersProgress').css('width', '100%').text('Done');
+	$('#getOrdersProgress').removeClass('active');
+	$('#getOrdersProgress').removeClass('progress-bar-striped');
+
+	// now step 2
+	showLoadingIcon('quickGetItems')
+	$('.refreshInventoryProgress').addClass('active');
 });
 
 socket.on('getSettingsFinished', function(data) {
@@ -103,28 +137,51 @@ socket.on('getSettingsFinished', function(data) {
 
 socket.on('getItemsProgress', function(data) {
 	var percentageComplete = (data.progress / data.total) * 100;
-	$('#getInventoryProgressBar').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
+	$('.refreshInventoryProgress').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
 });
 
 socket.on('saveItemsProgress', function(data) {
-	var percentageComplete = (data.progress / data.total) * 50;
-	$('#saveInventoryProgressBar').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
+	var percentageComplete = (data.progress / data.total) * 100;
+	$('.saveInventoryProgress').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
 });
 
 socket.on('saveOptionItemsProgress', function(data) {
-	var percentageComplete = (data.progress / data.total) * 50;
-	percentageComplete+= 50;
-	$('#saveInventoryProgressBar').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
+	var percentageComplete = (data.progress / data.total) * 100;
+	$('.saveOptionsProgress').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
 });
 
 socket.on('getItemsFinished', function() {
-	doneLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
+	//doneLoading('getInventoryButton', 'quickStep1', 'getInventoryProgressBar');
+	doneLoadingIcon('quickGetItems');
+	$('.refreshInventoryProgress').removeClass('active');
+	$('.refreshInventoryProgress').removeClass('progress-bar-striped');
+	alert('Please run the Quickbooks Web Connector to continue.');
 });
 
 socket.on('saveItemsFinished', function(data) {
-	console.log('Finished saving the items');
+	doneLoadingIcon('quickSaveItems');
+	doneLoadingProgress('saveInventoryProgress');
+	showLoading('quickSaveOptions');
+	$('.saveOptionsProgress').addClass('active');
 });
 
 socket.on('saveOptionItemsFinished', function(data) {
-	doneLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
+	//doneLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
+	doneLoadingIcon('quickSaveOptions');
+	doneLoadingProgress('saveOptionsProgress');
+});
+
+socket.on('webConnectorStarted', () => {
+	showLoadingIcon('quickRunConnector');
+});
+
+socket.on('webConnectorFinished', () => {
+	doneLoadingIcon('quickRunConnector');
+	doneLoadingProgress('connectorBar');
+	showLoadingIcon('quickSaveItems');
+});
+
+socket.on('calculateBaseStockProgress', data => {
+	var percentageComplete = (data.progress / data.total) * 100;
+	$('.baseStockProgress').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
 });

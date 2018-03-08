@@ -478,7 +478,7 @@ function doOrderRequest(options) {
       options.qs.offset = i * 200;
       promises.push(rp(options));
     }
-    return Promise.all(promises)
+    return Promise.all(promises);
   });
 }
 
@@ -494,7 +494,7 @@ function getOrders(query, qbws) {
 
     return Promise.all(promises).then(newOrders => {
       helpers.createInvoiceRequests(qbws);
-      qbws.setFinalCallback(() => {
+      qbws.addFinalCallback(() => {
         var findSettings = Settings.findOne({});
         return findSettings.then((settings) => {
           var orderReport = helpers.getOrderReport(settings);
@@ -1282,15 +1282,17 @@ function saveShowOrder(order) {
               price = price * discountPercentage;
             }
 
-            if (stock < item.quantity) {
-              quantity = stock;
-            } else {
-              quantity = item.quantity;
-            }
+            // if (stock < item.quantity) {
+            //   quantity = stock;
+            // } else {
+            //   quantity = item.quantity;
+            // }
 
-            if (stock <= 0) { // back order it
-              quantity = 0;
-            }
+            // if (stock <= 0) { // back order it
+            //   quantity = 0;
+            // }
+
+            quantity = item.quantity; // give the customer what they wanted!
 
             foundItem = true;
             orderItem = {
@@ -1403,12 +1405,12 @@ function buildOrderItem(item, customer) {
     stock = item.usStock;
   }
 
-  if (stock < quantity) {
-    quantity = stock;
-  }
-  if (quantity <= 0) {
-    quantity = 0;
-  }
+  // if (stock < quantity) {
+  //   quantity = stock;
+  // }
+  // if (quantity <= 0) {
+  //   quantity = 0;
+  // }
 
   var orderItem = {
     ItemID: item.sku,
@@ -1496,7 +1498,7 @@ function moveOrders(from, to, canadian) {
   });
 }
 
-function calculateBaseItemStock() {
+function calculateBaseItemStock(progressCallback) {
   var findItemsWithOptions = Item.find({hasOptions: true});
   var promises = [];
   findItemsWithOptions.then(async itemsWithOptions => {
@@ -1538,6 +1540,7 @@ function calculateBaseItemStock() {
         canCartOptions.body = body;
         var response = await Promise.all([rp(usCartOptions), rp(canCartOptions)]);
         console.log('Request number ' + (i + 1));
+        progressCallback(i + 1, numOfRequests);
       }
       console.log('Done!');
     });
