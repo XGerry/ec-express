@@ -70,8 +70,16 @@ function updateItemsFromSKUInfo(item, skuInfo, canadian) {
  * Gets items from 3D cart and saves them to the db
  */
 function getItems(qbws, notifyCallback) {
-  var canGetItems = getItemsQuick(true, notifyCallback);
-  var usGetItems = getItemsQuick(false, notifyCallback);
+  var canProgress = 0;
+  var usProgress = 0;
+  var canGetItems = getItemsQuick(true, (progress, total) => {
+    canProgress = progress;
+    notifyCallback(canProgress + usProgress, total * 2);
+  });
+  var usGetItems = getItemsQuick(false, (progress, total) => {
+    usProgress = progress;
+    notifyCallback(canProgress + usProgress, total * 2);
+  });
   return Promise.all([canGetItems, usGetItems]);
 }
 
@@ -105,7 +113,7 @@ function getItemsQuick(canadian, notifyCallback) {
     console.log('We need to send ' + numOfRequests + ' requests to get all the items.');
     options.qs.countonly = 0;
     for (var i = 0; i < numOfRequests; i++) {
-      notifyCallback(i, numOfRequests - 1);
+      notifyCallback(i + 1, numOfRequests);
       options.qs.offset = i * 200;
       options.qs.limit = 200;
       var newInfos = await rp(options);
@@ -127,7 +135,6 @@ function quickSaveItems(query, progressCallback, canadian) {
     var body = [];
     items.forEach(item => {
       var cartItem = buildCartItem(item, canadian);
-      console.log(cartItem);
       body.push(cartItem);
     });
 
@@ -135,11 +142,10 @@ function quickSaveItems(query, progressCallback, canadian) {
     console.log('We need to send ' + numOfRequests + ' requests.');
     var requests = [];
     for (var i = 0; i < numOfRequests; i++) {
-      progressCallback(i, numOfRequests - 1);
+      progressCallback(i + 1, numOfRequests);
       options.body = body.slice(i * 100, (i + 1) * 100);
       try {
         var response = await rp(options);
-        console.log(response);
       } catch (err) {
         console.log(options);
       }
@@ -179,9 +185,17 @@ function saveItems(query, progressCallback) {
       updated: true
     };
   }
+  var canProgress = 0;
+  var usProgress = 0;
 
-  var usSaveItems = quickSaveItems(query, progressCallback, false);
-  var canSaveItems = quickSaveItems(query, progressCallback, true);
+  var usSaveItems = quickSaveItems(query, (progress, total) => {
+    usProgress = progress;
+    progressCallback(canProgress + usProgress, total * 2);
+  }, false);
+  var canSaveItems = quickSaveItems(query, (progress, total) => {
+    canProgress = progress;
+    progressCallback(canProgress + usProgress, total * 2);
+  }, true);
 
   return Promise.all([usSaveItems, canSaveItems]);
 }
@@ -191,11 +205,12 @@ function saveItems(query, progressCallback) {
  * and saves it to 3D Cart.
  */
 
-function doSaveOptionItems(canadian, items, progress) {
-  var options = helpers.get3DCartOptions('',
+async function doSaveOptionItems(canadian, items, progressCallback) {
+  var allOptions = [];
+  items.forEach((item, index) => {
+    var options = helpers.get3DCartOptions('',
     'PUT',
     canadian);
-  items.forEach(async (item, index) => {
     options.body = {
       AdvancedOptionSufix: item.sku
     };
@@ -208,18 +223,42 @@ function doSaveOptionItems(canadian, items, progress) {
       options.body.AdvancedOptionStock = item.usStock;
     }
     options.url = url;
-    var response = await rp(options);
-    console.log(response);
-    progressCallback(index, items.length -1);
+    allOptions.push(options);
   });
+
+  for (var i = 0; i < allOptions.length; i++) {
+    if (i > 30) // can send bursts of up to 50 requests
+      await delay(500);
+    try {
+      var response = await rp(allOptions[i]);
+    } catch (err) {
+      console.log('Error saving the option item');
+    }
+    progressCallback(i+1, allOptions.length);
+    console.log(canadian);
+    console.log(((i+1)/allOptions.length * 100).toFixed(3));
+  }
+
   return 'Done';
 }
 
-function saveOptionItems(progressCallback, finalCallback) {
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function saveOptionItems(progressCallback) {
   return Item.find({isOption: true, inactive: false, updated: true}).then(items => {
     console.log('There are ' + items.length + ' options that need updating.');
-    var canSave = doSaveOptionItems(true, items, progressCallback);
-    var usSave = doSaveOptionItems(true, items, progressCallback);
+    var canProgress = 0;
+    var usProgress = 0;
+    var canSave = doSaveOptionItems(true, items, (progress, total) => {
+      canProgress = progress;
+      progressCallback(canProgress + usProgress, total * 2);
+    });
+    var usSave = doSaveOptionItems(false, items, (progress, total) => {
+      usProgress = progress;
+      progressCallback(canProgress + usProgress, total * 2);
+    });
     return Promise.all([canSave, usSave]);
   });
 }
@@ -1501,7 +1540,7 @@ function moveOrders(from, to, canadian) {
 function calculateBaseItemStock(progressCallback) {
   var findItemsWithOptions = Item.find({hasOptions: true});
   var promises = [];
-  findItemsWithOptions.then(async itemsWithOptions => {
+  return findItemsWithOptions.then(async itemsWithOptions => {
     console.log('found ' + itemsWithOptions.length);
     itemsWithOptions.forEach(dbItem => {
       var query = {
@@ -1525,7 +1564,8 @@ function calculateBaseItemStock(progressCallback) {
 
       promises.push(getCartItem);
     });
-    Promise.all(promises).then(async cartItems => {
+
+    return Promise.all(promises).then(async cartItems => {
       var numOfRequests = Math.ceil(cartItems.length / 100);
       var usCartOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
           'PUT',
@@ -1542,7 +1582,7 @@ function calculateBaseItemStock(progressCallback) {
         console.log('Request number ' + (i + 1));
         progressCallback(i + 1, numOfRequests);
       }
-      console.log('Done!');
+      return 'Done!';
     });
   });
 }

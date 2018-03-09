@@ -7,6 +7,7 @@
  var helpers = require('./helpers');
  var walmart = require('./walmart');
  var Settings = require('./model/settings');
+ var Item = require('./model/item');
 
  module.exports = function(io, qbws) {
  	io.on('connection', function(socket) {
@@ -50,8 +51,11 @@
  					helpers.queryAllItems(qbws).then(() => {
  						qbws.addFinalCallback(() => {
  							socket.emit('webConnectorFinished');
+ 							saveInventory().then(() => {
+ 								console.log('Saving inventory');
+ 							});
+ 							console.log('From inside the then function...');
  							return Promise.resolve('Finished');
- 							// saveInventory();
  						});
  						socket.emit('getItemsFinished');
  						// Now we need to run the web connector
@@ -66,7 +70,8 @@
  					progress: progress,
  					total: total
  				});
- 			}).then(() => {
+ 			})
+ 			.then(() => {
  				socket.emit('saveItemsFinished');
  				// also save the options
  				cart3d.saveOptionItems((progress, total) => {
@@ -74,14 +79,24 @@
  						progress: progress,
  						total: total
  					});
- 				}).then(() => {
+ 				})
+ 				.then(() => {
+ 					console.log('Done the item options');
  					socket.emit('saveOptionItemsFinished');
  					cart3d.calculateBaseItemStock((progress, total) => {
  						socket.emit('calculateBaseStockProgress', {
  							progress: progress,
  							total: total
  						});
- 					});
+ 					})
+ 					.then(() => {
+						socket.emit('calculateBaseStockFinished');
+						Item.find({updated:true}).then(items => {
+							helpers.inventoryBot({
+								text: items.length + ' items were synced with 3D Cart.'
+							});
+						});
+					});
  				});
  			});
 

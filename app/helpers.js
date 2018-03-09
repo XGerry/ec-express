@@ -4,6 +4,7 @@
 
 var builder = require('xmlbuilder');
 var request = require('request');
+var rp = require('request-promise-native');
 var Order = require('./model/order');
 var Settings = require('./model/settings');
 var Manifest = require('./model/manifest');
@@ -772,8 +773,6 @@ function findItemAndSave(qbItem) {
 }
 
 function saveItemFromQB(item, qbItem) {
-  var usStock = qbItem.QuantityOnHand;
-  var canStock = qbItem.QuantityOnHand;
   var walmartStock = 0;
   var amazonStock = 0;
 
@@ -783,22 +782,23 @@ function saveItemFromQB(item, qbItem) {
     //usStock -= 2; // fixme
     //canStock -= 2;
   }
-  
-  if ((item.stock != qbItem.QuantityOnHand) || 
-    (item.usStock != usStock) ||
-    (item.canStock != canStock) || 
-    (item.amazonStock != amazonStock) ||
-    (item.walmartStock != walmartStock)) {
-    item.stock = qbItem.QuantityOnHand;
-    item.usStock = usStock;
-    item.canStock = canStock;
-    item.walmartStock = walmartStock;
-    item.amazonStock = amazonStock;
-    item.updated = true;
-  } else {
-    item.updated = false;
+
+  var theStock = qbItem.QuantityOnHand;
+  var itemIsInactive = false;
+  if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
+    itemIsInactive = true;
+    theStock = 0;
   }
-  
+
+  var updated = item.usStock != theStock || item.canStock != theStock;
+  updated = updated || item.inactive != itemIsInactive;
+
+  item.updated = updated;
+  item.stock = theStock;
+  item.usStock = theStock;
+  item.canStock = theStock;
+  item.inactive = itemIsInactive;
+
   if (qbItem.DataExtRet) {
     if (qbItem.DataExtRet instanceof Array) {
       qbItem.DataExtRet.forEach(function(data) {
@@ -811,18 +811,6 @@ function saveItemFromQB(item, qbItem) {
 
   item.listId = qbItem.ListID;
   item.editSequence = qbItem.EditSequence;
-
-  if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
-    if (item.inactive == false || item.inactive == null) {
-      item.updated = true;
-    }
-    item.inactive = true;
-  } else {
-    if (item.inactive == true || item.inactive == null) {
-      item.updated = true;
-    }
-    item.inactive = false;
-  }
 
   return item.save();
 }
@@ -844,8 +832,10 @@ function addItemProperties(data, item) {
       item.updated = true;
     }
   } else if (data.DataExtName == 'HTC Code') {
-    item.htcCode = data.DataExtValue;
-    item.updated = true;
+    if (item.htcCode != data.DataExtValue) {
+      item.htcCode = data.DataExtValue;
+      item.updated = true;
+    }
   }
 }
 
@@ -959,10 +949,10 @@ function saveToQuickbooks(item, qbws) {
  * This is all the items and the options
  */
 function queryAllItems(qbws) {
-  var promises = [];
   return Item.find({}).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly); // how do we know if it's a bundle?
+    var promises = [];
     items.forEach(item => {
       item.updated = false;
       promises.push(item.save());
@@ -1214,6 +1204,16 @@ function setItemFieldsForAmazon(order) {
   });
 }
 
+function inventoryBot(payload) {
+  var options = {
+    url: 'https://hooks.slack.com/services/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',
+    method: 'POST',
+    json: true,
+    body: payload
+  };
+  return rp(options);
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1253,5 +1253,6 @@ module.exports = {
   searchAddress: searchAddress,
   saveAddress: saveAddress,
   findItemsForOrder: findItemsForOrder,
-  setItemFieldsForAmazon: setItemFieldsForAmazon
+  setItemFieldsForAmazon: setItemFieldsForAmazon,
+  inventoryBot: inventoryBot
 }

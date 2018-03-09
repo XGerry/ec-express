@@ -116,6 +116,11 @@ $(document).ready(function() {
 		socket.emit('syncInventoryAndOrders');
 		showLoadingIcon('quickGetOrders');
 	});
+
+	$('#saveInventory').click(e => {
+		showLoadingIcon('quickSaveItems');
+		socket.emit('saveItems');
+	});
 });
 
 socket.on('getOrdersFinished', numOfOrders => {
@@ -161,14 +166,17 @@ socket.on('getItemsFinished', function() {
 socket.on('saveItemsFinished', function(data) {
 	doneLoadingIcon('quickSaveItems');
 	doneLoadingProgress('saveInventoryProgress');
-	showLoading('quickSaveOptions');
+	showLoadingIcon('quickSaveOptions');
 	$('.saveOptionsProgress').addClass('active');
 });
 
 socket.on('saveOptionItemsFinished', function(data) {
 	//doneLoading('saveInventoryButton', 'quickStep3', 'saveInventoryProgressBar');
+	console.log('done the option items');
 	doneLoadingIcon('quickSaveOptions');
 	doneLoadingProgress('saveOptionsProgress');
+	showLoadingIcon('quickRecalculate');
+	$('.baseStockProgress').addClass('active');
 });
 
 socket.on('webConnectorStarted', () => {
@@ -184,4 +192,10 @@ socket.on('webConnectorFinished', () => {
 socket.on('calculateBaseStockProgress', data => {
 	var percentageComplete = (data.progress / data.total) * 100;
 	$('.baseStockProgress').css("width", percentageComplete + '%').text(percentageComplete.toFixed(0) + '%');
+});
+
+socket.on('calculateBaseStockFinished', () => {
+	doneLoadingIcon('quickRecalculate');
+	doneLoadingProgress('baseStockProgress');
+	$('#syncInventoryAndOrders').button('reset');
 });
