@@ -24,7 +24,8 @@ function getQuery() {
 		updated: $('#updated').is(':checked'),
 		isOption: $('#isOption').is(':checked'),
 		hasOptions: $('#hasOptions').is(':checked'),
-		catalogIdCan: $('#catalogIdCan').val()
+		catalogIdCan: $('#catalogIdCan').val(),
+		location: $('#warehouseLocation').val()
 	};
 
 	if (query.sku == '') {
@@ -47,6 +48,10 @@ function getQuery() {
 	}
 	if (query.hasOptions == false) {
 		delete query.hasOptions;
+	}
+
+	if (query.location == '') {
+		delete query.location;
 	}
 
 	return query;
@@ -222,13 +227,16 @@ function buildItemTable(items) {
 		var usPrice = $('<td></td>').text('$'+americanPrice);
 		var canPrice = $('<td></td>').text(canadaPrice);
 		var stock = $('<td></td>').text(item.stock+'');
+		var location = $('<td></td>').text(item.location);
+		var hidden = $('<td></td>').text(item.hidden === true);
 
 		row.append(checkboxCol);
 		row.append(sku);
 		row.append(name);
 		row.append(usPrice);
-		row.append(canPrice);
+		row.append(location);
 		row.append(stock);
+		row.append(hidden);
 
 		checkbox.click(function(e) {
 			if (this.checked) {

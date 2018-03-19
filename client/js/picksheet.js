@@ -57,7 +57,6 @@ function buildPickTable(order) {
 			targets: [2,3]
 		}]
 	});
-
 }
 
 function buildPickTables(orders) {

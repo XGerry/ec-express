@@ -12,25 +12,29 @@ html
 		.container
 			form#databaseForm
 				.form-group.row
-					.col-lg-3
+					.col-lg-3.col-sm-3
 						label(for="sku") SKU
 						input.form-control.enterKeySearch#sku(type="text", name="sku", list="items")
 						datalist#items
-					.col-lg-3
+					.col-lg-3.col-sm-3
 						label(for="manufacturer") Manufacturer
 						input.form-control.enterKeySearch#manufacturer(type="text", name="manufacturer")
-					.col-lg-2.checkbox.checkbox-top-margin
+					.col-lg-2.checkbox.checkbox-top-margin.col-sm-2
 						label(for="updated")
 							input#updated(type="checkbox", name="updated")
 							| Updated
-					.col-lg-2.checkbox.checkbox-top-margin
+					.col-lg-2.checkbox.checkbox-top-margin.col-sm-2
 						label(for="isOption")
 							input#isOption(type="checkbox")
 							| Is Option
-					.col-lg-2.checkbox.checkbox-top-margin
+					.col-lg-2.checkbox.checkbox-top-margin.col-sm-2
 						label(for="hasOptions")
 							input#hasOptions(type="checkbox", name="hasOptions")
 							| Has Options
+				.row.form-group
+					.col-lg-3.col-sm-3
+						label Location
+						input.form-control.enterKeySearch#warehouseLocation(type="text")
 				#advancedSearch.collapse
 					.form-group.row
 						.col-lg-6
@@ -54,8 +58,8 @@ html
 							//span.btn.input-group-addon#notOperator !
 							select.form-control#operator
 								option(value="$eq") =
-								option(value="$gt") >
-								option(value="$lt") <
+								option(value="$gt") &gt;
+								option(value="$lt") &lt;
 						.col-lg-3
 							label(for="valueInput") Value
 							input.form-control#valueInput
@@ -88,8 +92,9 @@ html
 						th SKU
 						th Name
 						th US Price
-						th Canadian Price
+						th Location
 						th Stock
+						th Hidden
 				tbody#databaseTableBody
 
 			#itemModal.modal.fade(role="dialog")
