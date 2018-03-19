@@ -182,7 +182,8 @@ function saveItems(query, progressCallback) {
   if (query == null || query == undefined) {
     query = {
       isOption: false,
-      updated: true
+      updated: true,
+      hasOptions: false
     };
   }
   var canProgress = 0;
@@ -1381,6 +1382,7 @@ function saveCustomOrder(order) {
   } else {
     findOrder = CustomOrder.findOne({orderId: order.orderId, "customer.website": order.customer.website});
   }
+  
   var savingOrder = findOrder.then(dbOrder => {
     if (dbOrder) {
       dbOrder.customer = order.customer;
@@ -1389,6 +1391,7 @@ function saveCustomOrder(order) {
       dbOrder.tax = order.tax;
       dbOrder.shipping = order.shipping;
       dbOrder.comments = order.comments;
+      dbOrder.shippingMethod = order.shippingMethod;
       dbOrder.markModified('customer');
       dbOrder.markModified('items');
       return dbOrder.save();
@@ -1399,6 +1402,7 @@ function saveCustomOrder(order) {
       newOrder.discount = order.discount;
       newOrder.tax = order.tax;
       newOrder.shipping = order.shipping;
+      newOrder.shippingMethod = order.shippingMethod;
       newOrder.comments = order.comments;
       return newOrder.save();
     }
@@ -1410,7 +1414,7 @@ function saveCustomOrder(order) {
     cartOrder.CustomerComments = dbOrder.comments;
     cartOrder.SalesTax = dbOrder.tax;
     cartOrder.ShipmentList[0].ShipmentCost = dbOrder.shipping;
-    cartOrder.ShipmentList[0].ShipmentMethodName = 'Test method';
+    cartOrder.ShipmentList[0].ShipmentMethodName = dbOrder.shippingMethod;
     cartOrder.OrderDiscountPromotion = dbOrder.discount;
 
     dbOrder.items.forEach(item => {

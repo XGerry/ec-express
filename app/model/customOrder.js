@@ -13,7 +13,8 @@ var customOrderSchema = new mongoose.Schema({
 		default: 0
 	},
 	tax: Number,
-	shipping: Number
+	shipping: Number,
+	shippingMethod: String
 });
 
 module.exports = mongoose.model('CustomOrder', customOrderSchema);

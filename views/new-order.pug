@@ -126,10 +126,10 @@ html
 						.col-lg-3
 							label(for="shippingOptions") Shipping Method
 							select#shippingOptions.form-control
-								option Best Way
-								option UPS
-								option Canada Post
-								option USPS
+								option(value="cheapest way") Best Way
+								option(value="UPS") UPS
+								option(value="Canada Post") Canada Post
+								option(value="Priority Mail") USPS
 						.col-lg-3
 							label(for="shipping") Shipping Value
 							.input-group

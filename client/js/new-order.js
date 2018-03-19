@@ -527,6 +527,7 @@ function calculateTotals() {
 	theOrder.discount = discount.toFixed(2);
 	theOrder.tax = salesTax.toFixed(2);
 	theOrder.shipping = shipping.toFixed(2);
+	theOrder.shippingMethod = $('#shippingOptions').val();
 }
 
 function generateOrder() {

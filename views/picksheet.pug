@@ -51,7 +51,7 @@ mixin customerInfoPanel(order)
 					table.table.table-striped.table-hover
 						thead
 							tr
-								th Phone
+								th(style="width:10%") Phone
 								th(style="width:20%") Email
 								th(style="width:15%") Ship Method
 								th(style="width:20%") Payment Method
@@ -103,9 +103,20 @@ mixin customerInfoPanel(order)
 						.col-lg-4
 							label Expiry
 							input(type="text" readonly).form-control
+			.row
+				.col-lg-4.col-sm-4
+					h3#customerType
+				.col-lg-8.col-sm-8
 					.row.form-group
-						.col-lg-12
-							h3#customerType
+						.col-lg-4
+							label Carrier / Package Type
+							input(type="text" readonly).form-control
+						.col-lg-4
+							label Weight
+							input(type="text" readonly).form-control
+						.col-lg-4
+							label Shipping Cost
+							input(type="text" readonly).form-control
 			
 			if (order.CustomerComments)
 				.row
