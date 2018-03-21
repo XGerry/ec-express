@@ -502,7 +502,7 @@ function (args, sendCallback) {
 
   // just shift the next request off the stack
   if (req.length > 0) {
-    currentRequest = req.pop();
+    currentRequest = req.shift(); 
     request = currentRequest.xml;
   }
 
