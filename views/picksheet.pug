@@ -51,22 +51,31 @@ mixin customerInfoPanel(order)
 					table.table.table-striped.table-hover
 						thead
 							tr
-								th(style="width:10%") Phone
-								th(style="width:20%") Email
-								th(style="width:15%") Ship Method
-								th(style="width:20%") Payment Method
-								th(style="width:25%") Order Date
-								th Items
-								th Value
+								th Phone
+								th Email
+								th Order Date
+								th Customer Type
 						tbody#infoTableBody
 							tr
 								td= order.ShipmentList[0].ShipmentPhone
 								td= order.BillingEmail
-								td= order.ShipmentList[0].ShipmentMethodName
-								td= order.BillingPaymentMethod
 								td= moment(new Date(order.OrderDate)).format('dddd MMM Do YYYY, h:mm:ss a')
+								td(id="customerType"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+					table.table.table-striped.table-hover
+						thead 
+							tr
+								th Payment Method
+								th Items
+								th Value
+								th Ship Method
+								th Ship Cost
+						tbody
+							tr
+								td= order.BillingPaymentMethod
 								td(id="totalItems"+order.InvoiceNumberPrefix+order.InvoiceNumber)
 								td= '$'+order.OrderAmount.toFixed(2)
+								td= order.ShipmentList[0].ShipmentMethodName
+								td= '$'+order.ShipmentList[0].ShipmentCost.toFixed(2)
 			.row
 				.col-lg-2.col-sm-2
 					+billingAddress(order)
@@ -96,17 +105,6 @@ mixin customerInfoPanel(order)
 							label.checkbox-inline
 								input(type="checkbox")
 								| Other
-					.row.form-group
-						.col-lg-8
-							label Card Number
-							input(type="text" readonly).form-control
-						.col-lg-4
-							label Expiry
-							input(type="text" readonly).form-control
-			.row
-				.col-lg-4.col-sm-4
-					h3#customerType
-				.col-lg-8.col-sm-8
 					.row.form-group
 						.col-lg-4
 							label Carrier / Package Type

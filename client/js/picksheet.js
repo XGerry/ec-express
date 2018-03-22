@@ -44,7 +44,7 @@ function buildPickTable(order) {
 	} else if (order.CustomerGroupID == '4') {
 		customerType = 'Preferred Customer';
 	}
-	$('#customerType').text(customerType);
+	$('#customerType'+order.InvoiceNumberPrefix+order.InvoiceNumber).text(customerType);
 
 	var pickTable = $('#pickTable'+order.InvoiceNumberPrefix+order.InvoiceNumber).DataTable({
 		bDestroy: true,
