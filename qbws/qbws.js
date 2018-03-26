@@ -211,7 +211,7 @@ function generateOrderRequest() {
       addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
       var invoiceRqId = order.orderId;
       var xmlInvoiceRequest = helpers.addInvoiceRq(order.cartOrder, invoiceRqId); // make the request ID the order ID!
-      addRequest(xmlInvoiceRequest, checkError);
+      addRequest(xmlInvoiceRequest, checkError, true); // make sure this only happens once
       order.requestID = invoiceRqId;
       promises.push(order.save());
     });
