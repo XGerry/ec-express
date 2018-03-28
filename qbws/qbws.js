@@ -169,7 +169,7 @@ var addRequest = function(str, fncs, unique) {
     req.forEach(requestObject => {
       if (requestObject.xml == str) { // duplicate
         foundDup = true;
-        requestObject.callbacks.concat(arrayOfCallbacks);
+        requestObject.callbacks = arrayOfCallbacks; // overwrite callbacks
       }
     });
     if (!foundDup) {

@@ -795,16 +795,6 @@ function findItemAndSave(qbItem) {
 }
 
 function saveItemFromQB(item, qbItem) {
-  var walmartStock = 0;
-  var amazonStock = 0;
-
-  if (qbItem.QuantityOnHand > 10) {
-    //walmartStock = 2;
-    amazonStock = 2;
-    //usStock -= 2; // fixme
-    //canStock -= 2;
-  }
-
   var theStock = qbItem.QuantityOnHand;
   var itemIsInactive = false;
   if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
@@ -812,13 +802,14 @@ function saveItemFromQB(item, qbItem) {
     theStock = 0;
   }
 
-  var updated = (item.usStock != theStock) || (item.canStock != theStock);
+  var updated = (item.usStock != theStock) || (item.canStock != theStock) || (item.amazonStock != theStock);
   updated = updated || (item.inactive != itemIsInactive);
 
   item.updated = updated;
   item.stock = theStock;
   item.usStock = theStock;
   item.canStock = theStock;
+  item.amazonStock = theStock;
   item.inactive = itemIsInactive;
 
   if (qbItem.DataExtRet) {
@@ -972,8 +963,8 @@ function saveToQuickbooks(item, qbws) {
  */
 function queryAllItems(qbws) {
   return Item.find({}).then(items => {
-    qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart);
-    qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly); // how do we know if it's a bundle?
+    qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart, true);
+    qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly, true); // how do we know if it's a bundle?
     var promises = [];
     items.forEach(item => {
       item.updated = false;
