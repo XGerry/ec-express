@@ -717,7 +717,7 @@ function createInvoiceRequests(qbws) {
     var invoiceRq = getInvoiceRq(orders);
     qbws.addRequest(invoiceRq, (response) => {
       var promises = [];
-      xml2js(response, {explicitArray: false}).then(responseObject => {
+      return xml2js(response, {explicitArray: false}).then(responseObject => {
         var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
         if (Array.isArray(invoiceRs.InvoiceRet)) {
           invoiceRs.InvoiceRet.forEach(invoice => {
@@ -726,20 +726,18 @@ function createInvoiceRequests(qbws) {
         } else if (invoiceRs.InvoiceRet) {
           promises.push(updateDuplicateOrder(invoiceRs.InvoiceRet));
         }
-      });
 
-      return Promise.all(promises).then(() => {
-        // now the duplicate orders have been purged
-        return qbws.generateOrderRequest();
+        return Promise.all(promises).then(() => {
+          // now the duplicate orders have been purged
+          return qbws.generateOrderRequest();
+        });
       });
     });
   });
 }
 
 function updateDuplicateOrder(invoice) {
-  console.log(invoice);
   return Order.findOne({orderId: invoice.RefNumber}, function(err, order) {
-    // duplicate order
     order.imported = true; // already imported
     order.message = 'Duplicate order. Skipping.';
     console.log('Found duplicate: ' + invoice.RefNumber);
