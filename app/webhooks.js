@@ -245,6 +245,15 @@ function adjustInventory(cartOrders) {
 				return null;
 			});
 			promises.push(productUpdate);
+
+			Promise.all(savingItems).then(savedItems => {
+			var skus = savedItems.map(item => {
+				return item.sku;
+			});
+			if (!amazon)
+				amazon.inventorySync(Item.find({sku: { $in: skus } } ));
+			});
+
 		});
 
 		Promise.all(promises).then((productUpdates) => {
@@ -261,13 +270,6 @@ function adjustInventory(cartOrders) {
 				console.log('saved items');
 				console.log(body);
 			});
-		});
-
-		Promise.all(savingItems).then(savedItems => {
-			var skus = savedItems.map(item => {
-				return item.sku;
-			});
-			amazon.inventorySync(Item.find({sku: { $in: skus } } ));
 		});
 	});
 }
