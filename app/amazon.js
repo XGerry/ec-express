@@ -99,6 +99,14 @@ function updateInventory() {
 		genericCallback);
 }
 
+function inventorySync(itemPromise) {
+	doAmazonRequest(itemPromise,'_POST_INVENTORY_AVAILABILITY_DATA_',
+		'Inventory',
+		'POST',
+		buildInventoryMessage,
+		genericCallback);
+}
+
 function imageMessage(item, imageType) {
 	var imageURL = item.imageURL;
 	if (imageURL[0] != '/') {
@@ -372,5 +380,6 @@ module.exports = {
 	updatePricing: updatePricing,
 	bulkAddImages: bulkAddImages,
 	bulkAddItems: bulkAddItems,
-	bulkAddPrices: bulkAddPrices
+	bulkAddPrices: bulkAddPrices,
+	inventorySync: inventorySync
 }

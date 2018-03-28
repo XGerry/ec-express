@@ -165,11 +165,19 @@ var addRequest = function(str, fncs, unique) {
     arrayOfCallbacks.concat(fncs);
   }
   if (unique) {
+    var foundDup = false;
     req.forEach(requestObject => {
       if (requestObject.xml == str) { // duplicate
+        foundDup = true;
         requestObject.callbacks.concat(arrayOfCallbacks);
       }
     });
+    if (!foundDup) {
+      req.push({
+        xml: str,
+        callbacks: arrayOfCallbacks
+      });
+    }
   } else {
     req.push({
       xml: str,

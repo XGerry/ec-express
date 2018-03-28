@@ -6,6 +6,7 @@ var Order = require('./model/order');
 var Customer = require('./model/customer');
 var Item = require('./model/item');
 var helpers = require('./helpers');
+var amazon = require('./amazon');
 var Settings = require('./model/settings');
 var mailer = require('./mailer');
 
@@ -205,7 +206,9 @@ function getOrders() {
 function adjustInventory(cartOrders) {
 	cartOrders.forEach((order) => {
 		var canadian = order.InvoiceNumberPrefix == 'CA-';
+		var isAmazon = order.InvoiceNumberPrefix == 'AZ-';
 		var promises = [];
+		var savingItems = [];
 
 		order.OrderItemList.forEach((item) => {
 			var sku = item.ItemID.trim();
@@ -214,7 +217,11 @@ function adjustInventory(cartOrders) {
 				if (dbItem != null && dbItem.isOption) {
 					advancedOptionUpdate(dbItem, item.ItemUnitStock - item.ItemQuantity, !canadian);
 				} else if (dbItem != null && !dbItem.isOption) {
-					var newStock = item.ItemUnitStock - item.ItemQuantity;
+					var oldStock = item.ItemUnitStock;
+					if (isAmazon) {
+						oldStock = dbItem.usStock; // just use the next best thing, amazon comes in as 0
+					}
+					var newStock = oldStock - item.ItemQuantity;
 					if (newStock < 0) {
 						newStock = 0;
 					}
@@ -227,7 +234,8 @@ function adjustInventory(cartOrders) {
 					dbItem.stock = newStock;
 					dbItem.usStock = newStock;
 					dbItem.canStock = newStock;
-					dbItem.save();
+					dbItem.amazonStock = newStock;
+					savingItems.push(dbItem.save());
 					return newProductStock;
 				} else {
 					console.log('item not found: ' + sku);
@@ -245,7 +253,6 @@ function adjustInventory(cartOrders) {
 				productUpdates.splice(index, 1);
 				index = productUpdates.indexOf(null);
 			}
-			console.log(productUpdates);
 
 			var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products', 
 				'PUT', !canadian);
@@ -254,6 +261,13 @@ function adjustInventory(cartOrders) {
 				console.log('saved items');
 				console.log(body);
 			});
+		});
+
+		Promise.all(savingItems).then(savedItems => {
+			var skus = savedItems.map(item => {
+				return item.sku;
+			});
+			amazon.inventorySync(Item.find({sku: { $in: skus } } ));
 		});
 	});
 }
@@ -311,39 +325,6 @@ module.exports = {
 						updateCustomerInfo(updatedOrder, order);
 						helpers.createInvoiceRequests(qbws);
 					});
-				});
-
-				qbws.addFinalCallback(function() {
-					// clear the timecodes from settings
-					var savedSettings = findSettings.then(function(settings) {
-						settings.lastImports = settings.timecodes;
-						settings.timecodes = [];
-						return settings.save();
-					});
-
-					savedSettings.then((settings) => {
-						var orderReport = helpers.getOrderReport(settings);
-						orderReport.then((report) => {
-							orderBot(helpers.getSlackOrderReport(report));
-							settings.lastImports = [];
-							settings.save();
-						});
-					});
-					
-					/** Don't move them to processing until after they have been printed by the sorter.
-					helpers.markCompletedOrdersAsProcessing(settings.timecodes, function(err, results) {
-						// send import report to slack.
-						orderBot({text: results.length + ' orders were moved to processing.'});
-						// Don't remove the order yet. The order should be purged after it's moved to processing
-						Order.remove({imported: true})
-						.then((removed) => {
-							console.log('Purged' + removed.length + ' orders.');
-						})
-						.err((err) => {
-							console.log(err);
-						});
-					});
-					*/
 				});
 			});
 			res.send('New order.');

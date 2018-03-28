@@ -79,6 +79,22 @@ function addCustomerRq(order, requestID) {
     }
   }
 
+  var customerType = 'US '; // default
+  if (order.BillingCountry == 'CA') {
+    customerType = 'Canada ';
+  }
+
+  if (order.BillingCompany && order.BillingCompany != '') {
+    customerType += 'Wholesale';
+  } else {
+    customerType += 'Retail';
+  }
+
+  // var customerName = order.BillingLastName + ' ' + order.BillingFirstName;
+  // if (order.BillingCompany && order.BillingCompany != '') {
+  //   customerName = order.BillingCompany;
+  // }
+
   var obj = {
     CustomerAddRq : {
       '@requestID' : requestID,
@@ -100,6 +116,9 @@ function addCustomerRq(order, requestID) {
         ShipAddress : shippingAddress,
         Phone : order.BillingPhoneNumber,
         Email : order.BillingEmail,
+        CustomerTypeRef: {
+          FullName: customerType
+        },
         SalesTaxCodeRef : {
           FullName : taxCode
         }
@@ -435,12 +454,17 @@ function addInvoiceRq(order, requestID) {
     paymentMethod = 'On Account';
   }
 
+  var customerRef = order.BillingLastName + ' ' + order.BillingFirstName;
+  // if (order.BillingCompany && order.BillingCompany != '') { // not doing this yet
+  //   customerRef = order.BillingCompany;
+  // }
+
   var obj = {
     InvoiceAddRq : {
       '@requestID' : requestID,
       InvoiceAdd : {
         CustomerRef : {
-          FullName : order.BillingLastName + ' ' + order.BillingFirstName 
+          FullName : customerRef
         },
         TxnDate : order.OrderDate.slice(0,10), // had to remove the T from the DateTime - maybe this is dangerous?
         RefNumber : order.InvoiceNumberPrefix + order.InvoiceNumber,
@@ -790,8 +814,8 @@ function saveItemFromQB(item, qbItem) {
     theStock = 0;
   }
 
-  var updated = item.usStock != theStock || item.canStock != theStock;
-  updated = updated || item.inactive != itemIsInactive;
+  var updated = (item.usStock != theStock) || (item.canStock != theStock);
+  updated = updated || (item.inactive != itemIsInactive);
 
   item.updated = updated;
   item.stock = theStock;
