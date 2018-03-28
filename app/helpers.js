@@ -802,7 +802,7 @@ function saveItemFromQB(item, qbItem) {
     theStock = 0;
   }
 
-  var updated = (item.usStock != theStock) || (item.canStock != theStock) || (item.amazonStock != theStock);
+  var updated = (item.usStock != theStock) || (item.canStock != theStock);
   updated = updated || (item.inactive != itemIsInactive);
 
   item.updated = updated;
