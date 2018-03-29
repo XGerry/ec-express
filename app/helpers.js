@@ -802,10 +802,18 @@ function saveItemFromQB(item, qbItem) {
     theStock = 0;
   }
   console.log(item.sku);
+  console.log('inactive?');
   console.log(itemIsInactive);
 
   var updated = (item.usStock != theStock) || (item.canStock != theStock);
   updated = updated || (item.inactive != itemIsInactive);
+
+  console.log('old stock: ' + item.usStock + ' new stock: ' + theStock);
+
+  console.log('old inactive: ' + item.inactive);
+
+  console.log('updated?');
+  console.log(updated)
 
   item.updated = updated;
   item.stock = theStock;
