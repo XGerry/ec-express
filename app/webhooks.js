@@ -251,7 +251,7 @@ function adjustInventory(cartOrders) {
 				return item.sku;
 			});
 			if (!amazon)
-				amazon.inventorySync(Item.find({sku: { $in: skus } } ));
+				amazon.inventorySync(Item.find({sku: { $in: skus } }));
 			});
 
 		});

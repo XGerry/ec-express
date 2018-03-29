@@ -33,7 +33,7 @@ function syncOrdersAndInventory(qbws) {
     // Now, refresh the stock levels in 3D Cart
     console.log('Refreshing the items');
     cart3d.getItems(qbws, (counter, total) => {
-      console.log((counter/total*100).toFixed(2) + '%');
+      process.stdout.write((counter/total*100).toFixed(2) + '%\r');
     }).then(responses => {
       helpers.queryAllItems(qbws).then(() => {
         qbws.addFinalCallback(() => {
@@ -55,12 +55,12 @@ function saveInventory() {
   .then(() => {
     // also save the options
     cart3d.saveOptionItems((progress, total) => {
-      console.log((progress / total * 100).toFixed(2) + '%');
+      process.stdout.write((progress / total * 100).toFixed(2) + '%\r');
     })
     .then(() => {
       console.log('Done the item options');
       cart3d.calculateBaseItemStock((progress, total) => {
-        console.log((progress / total * 100).toFixed(2) + '%');
+        process.stdout.write((progress / total * 100).toFixed(2) + '%\r');
       })
       .then(() => {
         Item.find({updated:true}).then(items => {

@@ -54,7 +54,6 @@
  							saveInventory().then(() => {
  								console.log('Saving inventory');
  							});
- 							console.log('From inside the then function...');
  							return Promise.resolve('Finished');
  						});
  						socket.emit('getItemsFinished');
@@ -194,7 +193,6 @@
  		 */
  		socket.on('updateItems', function(cartItems, bulkUpdates) {
  			cart3d.updateItems(cartItems, bulkUpdates, function(progress, total) {
- 				console.log(progress);
  			}, function(responses) {
  				socket.emit('updateItemsFinished', responses);
  			});
@@ -202,7 +200,6 @@
 
  		socket.on('updateAllItems', function() {
  			cart3d.updateItemsFromDB(function(progress, total) {
- 				console.log((progress / total).toFixed(2));
  			}, function(responses) {
  				socket.emit('updateAllItemsFinished', responses);
  			});
@@ -213,7 +210,6 @@
  		 */
  		socket.on('saveOptionsOverride', function() {
  			cart3d.saveOptionItems(true, function(progress, total) {
- 				console.log((progress / total).toFixed() * 100);
  			}, function(responses) {
 				socket.emit('saveOptionItemsFinished', {
 					items: responses
@@ -349,7 +345,9 @@
  		});
 
  		socket.on('updateAmazonInventory', function(sku) {
- 			amazon.updateInventoryItem(sku);
+ 			amazon.updateInventoryItem(sku).then(response => {
+ 				console.log(response);
+ 			});
  		});
 
  		socket.on('updateAmazonPricing', function(sku) {
@@ -414,7 +412,9 @@
  		});
 
  		socket.on('updateAllAmazonInventory', function() {
- 			amazon.updateAllInventory();
+ 			amazon.updateAllInventory().then(response => {
+ 				console.log(response);
+ 			});
  		});
 
  		socket.on('generateVendorFile', function(query) {

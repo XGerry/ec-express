@@ -24,11 +24,11 @@ var rp = require('request-promise-native');
 function refreshFrom3DCart() {
   // get all the items from the US store
   var getUSItems = getItemsFull({}, (progress, total) => {
-    console.log('US: ' + ((progress/total)*100).toFixed(2) + '%');
+    process.stdout.write('US: ' + ((progress/total)*100).toFixed(2) + '%\r');
   }, false);
 
   var getCanadianItems = getItemsFull({}, (progress, total) => {
-    console.log('CA: ' + ((progress/total)*100).toFixed(2) + '%');
+    process.stdout.write('CA: ' + ((progress/total)*100).toFixed(2) + '%\r');
   }, true);
 
   return Promise.all([getUSItems, getCanadianItems]);

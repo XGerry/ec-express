@@ -186,7 +186,6 @@ function doAmazonRequest(itemPromise, feedType, itemType, httpMethod, documentBu
 		xmlDoc.AmazonEnvelope.Message = messages;
 		var body = helpers.getXMLDoc(xmlDoc);
 		var options = getOptions(feedType, httpMethod, body);
-		console.log(options);
 		return rp(options);
 	});
 }
@@ -228,25 +227,18 @@ function getOptions(feedType, method, body) {
   };
 
   options.body = body;
-  console.log('Made it');
   var qString = queryString.stringify(options.qs);
-  console.log('Made it');
   
   var stringToSign = method+'\n' + 
     'mws.amazonservices.com\n' +
     '/\n' +
     qString;
 
-  console.log(process.env.AZ_SECRET_KEY);
-  console.log(process.env.SELLER_ID);
-  console.log(process.env.AWS_ACCESS_KEY);
   console.log(stringToSign);
 
   options.qs.Signature = crypto.createHmac('sha256', process.env.AZ_SECRET_KEY)
     .update(stringToSign)
     .digest('base64');
-
-  console.log('Made it');
   return options;
 }
 
