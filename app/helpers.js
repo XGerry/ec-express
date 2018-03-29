@@ -801,6 +801,8 @@ function saveItemFromQB(item, qbItem) {
     itemIsInactive = true;
     theStock = 0;
   }
+  console.log(item.sku);
+  console.log(itemIsInactive);
 
   var updated = (item.usStock != theStock) || (item.canStock != theStock);
   updated = updated || (item.inactive != itemIsInactive);
@@ -962,7 +964,7 @@ function saveToQuickbooks(item, qbws) {
  * This is all the items and the options
  */
 function queryAllItems(qbws) {
-  return Item.find({}).then(items => {
+  return Item.find({}).limit(10).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart, true);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly, true); // how do we know if it's a bundle?
     var promises = [];
