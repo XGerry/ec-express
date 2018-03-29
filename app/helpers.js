@@ -976,13 +976,7 @@ function saveToQuickbooks(item, qbws) {
  * This is all the items and the options
  */
 function queryAllItems(qbws) {
-  Item.find({isOption: true}).then(options => {
-    options.forEach(option => {
-      option.updated = false;
-      option.save();
-    });
-  });
-  return Item.find({isOption: true}).limit(100).then(items => {
+  return Item.find({}).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart, true);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly, true); // how do we know if it's a bundle?
     var promises = [];
