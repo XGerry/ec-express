@@ -1086,7 +1086,7 @@ function saveItem(item, qbws, callback) {
       PriceLevel1: item.usPrice,
       MFGID: item.sku,
       WarehouseLocation: item.location,
-      GTIN: item.barcode,
+      //GTIN: item.barcode,
       ExtraField8: item.barcode,
       ExtraField9: item.countryOfOrigin,
       Hide: item.hidden
