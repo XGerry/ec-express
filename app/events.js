@@ -102,8 +102,12 @@
 
  			// save the walmart inventory
  			//walmart.updateInventory();
+
  			// save the amazon inventory
- 			//amazon.updateInventory();
+ 			console.log('Saving amazon info');
+ 			amazon.updateInventory().then(response => {
+ 				console.log(response);
+ 			});
  		}
 
  		/**

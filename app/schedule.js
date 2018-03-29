@@ -76,5 +76,7 @@ function saveInventory() {
   //walmart.updateInventory();
 
   // save the amazon inventory
-  amazon.updateInventory();
+  amazon.updateInventory().then(response => {
+    console.log(response);
+  });
 }

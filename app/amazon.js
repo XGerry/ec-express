@@ -3,6 +3,7 @@ var Item = require('./model/item');
 var crypto = require('crypto');
 var queryString = require('query-string');
 var request = require('request');
+var rp = require('request-promise-native');
 var fs = require('fs');
 
 function addProducts(sku) {
@@ -51,12 +52,11 @@ function addProductToAmazon(itemPromise) {
 		return message;
 	}
 
-	doAmazonRequest(itemPromise,
+	return doAmazonRequest(itemPromise,
 		'_POST_PRODUCT_DATA_',
 		'Product',
 		'POST',
-		productMessage,
-		genericCallback);
+		productMessage);
 }
 
 function buildInventoryMessage(item) {
@@ -71,40 +71,36 @@ function buildInventoryMessage(item) {
 function updateInventoryItem(sku) {
 	var itemPromise = Item.find({sku: sku});
 
-	doAmazonRequest(itemPromise, 
+	return doAmazonRequest(itemPromise, 
 		'_POST_INVENTORY_AVAILABILITY_DATA_',
 		'Inventory',
 		'POST',
-		buildInventoryMessage,
-		genericCallback);
+		buildInventoryMessage);
 }
 
 function updateAllInventory() {
 	var itemPromise = Item.find({});
-	doAmazonRequest(itemPromise, 
+	return doAmazonRequest(itemPromise, 
 		'_POST_INVENTORY_AVAILABILITY_DATA_',
 		'Inventory',
 		'POST',
-		buildInventoryMessage,
-		genericCallback);
+		buildInventoryMessage);
 }
 
 function updateInventory() {
-	var itemPromise = Item.find({updated: true});
-	doAmazonRequest(itemPromise, 
+	var itemPromise = Item.find({updated: true}).limit(10);
+	return doAmazonRequest(itemPromise, 
 		'_POST_INVENTORY_AVAILABILITY_DATA_',
 		'Inventory',
 		'POST',
-		buildInventoryMessage,
-		genericCallback);
+		buildInventoryMessage);
 }
 
 function inventorySync(itemPromise) {
-	doAmazonRequest(itemPromise,'_POST_INVENTORY_AVAILABILITY_DATA_',
+	return doAmazonRequest(itemPromise,'_POST_INVENTORY_AVAILABILITY_DATA_',
 		'Inventory',
 		'POST',
-		buildInventoryMessage,
-		genericCallback);
+		buildInventoryMessage);
 }
 
 function imageMessage(item, imageType) {
@@ -123,23 +119,21 @@ function imageMessage(item, imageType) {
 function addProductImage(sku) {
 	var itemPromise = Item.find({sku: sku});
 
-	doAmazonRequest(itemPromise,
+	return doAmazonRequest(itemPromise,
 		'_POST_PRODUCT_IMAGE_DATA_',
 		'ProductImage',
 		'POST',
-		imageMessage,
-		genericCallback);
+		imageMessage);
 }
 
 function bulkAddImages(skus) {
 	var itemPromise = Item.find({sku: {$in: skus}});
 
-	doAmazonRequest(itemPromise,
+	return doAmazonRequest(itemPromise,
 		'_POST_PRODUCT_IMAGE_DATA_',
 		'ProductImage',
 		'POST',
-		imageMessage,
-		genericCallback);
+		imageMessage);
 }
 
 function buildPriceMessage(item) {
@@ -156,32 +150,30 @@ function buildPriceMessage(item) {
 function updatePricing(sku) {
 	var itemPromise = Item.find({sku: sku});
 
-	doAmazonRequest(itemPromise, 
+	return doAmazonRequest(itemPromise, 
 		'_POST_PRODUCT_PRICING_DATA_', 
 		'Price', 
 		'POST', 
-		buildPriceMessage, 
-		genericCallback);
+		buildPriceMessage);
 }
 
 function bulkAddPrices(skus) {
 	var itemPromise = Item.find({sku: {$in: skus}});
 
-	doAmazonRequest(itemPromise, 
+	return doAmazonRequest(itemPromise, 
 		'_POST_PRODUCT_PRICING_DATA_', 
 		'Price', 
 		'POST', 
-		buildPriceMessage, 
-		genericCallback);
+		buildPriceMessage);
 }
 
-function doAmazonRequest(itemPromise, feedType, itemType, httpMethod, documentBuilder, callback) {
+function doAmazonRequest(itemPromise, feedType, itemType, httpMethod, documentBuilder) {
 	var xmlDoc = getFeed(itemType);
 	var messages = [];
   var messageCounter = 0;
 
-	itemPromise.then(function(items) {
-		console.log('found items' + items.length);
+	return itemPromise.then(items => {
+		console.log('found items ' + items.length);
 		items.forEach(function(item) {
 			var message = {
 				MessageID: ++messageCounter,
@@ -193,9 +185,9 @@ function doAmazonRequest(itemPromise, feedType, itemType, httpMethod, documentBu
 		
 		xmlDoc.AmazonEnvelope.Message = messages;
 		var body = helpers.getXMLDoc(xmlDoc);
-		console.log(body);
 		var options = getOptions(feedType, httpMethod, body);
-		request(options, callback);
+		console.log(options);
+		return rp(options);
 	});
 }
 
@@ -236,17 +228,25 @@ function getOptions(feedType, method, body) {
   };
 
   options.body = body;
-
+  console.log('Made it');
   var qString = queryString.stringify(options.qs);
+  console.log('Made it');
+  
   var stringToSign = method+'\n' + 
     'mws.amazonservices.com\n' +
     '/\n' +
     qString;
 
-  options.qs.Signature = crypto.createHmac('sha256', process.env.AMAZON_SECRET_KEY)
+  console.log(process.env.AZ_SECRET_KEY);
+  console.log(process.env.SELLER_ID);
+  console.log(process.env.AWS_ACCESS_KEY);
+  console.log(stringToSign);
+
+  options.qs.Signature = crypto.createHmac('sha256', process.env.AZ_SECRET_KEY)
     .update(stringToSign)
     .digest('base64');
 
+  console.log('Made it');
   return options;
 }
 
