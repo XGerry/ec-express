@@ -970,7 +970,7 @@ function queryAllItems(qbws) {
       option.save();
     });
   });
-  return Item.find({}).limit(10).then(items => {
+  return Item.find({}).skip(2000).limit(10).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart, true);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly, true); // how do we know if it's a bundle?
     var promises = [];
