@@ -843,21 +843,25 @@ function addItemProperties(data, item) {
     if (item.barcode != data.DataExtValue && data.DataExtValue != '') {
       item.barcode = data.DataExtValue;
       item.updated = true;
+      console.log('barcode updated');
     }
   } else if (data.DataExtName == 'Location') {
     if (item.location != data.DataExtValue) {
       item.location = data.DataExtValue;
       item.updated = true;
+      console.log('loaction updated');
     }
   } else if (data.DataExtName == 'Country' || data.DataExtName == 'C Origin') {
     if (item.countryOfOrigin != data.DataExtValue) {
       item.countryOfOrigin = data.DataExtValue.toUpperCase();
       item.updated = true;
+      console.log('Country updated');
     }
   } else if (data.DataExtName == 'HTC Code') {
     if (item.htcCode != data.DataExtValue) {
       item.htcCode = data.DataExtValue;
       item.updated = true;
+      console.log('HTC updated');
     }
   }
 }
