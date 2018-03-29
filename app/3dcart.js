@@ -1097,7 +1097,6 @@ function saveItem(item, qbws, callback) {
     }
 
     options.body = body;
-
     var usSave = rp(options);
 
     // save to canadian site
@@ -1110,7 +1109,6 @@ function saveItem(item, qbws, callback) {
     canOptions.body[0].SKUInfo.SalePrice = item.canSalePrice;
     canOptions.body[0].SKUInfo.Stock = item.canStock;
     canOptions.body[0].PriceLevel1 = item.canPrice;
-
     var canSave = rp(canOptions);
 
     Promise.all([canSave, usSave]).then(responses => {
@@ -1129,24 +1127,19 @@ function saveItem(item, qbws, callback) {
     }
 
     options.body = optionBody;
-
     var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogId+'/AdvancedOptions/'+item.optionId;
     options.url = url;
-
     var usSave = rp(options);
-
     var canOptions = helpers.get3DCartOptions('', 'PUT', true);
-
     canOptions.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
     canOptions.body = optionBody;
     canOptions.body.AdvancedOptionPrice = item.canPrice;
     canOptions.body.AdvancedOptionStock = item.canStock;
-
     var canSave = rp(canOptions);
 
     Promise.all([usSave, canSave]).then(responses => {
       console.log('Saved options for both sites');
-      console.log(reposnses);
+      console.log(responses);
     });
   }
 }
