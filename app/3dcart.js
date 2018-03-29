@@ -223,8 +223,6 @@ async function doSaveOptionItems(canadian, items, progressCallback) {
       console.log('Error saving the option item');
     }
     progressCallback(i+1, allOptions.length);
-    console.log(canadian);
-    console.log(((i+1)/allOptions.length * 100).toFixed(3));
   }
 
   return 'Done';
