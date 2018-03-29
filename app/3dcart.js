@@ -21,30 +21,17 @@ var rp = require('request-promise-native');
 /**
  * Refreshes the inventory in our DB so we know what to use in quickbooks
  */
-function refreshFrom3DCart(finalCallback) {
+function refreshFrom3DCart() {
   // get all the items from the US store
-  function refreshUS(callback) {
-    console.log('Getting all items from the US store.');
-    getItemsFull({}, function(progress, total) {
-      console.log('US: ' + ((progress/total)*100).toFixed(2) + '%');
-    }, function(err) {
-      callback(err)
-    });
-  }
-  
-  // At the same time, get the items from the canadian store
-  function refreshCA(callback) {
-    console.log('Getting all items from the CA store.');
-    getItemsFull({canadian:true}, function(progress, total) {
-        console.log('CA: ' + ((progress/total)*100).toFixed(2) + '%');
-      }, function(err) {
-        callback(err);
-    });
-  }
+  var getUSItems = getItemsFull({}, (progress, total) => {
+    console.log('US: ' + ((progress/total)*100).toFixed(2) + '%');
+  }, false);
 
-  async.parallel([refreshUS, refreshCA], function(err) {
-    finalCallback(err);
-  });
+  var getCanadianItems = getItemsFull({}, (progress, total) => {
+    console.log('CA: ' + ((progress/total)*100).toFixed(2) + '%');
+  }, true);
+
+  return Promise.all([getUSItems, getCanadianItems]);
 }
 
 function updateItemsFromSKUInfo(item, skuInfo, canadian) {
@@ -579,9 +566,9 @@ function updateOrderInfo(order, cartOrder) {
   return order.save();
 }
 
-function getItemsFull(query, progressCallback, finalCallback) {
+async function getItemsFull(query, progressCallback, canadian) {
+  // find out how many products we have
 	query.countonly = 1;
-  var canadian = false;
 	var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products';
 	
 	if (query.categoryid != undefined && query.categoryid != '') { 
@@ -608,74 +595,46 @@ function getItemsFull(query, progressCallback, finalCallback) {
 		delete query.onsale;
 	}
 
-  if (query.canadian != 'undefined' && query.canadian == true) {
-    canadian = true;
-  }
-  delete query.canadian;
-
   var options = helpers.get3DCartOptions(url, 'GET', canadian);
   options.qs = query;
 
-  request(options, function(err, response, body) {
-  	if (!body) {
-  		console.log('No items found');
-      console.log(response);
-  		finalCallback([]);
-  	} else {
-	  	var responseObject = body;
-	  	console.log(responseObject);
-	  	var totalItems = responseObject.TotalCount;
-	  	// can only get 200 items back per request
-	  	var numOfRequests = Math.ceil(totalItems / 200);
-	  	console.log('We need to send ' + numOfRequests + ' requests to 3D Cart.');
+  await rp(options).then(async response => {
+    var promises = [];
+    var totalItems = response.TotalCount;
+    var numOfRequests = Math.ceil(totalItems / 200); // max 200 per request
+    options.qs.countonly = 0;
+    options.qs.limit = 200;
+    console.log('We need to send ' + numOfRequests + ' requests to 3D Cart.');
 
-	  	var requests = [];
+    for (var i = 0; i < numOfRequests; i++) {
+      var cartItems = await rp(options);
+      progressCallback(i + 1, numOfRequests);
+      promises.push(bulkUpdateCartItems(cartItems, canadian));
+    }
 
-	  	for (var i = 0; i < numOfRequests; i++) {
-	  		options.qs.countonly = 0;
-        options.qs.offset = i * 200;
-	  		options.qs.limit = 200;
-	  		requests.push(JSON.parse(JSON.stringify(options)));
-	  	}
-      var counter = 0;
-
-	  	async.eachLimit(requests, 2, function(option, callback) {
-        function doRequest() {
-          request(option, function(err, response, body) {
-            if (err) {
-              callback(err);
-            } else {
-              var items = body;
-              progressCallback(++counter, numOfRequests, items);
-              items.forEach(function(cartItem) {
-                var sku = cartItem.SKUInfo.SKU.trim();
-                Item.findOne({sku: sku}, function(err, item) {
-                  if (err) {
-                    console.log(err);
-                  } else {
-                    if (item) { // do some updates
-                      updateItemFields(item, cartItem, canadian);
-                    } else {
-                      var newItem = new Item();
-                      newItem.sku = sku;
-                      updateItemFields(newItem, cartItem, canadian);
-                    }
-                  }
-                });
-              });
-              callback(null);
-            }
-          });
-        }
-        setTimeout(doRequest, 1000);
-	  	}, function(err) {
-	  		finalCallback(err);
-	  	});
-  	}
+    return Promise.all(promises);
   });
 }
 
+function bulkUpdateCartItems(cartItems, canadian) {
+  var promises = [];
+  cartItems.forEach(item => {
+    var sku = item.SKUInfo.SKU.trim();
+    Item.findOne({sku: sku}).then(dbItem => {
+      if (item) {
+        promises.push(updateItemFields(dbItem, item, canadian));
+      } else {
+        var newItem = new Item();
+        newItem.sku = sku;
+        promises.push(updateItemFields(dbItem, item, canadian));
+      }
+    });
+  });
+  return Promise.all(promises);
+}
+
 function updateItemFields(item, cartItem, canadian) {
+  var promises = [];
   // common attributes
   item.onSale = cartItem.SKUInfo.OnSale;
   item.description = cartItem.Description;
@@ -714,19 +673,15 @@ function updateItemFields(item, cartItem, canadian) {
   if (cartItem.AdvancedOptionList.length > 0) {
     item.hasOptions = true;
     // save the options
-    cartItem.AdvancedOptionList.forEach(function(optionItem) {
+    cartItem.AdvancedOptionList.forEach(optionItem => {
       var optionSKU = optionItem.AdvancedOptionSufix.trim();
-      Item.findOne({sku: optionSKU}, function(err, advancedOption) {
-        if (err) {
-          console.log(err);
-        } else {
-          if (advancedOption) {
-            updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian);
-          } else if (optionItem.AdvancedOptionSufix != '') {
-            var newOption = new Item();
-            newOption.sku = optionSKU;
-            updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian);
-          }
+      Item.findOne({sku: optionSKU}).then(advancedOption => {
+        if (advancedOption) {
+          promises.push(updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian));
+        } else if (optionItem.AdvancedOptionSufix != '') {
+          var newOption = new Item();
+          newOption.sku = optionSKU;
+          promises.push(updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian));
         }
       });
     });
@@ -742,7 +697,8 @@ function updateItemFields(item, cartItem, canadian) {
     item.length = cartItem.Height;
   }
   
-  item.save();
+  promises.push(item.save());
+  return Promise.all(promises);
 }
 
 function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian) {
@@ -766,7 +722,7 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
   }
   
   advancedOption.isOption = true;
-  advancedOption.save();
+  return advancedOption.save();
 }
 
 /**

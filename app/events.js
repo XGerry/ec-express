@@ -491,24 +491,8 @@
 
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
- 			cart3d.refreshFrom3DCart(function(items) {
- 				helpers.queryAllItems(qbws).then(() => {
-					console.log('Run the web connector');
-	 				qbws.addFinalCallback(() => {
-	 					// now we can save the items?
-	 					console.log('Ready to save the items');
-	 					return cart3d.saveItems({}, (progress, total) => {
-			 				console.log(((progress/total)*100).toFixed(2) + '%');
-			 			})
-			 			.then(() => {
-			 				console.log('Item inventory updated, now saving the options');
-			 				// also save the options
-			 				return cart3d.saveOptionItems((progress, total) => {
-			 					console.log(((progress/total)*100).toFixed(2) + '%');
-			 				});
-			 			});
-	 				});
- 				});
+ 			cart3d.refreshFrom3DCart().then(items => {
+ 				console.log('Done the refresh');
  			});
  		});
  	});
