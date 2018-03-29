@@ -1530,7 +1530,7 @@ function calculateBaseItemStock(progressCallback) {
         usCartOptions.body = body;
         canCartOptions.body = body;
         var response = await Promise.all([rp(usCartOptions), rp(canCartOptions)]);
-        console.log('Request number ' + (i + 1));
+        process.stdout.write('Request number ' + (i + 1)+'\r');
         progressCallback(i + 1, numOfRequests);
       }
       return 'Done!';
