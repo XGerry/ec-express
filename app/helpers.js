@@ -852,7 +852,7 @@ function addItemProperties(data, item) {
       console.log('loaction updated');
     }
   } else if (data.DataExtName == 'Country' || data.DataExtName == 'C Origin') {
-    if (item.countryOfOrigin != data.DataExtValue) {
+    if (item.countryOfOrigin != data.DataExtValue.toUpperCase()) {
       item.countryOfOrigin = data.DataExtValue.toUpperCase();
       item.updated = true;
       console.log('Country updated');
