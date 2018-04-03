@@ -8,12 +8,12 @@ var fs = require('fs');
 
 function addProducts(sku) {
 	var itemPromise = Item.find({sku: sku});
-	addProductToAmazon(itemPromise);
+	return addProductToAmazon(itemPromise);
 }
 
 function bulkAddItems(skus) {
 	var itemPromise = Item.find({sku: {$in: skus}});
-	addProductToAmazon(itemPromise);
+	return addProductToAmazon(itemPromise);
 }
 
 function addProductToAmazon(itemPromise) {
@@ -43,7 +43,7 @@ function addProductToAmazon(itemPromise) {
 			},
 			ProductData: {
 				Arts: {
-					ProductType: 'ArtSupplies',
+					ProductType: 'Hobbies',
 					ProductCategory: 'Hobbies',
 					ProductSubcategory: 'Decorative_Arts',
 				}
@@ -215,6 +215,8 @@ function getOptions(feedType, method, body) {
       ContentMD5Value: crypto.createHash('md5').update(body).digest('base64'),
       FeedType: feedType,
       Merchant: process.env.SELLER_ID,
+      //'MarketplaceIdList.Id.1': process.env.US_MARKETPLACE,
+      //'MarketplaceIdList.Id.2': process.env.CA_MARKETPLACE,
       PurgeAndReplace: false,
       SignatureMethod: 'HmacSHA256',
       SignatureVersion: '2',
@@ -228,6 +230,7 @@ function getOptions(feedType, method, body) {
 
   options.body = body;
   var qString = queryString.stringify(options.qs);
+  console.log(body);
   
   var stringToSign = method+'\n' + 
     'mws.amazonservices.com\n' +

@@ -140,8 +140,12 @@ html
 							label(for="taxOptions") Tax Code
 							select#taxOptions.form-control
 								option(value=0) No Tax - 0%
-								option(value=13) HST - 13%
 								option(value=5) GST - 5%
+								option(value=11) GST + PST - 11%
+								option(value=12) GST + PST - 12%
+								option(value=13) HST (GST + PST) - 13%
+								option(value=14.975) GST + QST - 14.975%
+								option(value=15) HST - 15%
 						.col-lg-3
 							label Tax
 							.input-group
@@ -225,6 +229,20 @@ html
 									.col-lg-4.col-md-4.col-sm-4
 										label(for="billingState") State
 										input#billingState.form-control(type="text")
+										//- select#billingStateCA.form-control
+										//- 	option(value="AB") Alberta
+										//- 	option(value="BC") British Columbia
+										//- 	option(value="MB") Manitoba
+										//- 	option(value="NB") New Brunswick
+										//- 	option(value="NL") Newfoundland and Labrador
+										//- 	option(value="NT") Northwest Territories
+										//- 	option(value="NS") Nova Scotia
+										//- 	option(value="NU") Nunavut
+										//- 	option(value="ON") Ontario
+										//- 	option(value="PE") Prince Edward Island
+										//- 	option(value="QC") Quebec
+										//- 	option(value="SK") Saskatchewan
+										//- 	option(value="YT") Yukon
 									.col-lg-4.col-md-4.col-sm-4
 										label(for="billingCountry") Country
 										input#billingCountry.form-control(type="text")

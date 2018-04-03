@@ -337,7 +337,9 @@
  		});
 
  		socket.on('createAmazonItem', function(sku) {
- 			amazon.addProducts(sku);
+ 			amazon.addProducts(sku).then(response => {
+ 				console.log(response);
+ 			});
  		});
 
  		socket.on('addAmazonImage', function(sku) {
