@@ -592,11 +592,13 @@ async function getItemsFull(query, progressCallback, canadian) {
 	} else {
 		delete query.onsale;
 	}
+  delete query.canadian; // legacy
 
   var options = helpers.get3DCartOptions(url, 'GET', canadian);
   options.qs = query;
-
+  console.log(options);
   await rp(options).then(async response => {
+    console.log(response);
     var promises = [];
     var totalItems = response.TotalCount;
     var numOfRequests = Math.ceil(totalItems / 200); // max 200 per request
@@ -606,7 +608,7 @@ async function getItemsFull(query, progressCallback, canadian) {
 
     for (var i = 0; i < numOfRequests; i++) {
       var cartItems = await rp(options);
-      progressCallback(i + 1, numOfRequests);
+      progressCallback(i + 1, numOfRequests, cartItems);
       promises.push(bulkUpdateCartItems(cartItems, canadian));
     }
 

@@ -274,7 +274,6 @@ function determineItemPrice(item) {
 		}
 	}
 
-
 	if (theCustomer.website == 'canada') {
 		if (item.onSale) {
 			price = item.canSalePrice;

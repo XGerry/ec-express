@@ -181,9 +181,10 @@
  		 * Get all the information on the items based on a query
  		 */
  		socket.on('getItemsFull', function(query) {
- 			cart3d.getItemsFull(query, function(progress, total, items) {
+ 			cart3d.getItemsFull(query, (progress, total, items) => {
  				socket.emit('getItemsProgress', progress, total, items);
- 			}, function(err) {
+ 			}, query.canadian).then(response => {
+ 				console.log('done');
  				socket.emit('getItemsFinished');
  			});
  		});
