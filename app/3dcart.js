@@ -607,6 +607,7 @@ async function getItemsFull(query, progressCallback, canadian) {
     console.log('We need to send ' + numOfRequests + ' requests to 3D Cart.');
 
     for (var i = 0; i < numOfRequests; i++) {
+      options.qs.offset = i * 200; 
       var cartItems = await rp(options);
       progressCallback(i + 1, numOfRequests, cartItems);
       promises.push(bulkUpdateCartItems(cartItems, canadian));
