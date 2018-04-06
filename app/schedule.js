@@ -73,7 +73,7 @@ function saveInventory() {
   });
 
   // save the walmart inventory
-  walmart.updateInventory();
+  walmart.updateInventory().then(response => console.log(response));
 
   // save the amazon inventory
   amazon.updateInventory().then(response => {
