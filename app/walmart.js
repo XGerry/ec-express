@@ -89,36 +89,22 @@ function getInventory(sku) {
 
 function updateInventoryItem(sku) {
 	var findItem = Item.findOne({sku: sku});
-	findItem.then(function(item) {
-		createInventoryRequest([item]);
+	return findItem.then(function(item) {
+		item.walmartStock = 10;
+		return createInventoryRequest([item]);
 	});
 }
 
 function updateInventory() {
 	var findItems = Item.find({updated: true});
-	findItems.then(function(items) {
-		createInventoryRequest(items);
+	return findItems.then(function(items) {
+		return createInventoryRequest(items);
 	});
 }
 
 function updateAllInventory() {
-	var findAllItems = Item.find({});
-	var savingItems = [];
-	findAllItems.then(function(items) {
-		items.forEach(function(item) {
-			if (item.stock > 10) {
-				item.walmartStock = 2;
-			} else {
-				item.walmartStock = 0;
-			}
-			savingItems.push(item.save());
-		});
-	});
-	
-	Promise.all(savingItems).then(function(results) {
-		findAllItems.then(function(items) {
-			createInventoryRequest(items);
-		});
+	return Item.find({}).then(items => {
+		return createInventoryRequest(items);
 	});
 }
 
@@ -126,7 +112,7 @@ function createInventoryRequest(items) {
 	var options = getRequestOptions('https://marketplace.walmartapis.com/v2/feeds?feedType=inventory', 'POST');
 	options.headers['Content-Type'] = 'multipart/form-data; boundary=ecstasy123';
 	options.body = getCreateInventoryFeed(items);
-	request(options, genericCallback);
+	return rp(options);
 }
 
 function getRequestOptions(baseURL, httpMethod, query) {
@@ -219,7 +205,7 @@ function getInventoryItem(item) {
 			unit: 'EACH',
 			amount: item.walmartStock
 		},
-		fulfillmentLagTime: 3
+		fulfillmentLagTime: 1
 	};
 
 	return feed;
@@ -292,7 +278,7 @@ function getMPProduct(item) {
 
 function getMPOffer(item) {
 	console.log('MPOffer for ' + item.sku);
-	var walmartPrice = item.usPrice + 1; // add a dollar to the price
+	var walmartPrice = parseFloat(item.usPrice) + 1; // add a dollar to the price
 	walmartPrice = walmartPrice.toFixed(2);
 	var mpOffer = {
 		price: walmartPrice,

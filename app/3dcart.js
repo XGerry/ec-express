@@ -721,7 +721,8 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
     advancedOption.usStock = optionItem.AdvancedOptionStock;
     advancedOption.imageURL = cartItem.MainImageFile;
   }
-  
+
+  advancedOption.manufacturerName = cartItem.ManufacturerName;
   advancedOption.isOption = true;
   return advancedOption.save();
 }

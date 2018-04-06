@@ -100,7 +100,9 @@
  			});
 
  			// save the walmart inventory
- 			//walmart.updateInventory();
+ 			walmart.updateInventory().then(response => {
+ 				console.log(response);
+ 			});
 
  			// save the amazon inventory
  			console.log('Saving amazon info');
@@ -407,11 +409,11 @@
  		});
 
  		socket.on('updateWalmartInventory', function(sku) {
- 			walmart.updateInventoryItem(sku);
+ 			walmart.updateInventoryItem(sku).then(response => console.log(response));
  		});
 
  		socket.on('updateAllWalmartInventory', function() {
- 			walmart.updateAllInventory();
+ 			walmart.updateAllInventory().then(response => console.log(response));
  		});
 
  		socket.on('updateAllAmazonInventory', function() {

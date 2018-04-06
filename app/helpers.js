@@ -838,6 +838,7 @@ function saveItemFromQB(item, qbItem) {
   item.usStock = theStock;
   item.canStock = theStock;
   item.amazonStock = theStock;
+  item.walmartStock = theStock;
   item.inactive = itemIsInactive;
 
   if (qbItem.DataExtRet) {
