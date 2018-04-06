@@ -1,8 +1,11 @@
 $(document).ready(e => {
 });
 
+var order;
+
 function buildPickTable(order) {
 	console.log(order);
+	this.order = order;
 	var totalItems = 0;
 	order.OrderItemList.forEach(item => {
 		var row = $('<tr></tr>');

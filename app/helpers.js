@@ -477,7 +477,7 @@ function addInvoiceRq(order, requestID) {
   var comments = '';
   var po = '';
   commentArray.forEach(comment => {
-    var code = comment.substring(0, 3);
+    var code = comment.substring(0, 4);
     if (code == 'PO: ') {
       po = comment.substring(4);
     } else {
