@@ -100,7 +100,7 @@ html
 
 			.panel.panel-default
 				.panel-heading
-					a.panel-title(data-toggle="collapse", data-target="#miscPanel") Misc.
+					a.panel-title(data-toggle="collapse", data-target="#miscPanel") Options
 				#miscPanel.panel-collapse.collapse.panel-body
 					.form-group.row
 						.col-lg-3
@@ -153,7 +153,10 @@ html
 									i.fa.fa-dollar
 								input.form-control#taxes(type="number", readonly)
 					.row.form-group
-						.col-lg-12
+						.col-lg-4
+							label PO Number
+							input.form-control#poNumber(type="text")
+						.col-lg-8
 							label Total
 							.input-group
 								span.input-group-addon

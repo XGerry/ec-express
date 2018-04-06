@@ -1342,6 +1342,7 @@ function saveCustomOrder(order) {
       dbOrder.shipping = order.shipping;
       dbOrder.comments = order.comments;
       dbOrder.shippingMethod = order.shippingMethod;
+      dbOrder.poNumber = order.poNumber;
       dbOrder.markModified('customer');
       dbOrder.markModified('items');
       return dbOrder.save();
@@ -1354,14 +1355,19 @@ function saveCustomOrder(order) {
       newOrder.shipping = order.shipping;
       newOrder.shippingMethod = order.shippingMethod;
       newOrder.comments = order.comments;
+      newOrder.poNumber = order.poNumber;
       return newOrder.save();
     }
   });
 
   return savingOrder.then(dbOrder => {
     var cartOrder = buildCartOrder(dbOrder.customer);
+    var comments = dbOrder.comments;
+    comments += '\n';
+    comments += 'PO: ' + dbOrder.poNumber;
+
     cartOrder.InternalComments = 'Custom Order';
-    cartOrder.CustomerComments = dbOrder.comments;
+    cartOrder.CustomerComments = comments;
     cartOrder.SalesTax = dbOrder.tax;
     cartOrder.ShipmentList[0].ShipmentCost = dbOrder.shipping;
     cartOrder.ShipmentList[0].ShipmentMethodName = dbOrder.shippingMethod;

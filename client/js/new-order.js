@@ -533,5 +533,6 @@ function generateOrder() {
 	theOrder.customer = theCustomer;
 	theOrder.items = itemsInOrder;
 	theOrder.comments = $('#notesArea').val();
+	theOrder.poNumber = $('#poNumber').val();
 	return theOrder;
 }

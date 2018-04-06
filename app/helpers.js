@@ -52,6 +52,19 @@ function createShippingAddress(order) {
   return shippingAddress;
 }
 
+function createBillingAddress(order) {
+  var billingAddress = {};
+  billingAddress.Addr1 = order.BillingFirstName + " " + order.BillingLastName;
+  billingAddress.Addr2 = order.BillingCompany;
+  billingAddress.Addr3 = order.BillingAddress;
+  billingAddress.Addr4 = order.BillingAddress2;
+  billingAddress.City = order.BillingCity;
+  billingAddress.State = order.BillingState;
+  billingAddress.PostalCode = order.BillingZipCode;
+  billingAddress.Country = order.BillingCountry;
+  return billingAddress;
+}
+
 function addCustomerRq(order, requestID) {
   console.log('Creating customer ' + order.BillingFirstName + ' ' + order.BillingLastName);
 
@@ -459,6 +472,19 @@ function addInvoiceRq(order, requestID) {
   //   customerRef = order.BillingCompany;
   // }
 
+  // find the PO number in the comments
+  var commentArray = order.CustomerComments.split('\n');
+  var comments = '';
+  var po = '';
+  commentArray.forEach(comment => {
+    var code = comment.substring(0, 3);
+    if (code == 'PO: ') {
+      po = comment.substring(4);
+    } else {
+      comments += comment;
+    }
+  });
+
   var obj = {
     InvoiceAddRq : {
       '@requestID' : requestID,
@@ -468,14 +494,16 @@ function addInvoiceRq(order, requestID) {
         },
         TxnDate : order.OrderDate.slice(0,10), // had to remove the T from the DateTime - maybe this is dangerous?
         RefNumber : order.InvoiceNumberPrefix + order.InvoiceNumber,
+        BillAddress: createBillingAddress(order),
         ShipAddress : createShippingAddress(order),
+        PONumber: po,
         TermsRef : {
           FullName : paymentMethod
         },
         ShipMethodRef : {
           FullName : shippingMethod
         },
-        Memo : order.CustomerComments + ' - API Import ('+timecode+')',
+        Memo : comments + ' - API Import ('+timecode+')',
         IsToBePrinted : true,
         InvoiceLineAdd : invoiceAdds
       }
