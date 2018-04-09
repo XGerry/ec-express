@@ -723,6 +723,7 @@ function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadi
   }
 
   advancedOption.manufacturerName = cartItem.ManufacturerName;
+  advancedOption.weight = cartItem.Weight;
   advancedOption.isOption = true;
   return advancedOption.save();
 }
