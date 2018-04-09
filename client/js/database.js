@@ -76,7 +76,6 @@ $(document).ready(function() {
 
 	$('#searchButton').click(function(e) {
 		socket.emit('searchDB', getQuery());
-		selectedItems = [];
 		allItems = [];
 	});
 
@@ -181,6 +180,7 @@ socket.on('searchSKUFinished', function(items) {
 
 socket.on('searchFinished', function(data) {
 	console.log(data);
+	selectedItems = [];
 	$('#databaseTable').dataTable().fnDestroy();
 	$('#databaseTableBody').empty();
 	buildItemTable(data);

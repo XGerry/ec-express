@@ -272,7 +272,6 @@ function getMPProduct(item) {
 			}
 		}
 	};
-
 	return mpProduct;
 }
 
