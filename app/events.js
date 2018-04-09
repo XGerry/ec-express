@@ -342,6 +342,12 @@
  		socket.on('createAmazonItem', function(sku) {
  			amazon.addProducts(sku).then(response => {
  				console.log(response);
+ 				amazon.addProductImage(sku).then(response => {
+ 					console.log(response);
+ 					amazon.updateInventoryItem(sku).then(response => {
+ 						console.log(response);
+ 					});
+ 				});
  			});
  		});
 

@@ -25,6 +25,12 @@ function addProductToAmazon(itemPromise) {
 
 		var cleanDescription = item.description.replace(/<\/?[^>]+(>|$)/g, "");
 
+		var searchTerms = item.name.replace('-', ' ');
+		searchTerms = searchTerms.split(' ');
+		if (searchTerms.length > 5) {
+			searchTerms = searchTerms.slice(searchTerms.length - 5);
+		}
+
 		var message = {
 			SKU: item.sku,
 			StandardProductID: {
@@ -38,14 +44,23 @@ function addProductToAmazon(itemPromise) {
 				Title: item.name,
 				Brand: item.manufacturerName,
 				Description: cleanDescription,
+				CPSIAWarning: 'no_warning_applicable',
 				Manufacturer: item.manufacturerName,
-				ItemType: 'paper-craft-supplies'
+				MfrPartNumber: item.sku,
+				SearchTerms: searchTerms,
+				ItemType: 'paper-craft-supplies',
+				TargetAudience: 'crafts',
+				TSDAgeWarning: 'not_suitable_under_36_months',
+				TSDWarning: 'no_warning_applicable'
 			},
 			ProductData: {
-				Arts: {
-					ProductType: 'Hobbies',
-					ProductCategory: 'Hobbies',
+				Miscellaneous: {
+					ProductType: 'Art',
+					ProductCategory: 'Art',
 					ProductSubcategory: 'Decorative_Arts',
+					Keywords: item.name,
+					ModelNumber: item.sku,
+					MfrPartNumber: item.sku
 				}
 			}
 		};
