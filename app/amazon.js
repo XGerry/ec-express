@@ -182,6 +182,24 @@ function bulkAddPrices(skus) {
 		buildPriceMessage);
 }
 
+// This will do all the necessary steps for listing the product on Amazon
+function listItem(sku) {
+	var submissionIds = [];
+	return addProducts(sku).then(response => {
+		console.log(response);
+		return addProductImage(sku).then(response => {
+			console.log(response);
+			return updatePricing(sku).then(response => {
+				console.log(response);
+				return updateInventoryItem(sku).then(response => {
+					console.log(response);
+					return submissionIds;
+				});
+			});
+		});
+	});
+}
+
 function doAmazonRequest(itemPromise, feedType, itemType, httpMethod, documentBuilder) {
 	var xmlDoc = getFeed(itemType);
 	var messages = [];
@@ -391,5 +409,6 @@ module.exports = {
 	bulkAddImages: bulkAddImages,
 	bulkAddItems: bulkAddItems,
 	bulkAddPrices: bulkAddPrices,
-	inventorySync: inventorySync
+	inventorySync: inventorySync,
+	listItem: listItem
 }

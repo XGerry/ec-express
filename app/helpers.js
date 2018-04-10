@@ -824,6 +824,10 @@ function findItemAndSave(qbItem) {
 
 function saveItemFromQB(item, qbItem) {
   var theStock = qbItem.QuantityOnHand;
+  if (theStock < 0) {
+    theStock = 0;
+  }
+
   var itemIsInactive = false;
   if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
     itemIsInactive = true;

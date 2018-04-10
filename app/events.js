@@ -344,15 +344,24 @@
  				console.log(response);
  				amazon.addProductImage(sku).then(response => {
  					console.log(response);
- 					amazon.updateInventoryItem(sku).then(response => {
+ 					amazon.updatePricing(sku).then(response => {
  						console.log(response);
+	 					amazon.updateInventoryItem(sku).then(response => {
+	 						console.log(response);
+	 					});
  					});
  				});
  			});
  		});
 
+ 		socket.on('listAmazonItem', sku => {
+ 			amazon.listItem(sku).then(ids => console.log(ids));
+ 		});
+
  		socket.on('addAmazonImage', function(sku) {
- 			amazon.addProductImage(sku);
+ 			amazon.addProductImage(sku).then(response => {
+ 				console.log(response);
+ 			});
  		});
 
  		socket.on('updateAmazonInventory', function(sku) {
