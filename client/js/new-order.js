@@ -16,7 +16,7 @@ $(document).ready(function() {
 	$('#itemSKU').on('keydown', function(e) {
 		var code = e.keyCode || e.which;
 		if (code === 9) {
-			var sku = $('#itemSKU').val().toUpperCase().trim();
+			var sku = $('#itemSKU').val().trim();
 			socket.emit('searchDB', {sku: sku});
 		} else if (e.ctrlKey && code === 40) { // down arrow
 			socket.emit('searchSKU', $('#itemSKU').val());
