@@ -39,8 +39,9 @@ function syncOrdersAndInventory(qbws) {
     }).then(responses => {
       helpers.queryAllItems(qbws).then(() => {
         qbws.addFinalCallback(() => {
-          saveInventory().then(() => {
-            console.log('Saving inventory');
+          saveInventory().then((responses) => {
+            console.log(responses);
+            console.log('Finished saving');
           });
           return Promise.resolve('Finished');
         });
@@ -51,7 +52,9 @@ function syncOrdersAndInventory(qbws) {
 }
 
 function saveInventory() {
-  return cart3d.saveItems(null, (progress, total) => {
+  var promises = [];
+
+  var save3dCart = cart3d.saveItems(null, (progress, total) => {
     console.log((progress / total * 100).toFixed(2) + '%');
   })
   .then(() => {
@@ -75,10 +78,13 @@ function saveInventory() {
   });
 
   // save the walmart inventory
-  walmart.updateInventory().then(response => console.log(response));
+  var saveWalmart = walmart.updateInventory();
 
   // save the amazon inventory
-  amazon.updateInventory().then(response => {
-    console.log(response);
-  });
+  var saveAmazon = amazon.updateInventory();
+
+  promises.push(save3dCart);
+  promises.push(saveWalmart);
+  promises.push(saveAmazon);
+  return Promise.all(promises);
 }

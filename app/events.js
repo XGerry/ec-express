@@ -64,7 +64,13 @@
  		});
 
  		function saveInventory() {
- 			return cart3d.saveItems(null, (progress, total) => {
+ 			// save the walmart inventory
+ 			var saveWalmart = walmart.updateInventory();
+
+ 			// save the amazon inventory
+ 			var saveAmazon = amazon.updateInventory();
+
+ 			var save3dCart = cart3d.saveItems(null, (progress, total) => {
  				socket.emit('saveItemsProgress', {
  					progress: progress,
  					total: total
@@ -94,21 +100,13 @@
 							helpers.inventoryBot({
 								text: items.length + ' items were synced with 3D Cart.'
 							});
+							return 'Done';
 						});
 					});
  				});
  			});
 
- 			// save the walmart inventory
- 			walmart.updateInventory().then(response => {
- 				console.log(response);
- 			});
-
- 			// save the amazon inventory
- 			console.log('Saving amazon info');
- 			amazon.updateInventory().then(response => {
- 				console.log(response);
- 			});
+ 			return Promise.all([saveWalmart, saveAmazon, save3dCart]);
  		}
 
  		/**
