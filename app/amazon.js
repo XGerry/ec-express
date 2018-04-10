@@ -103,7 +103,7 @@ function updateAllInventory() {
 }
 
 function updateInventory() {
-	var itemPromise = Item.find({updated: true}).limit(10);
+	var itemPromise = Item.find({updated: true});
 	return doAmazonRequest(itemPromise, 
 		'_POST_INVENTORY_AVAILABILITY_DATA_',
 		'Inventory',
