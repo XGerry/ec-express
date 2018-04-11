@@ -20,7 +20,7 @@ var qbws,
     password = 'password',
     // Change companyFile to an empty string to use the company file
     //     currently open in Quickbooks
-    companyFile = '\\\\DESKTOP-1DLOLHU\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2014B.QBW', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
+    companyFile = '\\\\C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2018.QBW', //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Sample Company Files\\QuickBooks 2014\\sample_wholesale-distribution business.qbw',
     req = [],
     orders = [],
     finalCallbacks = [];

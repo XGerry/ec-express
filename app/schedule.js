@@ -3,6 +3,7 @@ var schedule = require('node-schedule');
 var routes = require('./routes');
 var cart3d = require('./3dcart');
 var amazon = require('./amazon');
+var walmart = require('./walmart');
 var Order = require('./model/order.js');
 var Item = require('./model/item.js');
 
