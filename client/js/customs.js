@@ -83,14 +83,7 @@ $(document).ready(function() {
 	});
 
 	$('#saveButton').click(e => {
-		var shipDate = new Date($('#shipDate').val());
-		shipDate.setHours(shipDate.getHours() + (shipDate.getTimezoneOffset() / 60));
-		theManifest.shipDate = shipDate;
-		theManifest.orders = allOrders;
-		theManifest.totalWeight = totalWeight;
-		theManifest.totalValue = totalValue;
-		theManifest.totalParcels = totalParcels;
-		socket.emit('saveManifest', theManifest);
+		saveManifest();
 	});
 
 	$('#deleteManifest').click(e => {
@@ -145,7 +138,19 @@ socket.on('saveManifestFinished', (err, newManifest) => {
 socket.on('loadOrdersFinished', response => {
 	$('#getOrdersButton').button('reset');
 	buildManifest(response);
+	saveManifest();
 });
+
+function saveManifest() {
+	var shipDate = new Date($('#shipDate').val());
+	shipDate.setHours(shipDate.getHours() + (shipDate.getTimezoneOffset() / 60));
+	theManifest.shipDate = shipDate;
+	theManifest.orders = allOrders;
+	theManifest.totalWeight = totalWeight;
+	theManifest.totalValue = totalValue;
+	theManifest.totalParcels = totalParcels;
+	socket.emit('saveManifest', theManifest);
+}
 
 function applyAddress(addressName) {
 	var address = addresses[addressName];
@@ -168,7 +173,6 @@ function loadManifest(manifest) {
 		totalValue = theManifest.totalValue;
 		totalParcels = theManifest.totalParcels;
 		totalWeight = theManifest.totalWeight;
-
 		setTotalFields();
 		setDateFields();
 		buildManifest(theManifest.orders);

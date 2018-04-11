@@ -11,7 +11,7 @@ module.exports = function(qbws) {
   var sync = schedule.scheduleJob('*/30 * * * *', () => {
     syncOrdersAndInventory(qbws)
   }); 
-  var refresh = schedule.scheduleJob('0 23 * * *', () => {
+  var refresh = schedule.scheduleJob('0 20 * * *', () => {
     cart3d.refreshFrom3DCart().then(() => {
       console.log('Finished refreshing the items');
     });

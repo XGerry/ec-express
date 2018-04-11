@@ -521,7 +521,7 @@ function getOrders(query, qbws) {
       helpers.createInvoiceRequests(qbws);
       qbws.addFinalCallback(() => {
         var findSettings = Settings.findOne({});
-        return findSettings.then((settings) => {
+        return findSettings.then(settings => {
           var orderReport = helpers.getOrderReport(settings);
           return orderReport.then((report) => {
             webhooks.orderBot(helpers.getSlackOrderReport(report));

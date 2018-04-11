@@ -546,6 +546,9 @@ function (args) {
       console.log(vals);
       finalCallbacks = [];
       clearRequests();
+    }).catch(err => {
+      console.log(err);
+      clearRequests();
     });
 
     serviceLog('    Return values:');
