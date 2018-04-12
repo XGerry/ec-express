@@ -485,6 +485,11 @@ function addInvoiceRq(order, requestID) {
     }
   });
 
+  // An exception for Amazon
+  if (order.BillingFirstName == 'Amazon') {
+    customerRef = 'Amazon';
+  }
+
   var obj = {
     InvoiceAddRq : {
       '@requestID' : requestID,
