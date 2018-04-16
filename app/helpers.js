@@ -1060,15 +1060,16 @@ function getSlackOrderReport(report) {
   var successFields = [];
   var failFields = [];
 
-  report.success.forEach((order) => {
-    var infoURL = 'https://www.ecstasycrafts.' + (order.canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.cartOrder.OrderID;
-    var field = {
-      title: order.name,
-      value: '<'+infoURL+'|'+order.orderId + '> ' + (order.message == undefined ? '' : order.message),
-      short: true
-    };
-    successFields.push(field);
-  });
+  // TMI
+  // report.success.forEach((order) => {
+  //   var infoURL = 'https://www.ecstasycrafts.' + (order.canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.cartOrder.OrderID;
+  //   var field = {
+  //     title: order.name,
+  //     value: '<'+infoURL+'|'+order.orderId + '> ' + (order.message == undefined ? '' : order.message),
+  //     short: true
+  //   };
+  //   successFields.push(field);
+  // });
 
   report.fail.forEach((order) => {
     var infoURL = 'https://www.ecstasycrafts.' + (order.canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.cartOrder.OrderID;
