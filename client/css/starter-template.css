@@ -1,3 +1,7 @@
+body {
+	padding-bottom: 4rem;
+}
+
 .starter-template {
   padding: 40px 15px;
   text-align: center;
@@ -287,4 +291,8 @@
 li a.active {
 	color: #fff;
 	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.sub-menu {
+	background-color: rgba(255, 255, 255, 0.1);
 }

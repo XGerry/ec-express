@@ -2,8 +2,8 @@ doctype html
 include mixins
 html
 	include includes/head
-		script(src="js/homepage.js")
-		title Custom Tools
+		script(src="/js/homepage.js")
+		title EC Express
 	body
 		#wrapper
 			+sidebarNav("home")
@@ -24,13 +24,13 @@ html
 									i.fal.fa-paperclip.fa-fw.fa-5x
 									p.card-text.pt-2 Sync orders and QB, create custom orders in 3D Cart and build the manifest.
 									.input-group
-										select.form-control
-											option Dashboard
-											option Sync
-											option Manifests
-											option Custom Orders
+										select.form-control#ordersSelect
+											option(value="/orders-dashboard") Dashboard
+											option(value="/orders") Sync
+											option(value="/list-manifests") Manifests
+											option(value="/new-order") Custom Orders
 										.input-group-append
-											button.btn.btn-primary Go
+											button.btn.btn-primary#ordersGoButton Go
 								.card-footer 12 new orders today.
 						.col-3
 							.card
@@ -40,13 +40,13 @@ html
 									i.fal.fa-database.fa-fw.fa-5x
 									p.card-text.pt-2 Adjust product attributes, view inventory and send products to 3rd party platforms.
 									.input-group
-										select.form-control
+										select.form-control#productsSelect
 											option Dashboard
 											option Database
 											option Feeds
 											option Upload
 										.input-group-append
-											button.btn.btn-primary Go
+											button.btn.btn-primary#productsGoButton Go
 								.card-footer 12567 items and growing.
 						.col-3
 							.card
@@ -61,7 +61,7 @@ html
 											option Shipments
 											option Purchase Orders
 										.input-group-append
-											button.btn.btn-primary Go
+											button.btn.btn-primary.disabled Go
 								.card-footer 3 shipments awaiting delivery.
 						.col-3
 							.card
@@ -77,9 +77,7 @@ html
 											option Products
 											option Shipments
 										.input-group-append
-											button.btn.btn-primary Go
+											button.btn.btn-primary.disabled Go
 								.card-footer 115 orders this week for $112,000.
 
-	footer.py-3.bg-dark.fixed-bottom
-		.container
-			p.m-0.text-center.text-white Copyright &copy; Ecstasy Crafts 2018
+		+footer

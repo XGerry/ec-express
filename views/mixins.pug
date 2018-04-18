@@ -126,27 +126,43 @@ mixin sidebarNav(active)
 			li 
 				a(data-toggle="collapse" href="#quick-links").dropdown-link Quick Links 
 					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
-				ul.collapse#quick-links.pl-0
-					li
-						+externalLink("//ecstasycrafts.slack.com", "Slack", "fa-slack", "fab")
-					li
-						+externalLink("//www.ecstasycrafts.com/admin", "US Admin Page", "fa-browser", "far")
-					li
-						+externalLink("//www.ecstasycrafts.ca/admin", "CA Admin Page", "fa-browser", "far")
+				ul.collapse#quick-links.pl-0.sub-menu
+					+externalLink("//ecstasycrafts.slack.com", "Slack", "fa-slack", "fab")
+					+externalLink("//www.ecstasycrafts.com/admin", "US Admin Page", "fa-browser", "far")
+					+externalLink("//www.ecstasycrafts.ca/admin", "CA Admin Page", "fa-browser", "far")
 			li
-				a(href="#orders-nav" data-toggle="collapse") Orders
-				ul.collapse#orders-nav
-					li
-						a(href="/orders") Sync
+				a(href="#orders-nav" data-toggle="collapse").dropdown-link Orders
+					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
+				ul.collapse#orders-nav.pl-0.sub-menu
+					+internalLink("/orders", "Sync")
+					+internalLink("/new-order", "Custom Order")
+					+internalLink("/list-manifests", "Manifests")
 			li
-				a(href="#") Products
+				a(href="#products-nav" data-toggle="collapse").dropdown-link Products
+					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
+				ul.collapse#products-nav.pl-0.sub-menu
+					+internalLink("/database", "Database")
+					+internalLink("/feeds", "Feeds")
+					+internalLink("/upload", "Upload")
 			li
-				a(href="#") Shipments
+				a(href="#") Shipments 
+					span.badge.badge-info(style="text-indent: 0px;") Coming Soon!
 			li
-				a(href="#") Reports
+				a(href="#") Reports 
+					span.badge.badge-info(style="text-indent: 0px;") Coming Soon!
 
 mixin externalLink(url, text, icon, iconType)
-	a(href=url target="_blank").pl-1
-		i.fa-fw.fa-inverse(class=icon + " " + iconType)
-		= " " + text + " "
-		i.far.fa-external-link.fa-fw.fa-inverse
+	li
+		a(href=url target="_blank").pl-2
+			i.fa-fw.fa-inverse(class=icon + " " + iconType)
+			= " " + text + " "
+			i.far.fa-external-link.fa-fw.fa-inverse
+
+mixin internalLink(link, text)
+	li
+		a(href=link).pl-2=text
+
+mixin footer
+	footer.py-3.bg-dark.fixed-bottom
+		.container
+			p.m-0.text-center.text-white Copyright &copy; Ecstasy Crafts 2018

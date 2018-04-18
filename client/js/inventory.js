@@ -13,14 +13,14 @@ function showLoading(buttonId, iconId, progressBarId) {
 }
 
 function showLoadingIcon(iconId) {
-	$('#'+iconId).removeClass('fa-square-o');
-	$('#'+iconId).removeClass('fa-check-square-o');	
-	$('#'+iconId).addClass('fa-refresh fa-spin');
+	$('#'+iconId).removeClass('fa-square');
+	$('#'+iconId).removeClass('fa-check-square');	
+	$('#'+iconId).addClass('fa-sync fa-spin');
 }
 
 function doneLoadingIcon(iconId) {
 	$('#'+iconId).removeClass('fa-spin');
-	$('#'+iconId).addClass('fa-check-square-o');
+	$('#'+iconId).addClass('fa-check-square');
 }
 
 function doneLoadingProgress(barClass) {
@@ -35,7 +35,7 @@ function doneLoading(buttonId, iconId, progressBarId) {
 	}
 	if (iconId) {
 		$('#'+iconId).removeClass('fa-spin');
-		$('#'+iconId).addClass('fa-check-square-o');	
+		$('#'+iconId).addClass('fa-check-square');	
 	}
 	if (progressBarId) {
 		$('#'+progressBarId).removeClass('active');
