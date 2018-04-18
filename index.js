@@ -45,11 +45,11 @@ app.use(cors({
 }));
 
 app.use('/', express.static(__dirname + '/client'));
-app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
+//app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/js', express.static(__dirname + '/node_modules/papaparse')); // redirect Papaparse
 app.use('/js', express.static(__dirname + '/node_modules/moment')); // redirect Moment
-app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
+//app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 var server = app.listen(process.env.PORT || 3000, function() {
   console.log('EC-Express running on port 3000');

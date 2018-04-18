@@ -4,10 +4,80 @@ html
 	include includes/head
 		title Custom Tools
 	body
-		+navbar("home")
-		.container
-			.starter-template
-				h1 Welcome
-				p.lead Have a good day at work!
+		#wrapper
+			+sidebarNav("home")
+			#page-content
+				.container-fluid
+					button.btn.btn-secondary.btn-toggles(type="button")#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					.starter-template
+						h1 Welcome
+						p.lead Have a good day at work!
+				.container-fluid.px-5
+					.row
+						.col-3
+							.card
+								.card-header 
+									h5.mb-0 Orders
+								.card-body.text-center
+									i.fal.fa-paperclip.fa-fw.fa-5x
+									p.card-text.pt-2 Sync orders and QB, create custom orders in 3D Cart and build the manifest.
+									.input-group
+										select.form-control
+											option Dashboard
+											option Sync
+											option Manifests
+											option Custom Orders
+										.input-group-append
+											button.btn.btn-primary Go
+								.card-footer 12 new orders today.
+						.col-3
+							.card
+								.card-header 
+									h5.mb-0 Products
+								.card-body.text-center
+									i.fal.fa-database.fa-fw.fa-5x
+									p.card-text.pt-2 Adjust product attributes, view inventory and send products to 3rd party platforms.
+									.input-group
+										select.form-control
+											option Dashboard
+											option Database
+											option Feeds
+											option Upload
+										.input-group-append
+											button.btn.btn-primary Go
+								.card-footer Inventory synced 22 minutes ago.
+						.col-3
+							.card
+								.card-header 
+									h5.mb-0 Shipments
+								.card-body.text-center
+									i.fal.fa-database.fa-fw.fa-5x
+									p.card-text.pt-2 View the status of shipments into the building, create and manage POs.
+									.input-group
+										select.form-control
+											option Dashboard
+											option Shipments
+											option Purchase Orders
+										.input-group-append
+											button.btn.btn-primary Go
+								.card-footer 3 shipments awaiting delivery.
+						.col-3
+							.card
+								.card-header 
+									h5.mb-0 Reports
+								.card-body.text-center
+									i.fal.fa-database.fa-fw.fa-5x
+									p.card-text.pt-2 View and create reports for products, orders and shipments.
+									.input-group
+										select.form-control
+											option Dashboard
+											option Orders
+											option Products
+											option Shipments
+										.input-group-append
+											button.btn.btn-primary Go
+								.card-footer 115 orders this week for $112,000.
+
 		include includes/end
 			script(src="js/homepage.js")
