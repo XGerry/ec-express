@@ -2,6 +2,7 @@ doctype html
 include mixins
 html
 	include includes/head
+		script(src="js/homepage.js")
 		title Custom Tools
 	body
 		#wrapper
@@ -46,13 +47,13 @@ html
 											option Upload
 										.input-group-append
 											button.btn.btn-primary Go
-								.card-footer Inventory synced 22 minutes ago.
+								.card-footer 12567 items and growing.
 						.col-3
 							.card
 								.card-header 
 									h5.mb-0 Shipments
 								.card-body.text-center
-									i.fal.fa-database.fa-fw.fa-5x
+									i.fal.fa-truck.fa-fw.fa-5x
 									p.card-text.pt-2 View the status of shipments into the building, create and manage POs.
 									.input-group
 										select.form-control
@@ -67,7 +68,7 @@ html
 								.card-header 
 									h5.mb-0 Reports
 								.card-body.text-center
-									i.fal.fa-database.fa-fw.fa-5x
+									i.fal.fa-chart-line.fa-fw.fa-5x
 									p.card-text.pt-2 View and create reports for products, orders and shipments.
 									.input-group
 										select.form-control
@@ -79,5 +80,6 @@ html
 											button.btn.btn-primary Go
 								.card-footer 115 orders this week for $112,000.
 
-		include includes/end
-			script(src="js/homepage.js")
+	footer.py-3.bg-dark.fixed-bottom
+		.container
+			p.m-0.text-center.text-white Copyright &copy; Ecstasy Crafts 2018
