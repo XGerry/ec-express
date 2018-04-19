@@ -11,40 +11,42 @@ html
 	include includes/head
 		title Print Orders
 	body
-		+navbar("print-orders")
-		.container
-			.starter-template
-				h1 All Orders
-				p.lead Select and order to see it in more detail.
-		section
-			.container
-				.row.form-group
-					.col-lg-12
-						label Order Status
-						select.form-control#orderStatus
-							option(value=1) New
-							option(value=2) Processing
-							option(value=3) Partial
-							option(value=4) Shipped
-							option(value=6) Hold
-							option(value=8) Completed
-							option(value=9) Backorder
+		#wrapper
+			+sidebarNav("print-orders")
+			
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 All Orders
+						p.lead Select and order to see it in more detail.
+						button.btn-outline-primary.btn(type="button")#printAllButton Print All
 
-				.btn-toolbar
-					button.btn-primary.btn(type="button")#printAllButton Print All
-			.container
-				.row
-					.col-lg-12
-						table.table-hover.table
-							thead
-								tr
-									th Order Number
-									th Customer Name
-									th Company Name
-									th Number of SKUs
-									th Number of Items
-									th Value of Order
-							tbody#orderTableBody
+				.container
+					.row.form-group
+						.col-lg-12
+							label Order Status
+							select.form-control#orderStatus
+								option(value=1) New
+								option(value=2) Processing
+								option(value=3) Partial
+								option(value=4) Shipped
+								option(value=6) Hold
+								option(value=8) Completed
+								option(value=9) Backorder
+				.container
+					.row
+						.col-lg-12
+							table.table-hover.table
+								thead
+									tr
+										th Order Number
+										th Customer Name
+										th Company Name
+										th Number of SKUs
+										th Number of Items
+										th Value of Order
+								tbody#orderTableBody
 
 	include includes/end
 		script(src="./js/print-orders.js")

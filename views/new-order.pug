@@ -2,281 +2,272 @@ doctype html
 include mixins
 html
 	include includes/head
+		script(src="/js/papaparse.min.js")
+		script(src="/js/new-order.js")
 		title New Order
 	body
-		+navbar("new-order")
-		nav.navbar.navbar-default.navbar-fixed-top.top-50(style="z-index:100;")
-			.container
-				h4.navbar-text New Order
-				form.navbar-form.navbar-left
-					.form-group
+		#wrapper
+			+sidebarNav("new-order")
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2 New Order
+					form.form-inline
 						select.form-control#orderStatus
 							option(value=1) New
 							option(value=2) Processing
+							option(value=3) Backorder
+							option(value=6) Pre-order
+							option(value=9) Awaiting Payment
+							option(value=13) Awaiting Shipment
 							option(value=4) Shipped
-							option(value=6) Hold
-							option(value=8) Completed
-							option(value=5) Cancel
-				ul.nav.navbar-nav.navbar-right
-					li.dropdown
-						a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") Actions #[span.caret]
-						ul.dropdown-menu
-							li
-								a(href="#")#clearItemsButton Clear Items
-							li.divider(role="separator")
-							li
-								a#deleteOrder(href="#") Delete
-					li.dropdown
-						a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") Import #[span.caret]
-						ul.dropdown-menu
-							li 
-								a(href="#")#browseButton Browse for file
-								input(type="file", style="display:none;")#fileInput
-							li 
-								a(href="#", data-toggle="modal", data-target="#orderImportModal") Enter invoice number
-					button.btn.btn-success.navbar-btn(type="button")#saveToSiteButton Save
-		.container(style="margin-top:75px;")
-			.panel.panel-default
-				.panel-heading(style="padding-bottom:20px;")
-					a(data-toggle="collapse", data-target="#customerPanel", style="display:inline-block;").panel-title Customer
-					button.btn.btn-primary.pull-right#addCustomerButton(type="button", data-toggle="modal", data-target="#customerModal") Add Customer
+					ul.navbar-nav.ml-auto
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#clearItemsButton Clear Items
+								.dropdown-divider
+								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Import
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#browseButton Browse for file
+								input(type="file" style="display:none;")#fileInput
+								a.dropdown-item(href="#", data-toggle="modal", data-target="#orderImportModal") Enter invoice number
+						.btn-group
+							button.btn.btn-success(type="button") Save
+							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
+							.dropdown-menu.dropdown-menu-right
+								a.dropdown-item(href="#")#saveToSiteButton Save to 3D Cart
 
-				#customerPanel.panel-collapse.collapse.in.panel-body
-					table.table.table-striped.table-hover#customerTable
-						thead
-							tr
-								th Name
-								th Email
-								th Phone
-								th Shipping Address
-								th Shipping City
-						tbody#customerTableBody
-			
-			.panel.panel-default
-				.panel-heading(style="padding-bottom:20px;")
-					a.panel-title(data-toggle="collapse", data-target="#itemPanel") Order Sheet
-					button.btn.btn-success.pull-right#addItemButton(type="button", disabled) Add Item		
-				#itemPanel.panel-collapse.collapse.in.panel-body
-					.form-group.row
-						.col-sm-2
-							label(for="itemSKU") SKU
-							input#itemSKU.form-control(type="text", list="itemList")
-							datalist#itemList
-						.col-sm-4
-							label(for="itemName") Name
-							input#itemName.form-control(type="text")
-						.col-sm-2
-							label(for="itemQuantity") Quantity
-							input#itemQuantity.form-control(type="number", value="1")
-						.col-sm-2
-							label(for="itemPrice") Item Price
-							.input-group
-								span.input-group-addon
-									i.fa.fa-dollar
-								input#itemPrice.form-control(type="number", step="any")
-						.col-sm-2
-							label(for="lineTotal") Line Total
-							.input-group
-								span.input-group-addon
-									i.fa.fa-dollar
-								input#lineTotal.form-control(type="number", readonly)
-					hr
-					table.table.table-striped.table-hover#orderTable
-						thead
-							tr
-								th SKU
-								th Name
-								th Quantity
-								th Price
-								th Line Total
-						tbody#orderTableBody
-						tfoot
-							tr
-								th
-								th
-								th
-								th Sub Total
-								th#subTotalTable
-
-			.panel.panel-default
-				.panel-heading
-					a.panel-title(data-toggle="collapse", data-target="#miscPanel") Options
-				#miscPanel.panel-collapse.collapse.panel-body
-					.form-group.row
-						.col-sm-3
-							label Coupon Code
-							input(type="text")#couponCode.form-control
-						.col-sm-3
-							label Discount Type
-							select.form-control#discountType
-								option(value="percentage") Percentage
-								option(value="dollar") Dollar Value
-						.col-sm-3
-							label Discount
-							.input-group
-								input(type="number", value="0")#discount.form-control
-								.input-group-addon#typeSymbol %
-						.col-sm-3
-							label Calculated Discount
-							.input-group
-								span.input-group-addon
-									i.fa.fa-dollar
-								input.form-control#totalDiscount(type="number" readonly)
-					.row.form-group
-						.col-sm-3
-							label(for="shippingOptions") Shipping Method
-							select#shippingOptions.form-control
-								option(value="cheapest way") Best Way
-								option(value="UPS") UPS
-								option(value="Canada Post") Canada Post
-								option(value="Priority Mail") USPS
-						.col-sm-3
-							label(for="shipping") Shipping Value
-							.input-group
-								span.input-group-addon
-									i.fa.fa-dollar
-								input.form-control#shipping(type="number", value="0")
-						.col-sm-3
-							label(for="taxOptions") Tax Code
-							select#taxOptions.form-control
-								option(value=0) No Tax - 0%
-								option(value=5) GST - 5%
-								option(value=11) GST + PST - 11%
-								option(value=12) GST + PST - 12%
-								option(value=13) HST (GST + PST) - 13%
-								option(value=14.975) GST + QST - 14.975%
-								option(value=15) HST - 15%
-						.col-sm-3
-							label Tax
-							.input-group
-								span.input-group-addon
-									i.fa.fa-dollar
-								input.form-control#taxes(type="number", readonly)
-					.row.form-group
-						.col-sm-4
-							label PO Number
-							input.form-control#poNumber(type="text")
-						.col-sm-8
-							label Total
-							.input-group
-								span.input-group-addon
-									i.fa.fa-dollar
-								input.form-control#total(type="number", readonly)
-					.row.form-group
-						.col-sm-12
-							label Comments
-							textarea.form-control(rows="5")#notesArea
-
-	include includes/end
-		script(src="/js/papaparse.min.js")
-		script(src="/js/new-order.js")
+				.container.pt-3
+					.row
+						.col-12
+							.card
+								.card-header 
+									h5.card-title.d-inline-block.mb-0 Customer
+									button.btn.btn-sm.btn-primary.float-right#addcustomerButton(type="button", data-toggle="modal" data-target="#customerModal")
+										i.far.fa-plus.fa-fw
+								.card-body
+									table.table.table-striped.table-hover#customerTable
+										thead
+											tr
+												th Name
+												th Email
+												th Phone
+												th Shipping Address
+												th Shipping City
+										tbody#customerTableBody
+					.row.pt-2
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Order Sheet
+								.card-body
+									.form-group.row
+										.col-sm-2
+											label(for="itemSKU") SKU
+											input#itemSKU.form-control(type="text", list="itemList")
+											datalist#itemList
+										.col-sm-4
+											label(for="itemName") Name
+											input#itemName.form-control(type="text")
+										.col-sm-2
+											label(for="itemQuantity") Quantity
+											input#itemQuantity.form-control(type="number", value="1")
+										.col-sm-2
+											label(for="itemPrice") Item Price
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input#itemPrice.form-control(type="number", step="any")
+										.col-sm-2
+											label(for="lineTotal") Line Total
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input#lineTotal.form-control(type="number", readonly)
+									hr
+									table.table.table-striped.table-hover#orderTable
+										thead
+											tr
+												th SKU
+												th Name
+												th Quantity
+												th Price
+												th Line Total
+										tbody#orderTableBody
+										tfoot
+											tr
+												th
+												th
+												th
+												th Sub Total
+												th#subTotalTable
+					.row.pt-2
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Options
+								.card-body
+									.form-group.row
+										.col-sm-3
+											label Coupon Code
+											input(type="text")#couponCode.form-control
+										.col-sm-3
+											label Discount Type
+											select.form-control#discountType
+												option(value="percentage") Percentage
+												option(value="dollar") Dollar Value
+										.col-sm-3
+											label Discount
+											.input-group
+												input(type="number", value="0")#discount.form-control
+												.input-group-append
+													.input-group-text#typeSymbol %
+										.col-sm-3
+											label Calculated Discount
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input.form-control#totalDiscount(type="number" readonly)
+									.row.form-group
+										.col-sm-3
+											label(for="shippingOptions") Shipping Method
+											select#shippingOptions.form-control
+												option(value="cheapest way") Best Way
+												option(value="UPS") UPS
+												option(value="Canada Post") Canada Post
+												option(value="Priority Mail") USPS
+										.col-sm-3
+											label(for="shipping") Shipping Value
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input.form-control#shipping(type="number", value="0")
+										.col-sm-3
+											label(for="taxOptions") Tax Code
+											select#taxOptions.form-control
+												option(value=0) No Tax - 0%
+												option(value=5) GST - 5%
+												option(value=11) GST + PST - 11%
+												option(value=12) GST + PST - 12%
+												option(value=13) HST (GST + PST) - 13%
+												option(value=14.975) GST + QST - 14.975%
+												option(value=15) HST - 15%
+										.col-sm-3
+											label Tax
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input.form-control#taxes(type="number", readonly)
+									.row.form-group
+										.col-sm-4
+											label PO Number
+											input.form-control#poNumber(type="text")
+										.col-sm-8
+											label Total
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input.form-control#total(type="number", readonly)
+									.row.form-group
+										.col-sm-12
+											label Comments
+											textarea.form-control(rows="5")#notesArea
+		+footer
 
 	#customerModal.modal.fade(role="dialog")
-		.modal-dialog
+		.modal-dialog.modal-lg(role="document")
 			.modal-content
 				.modal-header
+					h5#customerName.mb-0 New Customer
 					button.close(data-dismiss="modal") &times;
-					h4#customerName New Customer
 				.modal-body
 					.form-group.row
-						.col-lg-6.col-md-6.col-sm-6
+						.col-6
 							label(for="websiteSelect") Website
 							select.form-control#websiteSelect
 								option(value="us") U.S.
 								option(value="canada") Canada
-						.col-lg-6.col-md-6.col-sm-6
+						.col-6
 							label(for="profileSelect") Profile
 							select.form-control#profileSelect
 								option(value="2") US Wholesale - 50%
 								option(value="14") Canadian Wholesale - 50%
 								option(value="0") Retail
 					.form-group.row
-						.col-lg-12.col-md-12
+						.col-12
 							label(for="customerEmailModal") Email
 							.input-group
 								input#customerEmailModal.form-control(type="email")
-								span.input-group-btn
+								.input-group-append
 									button.btn.btn-primary(type="button")#searchCustomerButton Search
 							p#emailSearchInfo
 					.form-group.row
-						.col-lg-6.col-md-6.col-sm-6
+						.col-6
 							label(for="customerFirstName") First Name
 							input#customerFirstName.form-control(type="text")
-						.col-lg-6.col-md-6.col-sm-6
+						.col-6
 							label(for="customerLastName") Last Name
 							input#customerLastName.form-control(type="text")
 					.form-group.row
-						.col-lg-6.col-md-6.col-sm-6
+						.col-6
 							label Company Name
 							input#companyName.form-control(type="text")
-						.col-lg-6.col-md-6.col-sm-6
+						.col-6
 							label(for="customerPhone") Phone
 							input#customerPhone.form-control(type="text")
-					.panel.panel-default
-						.panel-heading(style="padding-bottom:20px;")
-							a(data-toggle="collapse", data-target="#customerBillingAddress", style="display:inline-block;").panel-title Billing
-							button.btn-primary.btn.pull-right#sameAsShippingButton(type="button") Same as Shipping Address
-						#customerBillingAddress.panel-collapse.collapse.in
-							.panel-body
-								.form-group.row
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="billingAddress") Address
-										input#billingAddress.form-control(type="text")
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="billingAddress2") Address 2
-										input#billingAddress2.form-control(type="text")
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="billingCity") City
-										input#billingCity.form-control(type="text")
-								.form-group.row
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="billingState") State
-										input#billingState.form-control(type="text")
-										//- select#billingStateCA.form-control
-										//- 	option(value="AB") Alberta
-										//- 	option(value="BC") British Columbia
-										//- 	option(value="MB") Manitoba
-										//- 	option(value="NB") New Brunswick
-										//- 	option(value="NL") Newfoundland and Labrador
-										//- 	option(value="NT") Northwest Territories
-										//- 	option(value="NS") Nova Scotia
-										//- 	option(value="NU") Nunavut
-										//- 	option(value="ON") Ontario
-										//- 	option(value="PE") Prince Edward Island
-										//- 	option(value="QC") Quebec
-										//- 	option(value="SK") Saskatchewan
-										//- 	option(value="YT") Yukon
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="billingCountry") Country
-										input#billingCountry.form-control(type="text")
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="billingZip") Zip/Postal Code
-										input#billingZip.form-control(type="text")
-						.panel-heading
-							h4.panel-title
-								a(data-toggle="collapse", data-target="#customerShippingAddress") Shipping
-						#customerShippingAddress.panel-collapse.collapse.in
-							.panel-body
-								.form-group.row
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="shippingAddress") Address
-										input#shippingAddress.form-control(type="text")
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="shippingAddress2") Address 2
-										input#shippingAddress2.form-control(type="text")
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="shippingCity") City
-										input#shippingCity.form-control(type="text")
-								.form-group.row
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="shippingState") State
-										input#shippingState.form-control(type="text")
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="shippingCountry") Country
-										input#shippingCountry.form-control(type="text")
-									.col-lg-4.col-md-4.col-sm-4
-										label(for="shippingZip") Zip/Postal Code
-										input#shippingZip.form-control(type="text")
+					h5 Billing Address
+					.form-group.row
+						.col-4
+							label(for="billingAddress") Address
+							input#billingAddress.form-control(type="text")
+						.col-4
+							label(for="billingAddress2") Address 2
+							input#billingAddress2.form-control(type="text")
+						.col-4
+							label(for="billingCity") City
+							input#billingCity.form-control(type="text")
+					.form-group.row
+						.col-4
+							label(for="billingState") State
+							input#billingState.form-control(type="text")
+						.col-4
+							label(for="billingCountry") Country
+							input#billingCountry.form-control(type="text")
+						.col-4
+							label(for="billingZip") Zip/Postal Code
+							input#billingZip.form-control(type="text")
+					button.btn-primary.btn.pull-right#sameAsShippingButton(type="button") Copy Address
+					h5 Shipping Address
+					.form-group.row
+						.col-4
+							label(for="shippingAddress") Address
+							input#shippingAddress.form-control(type="text")
+						.col-4
+							label(for="shippingAddress2") Address 2
+							input#shippingAddress2.form-control(type="text")
+						.col-4
+							label(for="shippingCity") City
+							input#shippingCity.form-control(type="text")
+					.form-group.row
+						.col-4
+							label(for="shippingState") State
+							input#shippingState.form-control(type="text")
+						.col-4
+							label(for="shippingCountry") Country
+							input#shippingCountry.form-control(type="text")
+						.col-4
+							label(for="shippingZip") Zip/Postal Code
+							input#shippingZip.form-control(type="text")
 									
 				.modal-footer
 					button#saveCustomerButton.btn.btn-success(type="button") Add
@@ -286,8 +277,8 @@ html
 		.modal-dialog
 			.modal-content
 				.modal-header
+					h5#itemNameTitle.mb-0 Import
 					button.close(data-dismiss="modal") &times;
-					h4#itemNameTitle Import
 				.modal-body
 					.form-group.row
 						.col-lg-6
@@ -303,19 +294,18 @@ html
 					button.btn.btn-success#findOrderButton Search
 
 	#itemModal.modal.fade(role="dialog")
-		.modal-dialog
+		.modal-dialog.modal-lg
 			.modal-content
 				.modal-header
-					button.close(data-dismiss="modal") &times;
 					h4#itemNameTitle Item Name
+					button.close(data-dismiss="modal") &times;
 				.modal-body
-
-					.panel.panel-default
-						.panel-heading
-							h4.panel-title
-								a(data-toggle="collapse", data-target="#generalInfo") General
-						#generalInfo.panel-collapse.collapse.in
-							.panel-body
+					.card
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#generalInfo", href="#") General
+						#generalInfo.collapse.show
+							.card-body
 								.row.form-group
 									.col-sm-6
 										label(for="itemSKUModal") SKU
@@ -330,8 +320,9 @@ html
 									.col-sm-6
 										label(for="itemPriceModal") Price
 										.input-group
-											span.input-group-addon
-												i.fa.fa-dollar
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
 											input#itemPriceModal.form-control(type="number", step="any")
 								.row.form-group
 									.col-sm-4
@@ -343,53 +334,56 @@ html
 									.col-sm-4
 										label(for="canStock") Canadian Stock
 										input#canStock.form-control(type="number")
-						
-						.panel-heading
-							h4.panel-title
-								a(data-toggle="collapse", data-target="#itemImagePanel") Image
-						#itemImagePanel.collapse.panel-collapse
-							.panel-body
+
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#itemImagePanel", href="#") Image
+						#itemImagePanel.collapse
+							.card-body
 								.form-group.row
 									.col-sm-12
 										img#itemImage.img-rounded.img-responsive(src="http://via.placeholder.com/350x150")
-						
-						.panel-heading
-							h4.panel-title
-								a(data-toggle="collapse", data-target="#sales") Sale
-						#sales.collapse.panel-collapse
-							.panel-body
+
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#sales", href="#") Sale
+						#sales.collapse
+							.card-body
 								.row.form-group
 									.col-sm-4.checkbox
 										label(for="onSale")
 											input#onSale(type="checkbox")
-											| On Sale
+											|  On Sale
 									.col-sm-4
 										label(for="usSalePrice") US Sale Price
 										.input-group
-											span.input-group-addon
-												i.fa.fa-dollar
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
 											input#usSalePrice.form-control(type="number")
 									.col-sm-4
 										label(for="canSalePrice") CAN Sale Price
 										.input-group
-											span.input-group-addon
-												i.fa.fa-dollar
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
 											input#canSalePrice.form-control(type="number")
 						
-						.panel-heading
-							h4.panel-title
-								a(data-toggle="collapse", data-target="#warehouse") Warehouse
-						#warehouse.collapse.panel-collapse.panel-body
-							.row.form-group
-								.col-sm-4
-									label(for="location") Location
-									input#location.form-control(type="text")
-								.col-sm-4
-									label(for="barcode") Barcode
-									input#barcode.form-control(type="text")
-								.col-sm-4
-									label(for="country") Country of Origin
-									input#country.form-control(type="text")
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#warehouse", href="#") Warehouse
+						#warehouse.collapse
+							.card-body
+								.row.form-group
+									.col-sm-4
+										label(for="location") Location
+										input#location.form-control(type="text")
+									.col-sm-4
+										label(for="barcode") Barcode
+										input#barcode.form-control(type="text")
+									.col-sm-4
+										label(for="country") Country of Origin
+										input#country.form-control(type="text")
 					
 				.modal-footer
 					a#viewOnUSWebsite.btn.btn-default(href="https://www.ecstasycrafts.com", target="_blank") US Website

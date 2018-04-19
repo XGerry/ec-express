@@ -25,7 +25,7 @@ function doneLoadingIcon(iconId) {
 
 function doneLoadingProgress(barClass) {
 	$('.'+barClass).css('width', '100%').text('Done');
-	$('.'+barClass).removeClass('active');
+	$('.'+barClass).removeClass('pragress-bar-animated');
 	$('.'+barClass).removeClass('progress-bar-striped');
 }
 

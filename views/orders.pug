@@ -10,12 +10,10 @@ html
 			+sidebarNav("orders")
 
 			#page-content
-				.container-fluid
-					button.btn.btn-secondary.btn-toggles(type="button")#left-menu-toggle
-						i.far.fa-bars.fa-fw
-					.starter-template
-						h1 Orders
-						p.lead Use these controls to synchronize orders and inventory from 3D cart to Quickbooks.
+				+menuToggle
+				.starter-template
+					h1 Orders
+					p.lead Use these controls to synchronize orders and inventory from 3D cart to Quickbooks.
 				
 				.container
 					ul.nav.nav-tabs
@@ -25,10 +23,6 @@ html
 							a.nav-link(data-toggle="tab", href="#step3")#report Report
 					.tab-content
 						#quickSync.tab-pane.fade.show.active
-							.row
-								.col-12
-									button.btn.btn-success.mr-2(type="button")#syncInventoryAndOrders Sync Inventory and Orders
-									button.btn.btn-info(type="button")#saveInventory Save Inventory
 							.row.pt-2
 								.col-11
 									label Get Orders
@@ -72,11 +66,18 @@ html
 										.baseStockProgress.progress-bar.progress-bar-striped.progress-bar-success.progress-bar-animated(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
 								.col-1
 									i#quickRecalculate.fal.fa-square.fa-2x
-
+							.row.pt-3
+								.col-12.text-center
+									button.btn.btn-success.mr-2(type="button" tooltip="Sync inventory and orders")#syncInventoryAndOrders 
+										i.far.fa-sync.fa-2x
 						#step3.tab-pane.fade
-							button(type="button").btn.btn-default#last-import Get Last Report
-							#successes
-							#errors
+							.row.pt-3
+								.col-12.text-center
+									button(type="button").btn.btn-default#last-import Get Last Report
+							.row
+								.col-12
+									#successes
+									#errors
 
 		+footer
 					

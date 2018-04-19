@@ -262,20 +262,20 @@ function buildManifest(orders) {
 }
 
 function addManifestRow(order) {
-	var row = $('<div class="row"></div>');
-	var innerCol = $('<div class="col-lg-12"></div>');
-	var panel = $('<div class="panel"></div>');
-	var panelHeading = $('<div class="panel-heading"></div>');
-	var panelBody = $('<div class="panel-body"></div>');
+	var row = $('<div class="row pb-3"></div>');
+	var innerCol = $('<div class="col-12"></div>');
+	var panel = $('<div class="card"></div>');
+	var panelHeading = $('<div class="card-header"></div>');
+	var panelBody = $('<div class="card-body"></div>');
 	var panelRow = $('<div class="row"></div>');
-	var addressCol = $('<div class="col-lg-4 col-md-4 col-sm-4"></div>');
-	var orderDetailCol = $('<div class="col-lg-8 col-md-8 col-sm-8"></div>');
+	var addressCol = $('<div class="col-4"></div>');
+	var orderDetailCol = $('<div class="col-8"></div>');
 
 	var invoiceID = '' + order.InvoiceNumberPrefix + order.InvoiceNumber;
-	panelHeading.append($('<h4 style="display: inline-block;">'+invoiceID+'</h4>'));
-	var buttonGroup = $('<div class="btn-toolbar pull-right hide-printer"></div>');
-	var editButton = $('<button class="btn btn-default" type="button">Edit</button>');
-	var removeButton = $('<button class="btn btn-danger" type="button">Remove</button>');
+	panelHeading.append($('<h5 class="d-inline-block mb-0">'+invoiceID+'</h5>'));
+	var buttonGroup = $('<div class="btn-group float-right hide-printer"></div>');
+	var editButton = $('<button class="btn btn-sm btn-outline-primary" type="button">Edit</button>');
+	var removeButton = $('<button class="btn btn-sm btn-danger" type="button">Remove</button>');
 	buttonGroup.append(editButton);
 	buttonGroup.append(removeButton);
 	panelHeading.append(buttonGroup);
@@ -301,7 +301,7 @@ function addManifestRow(order) {
 	addressCol.append(addressInfo);
 
 	// Item Info
-	var orderDetailTable = $('<table class="table table-striped table-condensed"></table>');
+	var orderDetailTable = $('<table class="table table-striped table-sm"></table>');
 	var tableHeader = $('<thead></thead>');
 	var tableHeaderRow = $('<tr></tr>');
 	tableHeaderRow.append('<th>HTC Code</th>');
@@ -345,9 +345,7 @@ function addManifestRow(order) {
 	row.append(innerCol);
 
 	if (order.totalValue > 800) {
-		panel.addClass('panel-danger');
-	} else {
-		panel.addClass('panel-default');
+		panelHeading.addClass('bg-danger text-white');
 	}
 
 	$('#manifest').prepend(row);
@@ -428,10 +426,10 @@ function populateHTCTable(order) {
 
 function addEditableHTCRow() {
 	var row = $('<div class="row"></div>');
-	var htcCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>'); 
-	var cooCol = $('<div class="col-lg-4 col-md-4 col-sm-4 form-group"></div>'); 
-	var quantityCol = $('<div class="col-lg-2 col-md-2 col-sm-2 form-group"></div>'); 
-	var valueCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>'); 
+	var htcCol = $('<div class="col-3 form-group"></div>'); 
+	var cooCol = $('<div class="col-4 form-group"></div>'); 
+	var quantityCol = $('<div class="col-2 form-group"></div>'); 
+	var valueCol = $('<div class="col-3 form-group"></div>'); 
 
 	var htcSelect = $('<select class="form-control"></select>');
 	var htcOption1 = $('<option val="9503 00 00 90">9503 00 00 90</option>');
@@ -506,10 +504,10 @@ function addHTCtoMap(htc, coo, quantity, value) {
 
 function buildHTCTableRow(htc, coo, quantity, value, htcMap) {
 	var row = $('<div class="row"></div>');
-	var htcCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>'); 
-	var cooCol = $('<div class="col-lg-4 col-md-4 col-sm-4 form-group"></div>'); 
-	var quantityCol = $('<div class="col-lg-2 col-md-2 col-sm-2 form-group"></div>'); 
-	var valueCol = $('<div class="col-lg-3 col-md-3 col-sm-3 form-group"></div>');
+	var htcCol = $('<div class="col-3 form-group"></div>'); 
+	var cooCol = $('<div class="col-4 form-group"></div>'); 
+	var quantityCol = $('<div class="col-2 form-group"></div>'); 
+	var valueCol = $('<div class="col-3 form-group"></div>');
 
 	htcCol.text(htc);
 	cooCol.text(country);

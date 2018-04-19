@@ -42,13 +42,13 @@ mixin pickTableRow(item)
 		td= item.ItemUnitStock
 
 mixin customerInfoPanel(order)
-	.panel.panel-default
-		.panel-heading 
+	.card
+		.card-header 
 			a(data-toggle="collapse", data-target="#orderInfo").panel-title=order.InvoiceNumberPrefix + order.InvoiceNumber
-		.panel-body.panel-collapse.collapse.in#orderInfo
+		.card-body.collapse.show#orderInfo
 			.row
-				.col-lg-12.col-sm-12
-					table.table.table-striped.table-hover
+				.col-12
+					table.table.table-striped.table-hover.table-sm
 						thead
 							tr
 								th Phone
@@ -124,12 +124,12 @@ mixin customerInfoPanel(order)
 							p=order.CustomerComments
 
 mixin orderItemPanel(order)
-	.panel.panel-default
-		.panel-heading
+	.card
+		.card-header
 			a(data-toggle="collapse", data-target="#pickSheet").panel-title Pick Sheet
-		.panel-body.panel-collapse.collapse.in#pickSheet
+		.card-body.collapse.show#pickSheet
 			.row
-				.col-lg-12.col-sm-12
+				.col-12
 					table.table.table-striped.table-hover(id="pickTable"+order.InvoiceNumberPrefix+order.InvoiceNumber).pick-table
 						thead
 							tr
@@ -143,9 +143,9 @@ mixin orderItemPanel(order)
 						tbody(id="pickTableBody"+order.InvoiceNumberPrefix+order.InvoiceNumber)
 
 mixin orderSection(order)
-	.container
+	.container-fluid
 		+customerInfoPanel(order)
-	.container
+	.container-fluid.pt-2
 		+orderItemPanel(order)
 	.pagebreak
 
@@ -155,18 +155,21 @@ html
 	include includes/head
 		title Pick Sheet
 	body
-		+navbar("picksheet")
+		#wrapper
+			+sidebarNav("picksheet")
 
-		.container.top-25
-			if (order)
-				+orderSection(order)
-			else if (orders)
-				for order in orders
-					+orderSection(order)
-			else
-				h1 Error
-
-	include includes/end
+			#page-content
+				+menuToggle
+				.container.pt-3
+					h2.hide-printer Pick Sheet
+					if (order)
+						+orderSection(order)
+					else if (orders)
+						for order in orders
+							+orderSection(order)
+					else
+						h1 Error
+		+footer
 		script(type="text/javascript", src="js/moment.js")
 		script(type="text/javascript", src="js/picksheet.js")
 		if (order)

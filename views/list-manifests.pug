@@ -2,26 +2,30 @@ doctype html
 include mixins
 html
 	include includes/head
-		title Manifests
+	script(src="js/list-manifests.js")
+	title Manifests
+	
 	body
-		+navbar("list-manifests")
-		.container
-			.starter-template
-				h1 Saved Manifests
-				p.lead Select a manifest to see it in more detail and to continue working on it.
-		section
-			.container
-				.row
-					.col-lg-12
-						table.table-hover.table
-							thead
-								tr
-									th Last Modified
-									th Ship Date
-									th Number of Parcels
-							tbody#manifestTable
+		#wrapper
+			+sidebarNav("list-manifests")
 
-	include includes/end
-		script(src="js/list-manifests.js")
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 Saved Manifests
+						p.lead Select a manifest to see it in more detail and to continue working on it. Click the button below to start a new manifest.
+						a.btn.btn-success(href="/customs") New Manifest
+				.container
+					.row
+						.col-12
+							table.table-hover.table
+								thead
+									tr
+										th Last Modified
+										th Ship Date
+										th Number of Parcels
+								tbody#manifestTable
+		+footer
 		script.
 			buildTableBody(!{JSON.stringify(manifests)});

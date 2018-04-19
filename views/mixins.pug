@@ -122,7 +122,9 @@ mixin sidebarNav(active)
 	.sidebar#left-sidebar
 		ul.sidebar-nav
 			li.sidebar-brand
-				a(href="/home") Home
+				a(href="/")
+					i.fas.fa-home.fa-inverse
+					|  Home
 			li 
 				a(data-toggle="collapse" href="#quick-links").dropdown-link Quick Links 
 					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
@@ -135,7 +137,8 @@ mixin sidebarNav(active)
 					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
 				ul.collapse#orders-nav.pl-0.sub-menu
 					+internalLink("/orders", "Sync")
-					+internalLink("/new-order", "Custom Order")
+					+internalLink("/new-order", "Custom Orders")
+					+internalLink("/print-orders", "Print Orders")
 					+internalLink("/list-manifests", "Manifests")
 			li
 				a(href="#products-nav" data-toggle="collapse").dropdown-link Products
@@ -163,6 +166,11 @@ mixin internalLink(link, text)
 		a(href=link).pl-2=text
 
 mixin footer
-	footer.py-3.bg-dark.fixed-bottom
+	footer.py-3.bg-dark.fixed-bottom.hide-printer
 		.container
 			p.m-0.text-center.text-white Copyright &copy; Ecstasy Crafts 2018
+
+mixin menuToggle
+	.container-fluid.hide-printer
+		button.btn.btn-secondary.btn-toggles(type="button")#left-menu-toggle
+			i.far.fa-bars.fa-fw
