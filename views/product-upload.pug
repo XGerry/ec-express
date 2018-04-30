@@ -3,49 +3,52 @@ include mixins
 html
 	include includes/head
 		title Product Upload
+		script(src="js/product-upload.js")
 	body
-		+navbar("upload")
+		#wrapper
+			+sidebarNav("upload")
 
-		.container
-			.starter-template
-				h1 Product Upload
-				p.lead Add new items to 3D Cart, Quickbooks, Amazon and Walmart.
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 Product Upload
+						p.lead Add new items to 3D Cart, Quickbooks, Amazon and Walmart.
 
-		.container
-			.panel.panel-default
-				.panel-heading
-					h2.panel-title
-						a(data-toggle="collapse", data-target="#importPanel") Choose Template
-				#importPanel.panel-collapse.collapse.panel-body.in
-					.row
-						.col-lg-4
-							label.btn.btn-default.btn-file Browse
-								input(type="file" style="display: none;")#fileInput
-							h4#fileName
-						.col-lg-8
-							.row
-								.col-lg-2
-									.checkbox
-										label
-											input(type="checkbox")#cartCheck
-											| 3D Cart
-								.col-lg-2
-									.checkbox
-										label
-											input(type="checkbox")#amazonCheck
-											| Amazon
-								.col-lg-2
-									.checkbox
-										label
-											input(type="checkbox")#walmartCheck
-											| Walmart
-								.col-lg-2
-									.checkbox
-										label
-											input(type="checkbox")#quickbooksCheck
-											| Quickbooks
-								.col-lg-2
-									button.btn.btn-primary(type="button")#saveButton Save
-
-		include includes/end
-			script(src="js/product-upload.js")
+				.container
+					.card
+						.card-header
+							.card-title
+								a(data-toggle="collapse", data-target="#importPanel") Choose Template
+						#importPanel.collapse.show
+							.container
+								.row.pt-2
+									.col-lg-4
+										label.btn.btn-secondary.btn-file Browse
+											input(type="file" style="display: none;")#fileInput
+										h4#fileName
+									.col-lg-8
+										.row
+											.col-lg-2
+												.checkbox
+													label
+														input(type="checkbox")#cartCheck
+														|  3D Cart
+											.col-lg-2
+												.checkbox
+													label
+														input(type="checkbox")#amazonCheck
+														|  Amazon
+											.col-lg-2
+												.checkbox
+													label
+														input(type="checkbox")#walmartCheck
+														|  Walmart
+											.col-lg-2
+												.checkbox
+													label
+														input(type="checkbox")#quickbooksCheck
+														|  QB
+											.col-lg-2
+												button.btn.btn-primary(type="button")#saveButton Save
+		+footer

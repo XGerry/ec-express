@@ -12,7 +12,7 @@ html
 					button.btn.btn-secondary.btn-toggles(type="button")#left-menu-toggle
 						i.far.fa-bars.fa-fw
 					.starter-template
-						h1 Welcome
+						h1 Welcome to EC-Express
 						p.lead Have a good day at work!
 				.container-fluid.px-5
 					.row
@@ -43,9 +43,9 @@ html
 									.input-group
 										select.form-control#productsSelect
 											option Dashboard
-											option Database
-											option Feeds
-											option Upload
+											option(value="/database") Database
+											option(value="/amazon") Feeds
+											option(value="/product-upload") Upload
 										.input-group-append
 											button.btn.btn-primary#productsGoButton Go
 								.card-footer 12567 items and growing.

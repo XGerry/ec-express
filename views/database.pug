@@ -87,64 +87,65 @@ html
 		+footer
 
 	#itemModal.modal.fade(role="dialog")
-		.modal-dialog
+		.modal-dialog.modal-lg(role="document")
 			.modal-content
 				.modal-header
-					button.close(data-dismiss="modal") &times;
 					h4#itemNameTitle Item Name
+					button.close(data-dismiss="modal") &times;
 				.modal-body
-
-					.panel.panel-default
-						.panel-heading
-							h4.panel-title
+					.card
+						.card-header
+							.card-title.mb-0
 								a(data-toggle="collapse", data-target="#generalInfo") General
-						#generalInfo.panel-collapse.collapse.in
-							.panel-body
+						#generalInfo.collapse.show
+							.card-body
 								.row.form-group
-									.col-lg-6
+									.col-sm-6
 										label(for="itemSKU") SKU
 										input#itemSKU.form-control(type="text", readonly)
-									.col-lg-6
+									.col-sm-6
 										label(for="itemName") Name
 										input#itemName.form-control.enterKeySaveItem(type="text")
 								.row.form-group
-									.col-lg-6
+									.col-sm-6
 										label(for="usPrice") US Price
 										.input-group
-											span.input-group-addon
-												i.fa.fa-dollar
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
 											input#usPrice.form-control(type="number", step="any")
-									.col-lg-6
+									.col-sm-6
 										label(for="canPrice") Canadian Price
 										.input-group
-											span.input-group-addon
-												i.fa.fa-dollar
+											.input-group-prepend
+												.input-group-text
+													i.fa.fa-dollar-sign
 											input#canPrice.form-control(type="number", step="any")
 								.row.form-group
-									.col-lg-4
+									.col-sm-4
 										label(for="stock") Stock
 										input#stock.form-control(type="number")
-									.col-lg-4
+									.col-sm-4
 										label(for="usStock") US Stock
 										input#usStock.form-control(type="number")
-									.col-lg-4
+									.col-sm-4
 										label(for="canStock") Canadian Stock
 										input#canStock.form-control(type="number")
 						
-						.panel-heading
-							h4.panel-title
+						.card-header
+							.card-title.mb-0
 								a(data-toggle="collapse", data-target="#itemImagePanel") Image
-						#itemImagePanel.collapse.panel-collapse
-							.panel-body
+						#itemImagePanel.collapse
+							.card-body
 								.form-group.row
 									.col-lg-12
 										img#itemImage.img-rounded.img-responsive(src="http://via.placeholder.com/350x150")
 						
-						.panel-heading
-							h4.panel-title
+						.card-header
+							.card-title.mb-0
 								a(data-toggle="collapse", data-target="#sales") Sale
-						#sales.collapse.panel-collapse
-							.panel-body
+						#sales.collapse
+							.card-body
 								.row.form-group
 									.col-lg-3.checkbox
 										label(for="onSale")
@@ -154,77 +155,82 @@ html
 										label(for="salePercentage") Sale Percentage
 										.input-group
 											input#salePercentage.form-control(type="number")
-											span.input-group-addon
-												i.fa.fa-percent
+											.input-group-append
+												.input-group-text
+													i.far.fa-percent
 									.col-lg-3
 										label(for="usSalePrice") US Sale Price
 										.input-group
-											span.input-group-addon
-												i.fa.fa-dollar
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
 											input#usSalePrice.form-control(type="number")
 									.col-lg-3
 										label(for="canSalePrice") CAN Sale Price
 										.input-group
-											span.input-group-addon
-												i.fa.fa-dollar
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
 											input#canSalePrice.form-control(type="number")
 						
-						.panel-heading
-							h4.panel-title
+						.card-header
+							.card-title.mb-0
 								a(data-toggle="collapse", data-target="#warehouse") Warehouse
-						#warehouse.collapse.panel-collapse.panel-body
-							.row.form-group
-								.col-lg-4
-									label(for="location") Location
-									input#location.form-control(type="text")
-								.col-lg-4
-									label(for="barcode") Barcode
-									input#barcode.form-control(type="text")
-								.col-lg-4
-									label(for="country") Country of Origin
-									input#country.form-control(type="text")
-					
-						.panel-heading
-							h4.panel-title
+						#warehouse.collapse
+							.card-body
+								.row.form-group
+									.col-lg-4
+										label(for="location") Location
+										input#location.form-control(type="text")
+									.col-lg-4
+										label(for="barcode") Barcode
+										input#barcode.form-control(type="text")
+									.col-lg-4
+										label(for="country") Country of Origin
+										input#country.form-control(type="text")
+						
+						.card-header
+							.card-title.mb-0
 								a(data-toggle="collapse", data-target="#advanced") Advanced
-						#advanced.collapse.panel-collapse.panel-body
-							.row.form-group.checkbox
-								.col-lg-3
-									label(for="itemHidden")
-										input#itemHidden(type="checkbox")
-										| Hidden
-								.col-lg-3
-									label(for="itemInactive")
-										input#itemInactive(type="checkbox")
-										| Inactive
-								.col-lg-3
-									label(for="itemIsOption")
-										input#itemIsOption(type="checkbox")
-										| Is Option
-								.col-lg-3
-									label(for="itemHasOptions")
-										input#itemHasOptions(type="checkbox")
-										| Has Options
-							.row.form-group
-								.col-lg-6
-									label(for="catalogIdUS") US Catalog ID
-									input#catalogIdUS.form-control(type="text", readonly)
-								.col-lg-6
-									label(for="catalogIdCanModal") Canadian Catalog ID
-									input#catalogIdCanModal.form-control(type="text", readonly)
-							.row.form-group
-								.col-lg-6
-									label(for="optionId") US Option ID
-									input#optionId.form-control(type="text", readonly)
-								.col-lg-6
-									label(for="optionIdCan") Canadian Option ID
-									input#optionIdCan.form-control(type="text", readonly) 		
+						#advanced.collapse
+							.card-body
+								.row.form-group.checkbox
+									.col-lg-3
+										label(for="itemHidden")
+											input#itemHidden(type="checkbox")
+											| Hidden
+									.col-lg-3
+										label(for="itemInactive")
+											input#itemInactive(type="checkbox")
+											| Inactive
+									.col-lg-3
+										label(for="itemIsOption")
+											input#itemIsOption(type="checkbox")
+											| Is Option
+									.col-lg-3
+										label(for="itemHasOptions")
+											input#itemHasOptions(type="checkbox")
+											| Has Options
+								.row.form-group
+									.col-lg-6
+										label(for="catalogIdUS") US Catalog ID
+										input#catalogIdUS.form-control(type="text", readonly)
+									.col-lg-6
+										label(for="catalogIdCanModal") Canadian Catalog ID
+										input#catalogIdCanModal.form-control(type="text", readonly)
+								.row.form-group
+									.col-lg-6
+										label(for="optionId") US Option ID
+										input#optionId.form-control(type="text", readonly)
+									.col-lg-6
+										label(for="optionIdCan") Canadian Option ID
+										input#optionIdCan.form-control(type="text", readonly) 		
 				.modal-footer
-					a#viewOnUSWebsite.btn.btn-default(href="https://www.ecstasycrafts.com", target="_blank") View on US Website
-					a#viewOnCanWebsite.btn.btn-default(href="https://www.ecstasycrafts.ca", target="_blank") View on Canadian Website
+					a#viewOnUSWebsite.btn.btn-secondary(href="https://www.ecstasycrafts.com", target="_blank") View on US Website
+					a#viewOnCanWebsite.btn.btn-secondary(href="https://www.ecstasycrafts.ca", target="_blank") View on Canadian Website
 					button#saveItemButton.btn.btn-success(type="button") Save
 					button#hideUnhide.btn.btn-info(type="button") Hide
-					button.btn.btn-default(type="button", data-dismiss="modal") Cancel
+					button.btn.btn-primary(type="button", data-dismiss="modal") Cancel
 
 	include includes/end
 		script(src="/js/database.js")
