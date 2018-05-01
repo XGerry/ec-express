@@ -7,6 +7,7 @@
  var helpers = require('./helpers');
  var walmart = require('./walmart');
  var Settings = require('./model/settings');
+ var CustomOrder = require('./model/customOrder');
  var Item = require('./model/item');
 
  module.exports = function(io, qbws) {
@@ -306,10 +307,16 @@
  			});
  		});
 
- 		socket.on('saveCustomOrder', order => {
- 			var savingOrder = cart3d.saveCustomOrder(order);
+ 		socket.on('saveCustomOrder', (order, saveToSite) => {
+ 			var savingOrder = cart3d.saveCustomOrder(order, saveToSite);
  			savingOrder.then(response => {
- 				socket.emit('saveCustomOrderFinished', response);
+ 				socket.emit('saveCustomOrderToSiteFinished', response);
+ 			});
+ 		});
+
+ 		socket.on('deleteCustomOrder', order => {
+ 			CustomOrder.remove({_id: order._id}).then(() => {
+ 				socket.emit('deleteCustomOrderFinished');
  			});
  		});
 

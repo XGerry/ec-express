@@ -36,7 +36,7 @@ html
 								input(type="file" style="display:none;")#fileInput
 								a.dropdown-item(href="#", data-toggle="modal", data-target="#orderImportModal") Enter invoice number
 						.btn-group
-							button.btn.btn-success(type="button") Save
+							button.btn.btn-success(type="button")#saveOrderButton Save
 							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
 							.dropdown-menu.dropdown-menu-right
 								a.dropdown-item(href="#")#saveToSiteButton Save to 3D Cart
@@ -391,3 +391,5 @@ html
 					button#saveItemButton.btn.btn-success(type="button") Save
 					button#removeFromOrderButton.btn.btn-danger(type="button") Remove
 					button.btn.btn-default(type="button", data-dismiss="modal") Cancel
+script.
+	loadOrder(!{JSON.stringify(order)})

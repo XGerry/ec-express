@@ -1,9 +1,9 @@
 mixin tableRow(order)
 	tr
 		td
-			a(href="/show-order?id="+order._id)=order.orderId
+			a(href="/new-order?id="+order._id)=order.orderId
 		td=order.customer.firstname + ' ' + order.customer.lastname
-		td=order.showItems.length
+		td=order.items.length
 
 doctype html
 include mixins
@@ -18,8 +18,9 @@ html
 				+menuToggle
 				.container
 					.starter-template
-						h1 All Show Orders
+						h1 All Custom Orders
 						p.lead Select and order to see it in more detail.
+						a.btn.btn-outline-success(href="/customs") New Order
 				.container
 					.row
 						.col-12

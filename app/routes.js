@@ -3,6 +3,7 @@ var path = require('path');
 var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
 var Order = require('./model/order');
+var CustomOrder = require('./model/customOrder');
 var Item = require('./model/item');
 var Manifest = require('./model/manifest');
 var cart3d = require('./3dcart');
@@ -142,7 +143,16 @@ module.exports = function(app, passport) {
   });
 
   app.get('/new-order', function(req, res) {
-    res.render('new-order');
+    var customId = req.query.id;
+    if (customId) {
+      CustomOrder.findOne({_id: customId}).then(order => {
+        res.render('new-order', {
+          order: order
+        });
+      });
+    } else {
+      res.render('new-order');
+    }
   });
 
   app.get('/order-import', function(req, res) {
@@ -245,10 +255,10 @@ module.exports = function(app, passport) {
   });
 
   app.get('/list-orders', (req, res) => {
-    var findOrders = ShowOrder.find({});
-    findOrders.then((showOrders) => {
+    var findOrders = CustomOrder.find({});
+    findOrders.then((customOrders) => {
       res.render('list-orders', {
-        orders: showOrders
+        orders: customOrders
       });
     });
   });

@@ -1327,7 +1327,7 @@ function saveShowOrder(order) {
   });
 }
 
-function saveCustomOrder(order) {
+function saveCustomOrder(order, saveToSite) {
   var findOrder;
   if (order._id) {
     findOrder = CustomOrder.findOne({_id: order._id});
@@ -1363,36 +1363,42 @@ function saveCustomOrder(order) {
   });
 
   return savingOrder.then(dbOrder => {
-    var cartOrder = buildCartOrder(dbOrder.customer);
-    var comments = dbOrder.comments;
-    comments += '\n';
-    comments += 'PO: ' + dbOrder.poNumber;
-
-    cartOrder.InternalComments = 'Custom Order';
-    cartOrder.CustomerComments = comments;
-    cartOrder.SalesTax = dbOrder.tax;
-    cartOrder.ShipmentList[0].ShipmentCost = dbOrder.shipping;
-    cartOrder.ShipmentList[0].ShipmentMethodName = dbOrder.shippingMethod;
-    cartOrder.OrderDiscountPromotion = dbOrder.discount;
-
-    dbOrder.items.forEach(item => {
-      var orderItem = buildOrderItem(item, dbOrder.customer);
-      cartOrder.OrderItemList.push(orderItem);
-    });
-
-    var saveToWebsite = saveOrder(cartOrder, dbOrder.orderId, dbOrder.customer.website == 'canada');
-    return saveToWebsite.then((response) => {
-      if (response[0].Status == '201' || response[0].Status == '200') { // success
-        dbOrder.orderId = response[0].Value;
-        return dbOrder.save();
-      } else {
-        return dbOrder;
+    if (saveToSite) {
+      var cartOrder = buildCartOrder(dbOrder.customer);
+      var comments = dbOrder.comments;
+      if (comments != null || comments != '') {
+        comments += '\n';
+        comments += 'PO: ' + dbOrder.poNumber;
       }
-      console.log(response);
-    }).catch((message) => {
-      console.log(message);
-      return Promise.reject(new Error(message));
-    });
+
+      cartOrder.InternalComments = 'Custom Order';
+      cartOrder.CustomerComments = comments;
+      cartOrder.SalesTax = dbOrder.tax;
+      cartOrder.ShipmentList[0].ShipmentCost = dbOrder.shipping;
+      cartOrder.ShipmentList[0].ShipmentMethodName = dbOrder.shippingMethod;
+      cartOrder.OrderDiscountPromotion = dbOrder.discount;
+
+      dbOrder.items.forEach(item => {
+        var orderItem = buildOrderItem(item, dbOrder.customer);
+        cartOrder.OrderItemList.push(orderItem);
+      });
+
+      var saveToWebsite = saveOrder(cartOrder, dbOrder.orderId, dbOrder.customer.website == 'canada');
+      return saveToWebsite.then((response) => {
+        if (response[0].Status == '201' || response[0].Status == '200') { // success
+          dbOrder.orderId = response[0].Value;
+          return dbOrder.save();
+        } else {
+          return dbOrder;
+        }
+        console.log(response);
+      }).catch((message) => {
+        console.log(message);
+        return Promise.reject(new Error(message));
+      });
+    } else {
+      return dbOrder;
+    }
   });
 }
 

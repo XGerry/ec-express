@@ -47,8 +47,13 @@ $(document).ready(function() {
 	});
 
 	$('#saveToSiteButton').click(function(e) {
-		$('#saveToSiteButton').button('loading');
-		socket.emit('saveCustomOrder', generateOrder());
+		$('#saveButton').button('loading');
+		socket.emit('saveCustomOrder', generateOrder(), true);
+	});
+
+	$('#saveOrderButton').click(e => {
+		$('#saveButton').button('loading');
+		socket.emit('saveCustomOrder', generateOrder(), false);
 	});
 
 	$('#sameAsShippingButton').click(function(e) {
@@ -117,6 +122,13 @@ $(document).ready(function() {
 		calculateTotals();
 		$('#itemModal').modal('hide');
 	});
+
+	$('#deleteOrder').click(e => {
+		e.preventDefault();
+		var confirmation = confirm('Are you sure you want to remove this order? This will not cancel the order in 3D Cart.');
+		if (confirmation)
+			socket.emit('deleteCustomOrder', theOrder);
+	})
 
 	$('#fileInput').on('change', e => {
 		console.log('file change');
@@ -203,6 +215,10 @@ socket.on('searchFinished', function(items) {
 	}
 });
 
+socket.on('deleteCustomOrderFinished', () => {
+	window.location = '/list-orders';
+});
+
 socket.on('searchCustomer3DCartFinished', (err, customer) => {
 	$('#searchCustomerButton').button('reset');
 	if (err) {
@@ -233,13 +249,47 @@ socket.on('findingItemsFinished', items => {
 
 socket.on('saveCustomOrderFinished', order => {
 	theOrder = order;
-	$('#saveToSiteButton').button('reset');
-	// put the notes in
+	$('#saveOrderButton').button('reset');
 });
 
 function loadFromFile(items) {
 	originalCSV = items;
 	socket.emit('findItemsForOrder', items);
+}
+
+function loadOrder(customOrder) {
+	console.log(customOrder);
+	theOrder = customOrder;
+
+	// populate customer
+	theCustomer = customOrder.customer;
+	addCustomerRow(customOrder.customer);
+
+	// populate items
+	itemsInOrder = customOrder.items;
+	buildOrderTable();
+
+	// populate options
+	setOptions(customOrder);
+	calculateTotals();
+}
+
+function setOptions(customOrder) {
+	if (customOrder.discountType)
+		$('#discountType').val(customOrder.discountType);
+	if (!isNaN(customOrder.discountValue))
+		$('#discount').val(parseFloat(customOrder.discountValue));
+	if (!isNaN(customOrder.discount))
+		$('#totalDiscount').val(parseFloat(customOrder.discount));
+	if (customOrder.shippingMethod)
+		$('#shippingOptions').val(customOrder.shippingMethod);
+	if (!isNaN(customOrder.shipping))
+		$('#shippingValue').val(parseFloat(customOrder.shipping));
+	if (!isNaN(customOrder.tax))
+		$('#taxOptions').val(parseFloat(customOrder.tax));
+	if (customOrder.poNumber)
+		$('#poNumber').val(customOrder.poNumber);
+	$('#notesArea').val(customOrder.comments);
 }
 
 function addItemToOrder() {
@@ -499,16 +549,18 @@ function calculateTotals() {
 	});
 
 	var discountType = $('#discountType').val();
+	var discountValue = parseFloat($('#discount').val());
+	var discPercentage = 0;
 	if (discountType == 'percentage') {
 		var discPercentage = parseFloat($('#discount').val());
-		if (discPercentage > 0) {
-			discPercentage = discPercentage / 100;
+		if (discountValue > 0) {
+			discPercentage = discountValue / 100;
 		} else {
 			discPercentage = 0;
 		}
 		discount = subTotal * discPercentage;
 	} else {
-		discount = parseFloat($('#discount').val());
+		discount = discountValue;
 	}
 
 	shipping = parseFloat($('#shipping').val());
@@ -527,6 +579,7 @@ function calculateTotals() {
 	theOrder.tax = salesTax.toFixed(2);
 	theOrder.shipping = shipping.toFixed(2);
 	theOrder.shippingMethod = $('#shippingOptions').val();
+	theOrder.discountValue = discountValue;
 }
 
 function generateOrder() {
@@ -534,5 +587,6 @@ function generateOrder() {
 	theOrder.items = itemsInOrder;
 	theOrder.comments = $('#notesArea').val();
 	theOrder.poNumber = $('#poNumber').val();
+	theOrder.discountType = $('#discountType').val();
 	return theOrder;
 }

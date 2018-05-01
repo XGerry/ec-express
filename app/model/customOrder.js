@@ -12,10 +12,13 @@ var customOrderSchema = new mongoose.Schema({
 		type: Number,
 		default: 0
 	},
+	discountType: String,
+	discountValue: Number,
 	tax: Number,
 	shipping: Number,
 	shippingMethod: String,
-	poNumber: String
+	poNumber: String,
+	invoiceNumber: String
 });
 
 module.exports = mongoose.model('CustomOrder', customOrderSchema);
