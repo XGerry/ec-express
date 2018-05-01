@@ -308,9 +308,10 @@
  		});
 
  		socket.on('saveCustomOrder', (order, saveToSite) => {
+ 			console.log('saving custom order');
  			var savingOrder = cart3d.saveCustomOrder(order, saveToSite);
  			savingOrder.then(response => {
- 				socket.emit('saveCustomOrderToSiteFinished', response);
+ 				socket.emit('saveCustomOrderFinished', response);
  			});
  		});
 

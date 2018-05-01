@@ -52,6 +52,7 @@ $(document).ready(function() {
 	});
 
 	$('#saveOrderButton').click(e => {
+		console.log('saving...');
 		$('#saveButton').button('loading');
 		socket.emit('saveCustomOrder', generateOrder(), false);
 	});
@@ -250,6 +251,10 @@ socket.on('findingItemsFinished', items => {
 socket.on('saveCustomOrderFinished', order => {
 	theOrder = order;
 	$('#saveOrderButton').button('reset');
+	$('#orderInfo').text('Saved successfully.');
+	setTimeout(() => {
+		$('#orderInfo').text('');
+	}, 3000);
 });
 
 function loadFromFile(items) {
@@ -258,20 +263,22 @@ function loadFromFile(items) {
 }
 
 function loadOrder(customOrder) {
-	console.log(customOrder);
-	theOrder = customOrder;
+	if (customOrder) {
+		console.log(customOrder);
+		theOrder = customOrder;
 
-	// populate customer
-	theCustomer = customOrder.customer;
-	addCustomerRow(customOrder.customer);
+		// populate customer
+		theCustomer = customOrder.customer;
+		addCustomerRow(customOrder.customer);
 
-	// populate items
-	itemsInOrder = customOrder.items;
-	buildOrderTable();
+		// populate items
+		itemsInOrder = customOrder.items;
+		buildOrderTable();
 
-	// populate options
-	setOptions(customOrder);
-	calculateTotals();
+		// populate options
+		setOptions(customOrder);
+		calculateTotals();
+	}
 }
 
 function setOptions(customOrder) {

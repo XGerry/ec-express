@@ -1,7 +1,11 @@
 mixin tableRow(order)
 	tr
 		td
-			a(href="/new-order?id="+order._id)=order.orderId
+			a(href="/new-order?id="+order._id) 
+				if order.orderId
+					=order.orderId
+				else
+					= "Not Saved to 3D Cart"
 		td=order.customer.firstname + ' ' + order.customer.lastname
 		td=order.items.length
 
@@ -20,7 +24,7 @@ html
 					.starter-template
 						h1 All Custom Orders
 						p.lead Select and order to see it in more detail.
-						a.btn.btn-outline-success(href="/customs") New Order
+						a.btn.btn-outline-success(href="/new-order") New Order
 				.container
 					.row
 						.col-12
