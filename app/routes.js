@@ -279,4 +279,8 @@ module.exports = function(app, passport) {
   app.get('/print-orders', (req, res) => {
     res.render('print-orders');
   });
+
+  app.get('/deliveries', (req, res) => {
+    res.render('deliveries');
+  });
 }

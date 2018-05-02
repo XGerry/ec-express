@@ -44,7 +44,7 @@ mixin pickTableRow(item)
 mixin customerInfoPanel(order)
 	.card
 		.card-header 
-			a(data-toggle="collapse", data-target="#orderInfo").panel-title=order.InvoiceNumberPrefix + order.InvoiceNumber
+			a(data-toggle="collapse", data-target="#orderInfo").card-title=order.InvoiceNumberPrefix + order.InvoiceNumber
 		.card-body.collapse.show#orderInfo
 			.row
 				.col-12
@@ -55,13 +55,13 @@ mixin customerInfoPanel(order)
 								th Email
 								th Order Date
 								th Customer Type
-						tbody#infoTableBody
+						tbody.infoTableBody
 							tr
 								td= order.ShipmentList[0].ShipmentPhone
-								td= order.BillingEmail
+								td.email= order.BillingEmail
 								td= moment(new Date(order.OrderDate)).format('dddd MMM Do YYYY, h:mm:ss a')
 								td(id="customerType"+order.InvoiceNumberPrefix+order.InvoiceNumber)
-					table.table.table-striped.table-hover
+					table.table.table-striped.table-hover.table-sm
 						thead 
 							tr
 								th Payment Method
@@ -69,7 +69,7 @@ mixin customerInfoPanel(order)
 								th Value
 								th Ship Method
 								th Ship Cost
-						tbody
+						tbody.infoTableBody
 							tr
 								td= order.BillingPaymentMethod
 								td(id="totalItems"+order.InvoiceNumberPrefix+order.InvoiceNumber)
@@ -85,26 +85,26 @@ mixin customerInfoPanel(order)
 					.row
 						.col-lg-6.col-sm-6
 							h4 Status
+							label.checkbox-inline.pr-2
+								input(type="checkbox")
+								|  Completed (Ship)
 							label.checkbox-inline
 								input(type="checkbox")
-								| Completed (Ship)
-							label.checkbox-inline
-								input(type="checkbox")
-								| Hold (Do Not Ship)
+								|  Hold (Do Not Ship)
 						.col-lg-6.col-sm-6
 							h4 Reason
+							label.checkbox-inline.pr-2
+								input(type="checkbox")
+								|  Back-Order
+							label.checkbox-inline.pr-2
+								input(type="checkbox")
+								|  Pre-Order
+							label.checkbox-inline.pr-2
+								input(type="checkbox")
+								|  Awaiting Payment
 							label.checkbox-inline
 								input(type="checkbox")
-								| Back-Order
-							label.checkbox-inline
-								input(type="checkbox")
-								| Pre-Order
-							label.checkbox-inline
-								input(type="checkbox")
-								| Awaiting Payment
-							label.checkbox-inline
-								input(type="checkbox")
-								| Other
+								|  Other
 					.row.form-group
 						.col-lg-4
 							label Carrier / Package Type
@@ -126,7 +126,7 @@ mixin customerInfoPanel(order)
 mixin orderItemPanel(order)
 	.card
 		.card-header
-			a(data-toggle="collapse", data-target="#pickSheet").panel-title Pick Sheet
+			a(data-toggle="collapse", data-target="#pickSheet").card-title Pick Sheet
 		.card-body.collapse.show#pickSheet
 			.row
 				.col-12
@@ -137,7 +137,7 @@ mixin orderItemPanel(order)
 								th.text-center SKU
 								th.text-center Quantity
 								th.text-center Picked
-								th Adjustments
+								th Changes
 								th(style="width:30%") Description
 								th Stock Level
 						tbody(id="pickTableBody"+order.InvoiceNumberPrefix+order.InvoiceNumber)

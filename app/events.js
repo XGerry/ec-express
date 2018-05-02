@@ -525,5 +525,11 @@
  				console.log('Done the refresh');
  			});
  		});
+
+ 		socket.on('getManufacturers', canadian => {
+ 			cart3d.getManufacturers(canadian).then(response => {
+ 				socket.emit('getManufacturersFinished', response);
+ 			});
+ 		});
  	});
  }

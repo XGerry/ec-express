@@ -1555,6 +1555,14 @@ function calculateBaseItemStock(progressCallback) {
   });
 }
 
+function getManufacturers(canadian) {
+  var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Manufacturers', 'GET', canadian);
+  options.qs = {
+    limit: 200
+  }
+  return rp(options);
+}
+
 module.exports = {
  	getItems: getItems,
   refreshFrom3DCart: refreshFrom3DCart,
@@ -1578,5 +1586,6 @@ module.exports = {
   searchCustomer: searchCustomer,
   saveCustomOrder: saveCustomOrder,
   moveOrders: moveOrders,
-  calculateBaseItemStock: calculateBaseItemStock
+  calculateBaseItemStock: calculateBaseItemStock,
+  getManufacturers: getManufacturers
 }

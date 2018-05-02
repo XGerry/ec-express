@@ -1,0 +1,71 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title List Orders
+		script(src="/js/deliveries.js")
+	body
+		#wrapper
+			+sidebarNav("deliveries")
+			
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 Deliveries
+						p.lead Select the delivery to view it in more detail.
+						button.btn.btn-outline-success(data-target="#deliveryModal" data-toggle="modal") New Delivery
+				.container-fluid
+					.row
+						.col-12
+							table.table-hover.table
+								thead
+									tr
+										th Delivery ID
+										th Manufacturer
+										th PO
+										th Expected Delivery Date
+										th Status
+								tbody
+									tr
+										td 12445
+										td Joy! Crafts
+										td PO-12345
+										td May 24, 2017
+										td Waiting
+		+footer
+
+	#deliveryModal.modal.fade(role="dialog")
+		.modal-dialog.modal-lg(role="document")
+			.modal-content
+				.modal-header
+					h5#deliveryTitle.mb-0 New Delivery
+					button.close(data-dismiss="modal") &times;
+				.modal-body
+					.form-group.row
+						.col-6
+							label(for="deliveryId") Delivery ID
+							input(type="text").form-control#deliveryId
+						.col-6
+							label(for="manufacturerSelect") Manufacturer
+							select.form-control#manufacturerSelect
+								option(value="joy") Joy
+								option(value="14") Nellie
+								option(value="0") Aladine
+					.form-group.row
+						.col-6
+							label(for="expectedDeliveryDate") Delivery Date
+							input#expectedDeliveryDate.form-control(type="date")
+						.col-6
+							label(for="deliveryStatus") Status
+							select#deliveryStatus.form-control
+								option(value="Awaiting Delivery") Processing
+								option In-Transit
+								option Awaiting Put-Away
+								option Done
+					.form-group.row
+						.col-6
+							label(for="PO")
+				.modal-footer
+					button#saveCustomerButton.btn.btn-success(type="button") Add
+					button.btn.btn-default(type="button", data-dismiss="modal") Cancel
