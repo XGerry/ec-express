@@ -124,23 +124,19 @@ mixin customerInfoPanel(order)
 							p=order.CustomerComments
 
 mixin orderItemPanel(order)
-	.card
-		.card-header
-			a(data-toggle="collapse", data-target="#pickSheet").card-title Pick Sheet
-		.card-body.collapse.show#pickSheet
-			.row
-				.col-12
-					table.table.table-striped.table-hover(id="pickTable"+order.InvoiceNumberPrefix+order.InvoiceNumber).pick-table
-						thead
-							tr
-								th.text-center(style="width:14%") Location
-								th.text-center SKU
-								th.text-center Quantity
-								th.text-center Picked
-								th Changes
-								th(style="width:30%") Description
-								th Stock Level
-						tbody(id="pickTableBody"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+	h3 Pick Sheet
+	#pickSheet
+		table.table.table-striped.table-hover(id="pickTable"+order.InvoiceNumberPrefix+order.InvoiceNumber).pick-table
+			thead
+				tr
+					th.text-center(style="width:14%") Location
+					th.text-center SKU
+					th.text-center Quantity
+					th.text-center Picked
+					th Changes
+					th(style="width:30%") Description
+					th Stock Level
+			tbody(id="pickTableBody"+order.InvoiceNumberPrefix+order.InvoiceNumber)
 
 mixin orderSection(order)
 	.container-fluid
