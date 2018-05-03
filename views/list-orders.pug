@@ -8,12 +8,25 @@ mixin tableRow(order)
 					= "Not Saved to 3D Cart"
 		td=order.customer.firstname + ' ' + order.customer.lastname
 		td=order.items.length
+		td
+			if (order.customer.website == 'us')
+				| U.S.
+			else
+				| Canada
+		td=  moment(new Date(order.createdDate)).format('MMM Do, YYYY')
 
 doctype html
 include mixins
 html
 	include includes/head
 		title List Orders
+	script.
+		$(document).ready(e => {
+			$('#orderTable').DataTable({
+				pageLength: 10,
+				order: [[4, 'desc']]
+			})
+		});
 	body
 		#wrapper
 			+sidebarNav("list-orders")
@@ -25,15 +38,17 @@ html
 						h1 All Custom Orders
 						p.lead Select and order to see it in more detail.
 						a.btn.btn-outline-success(href="/new-order") New Order
-				.container
+				.container-fluid
 					.row
 						.col-12
-							table.table-hover.table
+							table.table-hover.table#orderTable
 								thead
 									tr
-										th Order Number
+										th Invoice Number
 										th Customer Name
 										th Items
+										th Website
+										th Created Date
 								tbody
 									each order in orders
 										+tableRow(order)

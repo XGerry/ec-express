@@ -59,7 +59,7 @@ mixin customerInfoPanel(order)
 							tr
 								td= order.ShipmentList[0].ShipmentPhone
 								td.email= order.BillingEmail
-								td= moment(new Date(order.OrderDate)).format('dddd MMM Do YYYY, h:mm:ss a')
+								td= moment(new Date(order.OrderDate)).format('dddd MMM Do, h:mm:ss a')
 								td(id="customerType"+order.InvoiceNumberPrefix+order.InvoiceNumber)
 					table.table.table-striped.table-hover.table-sm
 						thead 

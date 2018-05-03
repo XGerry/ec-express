@@ -251,10 +251,17 @@ socket.on('findingItemsFinished', items => {
 socket.on('saveCustomOrderFinished', order => {
 	theOrder = order;
 	$('#saveOrderButton').button('reset');
-	$('#orderInfo').text('Saved successfully.');
+	var invoiceNumber = order.invoiceNumber;
+	console.log(invoiceNumber);
+	var message = 'Saved successfully.';
+	if (invoiceNumber != undefined) {
+		message += ' ' + invoiceNumber;
+		$('#orderNavTitle').text(invoiceNumber);
+	}
+	$('#orderInfo').text(message);
 	setTimeout(() => {
 		$('#orderInfo').text('');
-	}, 3000);
+	}, 5000);
 });
 
 function loadFromFile(items) {
@@ -266,6 +273,10 @@ function loadOrder(customOrder) {
 	if (customOrder) {
 		console.log(customOrder);
 		theOrder = customOrder;
+
+		if (customOrder.invoiceNumber) {
+			$('#orderNavTitle').text(customOrder.invoiceNumber);
+		}
 
 		// populate customer
 		theCustomer = customOrder.customer;

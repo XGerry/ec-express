@@ -468,18 +468,6 @@
  			});
  		});
 
- 		socket.on('saveShowOrder', function(order) {
- 			var savingOrder = cart3d.saveShowOrder(order);
- 			savingOrder.then((response) => {
- 				console.log('finished the promise');
- 				socket.emit('saveShowOrderFinished', null, response);
- 			}).catch(err => {
- 				console.log('caught an error');
- 				console.log(err);
- 				socket.emit('saveShowOrderFinished', err, null);
- 			});
- 		});
-
  		socket.on('saveManifest', function(manifest) {
  			var savingManifest = helpers.saveManifest(manifest);
  			savingManifest.then(newManifest => {

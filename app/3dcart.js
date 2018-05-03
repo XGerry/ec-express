@@ -1177,156 +1177,6 @@ function saveItemMultiple(items, qbws) {
   });
 }
 
-function saveShowOrder(order) {
-  var promises = [];
-  var customer = order.customer;
-
-  var findShowOrder = ShowOrder.findOne({_id: order._id});
-  var savedOrder = findShowOrder.then((showOrder) => {
-    if (showOrder) {
-      showOrder.customer = order.customer;
-      showOrder.showItems = order.showItems;
-      showOrder.markModified('customer');
-      showOrder.markModified('showItems');
-      showOrder.notes = order.notes;
-      showOrder.coupon = order.coupon;
-      showOrder.discount = order.discount;
-      return showOrder.save();
-    } else {
-      var newOrder = new ShowOrder();
-      newOrder.customer = order.customer;
-      newOrder.showItems = order.showItems;
-      newOrder.notes = order.notes;
-      newOrder.coupon = order.coupon;
-      newOrder.discount = order.discount;
-      return newOrder.save();
-    }
-  });
-
-  order.showItems.forEach(function(item) {
-    promises.push(Item.findOne({sku: item.sku}));
-  });
-
-  return savedOrder.then((dbShowOrder) => {
-    return Promise.all(promises).then((dbItems) => {
-      var skus = [];
-      var cartOrder = {
-        BillingFirstName: customer.firstname,
-        BillingLastName: customer.lastname,
-        BillingAddress: customer.billingAddress,
-        BillingAddress2: customer.billingAddress2,
-        BillingCompany: customer.companyName,
-        BillingCity: customer.billingCity,
-        BillingState: customer.billingState,
-        BillingCountry: customer.billingCountry,
-        BillingZipCode: customer.billingZipCode,
-        BillingPhoneNumber: customer.phone,
-        BillingEmail: customer.email,
-        BillingPaymentMethod: 'On Account',
-        BillingPaymentMethodID: '49', // need to look up all of these
-        ShipmentList: [{
-          ShipmentOrderStatus: 1, // NEW
-          ShipmentFirstName: customer.firstname,
-          ShipmentLastName: customer.lastname,
-          ShipmentAddress: customer.shippingAddress,
-          ShipmentCity: customer.shippingCity,
-          ShipmentState: customer.shippingState,
-          ShipmentCountry: customer.shippingCountry,
-          ShipmentZipCode: customer.shippingZipCode,
-          ShipmentPhone: customer.phone
-        }],
-        OrderItemList: [],
-        CustomerComments: dbShowOrder.notes,
-        InternalComments: 'Show Order',
-        SalesTax: '0.00',
-        OrderStatusID: 1 // NEW
-      };
-
-      if (customer.companyName) {
-        cartOrder.BillingCompany = customer.companyName;
-        cartOrder.ShipmentList[0].ShipmentCompany = customer.companyName;
-      }
-
-      order.showItems.forEach(item => {
-        skus.push(item.sku);
-        // find the item in the db
-        var orderItem = {};
-        var foundItem = false;
-        dbItems.forEach(dbItem => {
-          if (dbItem && item.sku == dbItem.sku) {
-            var price = 0;
-            var stock = 0;
-            var quantity = 0;
-            if (customer.website == 'canada') {
-              price = dbItem.canPrice;
-              stock = dbItem.canStock;
-            } else {
-              price = dbItem.usPrice;
-              stock = dbItem.usStock;
-            }
-            if (customer.profile == '2' || customer.profile == '14') { // wholesale
-              price = (price / 2); // this should actually use the real wholesale pricing
-            }
-
-            if (order.discount != 0 && order.discount != '') {
-              var discountPercentage = order.discount / 100;
-              discountPercentage = 1 - discountPercentage;
-              price = price * discountPercentage;
-            }
-
-            // if (stock < item.quantity) {
-            //   quantity = stock;
-            // } else {
-            //   quantity = item.quantity;
-            // }
-
-            // if (stock <= 0) { // back order it
-            //   quantity = 0;
-            // }
-
-            quantity = item.quantity; // give the customer what they wanted!
-
-            foundItem = true;
-            orderItem = {
-              ItemID: item.sku.trim(),
-              ItemQuantity: quantity,
-              ItemUnitPrice: price,
-              ItemDescription: dbItem.name,
-              ItemUnitStock: stock
-            };
-            if (customer.website == 'canada') {
-              orderItem.CatalogID = dbItem.catalogIdCan;
-            } else {
-              orderItem.CatalogID = dbItem.catalogId;
-            }
-          }
-        });
-        if (foundItem) {
-          cartOrder.OrderItemList.push(orderItem);
-        } else {
-          cartOrder.CustomerComments += '\n Item: ' + item.sku + ' Quantity: ' + item.quantity + '.';
-        }
-      });
-
-      console.log(dbShowOrder.orderId);
-
-      var saveToWebsite = saveOrder(cartOrder, dbShowOrder.orderId, customer.website == 'canada');
-      return saveToWebsite.then((response) => {
-        if (response[0].Status == '201' || response[0].Status == '200') { // success
-          dbShowOrder.orderId = response[0].Value;
-          return dbShowOrder.save();
-        } else {
-          return dbShowOrder;
-        }
-        console.log(response);
-      }).catch((message) => {
-        console.log(message);
-        return Promise.reject(new Error(message));
-      });
-    });
-  });
-}
-
 function saveCustomOrder(order, saveToSite) {
   var findOrder;
   if (order._id) {
@@ -1337,6 +1187,7 @@ function saveCustomOrder(order, saveToSite) {
   
   var savingOrder = findOrder.then(dbOrder => {
     if (dbOrder) {
+      var now = new Date();
       dbOrder.customer = order.customer;
       dbOrder.items = order.items;
       dbOrder.discount = order.discount;
@@ -1347,8 +1198,10 @@ function saveCustomOrder(order, saveToSite) {
       dbOrder.poNumber = order.poNumber;
       dbOrder.markModified('customer');
       dbOrder.markModified('items');
+      dbOrder.lastModified = now;
       return dbOrder.save();
     } else {
+      var now = new Date();
       var newOrder = new CustomOrder();
       newOrder.customer = order.customer;
       newOrder.items = order.items;
@@ -1358,6 +1211,8 @@ function saveCustomOrder(order, saveToSite) {
       newOrder.shippingMethod = order.shippingMethod;
       newOrder.comments = order.comments;
       newOrder.poNumber = order.poNumber;
+      newOrder.createdDate = now;
+      newOrder.lastModified = now;
       return newOrder.save();
     }
   });
@@ -1387,11 +1242,8 @@ function saveCustomOrder(order, saveToSite) {
       return saveToWebsite.then((response) => {
         if (response[0].Status == '201' || response[0].Status == '200') { // success
           dbOrder.orderId = response[0].Value;
-          return dbOrder.save();
-        } else {
-          return dbOrder;
+          return getOrderInvoiceNumber(dbOrder);
         }
-        console.log(response);
       }).catch((message) => {
         console.log(message);
         return Promise.reject(new Error(message));
@@ -1563,6 +1415,22 @@ function getManufacturers(canadian) {
   return rp(options);
 }
 
+function getOrderInvoiceNumber(dbCustomOrder) {
+  var canadian = dbCustomOrder.customer.website == 'canada';
+  if (dbCustomOrder.orderId) {
+    var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+dbCustomOrder.orderId,
+    'GET', 
+    canadian);
+    return rp(options).then(response => {
+      console.log(response);
+      dbCustomOrder.invoiceNumber = response[0].InvoiceNumberPrefix + response[0].InvoiceNumber;
+      return dbCustomOrder.save();
+    });
+  } else {
+    return 'Does not exist in 3D Cart';
+  }
+}
+
 module.exports = {
  	getItems: getItems,
   refreshFrom3DCart: refreshFrom3DCart,
@@ -1579,7 +1447,6 @@ module.exports = {
   saveItem: saveItem,
   saveItemMultiple: saveItemMultiple,
   saveOrder: saveOrder,
-  saveShowOrder: saveShowOrder,
   getOrder: getOrder,
   loadOrders: loadOrders,
   loadOrdersForManifest: loadOrdersForManifest,
@@ -1587,5 +1454,6 @@ module.exports = {
   saveCustomOrder: saveCustomOrder,
   moveOrders: moveOrders,
   calculateBaseItemStock: calculateBaseItemStock,
-  getManufacturers: getManufacturers
+  getManufacturers: getManufacturers,
+  getOrderInvoiceNumber: getOrderInvoiceNumber,
 }

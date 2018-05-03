@@ -18,7 +18,9 @@ var customOrderSchema = new mongoose.Schema({
 	shipping: Number,
 	shippingMethod: String,
 	poNumber: String,
-	invoiceNumber: String
+	invoiceNumber: String,
+	lastModified: Date,
+	createdDate: Date
 });
 
 module.exports = mongoose.model('CustomOrder', customOrderSchema);
