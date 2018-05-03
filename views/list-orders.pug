@@ -2,7 +2,9 @@ mixin tableRow(order)
 	tr
 		td
 			a(href="/new-order?id="+order._id) 
-				if order.orderId
+				if order.invoiceNumber
+					=order.invoiceNumber
+				else if order.orderId
 					=order.orderId
 				else
 					= "Not Saved to 3D Cart"
