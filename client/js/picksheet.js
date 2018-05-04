@@ -19,8 +19,6 @@ function buildPickTable(order) {
 		var orderQuantityCol = $('<td></td>');
 		orderQuantityCol.text(item.ItemQuantity);
 		totalItems += parseInt(item.ItemQuantity);
-		var pickQuantityCol = $('<td></td>');
-		pickQuantityCol.text('_____');
 		var stockCol = $('<td></td>');
 		stockCol.text(item.ItemUnitStock);
 
@@ -31,7 +29,6 @@ function buildPickTable(order) {
 		row.append(skuCol);
 		row.append(orderQuantityCol);
 		row.append(pickedCol);
-		row.append(pickQuantityCol);
 		row.append(descriptionCol);
 		row.append(stockCol);
 

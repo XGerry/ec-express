@@ -200,9 +200,14 @@ function calculateTotalsForManifest() {
 	totalParcels = 0;
 	totalWeight = 0;
 
+	var parcels = 0;
+
 	allOrders.forEach(order => {
 		totalValue += order.totalValue;
-		totalParcels += order.ShipmentList[0].ShipmentBoxes;
+		parcels = order.ShipmentList[0].ShipmentBoxes;
+		if (parcels <= 0)
+			parcels = 1; // assume 1 box per shipment, unless otherwise stated
+		totalParcels += parcels;
 		totalWeight += order.totalWeight;
 	});
 
