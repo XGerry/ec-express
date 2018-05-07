@@ -15,10 +15,13 @@ mixin tableRow(order)
 				| No Customer
 		td=order.items.length
 		td
-			if (order.customer.website == 'us')
-				| U.S.
+			if (order.customer)
+				if (order.customer.website == 'us')
+					| U.S.
+				else
+					| Canada
 			else
-				| Canada
+				| No Customer
 		td=  moment(new Date(order.createdDate)).format('MMM Do, YYYY')
 
 doctype html
