@@ -2,7 +2,7 @@ doctype html
 include mixins
 html
 	include includes/head
-		title List Orders
+		title Deliveries
 		script(src="/js/deliveries.js")
 	body
 		#wrapper
@@ -14,25 +14,90 @@ html
 					.starter-template
 						h1 Deliveries
 						p.lead Select the delivery to view it in more detail.
-						button.btn.btn-outline-success(data-target="#deliveryModal" data-toggle="modal") New Delivery
+						p.lead There are currently 5 oustanding deliveries.
+						button.btn.btn-outline-success#newDeliveryButton New Delivery
+				
 				.container-fluid
-					.row
-						.col-12
-							table.table-hover.table
-								thead
-									tr
-										th Delivery ID
-										th Manufacturer
-										th PO
-										th Expected Delivery Date
-										th Status
-								tbody
-									tr
-										td 12445
-										td Joy! Crafts
-										td PO-12345
-										td May 24, 2017
-										td Waiting
+					ul.nav.nav-tabs#viewTabs(role="tablist")
+						li.nav-item
+							a.nav-link.active#statusTab(data-toggle="tab" href="#statusView" aria-control="#statusView" role="tab" aria-selected="true") Status View
+						li.nav-item
+							a.nav-link#tableTab(data-toggle="tab" href="#tableView") Table View
+					.tab-content
+						.tab-pane.fade.show.active#statusView(role="tabpanel" aria-labelledby="statusTab")
+							.row.mt-3
+								.col-3
+									.card.bg-light
+										.card-header 
+											h5.mb-0 Processing
+										.card-body.text-center
+											i.fal.fa-sync-alt.fa-fw.fa-3x
+											p.card-text.pt-2 The shipment is in progress and has not yet left the manufacturer.
+										.list-group.list-group-flush.text-dark.text-center
+											a.list-group-item.list-group-item-action.list-group-item-light Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-light Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-light Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-light Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-light Gilding Polish - #[strong Creative Expressions]
+										.card-footer 12 shipments.
+								.col-3
+									.card.bg-info.text-white
+										.card-header 
+											h5.mb-0 In Transit
+										.card-body.text-center
+											i.fal.fa-truck-container.fa-fw.fa-3x
+											p.card-text.pt-2 The shipment has left the manufacturer and is in transit to our warehouse.
+										.list-group.list-group-flush.text-dark.text-center
+											a.list-group-item.list-group-item-action.list-group-item-info Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-info Gilding Polish - #[strong Creative Expressions]
+										.card-footer 12 shipments.
+								.col-3
+									.card.bg-warning.text-white
+										.card-header 
+											h5.mb-0 In House
+										.card-body.text-center
+											i.fal.fa-warehouse.fa-fw.fa-3x
+											p.card-text.pt-2 The shipment has arrived and is awaiting put-away.
+										.list-group.list-group-flush.text-dark.text-center
+											a.list-group-item.list-group-item-action.list-group-item-warning Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-warning Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-warning Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-warning Gilding Polish - #[strong Creative Expressions]
+										.card-footer 12 shipments.
+								.col-3
+									.card.bg-success.text-white
+										.card-header 
+											h5.mb-0 Done
+										.card-body.text-center
+											i.fal.fa-check.fa-fw.fa-3x
+											p.card-text.pt-2 The shipment has been completed and is fully put-away.
+											small Only showing the 5 most recent shipments.
+										.list-group.list-group-flush.text-center.text-dark
+											a.list-group-item.list-group-item-action.list-group-item-success Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-success Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-success Gilding Polish - #[strong Creative Expressions]
+											a.list-group-item.list-group-item-action.list-group-item-success Gilding Polish - #[strong Creative Expressions]
+										.card-body.text-center
+											button.btn.btn-outline-dark View All
+										.card-footer 42 shipments.
+						.tab-pane.fade#tableView
+							.row
+								.col-12
+									table.table-hover.table
+										thead
+											tr
+												th Delivery ID
+												th Manufacturer
+												th PO
+												th Expected Delivery Date
+												th Status
+										tbody
+											tr
+												td 12445
+												td Joy! Crafts
+												td PO-12345
+												td May 24, 2017
+												td Waiting
 		+footer
 
 	#deliveryModal.modal.fade(role="dialog")
@@ -44,8 +109,8 @@ html
 				.modal-body
 					.form-group.row
 						.col-6
-							label(for="deliveryId") Delivery ID
-							input(type="text").form-control#deliveryId
+							label(for="deliveryName") Name
+							input(type="text" placeholder="describe the shipment").form-control#deliveryName
 						.col-6
 							label(for="manufacturerSelect") Manufacturer
 							select.form-control#manufacturerSelect
@@ -55,17 +120,40 @@ html
 					.form-group.row
 						.col-6
 							label(for="expectedDeliveryDate") Delivery Date
-							input#expectedDeliveryDate.form-control(type="date")
+							input#deliveryDate.form-control(type="date")
 						.col-6
 							label(for="deliveryStatus") Status
 							select#deliveryStatus.form-control
-								option(value="Awaiting Delivery") Processing
-								option In-Transit
-								option Awaiting Put-Away
-								option Done
+								option(value="processing") Processing
+								option(value="in-transit") In Transit
+								option(value="in-house") In House
+								option(value="done") Done
 					.form-group.row
-						.col-6
-							label(for="PO")
+						.col-12
+							label Purchase Orders
+							table.table-sm.table
+								thead
+									th ID
+									th Items
+									th
+								tbody
+									td PO-12345
+									td 34
+									td
+										button.btn.btn-outline-primary.btn-sm(type="button") View  
+											i.far.fa-external-link.fa-fw
+					//.row // Coming Soon!
+						.col-12
+							label Comments
+							.list-group
+								.list-group-item 
+										p.mb-1 Can't wait for this shipment!
+										small.float-right Matt
+								.list-group-item 
+										p.mb-1 Me neither!!!
+										small.float-right Jenn
 				.modal-footer
-					button#saveCustomerButton.btn.btn-success(type="button") Add
+					button#addPOButton.btn.btn-primary(type="button") Add PO
+					button#commentButton.btn.btn-warning(type="button" disabled tooltip="Coming Soon!") Add Comment
+					button#saveDeliveryButton.btn.btn-success(type="button") Save
 					button.btn.btn-default(type="button", data-dismiss="modal") Cancel

@@ -1,0 +1,160 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Purchase Order
+		script(src="js/purchase-order.js")
+	body
+		#wrapper
+			+sidebarNav("purchase-order")
+			
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2 New PO
+					form.form-inline
+						select.form-control#poStatus
+							option(value="open") Open
+							option(value="closed") Confirmed
+							option(value="cancelled") Cancelled
+					span.navbar-text#orderInfo.ml-2
+					ul.navbar-nav.ml-auto
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="/purchase-order").dropdown-item New PO
+								a(href="#").dropdown-item#clearItemsButton Clear Items
+								.dropdown-divider
+								a#deletePO(href="#").dropdown-item.bg-danger.text-white Delete
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Import
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#browseButton Browse for file
+								input(type="file" style="display:none;")#fileInput
+						.btn-group
+							button.btn.btn-success(type="button")#savePOButton Save
+							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
+							.dropdown-menu.dropdown-menu-right
+								a.dropdown-item(href="#")#saveToQBButton Save to Quickbooks
+
+				.container.pt-3
+					.row
+						.col-12
+							.card
+								.card-header 
+									h5.card-title.d-inline-block.mb-0 Info
+								.card-body
+									.form-group.row
+										.col-6
+											label Manufacturer
+											select#manufacturer.form-control
+												option Be Creative
+										.col-6
+											label Reference ID
+											input(type="text").form-control#referenceId
+					.row.pt-3
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Items
+								.card-body
+									.form-group.row
+										.col-sm-2
+											label(for="itemSKU") SKU
+											input#itemSKU.form-control(type="text", list="itemList")
+											datalist#itemList
+										.col-sm-4
+											label(for="itemName") Name
+											input#itemName.form-control(type="text")
+										.col-sm-2
+											label(for="itemQuantity") Quantity
+											input#itemQuantity.form-control(type="number", value="1")
+										.col-sm-2
+											label(for="itemPrice") Item Cost
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input#itemCost.form-control(type="number", step="any")
+										.col-sm-2
+											label(for="lineTotal") Line Total
+											.input-group
+												.input-group-prepend
+													.input-group-text
+														i.far.fa-dollar-sign
+												input#lineTotal.form-control(type="number", readonly)
+									hr
+									table.table.table-striped.table-hover#orderTable
+										thead
+											tr
+												th SKU
+												th Name
+												th Quantity
+												th Price
+												th Line Total
+										tbody#orderTableBody
+										tfoot
+											tr
+												th
+												th
+												th
+												th Sub Total
+												th#subTotalTable
+		+footer
+
+	#itemModal.modal.fade(role="dialog")
+		.modal-dialog.modal-lg
+			.modal-content
+				.modal-header
+					h4#itemNameTitle Item Name
+					button.close(data-dismiss="modal") &times;
+				.modal-body
+					.card
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#generalInfo", href="#") General
+						#generalInfo.collapse.show
+							.card-body
+								.row.form-group
+									.col-sm-6
+										label(for="itemSKUModal") SKU
+										input#itemSKUModal.form-control(type="text", readonly)
+									.col-sm-6
+										label(for="itemNameModal") Name
+										input#itemNameModal.form-control(type="text")
+								.row.form-group
+									.col-sm-6
+										label(for="itemQuantityModal") Quantity
+										input#itemQuantityModal.form-control(type="number")
+									.col-sm-6
+										label(for="itemCostModal") Cost
+										.input-group
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
+											input#itemCostModal.form-control(type="number", step="any")
+								.row.form-group
+									.col-sm-4
+										label(for="stock") Stock
+										input#stock.form-control(type="number")
+									.col-sm-4
+										label(for="usStock") US Stock
+										input#usStock.form-control(type="number")
+									.col-sm-4
+										label(for="canStock") Canadian Stock
+										input#canStock.form-control(type="number")
+
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#itemImagePanel", href="#") Image
+						#itemImagePanel.collapse
+							.card-body
+								.form-group.row
+									.col-sm-12
+										img#itemImage.img-rounded.img-responsive(src="http://via.placeholder.com/350x150")
+					
+				.modal-footer
+					button#saveItemButton.btn.btn-success(type="button") Save
+					button#removeFromOrderButton.btn.btn-danger(type="button") Remove
+					button.btn.btn-default(type="button", data-dismiss="modal") Cancel

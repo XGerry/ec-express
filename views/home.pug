@@ -15,70 +15,66 @@ html
 						h1 Welcome to EC-Express
 						p.lead Have a good day at work!
 				.container-fluid.px-5
-					.row
-						.col-3
-							.card
-								.card-header 
-									h5.mb-0 Orders
-								.card-body.text-center
-									i.fal.fa-paperclip.fa-fw.fa-5x
-									p.card-text.pt-2 Sync orders and QB, create custom orders in 3D Cart and build the manifest.
-									.input-group
-										select.form-control#ordersSelect
-											option(value="/orders-dashboard") Dashboard
-											option(value="/orders") Sync
-											option(value="/list-manifests") Manifests
-											option(value="/list-orders") Custom Orders
-											option(value="/print-orders") Print Orders
-										.input-group-append
-											button.btn.btn-primary#ordersGoButton Go
-								.card-footer 12 new orders today.
-						.col-3
-							.card
-								.card-header 
-									h5.mb-0 Products
-								.card-body.text-center
-									i.fal.fa-database.fa-fw.fa-5x
-									p.card-text.pt-2 Adjust product attributes, view inventory and send products to 3rd party platforms.
-									.input-group
-										select.form-control#productsSelect
-											option Dashboard
-											option(value="/database") Database
-											option(value="/amazon") Feeds
-											option(value="/product-upload") Upload
-										.input-group-append
-											button.btn.btn-primary#productsGoButton Go
-								.card-footer 12567 items and growing.
-						.col-3
-							.card
-								.card-header 
-									h5.mb-0 Shipments
-								.card-body.text-center
-									i.fal.fa-truck.fa-fw.fa-5x
-									p.card-text.pt-2 View the status of shipments into the building, create and manage POs.
-									.input-group
-										select.form-control
-											option Dashboard
-											option Shipments
-											option Purchase Orders
-										.input-group-append
-											button.btn.btn-primary.disabled Go
-								.card-footer 3 shipments awaiting delivery.
-						.col-3
-							.card
-								.card-header 
-									h5.mb-0 Reports
-								.card-body.text-center
-									i.fal.fa-chart-line.fa-fw.fa-5x
-									p.card-text.pt-2 View and create reports for products, orders and shipments.
-									.input-group
-										select.form-control
-											option Dashboard
-											option Orders
-											option Products
-											option Shipments
-										.input-group-append
-											button.btn.btn-primary.disabled Go
-								.card-footer 115 orders this week for $112,000.
+					.card-deck
+						.card
+							.card-header 
+								h5.mb-0 Orders
+							.card-body.text-center
+								i.fal.fa-paperclip.fa-fw.fa-5x
+								p.card-text.pt-2 Sync orders and QB, create custom orders in 3D Cart and build the manifest.
+								.input-group
+									select.form-control#ordersSelect
+										option(value="/order-dashboard") Dashboard
+										option(value="/orders") Sync
+										option(value="/list-manifests") Manifests
+										option(value="/list-orders") Custom Orders
+										option(value="/print-orders") Print Orders
+									.input-group-append
+										button.btn.btn-primary#ordersGoButton Go
+							.card-footer=todaysOrders + " orders in the past 24 hours."
+						.card
+							.card-header 
+								h5.mb-0 Products
+							.card-body.text-center
+								i.fal.fa-database.fa-fw.fa-5x
+								p.card-text.pt-2 Adjust product attributes, view inventory and send products to 3rd party platforms.
+								.input-group
+									select.form-control#productsSelect
+										option Dashboard
+										option(value="/database") Database
+										option(value="/amazon") Feeds
+										option(value="/product-upload") Upload
+									.input-group-append
+										button.btn.btn-primary#productsGoButton Go
+							.card-footer= totalItems + " items and growing."
+						.card
+							.card-header 
+								h5.mb-0 Shipments
+							.card-body.text-center
+								i.fal.fa-truck.fa-fw.fa-5x
+								p.card-text.pt-2 View the status of shipments into the building, create and manage POs.
+								.input-group
+									select.form-control
+										option Dashboard
+										option Shipments
+										option Purchase Orders
+									.input-group-append
+										button.btn.btn-primary.disabled Go
+							.card-footer 3 shipments awaiting delivery.
+						.card
+							.card-header 
+								h5.mb-0 Reports
+							.card-body.text-center
+								i.fal.fa-chart-line.fa-fw.fa-5x
+								p.card-text.pt-2 View and create reports for products, orders and shipments.
+								.input-group
+									select.form-control
+										option Dashboard
+										option Orders
+										option Products
+										option Shipments
+									.input-group-append
+										button.btn.btn-primary.disabled Go
+							.card-footer 115 orders this week for $112,000.
 
 		+footer

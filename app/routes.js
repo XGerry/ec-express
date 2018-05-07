@@ -7,8 +7,9 @@ var CustomOrder = require('./model/customOrder');
 var Item = require('./model/item');
 var Manifest = require('./model/manifest');
 var cart3d = require('./3dcart');
+var reporting = require('./reporting');
 var helpers = require('./helpers');
-
+var moment = require('moment');
 
 // application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
@@ -127,7 +128,24 @@ module.exports = function(app, passport) {
   });
 
   app.get('/', function(req, res) {
-    res.render('home');
+    var today = moment();
+    var yesterday = today.clone(); //.subtract(24, 'hours');
+    yesterday.subtract(1, 'days');
+
+    reporting.getOrderReport(yesterday, today, [1, 2, 3, 6, 9, 13, 4])
+    .then(responses => {
+      console.log(responses);
+      var total = 0;
+      responses.forEach(x => total += x.TotalCount);
+      cart3d.loadItems({
+        countonly: 1
+      }, false).then( response => {
+        res.render('home', {
+          todaysOrders: total,
+          totalItems: response.TotalCount
+        });
+      });
+    });
   });
 
   app.get('/orders', function(req, res) {
@@ -282,5 +300,35 @@ module.exports = function(app, passport) {
 
   app.get('/deliveries', (req, res) => {
     res.render('deliveries');
+  });
+
+  app.get('/purchase-orders', (req, res) => {
+    res.render('purchase-orders');
+  });
+
+  app.get('/purchase-order', (req, res) => {
+    res.render('purchase-order');
+  });
+
+  app.get('/order-dashboard', (req, res) => {
+    // find any orders that are over the 72 hour mark
+    // that are in new or processing
+    var endDate = moment().subtract(72, 'hours');
+    if (endDate.day() == 0) {
+      endDate.subtract(2, 'days');
+    } else if (endDate.day() == 6) {
+      endDate.subtract(2, 'days');
+    } else if (endDate.day() == 5) {
+      endDate.subtract(2, 'days');
+    }
+    var startDate = moment('1990-01-01');
+    reporting.getOrderReport(startDate, endDate, [1, 2])
+    .then(responses => {
+      var total = 0;
+      responses.forEach(x => total += x.TotalCount);
+      res.render('order-dashboard', {
+        overdue: total
+      });
+    });
   });
 }

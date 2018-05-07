@@ -62,6 +62,7 @@ var itemSchema = new mongoose.Schema({
 		type: Number,
 		default: 0
 	},
+	cost: Number,
 	isBundle: Boolean
 }, {
 	usePushEach: true

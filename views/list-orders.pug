@@ -8,7 +8,11 @@ mixin tableRow(order)
 					=order.orderId
 				else
 					= "Not Saved to 3D Cart"
-		td=order.customer.firstname + ' ' + order.customer.lastname
+		td
+			if (order.customer)
+				=order.customer.firstname + ' ' + order.customer.lastname
+			else
+				| No Customer
 		td=order.items.length
 		td
 			if (order.customer.website == 'us')

@@ -49,6 +49,7 @@ function updateItemsFromSKUInfo(item, skuInfo, canadian) {
     item.usPrice = skuInfo.Price;
     item.usStock = skuInfo.Stock;
     item.usSalePrice = skuInfo.SalePrice;
+    item.cost = skuInfo.Cost;
   }
   item.save();
 }
@@ -366,12 +367,26 @@ function getOrder(query, canadian) {
  */
 function loadOrders(query, canadian) {
   var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
-      'GET',
-      canadian);
+    'GET',
+    canadian);
   options.qs = query;
   var doRequest = rp(options);
   return doRequest.then(orders => {
     return orders;
+  }).catch(err => {
+    console.log(err);
+    return [];
+  });
+}
+
+function loadItems(query, canadian) {
+  var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+    'GET',
+    canadian);
+  options.qs = query;
+  var doRequest = rp(options);
+  return doRequest.then(products => {
+    return products;
   }).catch(err => {
     console.log(err);
     return [];
@@ -669,6 +684,7 @@ function updateItemFields(item, cartItem, canadian) {
     item.manufacturerId = cartItem.ManufacturerID;
     item.usStock = cartItem.SKUInfo.Stock;
     item.usWholesalePrice = cartItem.PriceLevel2; // US Wholesale Price
+    item.cost = cartItem.SKUInfo.Cost;
   }
 
   if (cartItem.AdvancedOptionList.length > 0) {
@@ -1449,6 +1465,7 @@ module.exports = {
   saveOrder: saveOrder,
   getOrder: getOrder,
   loadOrders: loadOrders,
+  loadItems: loadItems,
   loadOrdersForManifest: loadOrdersForManifest,
   searchCustomer: searchCustomer,
   saveCustomOrder: saveCustomOrder,

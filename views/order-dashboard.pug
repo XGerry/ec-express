@@ -1,0 +1,20 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Order Dashboard
+	body
+		#wrapper
+			+sidebarNav("home")
+			#page-content
+				.container-fluid
+					button.btn.btn-secondary.btn-toggles(type="button")#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					.starter-template
+						h1 Order Dashboard
+						p.lead The current state of the orders for US and Canadian
+				.container-fluid.px-5
+					.alert.alert-danger 
+						strong= overdue + ' orders '
+						| were placed over 72 hours ago and have not been shipped.
+		+footer

@@ -1,0 +1,63 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Purchase Orders
+	body
+		#wrapper
+			+sidebarNav("purchaseOrders")
+			
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 Purchase Orders
+						p.lead Select the PO to view it in more detail.
+						a.btn.btn-outline-success(href="/purchase-order") New PO
+				
+				.container-fluid
+					ul.nav.nav-tabs#viewTabs(role="tablist")
+						li.nav-item
+							a.nav-link.active#openView(data-toggle="tab" href="#openTable" aria-control="#openTable" role="tab" aria-selected="true") Open
+						li.nav-item
+							a.nav-link#closedView(data-toggle="tab" href="#closedTable") Closed
+					.tab-content
+						.tab-pane.fade.show.active#openTable(role="tabpanel" aria-labelledby="openView")
+							.row
+								.col-12
+									table.table-hover.table
+										thead
+											tr
+												th ID
+												th Reference ID
+												th Manufacturer
+												th Delivery
+												th Delivery Status
+												th Items
+										tbody
+											tr
+												td PO-12345
+												td 118122
+												td Be Creative
+												td Tape
+												td In House
+												td 5
+						.tab-pane.fade#closedTable
+							.row
+								.col-12
+									table.table-hover.table
+										thead
+											tr
+												th Delivery ID
+												th Manufacturer
+												th PO
+												th Expected Delivery Date
+												th Status
+										tbody
+											tr
+												td 12445
+												td Joy! Crafts
+												td PO-12345
+												td May 24, 2017
+												td Waiting
+		+footer
