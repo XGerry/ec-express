@@ -101,6 +101,22 @@ html
 												th
 												th Sub Total
 												th#subTotalTable
+					.row.pt-3
+						.col-12
+							.card
+								.card-header
+									h5.card-title.d-inline-block.mb-0 Delivery
+									button.btn.btn-sm.btn-primary.float-right#addDeliveryButton(type="button", data-toggle="modal" data-target="#deliveryModal")
+										i.far.fa-plus.fa-fw
+								.card-body
+									table.table.table-hover
+										thead
+											tr
+												th Name
+												th Delivery Date
+												th Status
+											tbody#deliveryTableBody
+
 		+footer
 
 	#itemModal.modal.fade(role="dialog")

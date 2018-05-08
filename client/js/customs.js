@@ -12,7 +12,7 @@ var addresses = {};
 $(document).ready(function() {
 	$('#getOrdersButton').click(e => {
 		e.preventDefault();
-		$('#getOrdersButton').button('loading');
+		$('#getOrdersButton').addClass('disabled');
 		socket.emit('loadOrdersForManifest', {orderstatus: 13, limit: 200}, 'US');
 	});
 
@@ -91,6 +91,27 @@ $(document).ready(function() {
 		socket.emit('deleteManifest', theManifest);
 	});
 
+	$('#removeDuplicatesButton').click(e => {
+		e.preventDefault();
+		var uniqueOrders = [];
+		for (var i = 0; i < allOrders.length; i++) {
+			var duplicate = false;
+			for (var j = 0; j < uniqueOrders.length; j++) {
+				var invoiceIDi = '' + allOrders[i].InvoiceNumberPrefix + allOrders[i].InvoiceNumber;
+				var invoiceIDj = '' + uniqueOrders[j].InvoiceNumberPrefix + uniqueOrders[j].InvoiceNumber;
+				if (invoiceIDi == invoiceIDj) {
+					duplicate = true;
+				}
+			}
+			if (!duplicate) {
+				uniqueOrders.push(allOrders[i]);
+			}
+		}
+		$('#manifest').empty();
+		allOrders = [];
+		buildManifest(uniqueOrders);
+	});
+
 	$('#addressSearch').on('input propertychange', e => {
 		socket.emit('searchAddress', $('#addressSearch').val());
 	});
@@ -136,7 +157,7 @@ socket.on('saveManifestFinished', (err, newManifest) => {
 });
 
 socket.on('loadOrdersFinished', response => {
-	$('#getOrdersButton').button('reset');
+	$('#getOrdersButton').removeClass('disabled');
 	buildManifest(response);
 	saveManifest();
 });

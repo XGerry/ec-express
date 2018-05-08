@@ -326,8 +326,19 @@ module.exports = function(app, passport) {
     .then(responses => {
       var total = 0;
       responses.forEach(x => total += x.TotalCount);
-      res.render('order-dashboard', {
-        overdue: total
+      var now = moment(new Date());
+
+      var yesterday = moment(now).subtract(1, 'days');
+      yesterday.hour(0).minute(0).second(0);
+      reporting.getOrderReport(yesterday, now, [1, 2])
+      .then(responses => {
+        var ordersToday = 0;
+        console.log(responses);
+        responses.forEach(x => ordersToday += x.TotalCount);
+        res.render('order-dashboard', {
+          overdue: total,
+          today: ordersToday
+        });
       });
     });
   });

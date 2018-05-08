@@ -7,14 +7,15 @@ function getOrderReport(startDate, endDate, statusArray) {
   var promises = [];
   var query = {
     countonly: 1,
-    datestart: startDate.format('MM/DD/YYYY hh:mm:ss'),
-    dateend: endDate.format('MM/DD/YYYY hh:mm:ss'),
+    datestart: startDate.format('MM/DD/YYYY H:mm:ss'),
+    dateend: endDate.format('MM/DD/YYYY H:mm:ss')
   };
 
   statusArray.forEach(status => {
   	query.orderstatus = status;
   	promises.push(cart3d.loadOrders(query, true));
   	promises.push(cart3d.loadOrders(query, false));
+  	console.log(query);
   });
 
   return Promise.all(promises);

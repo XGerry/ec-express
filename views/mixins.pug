@@ -136,6 +136,7 @@ mixin sidebarNav(active)
 				a(href="#orders-nav" data-toggle="collapse").dropdown-link Orders
 					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
 				ul.collapse#orders-nav.pl-0.sub-menu
+					+internalLink("/order-dashboard", "Dashboard")
 					+internalLink("/orders", "Sync")
 					+internalLink("/list-orders", "Custom Orders")
 					+internalLink("/print-orders", "Print Orders")

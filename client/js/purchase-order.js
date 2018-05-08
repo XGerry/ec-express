@@ -1,6 +1,7 @@
 var socket = io();
 
 var theItem = {};
+var theEditItem = {};
 var itemsInOrder = [];
 
 $(document).ready(e => {
@@ -29,6 +30,11 @@ $(document).ready(e => {
 		}
 	});
 
+	$('#saveItemButton').click(e => {
+		saveItemFields(theItem);
+		calculateTotals();
+	});
+
 	socket.emit('getManufacturers', true);
 });
 
@@ -54,6 +60,12 @@ socket.on('getManufacturersFinished', response => {
 	});
 });
 
+function saveItemFields() {
+	theEditItem.quantity = $('#itemQuantityModal').val();
+	theEditItem.purchaseCost = $('#itemCostModal').val();
+	buildOrderTable();
+	$('#itemModal').modal('hide');
+}
 
 function fillItemLine(item) {
 	$('#itemName').val(item.name);
@@ -65,6 +77,13 @@ function calculateLineTotal() {
 	var cost = $('#itemCost').val();
 	var linePrice = quantity * cost;
 	$('#lineTotal').val(linePrice.toFixed(2));
+}
+
+function buildOrderTable() {
+	$('#orderTableBody').empty();
+	itemsInOrder.forEach(function(item) {
+		addItemRow(item);
+	});
 }
 
 function addItemToOrder() {
