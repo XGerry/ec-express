@@ -47,6 +47,7 @@ $(document).ready(function() {
 	});
 
 	$('#saveToSiteButton').click(function(e) {
+		e.preventDefault();
 		$('#saveOrderButton').button('loading');
 		$('#orderInfo').text('Saving order. Please wait...');
 		socket.emit('saveCustomOrder', generateOrder(), true);
@@ -262,7 +263,7 @@ socket.on('saveCustomOrderFinished', order => {
 	$('#orderInfo').text(message);
 	setTimeout(() => {
 		$('#orderInfo').text('');
-	}, 5000);
+	}, 3000);
 });
 
 function loadFromFile(items) {
