@@ -43,8 +43,8 @@ mixin pickTableRow(item)
 
 mixin customerInfoPanel(order)
 	.card
-		.card-header 
-			a(data-toggle="collapse", data-target="#orderInfo").card-title=order.InvoiceNumberPrefix + order.InvoiceNumber
+		.card-header
+			h3.mb-0.text-right.card-title=order.InvoiceNumberPrefix + order.InvoiceNumber
 		.card-body.collapse.show#orderInfo
 			.row
 				.col-12
@@ -84,27 +84,24 @@ mixin customerInfoPanel(order)
 				.col-lg-8.col-sm-8
 					.row
 						.col-lg-6.col-sm-6
-							h4 Status
+							h4 Billing Status
 							label.checkbox-inline.pr-2
 								input(type="checkbox")
-								|  Completed (Ship)
+								|  Paid
 							label.checkbox-inline
 								input(type="checkbox")
-								|  Hold (Do Not Ship)
+								|  Declined
 						.col-lg-6.col-sm-6
-							h4 Reason
+							h4 Ship Status
 							label.checkbox-inline.pr-2
 								input(type="checkbox")
 								|  Back-Order
 							label.checkbox-inline.pr-2
 								input(type="checkbox")
 								|  Pre-Order
-							label.checkbox-inline.pr-2
-								input(type="checkbox")
-								|  Awaiting Payment
 							label.checkbox-inline
 								input(type="checkbox")
-								|  Other
+								|  Picked
 					.row.form-group
 						.col-lg-4
 							label Carrier / Package Type
@@ -156,7 +153,6 @@ html
 			#page-content
 				+menuToggle
 				.container.pt-3
-					h2.hide-printer Pick Sheet
 					if (order)
 						+orderSection(order)
 					else if (orders)

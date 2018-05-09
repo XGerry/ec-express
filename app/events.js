@@ -519,5 +519,17 @@
  				socket.emit('getManufacturersFinished', response);
  			});
  		});
+
+ 		socket.on('saveDelivery', delivery => {
+ 			helpers.saveDelivery(delivery).then(savedDelivery => {
+ 				socket.emit('savedDelivery', savedDelivery);
+ 			});
+ 		});
+
+ 		socket.on('savePO', po => {
+ 			helpers.savePO(po).then(savedPO => {
+ 				socket.emit('savedPO', savedPO);
+ 			});
+ 		});
  	});
  }

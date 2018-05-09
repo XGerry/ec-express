@@ -11,6 +11,8 @@ var Manifest = require('./model/manifest');
 var Customer = require('./model/customer');
 var Item = require('./model/item');
 var Address = require('./model/address');
+var PO = require('./model/purchaseOrder');
+var Delivery = require('./model/delivery');
 var async = require('async');
 var xmlParser = require('xml2js').parseString; 
 var xml2js = require('xml2js-es6-promise');
@@ -1270,6 +1272,51 @@ function inventoryBot(payload) {
   return rp(options);
 }
 
+function savePO(purchaseOrder) {
+  if (purchaseOrder._id) { // existing document
+    return PO.findOne({_id: purchaseOrder._id}).then(doc => {
+      return updatePOFields(doc, purchaseOrder);
+    });
+  } else {
+    var newPO = new PO();
+    return updatePOFields(newPO, purchaseOrder);
+  }
+}
+
+function updatePOFields(dbPO, po) {
+  dbPO.name = po.name;
+  dbPO.delivery = po.delivery;
+  dbPO.items = po.items;
+  dbPO.inQuickbooks = po.inQuickbooks;
+  dbPO.manufacturer = po.manufacturer;
+  dbPO.poNumber = po.poNumber;
+  dbPO.date = po.date;
+  dbPO.lastModified = new Date();
+  dbPO.markModified('items');
+  return dbPO.save();
+}
+
+function saveDelivery(delivery) {
+  if (delivery._id) { // existing document
+    return Delivery.findOne({_id: delivery._id}).then(doc => {
+      return updateDeliveryFields(doc, delivery);
+    });
+  } else {
+    var newDelivery = new Delivery();
+    return updateDeliveryFields(newDelivery, delivery);
+  }
+}
+
+function updateDeliveryFields(dbDelivery, delivery) {
+  dbDelivery.purchaseOrders = delivery.purchaseOrders;
+  dbDelivery.name = delivery.name;
+  dbDelivery.status = delivery.status;
+  dbDelivery.comments = delivery.comments;
+  dbDelivery.manufacturer = delivery.manufacturer;
+  dbDelivery.date = delivery.date;
+  return dbDelivery.save();
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1310,5 +1357,7 @@ module.exports = {
   saveAddress: saveAddress,
   findItemsForOrder: findItemsForOrder,
   setItemFieldsForAmazon: setItemFieldsForAmazon,
-  inventoryBot: inventoryBot
+  inventoryBot: inventoryBot,
+  savePO: savePO,
+  saveDelivery: saveDelivery
 }
