@@ -87,6 +87,14 @@ function buildSummaryTable(tableId, orders) {
 		//row.append(amount);
 		row.append(date);
 		$(''+tableId).append(row);
+
+		row.click(e => {
+			var url = 'https://www.ecstasycrafts.';
+			url += order.InvoiceNumberPrefix == 'CA-' ? 'ca' : 'com';
+			url += '/admin/order_details.asp?orderid=' + order.OrderID;
+			console.log(url);
+			window.open(url, '_blank');
+		});
 	});
 }
 
@@ -163,4 +171,6 @@ function buildMultipleOrdersTable(duplicates) {
 		row.append(table);
 		$('#multipleOrderSummary').append(row);
 	});
+
+	$('#multipleOrderFooter').text(Object.keys(duplicates).length + ' customers with more than one order');
 }
