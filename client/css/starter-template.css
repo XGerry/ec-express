@@ -302,3 +302,8 @@ li a.active {
 .sub-menu {
 	background-color: rgba(255, 255, 255, 0.1);
 }
+
+.summary-card {
+	max-height: 500px;
+	overflow-y: scroll;
+}

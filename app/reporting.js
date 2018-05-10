@@ -15,7 +15,6 @@ function getOrderReport(startDate, endDate, statusArray) {
   	query.orderstatus = status;
   	promises.push(cart3d.loadOrders(query, true));
   	promises.push(cart3d.loadOrders(query, false));
-  	console.log(query);
   });
 
   return Promise.all(promises);

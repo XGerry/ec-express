@@ -1,7 +1,24 @@
+mixin summaryCard(name, id, colour, textColour)
+	.card
+		.card-header(class=colour + ' ' + textColour)
+			h5.mb-0=name
+		.card-body.summary-card
+			table.table.table-sm.table-hover
+				thead
+					tr
+						th ID
+						th Name
+						//th Value
+						th Date
+				tbody(id=id+"SummaryTable")
+		.card-footer(id=id+"CardFooter")
+
 doctype html
 include mixins
 html
 	include includes/head
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js")
+		script(src="js/order-dashboard.js")
 		title Order Dashboard
 	body
 		#wrapper
@@ -12,13 +29,44 @@ html
 						i.far.fa-bars.fa-fw
 					.starter-template
 						h1 Order Dashboard
-						p.lead The current state of the orders for US and Canadian
+						p.lead The current state of the orders for US and Canada.
 				.container-fluid.px-5
-					.alert.alert-danger 
-						strong= overdue + ' orders '
-						| were placed over 72 hours ago and have not been shipped.
-					.alert.alert-info
-						strong= today + ' orders '
-						| placed in the past 24 hours.
+					.progress
+						.progress-bar.progress-bar-striped.progress-bar-animated#summaryProgress
+					.row.mt-3
+						.col-6
+							.alert.alert-danger
+								strong= overdue + ' orders '
+								| were placed over 72 hours ago and have not been shipped.
+							.alert.alert-info
+								strong= today + ' orders '
+								| placed in the past 24 hours.
+						.col-6
+							.card
+								.card-header
+									h5.mb-0 Customers with Multiple Orders
+								.card-body.summary-card#multipleOrderSummary
+									.row
+										h5 Matt Oskamp
+										table.table.table-sm
+											thead
+												tr
+													th ID
+													th Status
+													th Date
+											tbody
+												tr
+													td AB-12345
+													td New
+													td May 10th
+								.card-footer 4 customers with multiple orders.
+					.card-deck.mt-3
+						+summaryCard("New", "new", "bg-light")
+						+summaryCard("Processing", "processing", "bg-primary", "text-white")
+						+summaryCard("Back Order", "backorder", "bg-warning")
+					.card-deck.mt-3
+						+summaryCard("Preorder", "preorder", "bg-info", "text-white")
+						+summaryCard("Processing Payment", "payment", "bg-success", "text-white")
+						+summaryCard("Awaiting Shipment", "shipment", "bg-dark", "text-white")
 
 		+footer

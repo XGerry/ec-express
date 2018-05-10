@@ -329,8 +329,7 @@ module.exports = function(app, passport) {
       var now = moment(new Date());
 
       var yesterday = moment(now).subtract(1, 'days');
-      yesterday.hour(0).minute(0).second(0);
-      reporting.getOrderReport(yesterday, now, [1, 2])
+      reporting.getOrderReport(yesterday, now, [1, 2, 3, 6, 9, 13, 4])
       .then(responses => {
         var ordersToday = 0;
         console.log(responses);
