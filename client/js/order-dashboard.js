@@ -89,10 +89,7 @@ function buildSummaryTable(tableId, orders) {
 		$(''+tableId).append(row);
 
 		row.click(e => {
-			var url = 'https://www.ecstasycrafts.';
-			url += order.InvoiceNumberPrefix == 'CA-' ? 'ca' : 'com';
-			url += '/admin/order_details.asp?orderid=' + order.OrderID;
-			console.log(url);
+			var url = getURLFromOrder(order);
 			window.open(url, '_blank');
 		});
 	});
@@ -128,7 +125,7 @@ function buildMultipleOrdersTable(duplicates) {
 	$.each(duplicates, (key, arr) => {
 		var row = $('<div class="row"></div>');
 		var title = $('<h5></h5>').text(arr[0].BillingFirstName + ' ' + arr[0].BillingLastName);
-		var table = $('<table class="table table-sm"></table>');
+		var table = $('<table class="table table-sm table-hover"></table>');
 		var thead = $('<thead></thead>');
 		var headRow = $('<tr></tr>');
 		headRow.append($('<th></th>').text('ID'));
@@ -162,6 +159,10 @@ function buildMultipleOrdersTable(duplicates) {
 			tableRow.append(status);
 			tableRow.append(date);
 			tbody.append(tableRow);
+
+			tableRow.click(e => {
+				window.open(getURLFromOrder(order), '_blank');
+			});
 		});
 
 		thead.append(headRow);
@@ -173,4 +174,11 @@ function buildMultipleOrdersTable(duplicates) {
 	});
 
 	$('#multipleOrderFooter').text(Object.keys(duplicates).length + ' customers with more than one order');
+}
+
+function getURLFromOrder(order) {
+	var url = 'https://www.ecstasycrafts.';
+	url += order.InvoiceNumberPrefix == 'CA-' ? 'ca' : 'com';
+	url += '/admin/order_details.asp?orderid=' + order.OrderID;
+	return url;
 }
