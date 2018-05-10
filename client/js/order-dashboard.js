@@ -97,7 +97,15 @@ function scanForDuplicates(orders) {
 		for (var j = 0; j < ordersToScan.length; j++) {
 			if (ordersToScan[i].BillingEmail == ordersToScan[j].BillingEmail && i != j) {
 				if (duplicates.hasOwnProperty(ordersToScan[j].BillingEmail)) {
-					duplicates[ordersToScan[j].BillingEmail].push(ordersToScan[j]);
+					var dup = false;
+					duplicates[ordersToScan[j].BillingEmail].forEach(previousOrder => {
+						if (previousOrder.InvoiceNumber == ordersToScan[j].InvoiceNumber) {
+							dup = true;
+						}
+					});
+					if (!dup) {
+						duplicates[ordersToScan[j].BillingEmail].push(ordersToScan[j]);
+					}
 				} else {
 					duplicates[ordersToScan[j].BillingEmail] = [ordersToScan[j]];
 				}
