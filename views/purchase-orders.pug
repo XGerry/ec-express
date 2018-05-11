@@ -1,3 +1,19 @@
+mixin tableRow(po)
+	tr(onclick="window.location='/purchase-order?id="+po._id+"'")
+		td=po.poNumber
+		td=po.manufacturer
+		td
+			if po.delivery
+				=po.delivery.name
+			else
+				| No Delivery
+		td
+			if po.delivery
+				=po.delivery.status
+			else
+				| No Delivery
+		td=po.items.length
+
 doctype html
 include mixins
 html
@@ -29,30 +45,24 @@ html
 										thead
 											tr
 												th ID
-												th Reference ID
 												th Manufacturer
 												th Delivery
 												th Delivery Status
 												th Items
 										tbody
-											tr
-												td PO-12345
-												td 118122
-												td Be Creative
-												td Tape
-												td In House
-												td 5
+											each po in purchaseOrders
+												+tableRow(po)
 						.tab-pane.fade#closedTable
 							.row
 								.col-12
 									table.table-hover.table
 										thead
 											tr
-												th Delivery ID
+												th ID
 												th Manufacturer
-												th PO
-												th Expected Delivery Date
-												th Status
+												th Delivery
+												th Delivery Status
+												th Items
 										tbody
 											tr
 												td 12445

@@ -3,7 +3,12 @@ include mixins
 html
 	include includes/head
 		title Purchase Order
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js")
 		script(src="js/purchase-order.js")
+		script.
+			$(document).ready(e => {
+				loadPO(!{JSON.stringify(po)});
+			});
 	body
 		#wrapper
 			+sidebarNav("purchase-order")
@@ -18,7 +23,7 @@ html
 							option(value="open") Open
 							option(value="closed") Confirmed
 							option(value="cancelled") Cancelled
-					span.navbar-text#orderInfo.ml-2
+					span.navbar-text#poInfo.ml-2
 					ul.navbar-nav.ml-auto
 						li.dropdown.nav-item
 							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
@@ -113,6 +118,7 @@ html
 										thead
 											tr
 												th Name
+												th Manufacturer
 												th Delivery Date
 												th Status
 											tbody#deliveryTableBody
@@ -173,4 +179,21 @@ html
 				.modal-footer
 					button#saveItemButton.btn.btn-success(type="button") Save
 					button#removeFromOrderButton.btn.btn-danger(type="button") Remove
+					button.btn.btn-default(type="button", data-dismiss="modal") Cancel
+
+	#deliveryModal.modal.fade(role="dialog")
+		.modal-dialog.modal-lg
+			.modal-content
+				.modal-header
+					h4 Add Delivery
+					button.close(data-dismiss="modal") &times;
+				.modal-body
+					table.table-sm.table.table-hover
+						thead
+							tr
+								th Name
+								th Manufacturer
+								th Delivery Date
+						tbody#deliveryModalTable
+				.modal-footer
 					button.btn.btn-default(type="button", data-dismiss="modal") Cancel

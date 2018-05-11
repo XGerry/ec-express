@@ -521,16 +521,28 @@
  			});
  		});
 
- 		socket.on('saveDelivery', delivery => {
+ 		socket.on('saveDelivery', (delivery, callback) => {
  			helpers.saveDelivery(delivery).then(savedDelivery => {
- 				socket.emit('savedDelivery', savedDelivery);
+ 				callback(savedDelivery);
  			});
  		});
 
- 		socket.on('savePO', po => {
+ 		socket.on('savePO', (po, callback) => {
  			helpers.savePO(po).then(savedPO => {
- 				socket.emit('savedPO', savedPO);
+ 				console.log(po);
+ 				console.log(callback);
+ 				callback(savedPO);
  			});
  		});
+
+ 		socket.on('getDeliveries', callback => {
+ 			helpers.getDeliveries().then(deliveries => {
+ 				callback(deliveries);
+ 			});
+ 		});
+
+ 		socket.on('removeDelivery', (delivery, callback) => {
+ 			helpers.removeDelivery(delivery).then(d => { callback(d); });
+ 		}); 
  	});
  }

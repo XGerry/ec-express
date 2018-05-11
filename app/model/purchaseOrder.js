@@ -5,7 +5,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var poSchema = new mongoose.Schema({
 	delivery: {
 		type: ObjectId,
-		ref: 'PurchaseOrder'
+		ref: 'Delivery'
 	},
 	items: Array,
 	name: String,

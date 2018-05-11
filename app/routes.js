@@ -4,6 +4,7 @@ var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
 var Order = require('./model/order');
 var CustomOrder = require('./model/customOrder');
+var PurchaseOrder = require('./model/purchaseOrder');
 var Item = require('./model/item');
 var Manifest = require('./model/manifest');
 var cart3d = require('./3dcart');
@@ -303,11 +304,24 @@ module.exports = function(app, passport) {
   });
 
   app.get('/purchase-orders', (req, res) => {
-    res.render('purchase-orders');
+    PurchaseOrder.find({}).then(pos => {
+      res.render('purchase-orders', {
+        purchaseOrders: pos
+      });
+    });
   });
 
   app.get('/purchase-order', (req, res) => {
-    res.render('purchase-order');
+    var id = req.query.id;
+    if (id) {
+      PurchaseOrder.findOne({_id: id}).populate('delivery').then(po => {
+        res.render('purchase-order', {
+          po: po
+        });
+      });
+    } else {
+      res.render('purchase-order');
+    }
   });
 
   app.get('/order-dashboard', (req, res) => {

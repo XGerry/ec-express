@@ -1317,6 +1317,14 @@ function updateDeliveryFields(dbDelivery, delivery) {
   return dbDelivery.save();
 }
 
+function getDeliveries() {
+  return Delivery.find({}).sort('date');
+}
+
+function removeDelivery(delivery) {
+  return Delivery.remove({_id: delivery._id});
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1359,5 +1367,7 @@ module.exports = {
   setItemFieldsForAmazon: setItemFieldsForAmazon,
   inventoryBot: inventoryBot,
   savePO: savePO,
-  saveDelivery: saveDelivery
+  saveDelivery: saveDelivery,
+  getDeliveries: getDeliveries,
+  removeDelivery: removeDelivery
 }
