@@ -311,12 +311,7 @@ function modifyItemRq(item) {
     ListID: item.listId,
     EditSequence: item.editSequence,
     IsActive: !item.inactive,
-    SalesPrice: item.usPrice,
-    DataExtRet: [{
-      DataExtName: 'Location',
-      DataExtType: 'STR255TYPE',
-      DataExtValue: item.location
-    }]
+    SalesPrice: item.usPrice
   };
 
   var qbRq = {
@@ -325,6 +320,29 @@ function modifyItemRq(item) {
       ItemInventoryMod : modRq
     }
   };
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({'pretty': true});
+  return str;
+}
+
+function modifyCustomField(fieldName, value, listId) {
+  var modRq = {
+    OwnerID: 0,
+    DataExtName: fieldName,
+    ListDataExtType: 'Item',
+    ListObjRef: {
+      ListID: listId
+    },
+    DataExtValue: value
+  };
+
+  var qbRq: {
+    DataExtModRq: {
+      '@requestID': 'dataExtMod-'+listId,
+      DataExtMod: modRq
+    }
+  }
 
   var xmlDoc = getXMLRequest(qbRq);
   var str = xmlDoc.end({'pretty': true});
@@ -996,8 +1014,9 @@ function saveToQuickbooks(item, qbws) {
         return item.save().then(savedItem => {
           console.log('\nadding modify item request\n');
           qbws.addRequest(modifyItemRq(savedItem), (response) => {
-            console.log('\nadding inventory request\n');
+            console.log('\nadding inventory and custom field request\n');
             qbws.addRequest(modifyInventoryRq(savedItem));
+            qbws.addRequest(modifyCustomField('Location', savedItem.location, savedItem.listId));
             return Promise.resolve('Done.');
           });
         });

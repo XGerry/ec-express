@@ -2,9 +2,18 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <ItemInventoryAssemblyQueryRq requestID="itemAssemblyRequest">
-      <FullName>BUN20</FullName>
-      <OwnerID>0</OwnerID>
-    </ItemInventoryAssemblyQueryRq>
+    <ItemInventoryModRq requestID="itemModify-800066A9-1525713011">
+      <ItemInventoryMod>
+        <ListID>800066A9-1525713011</ListID>
+        <EditSequence>1526470409</EditSequence>
+        <IsActive>true</IsActive>
+        <SalesPrice>12.99</SalesPrice>
+        <DataExtRet>
+          <DataExtName>Location</DataExtName>
+          <DataExtType>STR255TYPE</DataExtType>
+          <DataExtValue>B 10 5 4 B001</DataExtValue>
+        </DataExtRet>
+      </ItemInventoryMod>
+    </ItemInventoryModRq>
   </QBXMLMsgsRq>
 </QBXML>
