@@ -149,8 +149,11 @@ mixin sidebarNav(active)
 					+internalLink("/amazon", "Feeds")
 					+internalLink("/product-upload", "Upload")
 			li
-				a(href="#") Shipments 
-					span.badge.badge-info(style="text-indent: 0px;") Coming Soon!
+				a(href="#deliveries-nav" data-toggle="collapse").dropdown-link Deliveries
+					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
+				ul.collapse#deliveries-nav.pl-0.sub-menu
+					+internalLink("/deliveries", "Dashboard")
+					+internalLink("/purchase-orders", "Purchase Orders")
 			li
 				a(href="#") Reports 
 					span.badge.badge-info(style="text-indent: 0px;") Coming Soon!

@@ -275,6 +275,7 @@ function buildItemTable(items) {
 			$('#usStock').val(item.usStock);
 			$('#canStock').val(item.canStock);
 			$('#location').val(item.location);
+			$('#secondLocation').val(item.secondLocation);
 			$('#barcode').val(item.barcode);
 			$('#country').val(item.countryOfOrigin);
 			$('#itemInactive').prop('checked', item.inactive === true);
@@ -328,6 +329,7 @@ function saveItemProperties(item) {
 	item.usStock = $('#usStock').val();
 	item.canStock = $('#canStock').val();
 	item.location = $('#location').val();
+	item.secondLocation = $('#secondLocation').val();
 	item.barcode = $('#barcode').val();
 	item.countryOfOrigin = $('#country').val();
 	item.isOption = $('#itemIsOption').is(':checked');

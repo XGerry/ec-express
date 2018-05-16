@@ -311,7 +311,12 @@ function modifyItemRq(item) {
     ListID: item.listId,
     EditSequence: item.editSequence,
     IsActive: !item.inactive,
-    SalesPrice: item.usPrice
+    SalesPrice: item.usPrice,
+    DataExtRet: [{
+      DataExtName: 'Location',
+      DataExtType: 'STR255TYPE',
+      DataExtValue: item.location
+    }]
   };
 
   var qbRq = {
@@ -989,8 +994,6 @@ function saveToQuickbooks(item, qbws) {
         item.listId = itemInventoryRs.ItemInventoryRet.ListID;
         return item.save().then(savedItem => {
           console.log('\nadding modify item request\n');
-          console.log('price: ' + item.usPrice);
-          console.log('stock: ' + item.stock);
           qbws.addRequest(modifyItemRq(savedItem), (response) => {
             console.log('\nadding inventory request\n');
             qbws.addRequest(modifyInventoryRq(savedItem));

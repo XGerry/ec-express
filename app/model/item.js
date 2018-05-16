@@ -32,6 +32,7 @@ var itemSchema = new mongoose.Schema({
 	catalogIdCan: Number,
 	updated: Boolean,
 	location: String,
+	secondLocation: String,
 	barcode: String,
 	countryOfOrigin: String,
 	htcCode: String,
