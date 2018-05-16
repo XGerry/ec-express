@@ -337,7 +337,7 @@ function modifyCustomField(fieldName, value, listId) {
     DataExtValue: value
   };
 
-  var qbRq: {
+  var qbRq = {
     DataExtModRq: {
       '@requestID': 'dataExtMod-'+listId,
       DataExtMod: modRq
