@@ -152,7 +152,8 @@
  				Promise.all([loadUSOrders, loadCAOrders]).then((responses) => {
  					var combined = responses[0].concat(responses[1]);
  					socket.emit('loadOrdersFinished', combined);
- 					callback(combined);
+ 					if (callback)
+ 						callback(combined);
  				}).catch((err) => {
  					console.log(err);
  				});
