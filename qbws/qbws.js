@@ -234,7 +234,7 @@ function checkError(response) {
       var requestID = invoiceRs.$.requestID;
       return Order.findOne({ orderId : requestID }).then(doc => {
         if (doc) {
-          if (invoiceRs.$.statusCode == '3140' || invoiceRs.$.statusCode == '3205') { // error
+          if (invoiceRs.$.statusCode == '3140' || invoiceRs.$.statusCode == '3205' || invoiceRs.$.statusCode == '3070') { // error
             doc.imported = false;
             doc.message = invoiceRs.$.statusMessage;
             console.log('found an error: ' + doc.message);
