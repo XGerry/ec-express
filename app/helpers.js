@@ -794,10 +794,15 @@ function createInvoiceRequests(qbws) {
 
 function updateDuplicateOrder(invoice) {
   return Order.findOne({orderId: invoice.RefNumber}, function(err, order) {
-    order.imported = true; // already imported
-    order.message = 'Duplicate order. Skipping.';
-    console.log('Found duplicate: ' + invoice.RefNumber);
-    return order.save();
+    if (order) {
+      order.imported = true; // already imported
+      order.message = 'Duplicate order. Skipping.';
+      console.log('Found duplicate: ' + invoice.RefNumber);
+      return order.save();
+    } else {
+      console.log('No order found...');
+      console.log(invoice);
+    }
   });
 }
 
