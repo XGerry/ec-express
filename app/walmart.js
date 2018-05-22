@@ -309,7 +309,6 @@ function capFeed(feed) {
 	var str = xmlDoc.end({pretty: true});
 	//str = str.substring(str.indexOf("\n") + 1);
 	str = '--ecstasy123\n\n'+str+'\n\n--ecstasy123--'; // you have to do this!
-	console.log(str);
 	return str;
 }
 
