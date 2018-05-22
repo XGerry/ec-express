@@ -915,6 +915,11 @@ function addItemProperties(data, item) {
       item.htcCode = data.DataExtValue;
       item.updated = true;
     }
+  } else if (data.DataExtName == 'Location 2') {
+    if (item.secondLocation != data.DataExtValue) {
+      item.secondLocation = data.DataExtValue;
+      item.updated = true;
+    }
   }
 }
 
@@ -979,6 +984,7 @@ function saveItem(item, qbws) {
       theItem.usStock = item.usStock;
       theItem.canStock = item.canStock;
       theItem.location = item.location;
+      theItem.secondLocation = item.secondLocation;
       theItem.barcode = item.barcode;
       theItem.countryOfOrigin = item.countryOfOrigin;
       theItem.isOption = item.isOption;
@@ -1015,6 +1021,7 @@ function saveToQuickbooks(item, qbws) {
             console.log('\nadding inventory and custom field request\n');
             qbws.addRequest(modifyInventoryRq(savedItem));
             qbws.addRequest(modifyCustomField('Location', savedItem.location, savedItem.listId));
+            qbws.addRequest(modifyCustomField('Location 2', savedItem.secondLocation, savedItem.listId));
             return Promise.resolve('Done.');
           });
         });
