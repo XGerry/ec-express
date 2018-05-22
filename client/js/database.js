@@ -3,6 +3,7 @@ var socket = io();
 var theItem = {};
 var allItems = [];
 var selectedItems = [];
+var putAwayMode = false;
 
 var queries = {
 	$eq: [],
@@ -77,6 +78,14 @@ $(document).ready(function() {
 	$('#searchButton').click(function(e) {
 		socket.emit('searchDB', getQuery());
 		allItems = [];
+	});
+
+	$('#putAwayMode').click(e => {
+		if (e.target.checked) {
+			putAwayMode = true;
+		} else {
+			putAwayMode = false;
+		}
 	});
 
 	// update stock automatically
@@ -296,6 +305,12 @@ function buildItemTable(items) {
 				$('#hideUnhide').text('Unhide');
 			} else {
 				$('#hideUnhide').text('Hide');
+			}
+
+			if (putAwayMode) {
+				console.log('focusing...');
+				$('#warehouse').addClass('show');
+				$('#location').select();
 			}
 		});
 

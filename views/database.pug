@@ -71,8 +71,16 @@ html
 								button.btn.btn-primary#sendProductsToAmazon(type="button").mr-2 Send To Amazon
 								button.btn.btn-success#unhideProductsButton(type="button").mr-2 Unhide
 								button.btn.btn-danger#hideProductsButton(type="button").mr-2 Hide
-					
-					table.table.table-striped.table-hover.pt-3#databaseTable
+					.row
+						.col-8
+							h4 Options
+					.row.mb-3
+						.col-8
+							.form-check
+								input(type="checkbox").form-check-input#putAwayMode
+								label.form-check-label(for="putAwayMode") Put Away Mode
+
+					table.table.table-striped.table-hover.mt-3#databaseTable
 						thead
 							tr
 								th.text-center.no-sort
@@ -181,7 +189,7 @@ html
 								.row.form-group
 									.col-lg-4
 										label(for="location") Location
-										input#location.form-control(type="text")
+										input#location.form-control(type="text").enterKeySaveItem
 									.col-lg-4
 										label(for="barcode") Barcode
 										input#barcode.form-control(type="text")
@@ -191,7 +199,7 @@ html
 								.row.form-group
 									.col-4
 										label Second Location
-										input#secondLocation.form-control(type="text")
+										input#secondLocation.form-control(type="text").enterKeySaveItem
 						
 						.card-header
 							.card-title.mb-0
