@@ -4,6 +4,7 @@ var theItem = {};
 var allItems = [];
 var selectedItems = [];
 var putAwayMode = false;
+var putAwayItem = null;
 
 var queries = {
 	$eq: [],
@@ -26,7 +27,8 @@ function getQuery() {
 		isOption: $('#isOption').is(':checked'),
 		hasOptions: $('#hasOptions').is(':checked'),
 		catalogIdCan: $('#catalogIdCan').val(),
-		location: $('#warehouseLocation').val()
+		location: $('#warehouseLocation').val(),
+		barcode: $('#barcodeSearch').val()
 	};
 
 	if (query.sku == '') {
@@ -53,6 +55,10 @@ function getQuery() {
 
 	if (query.location == '') {
 		delete query.location;
+	}
+
+	if (query.barcode == '') {
+		delete query.barcode;
 	}
 
 	return query;
@@ -177,6 +183,56 @@ $(document).ready(function() {
 			item.hidden = false;
 		});
 		socket.emit('bulkSaveItems', selectedItems);
+	});
+
+	$('#putAwaySKU').on('keyup', e => {
+		if (e.keyCode == 13) {
+			socket.emit('searchDB', {
+				$or: [{
+					sku: $('#putAwaySKU').val()
+				}, {
+					barcode: $('#putAwaySKU').val()
+				}]
+			}, items => {
+				$('#putAwayInfo').text(items.length + ' items found.');
+				putAwayItem = items[0];
+			});
+		}
+	});
+
+	$('#savePutAwayModal').click(e => {
+		// save the item first
+		var primary = $('#putAwayPrimary').val();
+		var secondary = $('#putAwaySecondary').val();
+		if (putAwayItem) {
+			if (primary != '') {
+				putAwayItem.location = primary;
+			}
+			if (secondary != '') {
+				putAwayItem.secondLocation = secondary;
+			}
+			socket.emit('saveItem', putAwayItem);
+		}
+
+		// clear the fields
+		putAwayItem = null;
+		$('#putAwayPrimary').val('');
+		$('#putAwaySecondary').val('');
+		$('#putAwaySKU').val('');
+
+		// save the location
+		var itemsOrLocations = $('#putAwayItems').val();
+		var items = itemsOrLocations.split('\n');
+		var location = $('#putAwayLocation').val();
+		var primary = $('input[name=locationType]:checked').val();
+		primary = primary == 'primary';
+		if (items.length > 0 && location != '') {
+			socket.emit('saveItemLocations', items, location, primary);
+		}
+
+		// clear the fields
+		$('#putAwayItems').text('');
+		$('#putAwayLocation').text('');
 	});
 });
 

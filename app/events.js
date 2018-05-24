@@ -272,9 +272,13 @@
  			}, true);
  		});
 
- 		socket.on('searchDB', function(query) {
+ 		socket.on('searchDB', function(query, callback) {
  			helpers.search(query, function(err, items) {
- 				socket.emit('searchFinished', items);
+ 				if (callback) {
+ 					callback(items);
+ 				} else {
+ 					socket.emit('searchFinished', items);
+ 				}
  			});
  		});
 
@@ -545,5 +549,30 @@
  		socket.on('removeDelivery', (delivery, callback) => {
  			helpers.removeDelivery(delivery).then(d => { callback(d); });
  		}); 
+
+ 		socket.on('saveItemLocations', (items, location, primary) => {
+ 			console.log('saving items');
+ 			Item.find({
+ 				$or: [{
+	 				barcode: {
+	 					$in: items
+	 				}
+ 				}, {
+ 					sku: {
+	 					$in: items
+	 				}
+ 				}]
+ 			}).then(items => {
+ 				console.log(items.length + ' items found');
+ 				items.forEach(item => {
+ 					if (primary) {
+ 						item.location = location;
+ 					} else {
+ 						item.secondLocation = location;
+ 					}
+ 					item.save();
+ 				});
+ 			});
+ 		});
  	});
  }

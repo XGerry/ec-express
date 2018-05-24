@@ -8,7 +8,7 @@ var Order = require('./model/order.js');
 var Item = require('./model/item.js');
 
 module.exports = function(qbws) {
-  var sync = schedule.scheduleJob('0 0-20 * * *', () => {
+  var sync = schedule.scheduleJob('0 4-20 * * *', () => {
     syncOrdersAndInventory(qbws)
   }); 
   var refresh = schedule.scheduleJob('0 21 * * *', () => {

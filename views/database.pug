@@ -73,12 +73,10 @@ html
 								button.btn.btn-danger#hideProductsButton(type="button").mr-2 Hide
 					.row
 						.col-8
-							h4 Options
+							h4 Tools
 					.row.mb-3
 						.col-8
-							.form-check
-								input(type="checkbox").form-check-input#putAwayMode
-								label.form-check-label(for="putAwayMode") Put Away Mode
+							button.btn.btn-primary(data-toggle="modal" data-target="#putAwayModal") Put Away Mode
 
 					table.table.table-striped.table-hover.mt-3#databaseTable
 						thead
@@ -93,6 +91,58 @@ html
 								th Hidden
 						tbody#databaseTableBody
 		+footer
+
+	#putAwayModal.modal.fade(role="dialog")
+		.modal-dialog.modal-lg(role="document")
+			.modal-content
+				.modal-header
+					h4#itemNameTitle Put Away Mode
+					button.close(data-dismiss="modal") &times;
+				.modal-body
+					.card
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#viaItem") Via Item
+						#viaItem.collapse.show
+							.card-body
+								.row.form-group.mb-0
+									.col-4
+										label(for="putAwaySKU") SKU or Barcode
+										input#putAwaySKU.form-control(type="text")
+										p.mb-0.mt-1#putAwayInfo
+									.col-4
+										label(for="putAwayPrimary") Primary Location
+										input#putAwayPrimary.form-control(type="text")
+									.col-4
+										label(for="putAwaySecondary") Secondary Location
+										input#putAwaySecondary.form-control(type="text")
+					.card.mt-3
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#viaLocation") Via Location
+						#viaLocation.collapse.show
+							.card-body
+								.row.form-group
+									.col-6
+										.row
+											.col-12
+												label(for="putAwayLocation") Location
+												input#putAwayLocation.form-control(type="text")
+										.row.mt-3
+											.col-12
+												.form-check
+													input.form-check-input#primarySelect(type="radio" name="locationType" value="primary" checked)
+													label.form-check-label(for="primarySelect") Primary
+												.form-check
+													input.form-check-input#secondarySelect(type="radio" name="locationType" value="secondary")
+													label.form-check-label(for="secondarySelect") Secondary
+									.col-6
+										label(for="putAwayItems") Item Numbers or Barcodes
+										textarea#putAwayItems.form-control(type="text" rows="4")
+				.modal-footer
+					button.btn.btn-success#savePutAwayModal(type="button") Save Locations
+					button.btn.btn-secondary(type="button", data-dismiss="modal") Close
+
 
 	#itemModal.modal.fade(role="dialog")
 		.modal-dialog.modal-lg(role="document")
