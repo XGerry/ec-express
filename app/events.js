@@ -570,7 +570,7 @@
  					} else {
  						item.secondLocation = location;
  					}
- 					item.save();
+ 					helpers.saveItem(item, qbws);
  				});
  			});
  		});
