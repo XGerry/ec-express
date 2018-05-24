@@ -222,22 +222,27 @@ $(document).ready(function() {
 		}
 
 		// clear the fields
-		$('#putAwayItems').text('');
-		$('#putAwayLocation').text('');
+		$('#putAwayItems').val('');
+		$('#putAwayLocation').val('');
 	});
 });
 
 function findPutAwayItem(cb) {
-	socket.emit('searchDB', {
-		$or: [{
-			sku: $('#putAwaySKU').val()
-		}, {
-			barcode: $('#putAwaySKU').val()
-		}]
-	}, items => {
-		$('#putAwayInfo').text(items.length + ' items found.');
-		cb(items[0]);
-	});
+	var skuOrBarcode = $('#putAwaySKU').val();
+	if (skuOrBarcode != '') {
+		socket.emit('searchDB', {
+			$or: [{
+				sku: skuOrBarcode
+			}, {
+				barcode: skuOrBarcode
+			}]
+		}, items => {
+			$('#putAwayInfo').text(items.length + ' items found.');
+			cb(items[0]);
+		});
+	} else {
+		cb(null);
+	}
 }
 
 socket.on('searchSKUFinished', function(items) {
