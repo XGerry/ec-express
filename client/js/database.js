@@ -4,7 +4,6 @@ var theItem = {};
 var allItems = [];
 var selectedItems = [];
 var putAwayMode = false;
-var putAwayItem = null;
 
 var queries = {
 	$eq: [],
@@ -187,16 +186,7 @@ $(document).ready(function() {
 
 	$('#putAwaySKU').on('keyup', e => {
 		if (e.keyCode == 13) {
-			socket.emit('searchDB', {
-				$or: [{
-					sku: $('#putAwaySKU').val()
-				}, {
-					barcode: $('#putAwaySKU').val()
-				}]
-			}, items => {
-				$('#putAwayInfo').text(items.length + ' items found.');
-				putAwayItem = items[0];
-			});
+			findPutAwayItem();
 		}
 	});
 
@@ -204,30 +194,31 @@ $(document).ready(function() {
 		// save the item first
 		var primary = $('#putAwayPrimary').val();
 		var secondary = $('#putAwaySecondary').val();
-		if (putAwayItem) {
-			if (primary != '') {
-				putAwayItem.location = primary;
+		findPutAwayItem(putAwayItem => {
+			console.log(putAwayItem);
+			if (putAwayItem) {
+				if (primary != '') {
+					putAwayItem.location = primary;
+				}
+				if (secondary != '') {
+					putAwayItem.secondLocation = secondary;
+				}
+				socket.emit('saveItem', putAwayItem);
 			}
-			if (secondary != '') {
-				putAwayItem.secondLocation = secondary;
-			}
-			socket.emit('saveItem', putAwayItem);
-		}
-
-		// clear the fields
-		putAwayItem = null;
-		$('#putAwayPrimary').val('');
-		$('#putAwaySecondary').val('');
-		$('#putAwaySKU').val('');
+			// clear the fields
+			$('#putAwayPrimary').val('');
+			$('#putAwaySecondary').val('');
+			$('#putAwaySKU').val('');
+		});
 
 		// save the location
 		var itemsOrLocations = $('#putAwayItems').val();
 		var items = itemsOrLocations.split('\n');
 		var location = $('#putAwayLocation').val();
-		var primary = $('input[name=locationType]:checked').val();
-		primary = primary == 'primary';
+		var primaryOrSecondary = $('input[name=locationType]:checked').val();
+		primaryOrSecondary = primaryOrSecondary == 'primary';
 		if (items.length > 0 && location != '') {
-			socket.emit('saveItemLocations', items, location, primary);
+			socket.emit('saveItemLocations', items, location, primaryOrSecondary);
 		}
 
 		// clear the fields
@@ -235,6 +226,19 @@ $(document).ready(function() {
 		$('#putAwayLocation').text('');
 	});
 });
+
+function findPutAwayItem(cb) {
+	socket.emit('searchDB', {
+		$or: [{
+			sku: $('#putAwaySKU').val()
+		}, {
+			barcode: $('#putAwaySKU').val()
+		}]
+	}, items => {
+		$('#putAwayInfo').text(items.length + ' items found.');
+		cb(items[0]);
+	});
+}
 
 socket.on('searchSKUFinished', function(items) {
 	$('#items').empty();
