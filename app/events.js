@@ -570,7 +570,7 @@
  					} else {
  						item.secondLocation = location;
  					}
- 					helpers.saveItem(item, qbws);
+ 					cart3d.saveItem(item, qbws);
  				});
  			});
  		});
