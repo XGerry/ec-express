@@ -231,9 +231,9 @@ $(document).keyup(e => {
 	if (e.keyCode == 66 || e.which == 66) { // b key
 		// highlight the barcode field
 		//$('#barcodeSearch').target();
-		$('#barcodeSearch').select();
+		//$('#barcodeSearch').select();
 	} else if (e.keyCode == 76 || e.which == 76) {
-		$('#warehouseLocation').select();
+		//$('#warehouseLocation').select();
 	}
 });
 
