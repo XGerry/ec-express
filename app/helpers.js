@@ -995,7 +995,9 @@ function saveItem(item, qbws) {
       theItem.usSalePrice = item.usSalePrice;
       theItem.canSalePrice = item.canSalePrice;
       theItem.save().then(savedItem => {
-        saveToQuickbooks(savedItem, qbws);
+        if (savedItem.hasOptions == undefined || savedItem.hasOptions == false) {
+          saveToQuickbooks(savedItem, qbws);
+        }
       });
     }
   });

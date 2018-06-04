@@ -544,6 +544,7 @@ function setItemModalFields(item) {
 
 function saveItem() {
 	theEditItem.quantity = $('#itemQuantityModal').val();
+	theEditItem.name = $('#itemNameModal').val();
 	theEditItem.salesPrice = $('#itemPriceModal').val();
 	buildOrderTable();
 	$('#itemModal').modal('hide');
