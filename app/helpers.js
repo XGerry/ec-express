@@ -1283,6 +1283,7 @@ function setItemFieldsForAmazon(order) {
             item.ItemWarehouseLocation = dbItem.location;
           }
         }
+        item.ItemBarcode = dbItem.barcode;
       }
     });
     promises.push(updateItem);

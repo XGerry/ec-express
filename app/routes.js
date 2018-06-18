@@ -178,6 +178,43 @@ module.exports = function(app, passport) {
     res.render('order-import');
   });
 
+  app.get('/pick-order', (req, res) => {
+    var orderId = req.query.orderId;
+    if (orderId) {
+      getCartOrder(orderId).then(order => {
+        res.render('pick-order', {
+          order: order
+        });
+      });
+    } else {
+      res.render('print-orders');
+    }
+  });
+
+  function getCartOrder(orderId) {
+    var prefix = orderId.split('-')[0];
+    var invoiceId = orderId.split('-')[1];
+    var getOrder = cart3d.getOrder({invoicenumber: invoiceId}, prefix == 'CA');
+    var promises = [];
+    return getOrder.then((orders) => {
+      var order = orders[0];
+      var setItems = helpers.setItemFieldsForAmazon(order);
+      var updateCustomer = cart3d.searchCustomer(order.BillingEmail, order.InvoiceNumberPrefix == 'CA-');
+      var setCustomer = updateCustomer.then(customers => {
+        if (customers[0]) {
+          order.CustomerGroupID = customers[0].CustomerGroupID;
+        } else {
+          order.CustomerGroupID = 0;
+        }
+      });
+      promises.push(setItems);
+      promises.push(setCustomer);
+      return Promise.all(promises).then(() => {
+        return order;
+      });
+    });
+  }
+
   app.get('/picksheet', function(req, res) {
     var orderStatus = req.query.orderStatus;
     var orderId = req.query.orderId;
@@ -190,28 +227,10 @@ module.exports = function(app, passport) {
         });
       });
     } else if (orderId) {
-      var prefix = orderId.split('-')[0];
-      var invoiceId = orderId.split('-')[1];
-      var getOrder = cart3d.getOrder({invoicenumber: invoiceId}, prefix == 'CA');
-      var promises = [];
-      getOrder.then((orders) => {
-        var order = orders[0];
-        var setItems = helpers.setItemFieldsForAmazon(order);
-        var updateCustomer = cart3d.searchCustomer(order.BillingEmail, order.InvoiceNumberPrefix == 'CA-');
-        var setCustomer = updateCustomer.then(customers => {
-          console.log(customers);
-          if (customers[0]) {
-            order.CustomerGroupID = customers[0].CustomerGroupID;
-          } else {
-            order.CustomerGroupID = 0;
-          }
-        });
-        promises.push(setItems);
-        promises.push(setCustomer);
-        Promise.all(promises).then(() => {
-          res.render('picksheet', {
-            order: order
-          });
+      getCartOrder(orderId).then(order => {
+        console.log(order);
+        res.render('picksheet', {
+          order: order
         });
       }).catch(err => {
         console.log(err);
