@@ -972,7 +972,7 @@ function updateCustomer(dbCustomer, customer) {
   dbCustomer.save();
 }
 
-function saveItem(item, qbws) {
+function saveItem(item, qbws, adjustInventory) {
   // save the item in our db
   Item.findOne({sku: item.sku}).then(theItem => {
     if (theItem) {
@@ -996,7 +996,7 @@ function saveItem(item, qbws) {
       theItem.canSalePrice = item.canSalePrice;
       theItem.save().then(savedItem => {
         if (savedItem.hasOptions == undefined || savedItem.hasOptions == false) {
-          saveToQuickbooks(savedItem, qbws);
+          saveToQuickbooks(savedItem, qbws, adjustInventory);
         }
       });
     }
@@ -1007,7 +1007,7 @@ function saveItem(item, qbws) {
  * Gets the item from Quickbooks, updates the necessary information. Then
  * provides a callback function which takes the savedItem and the item from QB.
  */
-function saveToQuickbooks(item, qbws) {
+function saveToQuickbooks(item, qbws, adjustInventory) {
   // create request in qb
   console.log('\nADDING GET ITEM REQUEST\n');
   qbws.addRequest(getItemRq(item), response => {
@@ -1021,7 +1021,9 @@ function saveToQuickbooks(item, qbws) {
           console.log('\nadding modify item request\n');
           qbws.addRequest(modifyItemRq(savedItem), (response) => {
             console.log('\nadding inventory and custom field request\n');
-            qbws.addRequest(modifyInventoryRq(savedItem));
+            if (adjustInventory) {
+              qbws.addRequest(modifyInventoryRq(savedItem));
+            }
             qbws.addRequest(modifyCustomField('Location', savedItem.location, savedItem.listId));
             qbws.addRequest(modifyCustomField('Location 2', savedItem.secondLocation, savedItem.listId));
             return Promise.resolve('Done.');

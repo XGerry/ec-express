@@ -330,8 +330,8 @@
  		/**
  		 * Updates the item in our db, qb, and 3d cart (us and can)
  		 */
- 		socket.on('saveItem', function(item) {
- 			cart3d.saveItem(item, qbws);
+ 		socket.on('saveItem', function(item, adjustInventory) {
+ 			cart3d.saveItem(item, qbws, adjustInventory);
  		});
 
  		socket.on('bulkSaveItems', (items) => {

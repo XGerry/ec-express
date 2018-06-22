@@ -405,8 +405,9 @@ function buildItemTable(items) {
 
 function saveItem(item) {
 	item = saveItemProperties(item);
-	socket.emit('saveItem', item);
 	$('#itemModal').modal('hide');
+	var adjustInventory = confirm('Do you want to adjust the inventory in Quickbooks?');
+	socket.emit('saveItem', item, adjustInventory);
 }
 
 function saveItemProperties(item) {

@@ -1083,8 +1083,8 @@ function updateCategories(categories, finalCallback) {
   });
 }
 
-function saveItem(item, qbws, callback) {
-  helpers.saveItem(item, qbws);
+function saveItem(item, qbws, adjustInventory, callback) {
+  helpers.saveItem(item, qbws, adjustInventory);
 
   if (!item.isOption) {
     // US Website
@@ -1103,7 +1103,7 @@ function saveItem(item, qbws, callback) {
         SalePrice: item.usSalePrice
       },
       PriceLevel1: item.usPrice,
-      MFGID: item.sku,
+      //MFGID: item.sku,
       WarehouseLocation: item.location,
       //GTIN: item.barcode,
       ExtraField8: item.barcode,
