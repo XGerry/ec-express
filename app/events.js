@@ -9,6 +9,7 @@
  var Settings = require('./model/settings');
  var CustomOrder = require('./model/customOrder');
  var Item = require('./model/item');
+ const fs = require('fs');
 
  module.exports = function(io, qbws) {
  	io.on('connection', function(socket) {
@@ -549,6 +550,21 @@
  		socket.on('removeDelivery', (delivery, callback) => {
  			helpers.removeDelivery(delivery).then(d => { callback(d); });
  		}); 
+
+ 		socket.on('createLabels', (items, cb) => {
+			var labelFile = '';
+
+			items.forEach(item => {
+				var line = item.sku + ',' + item.barcode + '\n';
+				labelFile += line;
+			});
+
+			fs.writeFile('product-labels.csv', labelFile, err => {
+				if (err) throw err;
+				console.log('Done');
+				cb('Done!');
+			});
+ 		});
 
  		socket.on('saveItemLocations', (items, location, primary) => {
  			console.log('saving items');

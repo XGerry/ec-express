@@ -161,6 +161,11 @@ function buildCartItem(item, canadian) {
 
   if (item.inactive && !item.hasOptions) {
     cartItem.SKUInfo.Stock = 0;
+    //cartItem.Hide = true;
+  }
+
+  if (!item.inactive) {
+    //cartItem.Hide = false;
   }
 
   return cartItem;

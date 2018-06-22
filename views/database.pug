@@ -66,17 +66,23 @@ html
 												button.btn.btn-primary(type="button")#orQuery OR
 									#queries
 						.col-4
-							.btn-toolbar.pb-3
-								button.btn.btn-primary#sendProductsToWalmart(type="button").mr-2 Send To Walmart
-								button.btn.btn-primary#sendProductsToAmazon(type="button").mr-2 Send To Amazon
-								button.btn.btn-success#unhideProductsButton(type="button").mr-2 Unhide
-								button.btn.btn-danger#hideProductsButton(type="button").mr-2 Hide
+							.row
+								.col-12
+									.btn-toolbar.pb-2
+										button.btn.btn-primary#sendProductsToWalmart(type="button").mr-2 Send To Walmart
+										button.btn.btn-primary#sendProductsToAmazon(type="button").mr-2 Send To Amazon
+										button.btn.btn-success#unhideProductsButton(type="button").mr-2 Unhide
+										button.btn.btn-danger#hideProductsButton(type="button").mr-2 Hide
+							.row
+								.col-12
+									button.btn.btn-outline-primary#createLabelsButton(type="button") Create Labels
 					.row
 						.col-8
 							h4 Tools
 					.row.mb-3
 						.col-8
 							button.btn.btn-primary(data-toggle="modal" data-target="#putAwayModal") Put Away Mode
+							a.btn.btn-outline-success(href="/labels", target="_blank").ml-2 Download Labels
 
 					table.table.table-striped.table-hover.mt-3#databaseTable
 						thead

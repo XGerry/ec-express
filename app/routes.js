@@ -343,6 +343,11 @@ module.exports = function(app, passport) {
     }
   });
 
+  app.get('/labels', (req, res) => {
+    var filePath = path.join(__dirname, '../product-labels.csv');
+    res.download(filePath, 'labels.csv');
+  });
+
   app.get('/order-dashboard', (req, res) => {
     // find any orders that are over the 72 hour mark
     // that are in new or processing

@@ -184,6 +184,12 @@ $(document).ready(function() {
 		socket.emit('bulkSaveItems', selectedItems);
 	});
 
+	$('#createLabelsButton').click(e => {
+		socket.emit('createLabels', selectedItems, () => {
+			alert('Finished. Click the Download Labels button!');
+		});
+	});
+
 	$('#putAwaySKU').on('keyup', e => {
 		if (e.keyCode == 13) {
 			findPutAwayItem();
