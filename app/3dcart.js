@@ -1135,9 +1135,10 @@ function saveItem(item, qbws, adjustInventory, callback) {
     canOptions.body[0].PriceLevel1 = item.canPrice;
     var canSave = rp(canOptions);
 
-    Promise.all([canSave, usSave]).then(responses => {
+    return Promise.all([canSave, usSave]).then(responses => {
       console.log('saved item for both sites');
       console.log(responses);
+      return responses;
     });
   } else {
     // Options
@@ -1161,9 +1162,10 @@ function saveItem(item, qbws, adjustInventory, callback) {
     canOptions.body.AdvancedOptionStock = item.canStock;
     var canSave = rp(canOptions);
 
-    Promise.all([usSave, canSave]).then(responses => {
+    return Promise.all([usSave, canSave]).then(responses => {
       console.log('Saved options for both sites');
       console.log(responses);
+      return responses;
     });
   }
 }

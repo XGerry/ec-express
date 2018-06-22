@@ -331,8 +331,10 @@
  		/**
  		 * Updates the item in our db, qb, and 3d cart (us and can)
  		 */
- 		socket.on('saveItem', function(item, adjustInventory) {
- 			cart3d.saveItem(item, qbws, adjustInventory);
+ 		socket.on('saveItem', function(item, adjustInventory, cb) {
+ 			cart3d.saveItem(item, qbws, adjustInventory).then(responses => {
+ 				cb(responses);
+ 			});
  		});
 
  		socket.on('bulkSaveItems', (items) => {
@@ -556,6 +558,7 @@
 
 			items.forEach(item => {
 				var line = item.sku + ',' + item.barcode + '\n';
+				line.trim();
 				labelFile += line;
 			});
 

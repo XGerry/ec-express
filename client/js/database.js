@@ -4,6 +4,7 @@ var theItem = {};
 var allItems = [];
 var selectedItems = [];
 var putAwayMode = false;
+var lastQuery = '';
 
 var queries = {
 	$eq: [],
@@ -81,8 +82,10 @@ $(document).ready(function() {
 	});
 
 	$('#searchButton').click(function(e) {
-		socket.emit('searchDB', getQuery());
+		lastQuery = getQuery();
+		socket.emit('searchDB', lastQuery);
 		allItems = [];
+
 	});
 
 	$('#putAwayMode').click(e => {
@@ -160,7 +163,8 @@ $(document).ready(function() {
 
 	$('.enterKeySearch').on('keyup', function(e) {
 		if (e.keyCode == 13) {
-			socket.emit('searchDB', getQuery());
+			lastQuery = getQuery();
+			socket.emit('searchDB', lastQuery);
 		}
 	});
 
@@ -413,7 +417,15 @@ function saveItem(item) {
 	item = saveItemProperties(item);
 	$('#itemModal').modal('hide');
 	var adjustInventory = confirm('Do you want to adjust the inventory in Quickbooks?');
-	socket.emit('saveItem', item, adjustInventory);
+	socket.emit('saveItem', item, adjustInventory, responses => {
+		// refresh the database
+		socket.emit('searchDB', lastQuery, items => {
+			$('#databaseTable').dataTable().fnDestroy();
+			$('#databaseTableBody').empty();
+			buildItemTable(items);
+			allItems = items;
+		});
+	});
 }
 
 function saveItemProperties(item) {
