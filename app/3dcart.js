@@ -1088,7 +1088,7 @@ function updateCategories(categories, finalCallback) {
   });
 }
 
-function saveItem(item, qbws, adjustInventory, callback) {
+function saveItem(item, qbws, adjustInventory) {
   helpers.saveItem(item, qbws, adjustInventory);
 
   if (!item.isOption) {
@@ -1184,20 +1184,11 @@ function saveOrder(order, orderId, isCanadian) {
   return rp(options);
 }
 
-function saveItemMultiple(items, qbws) {
-  var requests = [];
-  async.eachLimit(items, 2, function(item, callback) {
-    function doSave() {
-      saveItem(item, qbws, callback);
-    }
-    setTimeout(doSave, 500);
-  }, function(err) {
-    if (err) {
-      console.log('Error!');
-    } else {
-      console.log('Saved everything.')
-    }
-  });
+async function saveItemMultiple(items, qbws) {
+  for (let item of items) {
+    await saveItem(item, qbws, true);
+  }
+  return 'Done.';
 }
 
 function saveCustomOrder(order, saveToSite) {

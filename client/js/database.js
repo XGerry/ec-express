@@ -200,6 +200,21 @@ $(document).ready(function() {
 		}
 	});
 
+	$('#zeroQuantitiesButton').click(e => {
+		selectedItems.forEach(item => {
+			item.stock = 0;
+			item.usStock = 0;
+			item.canStock = 0;
+		});
+
+		socket.emit('bulkSaveItems', selectedItems, (responses) => {
+			socket.emit('searchDB', lastQuery, items => {
+				refreshTable(items);
+			});
+		});
+
+	});
+
 	$('#savePutAwayModal').click(e => {
 		// save the item first
 		var primary = $('#putAwayPrimary').val();
@@ -246,6 +261,13 @@ $(document).keyup(e => {
 		//$('#warehouseLocation').select();
 	}
 });
+
+function refreshTable(items) {
+	$('#databaseTable').dataTable().fnDestroy();
+	$('#databaseTableBody').empty();
+	buildItemTable(items);
+	allItems = items;
+}
 
 function findPutAwayItem(cb) {
 	var skuOrBarcode = $('#putAwaySKU').val();
@@ -420,10 +442,7 @@ function saveItem(item) {
 	socket.emit('saveItem', item, adjustInventory, responses => {
 		// refresh the database
 		socket.emit('searchDB', lastQuery, items => {
-			$('#databaseTable').dataTable().fnDestroy();
-			$('#databaseTableBody').empty();
-			buildItemTable(items);
-			allItems = items;
+			refreshTable(items);
 		});
 	});
 }

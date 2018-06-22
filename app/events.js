@@ -337,8 +337,10 @@
  			});
  		});
 
- 		socket.on('bulkSaveItems', (items) => {
- 			cart3d.saveItemMultiple(items, qbws);
+ 		socket.on('bulkSaveItems', (items, cb) => {
+ 			cart3d.saveItemMultiple(items, qbws).then(responses => {
+ 				cb(responses);
+ 			});
  		});
 
  		socket.on('saveCustomer', function(customer) {
