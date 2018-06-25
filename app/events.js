@@ -333,7 +333,9 @@
  		 */
  		socket.on('saveItem', function(item, adjustInventory, cb) {
  			cart3d.saveItem(item, qbws, adjustInventory).then(responses => {
- 				cb(responses);
+ 				if (cb) {
+ 					cb(responses);
+ 				}
  			});
  		});
 
