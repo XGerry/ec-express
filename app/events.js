@@ -575,10 +575,10 @@
 
  		socket.on('updateInventory', (items, memo, cb) => {
  			var request = helpers.modifyItemsInventoryRq(items, memo);
- 			console.log(request);
  			qbws.addRequest(request, () => {
  				console.log('upodated the inventory');
  			});
+ 			cb();
  		});
 
  		socket.on('saveItemLocations', (items, location, primary) => {

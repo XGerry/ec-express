@@ -6,6 +6,10 @@ $(document).ready(e => {
   $('#productsGoButton').click(e => {
     redirectToPage('productsSelect');
   });
+
+  $('#deliveriesGoButton').click(e => {
+  	redirectToPage('deliveriesSelect');
+  });
 });
 
 function redirectToPage(selectId) {

@@ -8,7 +8,6 @@ $(document).ready(e => {
 		if (code === 13 || code === 9) { // enter or tab key
 			var sku = $('#itemSKU').val().trim();
 			socket.emit('searchDB', {$or: [{ sku: sku }, { barcode: sku }]}, items => {
-				console.log(items);
 				var item = items[0];
 				theItem = item;
 				if (item == null) {
@@ -38,12 +37,24 @@ $(document).ready(e => {
 
 	$('#saveInventoryButton').click(e => {
 		var memo = $('#notesArea').val();
-		console.log(memo);
 		socket.emit('updateInventory', inventoryList, memo, response => {
-			console.log('done');
+			$('#info').text('Inventory Adjustment request sent to Quickbooks. Run the Web Connector.');
+			clearFields();
 		});
 	});
 });
+
+function clearFields() {
+	$('#itemSKU').val('');
+	$('#itemQuantity').val('1');
+	$('#notesArea').val('');
+	inventoryList = [];
+	buildInventoryTable();
+	theItem = {};
+	setTimeout(() => {
+		$('#info').text('');
+	}, 3000);
+}
 
 function addToInventoryList(item, stockLevel) {
 	// find the item in the list

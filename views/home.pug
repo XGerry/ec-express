@@ -40,8 +40,8 @@ html
 								p.card-text.pt-2 Adjust product attributes, view inventory and send products to 3rd party platforms.
 								.input-group
 									select.form-control#productsSelect
-										option Dashboard
 										option(value="/database") Database
+										option(value="/inventory") Inventory Adjustment
 										option(value="/amazon") Feeds
 										option(value="/product-upload") Upload
 									.input-group-append
@@ -49,17 +49,16 @@ html
 							.card-footer= totalItems + " items and growing."
 						.card
 							.card-header 
-								h5.mb-0 Shipments
+								h5.mb-0 Deliveries
 							.card-body.text-center
 								i.fal.fa-truck.fa-fw.fa-5x
 								p.card-text.pt-2 View the status of shipments into the building, create and manage POs.
 								.input-group
-									select.form-control
-										option Dashboard
-										option Shipments
-										option Purchase Orders
+									select.form-control#deliveriesSelect
+										option(value="/deliveries") Dashboard
+										option(value="purchase-orders") Purchase Orders
 									.input-group-append
-										button.btn.btn-primary.disabled Go
+										button.btn.btn-primary#deliveriesGoButton Go
 							.card-footer 3 shipments awaiting delivery.
 						.card
 							.card-header 

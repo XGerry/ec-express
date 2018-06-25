@@ -438,8 +438,7 @@ function buildItemTable(items) {
 function saveItem(item) {
 	item = saveItemProperties(item);
 	$('#itemModal').modal('hide');
-	var adjustInventory = confirm('Do you want to adjust the inventory in Quickbooks?');
-	socket.emit('saveItem', item, adjustInventory, responses => {
+	socket.emit('saveItem', item, false, responses => {
 		// refresh the database
 		socket.emit('searchDB', lastQuery, items => {
 			refreshTable(items);
