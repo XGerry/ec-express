@@ -571,6 +571,14 @@
 			});
  		});
 
+ 		socket.on('updateInventory', (items, memo, cb) => {
+ 			var request = helpers.modifyItemsInventoryRq(items, memo);
+ 			console.log(request);
+ 			qbws.addRequest(request, () => {
+ 				console.log('upodated the inventory');
+ 			});
+ 		});
+
  		socket.on('saveItemLocations', (items, location, primary) => {
  			console.log('saving items');
  			Item.find({

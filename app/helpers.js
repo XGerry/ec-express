@@ -211,6 +211,37 @@ function modifyInventoryRq(item) {
   return str;
 }
 
+function modifyItemsInventoryRq(items, memo) {
+  var qbRq = {
+    InventoryAdjustmentAddRq : {
+      InventoryAdjustmentAdd: {
+        AccountRef: {
+          FullName: 'inventory changes'
+        },
+        Memo: memo,
+        InventoryAdjustmentLineAdd: []
+      }
+    }
+  };
+
+  items.forEach(item => {
+    var itemLineAdd = {
+      ItemRef: {
+        FullName: item.sku
+      },
+      QuantityAdjustment: {
+        NewQuantity: item.newStock
+      }
+    };
+
+    qbRq.InventoryAdjustmentAddRq.InventoryAdjustmentAdd.InventoryAdjustmentLineAdd.push(itemLineAdd);
+  });
+  
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({pretty: true});
+  return str;  
+}
+
 function getMultipleItemsRq(items) {
   var qbRq = {
     ItemInventoryQueryRq : {
@@ -1378,6 +1409,7 @@ module.exports = {
   queryInvoiceRq: queryInvoiceRq,
   querySalesReceiptRq: querySalesReceiptRq,
   modifyItemRq: modifyItemRq,
+  modifyItemsInventoryRq: modifyItemsInventoryRq,
   search: search,
   saveItem: saveItem,
   saveToQuickbooks: saveToQuickbooks,

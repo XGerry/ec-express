@@ -2,161 +2,163 @@ doctype html
 include mixins
 html
 	include includes/head
-		title Inventory Sync
+		script(src="/js/papaparse.min.js")
+		script(src="/js/inventory-adjustments.js")
+		title Inventory Adjustments
 	body
-		+navbar("inventory")
-		.container
-			.starter-template
-				h1 Inventory Sync
-				p.lead Synchronize the inventory in Quickbooks with 3D Cart
+		#wrapper
+			+sidebarNav("inventory")
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2#orderNavTitle Inventory Adjustments
+					span.navbar-text#info.ml-2
+					ul.navbar-nav.ml-auto
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="/inventory").dropdown-item New Adjustment
+								a(href="#").dropdown-item#clearItemsButton Clear Items
+								.dropdown-divider
+								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Import
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#browseButton Browse for file
+								input(type="file" style="display:none;")#fileInput
+						.btn-group
+							button.btn.btn-success(type="button")#saveInventoryButton Save to Quickbooks
 
-		.container.panel.with-nav-tabs
-			ul.nav.nav-tabs#myTab(role="tablist")
-				li.active
-					a(data-toggle="tab", href="#quickSync") Quick Sync
-				li
-					a(data-toggle="tab", href="#basicSync") Basic Sync
-				li
-					a(data-toggle="tab", href="#advancedSync") Advanced Sync
-				li
-					a(data-toggle="tab", href="#settings") Inventory Settings
-			
-			.tab-content.list-group
-				#quickSync.tab-pane.fade.in.active
-					.list-group-item
-						.row
-							.col-lg-12
-								.btn-toolbar
-									button.btn.btn-success(type="button")#syncInventoryAndOrders Sync Inventory and Orders
-					.list-group-item
-						h2 Status
-						.row
-							.col-lg-11
-								label Get Orders
-								.progress
-									#getOrdersProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-								p#orderInfo
-							.col-lg-1
-								i#quickGetOrders.fa.fa-square-o.fa-2x
-						.row
-							.col-lg-11
-								label Refresh Inventory
-								.progress
-									.refreshInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-							.col-lg-1
-								i#quickGetItems.fa.fa-square-o.fa-2x
-						.row
-							.col-lg-11
-								label Run the Web Connector
-								.progress
-									.connectorBar.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-							.col-lg-1
-								i#quickRunConnector.fa.fa-square-o.fa-2x
-						.row
-							.col-lg-11
-								label Saving Items
-								.progress
-									.saveInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-							.col-lg-1
-								i#quickSaveItems.fa.fa-square-o.fa-2x
-						.row
-							.col-lg-11
-								label Saving Options
-								.progress
-									.saveOptionsProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-							.col-lg-1
-								i#quickSaveOptions.fa.fa-square-o.fa-2x
-						.row
-							.col-lg-11
-								label Recalculating Base Items with Options
-								.progress
-									.baseStockProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-							.col-lg-1
-								i#quickRecalculate.fa.fa-square-o.fa-2x
+				.container.pt-3
+					.row
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Inventory Sheet
+								.card-body
+									.form-group.row
+										.col-sm-6
+											label(for="itemSKU") SKU or Barcode
+											input#itemSKU.form-control(type="text", list="itemList")
+											datalist#itemList
+										.col-sm-6
+											label(for="itemQuantity") New Stock
+											input#itemQuantity.form-control(type="number", value="1")
+									hr
+									table.table.table-striped.table-hover#inventoryTable
+										thead
+											tr
+												th SKU
+												th Stock
+										tbody#inventoryTableBody
+					.row.pt-2
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Options
+								.card-body
+									.row
+										.col-sm-12
+											label Comments
+											textarea.form-control(rows="5")#notesArea
+		+footer
 
-				#basicSync.tab-pane.fade.in
-					.list-group-item
-						.row
-							.col-lg-1.text-center
-								i#quickStep1.fa.fa-square-o.fa-2x
-							.col-lg-7
-								p First, let's determine how many items we have to query for in Quickbooks.
-								p#step1
-							.col-lg-4.text-right
-								button.btn.btn-success.bottom-10(type="button")#getInventoryButton Get Items
-						.row
-							.col-lg-12
-								.progress
-									.refreshInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+	#itemModal.modal.fade(role="dialog")
+		.modal-dialog.modal-lg
+			.modal-content
+				.modal-header
+					h4#itemNameTitle Item Name
+					button.close(data-dismiss="modal") &times;
+				.modal-body
+					.card
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#generalInfo", href="#") General
+						#generalInfo.collapse.show
+							.card-body
+								.row.form-group
+									.col-sm-6
+										label(for="itemSKUModal") SKU
+										input#itemSKUModal.form-control(type="text", readonly)
+									.col-sm-6
+										label(for="itemNameModal") Name
+										input#itemNameModal.form-control(type="text")
+								.row.form-group
+									.col-sm-6
+										label(for="itemQuantityModal") Quantity
+										input#itemQuantityModal.form-control(type="number")
+									.col-sm-6
+										label(for="itemPriceModal") Price
+										.input-group
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
+											input#itemPriceModal.form-control(type="number", step="any")
+								.row.form-group
+									.col-sm-4
+										label(for="stock") Stock
+										input#stock.form-control(type="number")
+									.col-sm-4
+										label(for="usStock") US Stock
+										input#usStock.form-control(type="number")
+									.col-sm-4
+										label(for="canStock") Canadian Stock
+										input#canStock.form-control(type="number")
 
-					.list-group-item
-						.row
-							.col-lg-1.text-center
-								i#quickStep2.fa.fa-square-o.fa-2x
-							.col-lg-7
-								#step2 Now run the Web Connector on your desktop to load in the inventory from Quickbooks.
-							.col-lg-4.form-group.text-right
-								label#webConnectorCheckbox.checkbox-inline #[input.input-md(type="checkbox")] I ran the Web Connector.
-					.list-group-item
-						.row
-							.col-lg-1.text-center
-								i#quickStep3.fa.fa-square-o.fa-2x
-							.col-lg-7
-								p Lastly, we will distribute the inventory to the various EC stores.
-								p#step3
-							.col-lg-4.text-right
-								button.btn.btn-danger.bottom-10(type="button")#saveInventoryButton Save Inventory
-						.row
-							.col-lg-12
-								.progress
-									.saveInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#itemImagePanel", href="#") Image
+						#itemImagePanel.collapse
+							.card-body
+								.form-group.row
+									.col-sm-12
+										img#itemImage.img-rounded.img-responsive(src="http://via.placeholder.com/350x150")
 
-				#advancedSync.tab-pane.fade
-					.list-group-item
-						.row
-							.col-lg-1.text-center
-								i#advancedStep1.fa.fa-square-o.fa-2x
-							.col-lg-8
-								p Refresh All Items from 3D Cart (US &amp; CA)
-							.col-lg-3
-								.btn-toolbar.right-float
-									button.btn.btn-success.bottom-10(type="button")#refreshAllItems Refresh
-									button.btn.btn-default.bottom-10(type="button")#generateQBXMLButton Generate Request
-						.row
-							.col-lg-12
-								.progress
-									.refreshInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-					.list-group-item
-						.row
-							.col-lg-1.text-center
-								i#quickStep3.fa.fa-square-o.fa-2x
-							.col-lg-7
-								p Lastly, we will distribute the inventory to the various EC stores.
-								p#step3
-							.col-lg-4
-								.btn-toolbar.right-float
-									button.btn.btn-danger.bottom-10(type="button")#saveInventoryButton Save Inventory
-									button.btn.btn-danger.bottom-10(type="button")#saveOptionsOverride Save Options Override
-									button.btn.btn-primary.bottom-10(type="button")#calculateBaseItemStock Base Item Stock
-						.row
-							.col-lg-12
-								.progress
-									.saveInventoryProgress.progress-bar.progress-bar-striped.progress-bar-info.active(role="progressbar", aria-valuenow="0", aria-valuemin="0", aria-valuemax="100", style="width: 0;")
-				#settings.tab-pane.fade
-					.list-group-item
-						.form-group.row
-							.col-lg-6.col-md-6
-								label(for="usStore") US Distribution
-								.input-group
-									input#usStore.form-control(type="number", value="60")
-									.input-group-addon %
-							.col-lg-6.col-md-6
-								label(for="canStore") Canadian Distribution
-								.input-group
-									input#canStore.form-control(type="number", value="40")
-									.input-group-addon %
-						button#saveSettingsButton.btn.btn-primary(type="button") Save Settings
-
-
-		include includes/end
-			script(src="/js/inventory.js")
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#sales", href="#") Sale
+						#sales.collapse
+							.card-body
+								.row.form-group
+									.col-sm-4.checkbox
+										label(for="onSale")
+											input#onSale(type="checkbox")
+											|  On Sale
+									.col-sm-4
+										label(for="usSalePrice") US Sale Price
+										.input-group
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
+											input#usSalePrice.form-control(type="number")
+									.col-sm-4
+										label(for="canSalePrice") CAN Sale Price
+										.input-group
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
+											input#canSalePrice.form-control(type="number")
+						
+						.card-header
+							.card-title.mb-0
+								a(data-toggle="collapse", data-target="#warehouse", href="#") Warehouse
+						#warehouse.collapse
+							.card-body
+								.row.form-group
+									.col-sm-4
+										label(for="location") Location
+										input#location.form-control(type="text")
+									.col-sm-4
+										label(for="barcode") Barcode
+										input#barcode.form-control(type="text")
+									.col-sm-4
+										label(for="country") Country of Origin
+										input#country.form-control(type="text")
+					
+				.modal-footer
+					a#viewOnUSWebsite.btn.btn-default(href="https://www.ecstasycrafts.com", target="_blank") US Website
+					a#viewOnCanWebsite.btn.btn-default(href="https://www.ecstasycrafts.ca", target="_blank") Canadian Website
+					button#saveItemButton.btn.btn-success(type="button") Save
+					button#removeFromOrderButton.btn.btn-danger(type="button") Remove
+					button.btn.btn-default(type="button", data-dismiss="modal") Cancel

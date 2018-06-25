@@ -1187,6 +1187,7 @@ function saveOrder(order, orderId, isCanadian) {
 async function saveItemMultiple(items, qbws) {
   for (let item of items) {
     await saveItem(item, qbws, true);
+    await delay(200); 
   }
   return 'Done.';
 }
