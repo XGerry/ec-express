@@ -357,6 +357,7 @@ function modifyItemRq(item) {
 
   var xmlDoc = getXMLRequest(qbRq);
   var str = xmlDoc.end({'pretty': true});
+  console.log(str);
   return str;
 }
 
@@ -1058,8 +1059,10 @@ function saveToQuickbooks(item, qbws, adjustInventory) {
             if (adjustInventory) {
               qbws.addRequest(modifyInventoryRq(savedItem));
             }
-            qbws.addRequest(modifyCustomField('Location', savedItem.location, savedItem.listId));
-            qbws.addRequest(modifyCustomField('Location 2', savedItem.secondLocation, savedItem.listId));
+            if (savedItem.location)
+              qbws.addRequest(modifyCustomField('Location', savedItem.location, savedItem.listId));
+            if (savedItem.secondLocation)
+              qbws.addRequest(modifyCustomField('Location 2', savedItem.secondLocation, savedItem.listId));
             return Promise.resolve('Done.');
           });
         });
