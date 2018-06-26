@@ -341,7 +341,11 @@ function modifyItemRq(item) {
     EditSequence: item.editSequence,
     IsActive: !item.inactive,
     SalesPrice: item.usPrice,
-    BarCodeValue: item.barcode
+    BarCode: {
+      BarCodeValue: item.barcode,
+      AssignEvenIfUsed: true,
+      AllowOverride: true
+    }
   };
 
   var qbRq = {
