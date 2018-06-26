@@ -340,7 +340,8 @@ function modifyItemRq(item) {
     ListID: item.listId,
     EditSequence: item.editSequence,
     IsActive: !item.inactive,
-    SalesPrice: item.usPrice
+    SalesPrice: item.usPrice,
+    BarCodeValue: item.barcode
   };
 
   var qbRq = {
@@ -919,19 +920,17 @@ function saveItemFromQB(item, qbItem) {
     }
   }
 
+  if (qbItem.BarCodeValue && item.barcode != qbItem.BarCodeValue) {
+    item.barcode = qbItem.BarCodeValue;
+  }
   item.listId = qbItem.ListID;
   item.editSequence = qbItem.EditSequence;
 
   return item.save();
 }
 
-function addItemProperties(data, item) {
-  if (data.DataExtName == 'barcode' || data.DataExtName == 'Barcode') {
-    if (item.barcode != data.DataExtValue && data.DataExtValue != '') {
-      item.barcode = data.DataExtValue;
-      item.updated = true;
-    }
-  } else if (data.DataExtName == 'Location') {
+function addItemProperties(data, item) { // don't update the barcode in here anymore
+  if (data.DataExtName == 'Location') {
     if (item.location != data.DataExtValue) {
       item.location = data.DataExtValue;
       item.updated = true;
