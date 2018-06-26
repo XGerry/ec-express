@@ -344,6 +344,7 @@ function buildItemTable(items) {
 		var canPrice = $('<td></td>').text(canadaPrice);
 		var stock = $('<td></td>').text(item.stock+'');
 		var location = $('<td></td>').text(item.location);
+		var barcodeCol = $('<td></td>').text(item.barcode);
 		var hidden = $('<td></td>').text(item.hidden === true);
 
 		row.append(checkboxCol);
@@ -351,6 +352,7 @@ function buildItemTable(items) {
 		row.append(name);
 		row.append(usPrice);
 		row.append(location);
+		row.append(barcodeCol);
 		row.append(stock);
 		row.append(hidden);
 
