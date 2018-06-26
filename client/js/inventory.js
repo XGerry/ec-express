@@ -101,6 +101,7 @@ $(document).ready(function() {
 
 	$('#refreshAllItems').click(function(e) {
 		socket.emit('refreshAllItems');
+		alert('The refresh will take approximately 10 minutes. You will not see any progress. Do not submit multiple refreshes at one time.');
 	});
 
 	$('#calculateBaseItemStock').click(e => {
