@@ -339,13 +339,13 @@ function modifyItemRq(item) {
   var modRq = {
     ListID: item.listId,
     EditSequence: item.editSequence,
-    IsActive: !item.inactive,
-    SalesPrice: item.usPrice,
     BarCode: {
       BarCodeValue: item.barcode,
       AssignEvenIfUsed: true,
       AllowOverride: true
-    }
+    },
+    IsActive: !item.inactive,
+    SalesPrice: item.usPrice,
   };
 
   var qbRq = {

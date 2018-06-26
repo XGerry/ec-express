@@ -2,17 +2,17 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <ItemInventoryModRq requestID="itemModify-800066A9-1525713011">
+    <ItemInventoryModRq requestID="itemModify-8000020F-1410624727">
       <ItemInventoryMod>
-        <ListID>800066A9-1525713011</ListID>
-        <EditSequence>1526470409</EditSequence>
+        <ListID>8000020F-1410624727</ListID>
+        <EditSequence>1530024606</EditSequence>
+        <BarCode>
+          <BarCodeValue>9780110516066</BarCodeValue>
+          <AssignEvenIfUsed>true</AssignEvenIfUsed>
+          <AllowOverride>true</AllowOverride>
+        </BarCode>
         <IsActive>true</IsActive>
-        <SalesPrice>12.99</SalesPrice>
-        <DataExtRet>
-          <DataExtName>Location</DataExtName>
-          <DataExtType>STR255TYPE</DataExtType>
-          <DataExtValue>B 10 5 4 B001</DataExtValue>
-        </DataExtRet>
+        <SalesPrice>8</SalesPrice>
       </ItemInventoryMod>
     </ItemInventoryModRq>
   </QBXMLMsgsRq>
