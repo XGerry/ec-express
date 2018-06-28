@@ -344,8 +344,12 @@ module.exports = function(app, passport) {
   });
 
   app.get('/labels', (req, res) => {
-    var filePath = path.join(__dirname, '../product-labels.csv');
+    var filePath = path.join(__dirname, '../downloads/product-labels.csv');
     res.download(filePath, 'labels.csv');
+  });
+
+  app.get('/upload-template', (req, res) => {
+    res.download(path.join(__dirname, '../downloads/Product Upload Template.csv'));
   });
 
   app.get('/order-dashboard', (req, res) => {

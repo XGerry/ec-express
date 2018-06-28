@@ -10,6 +10,7 @@
  var CustomOrder = require('./model/customOrder');
  var Item = require('./model/item');
  const fs = require('fs');
+ var path = require('path');
 
  module.exports = function(io, qbws) {
  	io.on('connection', function(socket) {
@@ -341,7 +342,8 @@
 
  		socket.on('bulkSaveItems', (items, cb) => {
  			cart3d.saveItemMultiple(items, qbws).then(responses => {
- 				cb(responses);
+ 				if (cb)
+ 					cb(responses);
  			});
  		});
 
@@ -566,7 +568,7 @@
 				labelFile += line;
 			});
 
-			fs.writeFile('product-labels.csv', labelFile, err => {
+			fs.writeFile(path.join(__dirname, '../downloads/product-labels.csv'), labelFile, err => {
 				if (err) throw err;
 				console.log('Done');
 				cb('Done!');

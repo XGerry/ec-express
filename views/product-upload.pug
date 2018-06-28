@@ -3,6 +3,7 @@ include mixins
 html
 	include includes/head
 		title Product Upload
+		script(src="/js/papaparse.min.js")
 		script(src="js/product-upload.js")
 	body
 		#wrapper
@@ -13,42 +14,23 @@ html
 				.container
 					.starter-template
 						h1 Product Upload
-						p.lead Add new items to 3D Cart, Quickbooks, Amazon and Walmart.
+						p.lead Add new items to 3D Cart and Quickbooks.
 
 				.container
 					.card
-						.card-header
-							.card-title
-								a(data-toggle="collapse", data-target="#importPanel") Choose Template
-						#importPanel.collapse.show
-							.container
-								.row.pt-2
-									.col-lg-4
-										label.btn.btn-secondary.btn-file Browse
-											input(type="file" style="display: none;")#fileInput
-										h4#fileName
-									.col-lg-8
-										.row
-											.col-lg-2
-												.checkbox
-													label
-														input(type="checkbox")#cartCheck
-														|  3D Cart
-											.col-lg-2
-												.checkbox
-													label
-														input(type="checkbox")#amazonCheck
-														|  Amazon
-											.col-lg-2
-												.checkbox
-													label
-														input(type="checkbox")#walmartCheck
-														|  Walmart
-											.col-lg-2
-												.checkbox
-													label
-														input(type="checkbox")#quickbooksCheck
-														|  QB
-											.col-lg-2
-												button.btn.btn-primary(type="button")#saveButton Save
+						.card-header Template
+						.card-body
+							p If you need a starting place download the upload template. Fill out all the fields you can.
+							a(href='/upload-template').btn.btn-outline-success Download
+					.card.mt-2
+						.card-header Upload
+						.card-body
+							p Upload your completed template by using the button below. 
+							input(type="file")#fileInput
+					.card.mt-2(style="display: none;")#sendCard
+						.card-header Send
+						.card-body
+							p#productInfo
+							button.btn.btn-success#saveItemsButton Save Items
+
 		+footer
