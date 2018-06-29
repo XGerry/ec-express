@@ -357,7 +357,7 @@ function createItemRq(item) {
         PurchaseDesc: item.name,
         PurchaseCost: item.cost,
         COGSAccountRef: {
-          FullName: 'COGS'
+          FullName: 'Cost of Goods Sold'
         },
         AssetAccountRef: {
           FullName: 'Inventory Asset'
