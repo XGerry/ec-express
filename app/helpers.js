@@ -242,10 +242,14 @@ function modifyItemsInventoryRq(items, memo) {
   return str;  
 }
 
-function getMultipleItemsRq(items) {
+function getMultipleItemsRq(items, id) {
+  var requestID = 'itemRequest';
+  if (id) {
+    requestID += '-' + id;
+  }
   var qbRq = {
     ItemInventoryQueryRq : {
-      '@requestID' : 'itemRequest'
+      '@requestID' : requestID
     }
   };
 
@@ -1038,6 +1042,24 @@ function saveItem(item, qbws, adjustInventory) {
   });
 }
 
+function findInQuickbooks(skus, qbws) {
+  var items = skus.map(sku => {
+    var item = {
+      sku: sku
+    };
+    return item;
+  });
+
+  qbws.addRequest(getMultipleItemsRq(items, 'item_check'), response => {
+    return xml2js(response, {explicitArray: false}).then(result => {
+      var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+      if (itemInventoryRs.$.requestID == 'itemRequest-item_check') {
+        console.log(itemInventoryRs);
+      }
+    });
+  });
+}
+
 /**
  * Gets the item from Quickbooks, updates the necessary information. Then
  * provides a callback function which takes the savedItem and the item from QB.
@@ -1418,6 +1440,7 @@ module.exports = {
   modifyItemsInventoryRq: modifyItemsInventoryRq,
   search: search,
   saveItem: saveItem,
+  findInQuickbooks: findInQuickbooks,
   saveToQuickbooks: saveToQuickbooks,
   queryAllItems: queryAllItems,
   getItemRq: getItemRq,

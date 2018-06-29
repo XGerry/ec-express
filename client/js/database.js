@@ -239,6 +239,7 @@ $(document).ready(function() {
 		// save the location
 		var itemsOrLocations = $('#putAwayItems').val();
 		var items = itemsOrLocations.split('\n');
+		items = items.filter(i => i != '');
 		var location = $('#putAwayLocation').val();
 		var primaryOrSecondary = $('input[name=locationType]:checked').val();
 		primaryOrSecondary = primaryOrSecondary == 'primary';

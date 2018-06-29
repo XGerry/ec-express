@@ -352,6 +352,10 @@ module.exports = function(app, passport) {
     res.download(path.join(__dirname, '../downloads/Product Upload Template.csv'));
   });
 
+  app.get('/tools', (req, res) => {
+    res.render('tools');
+  });
+
   app.get('/order-dashboard', (req, res) => {
     // find any orders that are over the 72 hour mark
     // that are in new or processing

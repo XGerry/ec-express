@@ -583,6 +583,12 @@
  			cb();
  		});
 
+ 		socket.on('findInQuickbooks', (skus, cb) => {
+ 			helpers.findInQuickbooks(skus).then(response => {
+ 				cb(response);
+ 			});
+ 		});
+
  		socket.on('saveItemLocations', (items, location, primary) => {
  			console.log('saving items');
  			Item.find({
@@ -596,7 +602,6 @@
 	 				}
  				}]
  			}).then(items => {
- 				console.log(items.length + ' items found');
  				items.forEach(item => {
  					if (primary) {
  						item.location = location;
