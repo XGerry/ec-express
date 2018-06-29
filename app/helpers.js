@@ -1055,6 +1055,7 @@ function findInQuickbooks(skus, qbws) {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
       if (itemInventoryRs.$.requestID == 'itemRequest-item_check') {
         console.log(itemInventoryRs);
+
       }
     });
   });
