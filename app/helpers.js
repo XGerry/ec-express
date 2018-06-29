@@ -347,7 +347,9 @@ function createItemRq(item) {
       ItemInventoryAdd: {
         Name: item.sku,
         BarCode: {
-          BarCodeValue: item.barcode
+          BarCodeValue: item.barcode,
+          AssignEvenIfUsed: true,
+          AllowOverride: true
         },
         SalesTaxCodeRef: {
           FullName: 'NON'
