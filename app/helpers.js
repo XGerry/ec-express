@@ -262,17 +262,18 @@ function getMultipleItemsRq(items, id, retElements) {
   //qbRq.ItemInventoryQueryRq.ActiveStatus = 'ALL';
   if (retElements) {
     qbRq.ItemInventoryQueryRq.IncludeRetElement = retElements;
+  } else {
+    qbRq.ItemInventoryQueryRq.IncludeRetElement = [
+      'ListID',
+      'EditSequence',
+      'Name',
+      'FullName',
+      'BarCodeValue',
+      'IsActive',
+      'QuantityOnHand',
+      'DataExtRet'
+    ];
   }
-  qbRq.ItemInventoryQueryRq.IncludeRetElement = [
-    'ListID',
-    'EditSequence',
-    'Name',
-    'FullName',
-    'BarCodeValue',
-    'IsActive',
-    'QuantityOnHand',
-    'DataExtRet'
-  ];
   qbRq.ItemInventoryQueryRq.OwnerID = 0;
 
   var xmlDoc = getXMLRequest(qbRq);
@@ -1064,6 +1065,9 @@ function findInQuickbooks(skus, qbws) {
       'QuantityOnHand',
       'DataExtRet',
       'SalesDesc',
+      'SalesPrice',
+      'PurchaseDesc',
+      'PurchasePrice',
       'PrefVendorRef'
     ]), response => {
       return xml2js(response, {explicitArray: false}).then(result => {
