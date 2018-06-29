@@ -2,18 +2,26 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <ItemInventoryModRq requestID="itemModify-8000020F-1410624727">
-      <ItemInventoryMod>
-        <ListID>8000020F-1410624727</ListID>
-        <EditSequence>1530024606</EditSequence>
-        <BarCode>
-          <BarCodeValue>9780110516066</BarCodeValue>
-          <AssignEvenIfUsed>true</AssignEvenIfUsed>
-          <AllowOverride>true</AllowOverride>
-        </BarCode>
-        <IsActive>true</IsActive>
-        <SalesPrice>8</SalesPrice>
-      </ItemInventoryMod>
-    </ItemInventoryModRq>
+    <ItemInventoryAddRq>
+      <ItemInventoryAdd>
+        <Name>test-1</Name>
+        <SalesTaxCodeRef>
+          <FullName>NON</FullName>
+        </SalesTaxCodeRef>
+        <SalesDesc>test</SalesDesc>
+        <SalesPrice>20</SalesPrice>
+        <IncomeAccountRef>
+          <FullName>Sales</FullName>
+        </IncomeAccountRef>
+        <PurchaseDesc>test</PurchaseDesc>
+        <PurchaseCost>10</PurchaseCost>
+        <COGSAccountRef>
+          <FullName>COGS</FullName>
+        </COGSAccountRef>
+        <AssetAccountRef>
+          <FullName>Inventory Asset</FullName>
+        </AssetAccountRef>
+      </ItemInventoryAdd>
+    </ItemInventoryAddRq>
   </QBXMLMsgsRq>
 </QBXML>

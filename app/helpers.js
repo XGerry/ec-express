@@ -344,22 +344,24 @@ function getItemRq(item) {
 function createItemRq(item) {
   var qbRq = {
     ItemInventoryAddRq: {
-      Name: item.sku,
-      SalesTaxCodeRef: {
-        FullName: 'NON'
-      },
-      SalesDesc: item.name,
-      SalesPrice: item.us_retail_price,
-      IncomeAccountRef: {
-        FullName: 'Sales'
-      },
-      PurchaseDesc: item.name,
-      PurchaseCost: item.cost,
-      COGSAccountRef: {
-        FullName: 'COGS'
-      },
-      AssetAccountRef: {
-        FullName: 'Inventory Asset'
+      ItemInventoryAdd: {
+        Name: item.sku,
+        SalesTaxCodeRef: {
+          FullName: 'NON'
+        },
+        SalesDesc: item.name,
+        SalesPrice: item.us_retail_price,
+        IncomeAccountRef: {
+          FullName: 'Sales'
+        },
+        PurchaseDesc: item.name,
+        PurchaseCost: item.cost,
+        COGSAccountRef: {
+          FullName: 'COGS'
+        },
+        AssetAccountRef: {
+          FullName: 'Inventory Asset'
+        }
       }
     }
   };

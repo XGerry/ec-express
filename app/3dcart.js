@@ -1500,7 +1500,6 @@ async function createItems(itemList) {
   for (let prom of promises) {
     let response = await rp(prom);
     await delay(200);
-    console.log(response);
     responses.push(response);
   }
   return responses;
