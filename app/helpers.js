@@ -242,7 +242,7 @@ function modifyItemsInventoryRq(items, memo) {
   return str;  
 }
 
-function getMultipleItemsRq(items, id) {
+function getMultipleItemsRq(items, id, retElements) {
   var requestID = 'itemRequest';
   if (id) {
     requestID += '-' + id;
@@ -260,6 +260,9 @@ function getMultipleItemsRq(items, id) {
 
   qbRq.ItemInventoryQueryRq.FullName = names;
   //qbRq.ItemInventoryQueryRq.ActiveStatus = 'ALL';
+  if (retElements) {
+    qbRq.ItemInventoryQueryRq.IncludeRetElement = retElements;
+  }
   qbRq.ItemInventoryQueryRq.IncludeRetElement = [
     'ListID',
     'EditSequence',
@@ -1050,13 +1053,26 @@ function findInQuickbooks(skus, qbws) {
     return item;
   });
 
-  qbws.addRequest(getMultipleItemsRq(items, 'item_check'), response => {
-    return xml2js(response, {explicitArray: false}).then(result => {
-      var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-      if (itemInventoryRs.$.requestID == 'itemRequest-item_check') {
-        console.log(itemInventoryRs);
-
-      }
+  return new Promise((resolve, reject) => {
+    qbws.addRequest(getMultipleItemsRq(items, 'item_check', [
+      'ListID',
+      'EditSequence',
+      'Name',
+      'FullName',
+      'BarCodeValue',
+      'IsActive',
+      'QuantityOnHand',
+      'DataExtRet',
+      'SalesDesc',
+      'PrefVendorRef'
+    ]), response => {
+      return xml2js(response, {explicitArray: false}).then(result => {
+        var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
+        if (itemInventoryRs.$.requestID == 'itemRequest-item_check') {
+          console.log(itemInventoryRs);
+          resolve(itemInventoryRs);
+        }
+      });
     });
   });
 }

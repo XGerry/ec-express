@@ -585,10 +585,9 @@
 
  		socket.on('findInQuickbooks', (skus, cb) => {
  			console.log('finding some items in quickbooks');
- 			helpers.findInQuickbooks(skus, qbws);
- 			//.then(response => {
- 				//cb(response);
- 			//});
+ 			helpers.findInQuickbooks(skus, qbws).then(response => {
+ 				cb(response);
+ 			});
  		});
 
  		socket.on('saveItemLocations', (items, location, primary) => {
