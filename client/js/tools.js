@@ -30,7 +30,7 @@ $(document).ready(function() {
 		alert('Please wait for the web connector to run. When it has finished, your file will automatically download.');
 		socket.emit('findInQuickbooks', nonExistingItems, result => {
 			console.log(result);
-			var csv = 'sku,description,stock,us_cost,us_price,active';
+			var csv = 'sku,description,stock,us_cost,us_price,active\n';
 			result.ItemInventoryRet.forEach(item => {
 				var line = item.Name + ',' + item.SalesDesc + ',' + item.QuantityOnHand + ',' + item.SalesPrice + ',' + item.PurchaseCose + ',' + item.IsActive + '\n';
 				csv += line;
@@ -38,9 +38,9 @@ $(document).ready(function() {
 			csv = 'data:/text/csv;charset=utf-8,' + csv;			
 			console.log(csv);
 			var data = encodeURI(csv);
-			var link = $('<a></a>');
-			link.prop('href', data);
-			link.prop('download', 'item_list.csv');
+			var link = document.createElement('a');
+			link.setAttribute('href', data);
+			link.setAttribute('download', 'item_list.csv');
 			link.click();
 		});
 	});
