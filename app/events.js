@@ -584,6 +584,7 @@
  		});
 
  		socket.on('findInQuickbooks', (skus, cb) => {
+ 			console.log('finding some items in quickbooks');
  			helpers.findInQuickbooks(skus).then(response => {
  				cb(response);
  			});

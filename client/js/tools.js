@@ -27,8 +27,8 @@ $(document).ready(function() {
 	});
 
 	$('#getItemsFromQB').click(e => {
-		$('#QBInfo').text('Please wait for the web connector to run. When it has finished, your file will automatically download.');
-		socket.emit('findItemsInQB', nonExistingItems, result => {
+		alert('Please wait for the web connector to run. When it has finished, your file will automatically download.');
+		socket.emit('findInQuickbooks', nonExistingItems, result => {
 			console.log(result);
 		});
 	});
