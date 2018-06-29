@@ -356,6 +356,9 @@ function createItemRq(item) {
         },
         PurchaseDesc: item.name,
         PurchaseCost: item.cost,
+        PurchaseTaxCodeRef: {
+          FullName: 'NON'
+        },
         COGSAccountRef: {
           FullName: 'Cost of Goods Sold'
         },
