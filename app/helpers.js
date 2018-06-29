@@ -341,6 +341,35 @@ function getItemRq(item) {
   return str;
 }
 
+function createItemRq(item) {
+  var qbRq = {
+    ItemInventoryAddRq: {
+      Name: item.sku,
+      SalesTaxCodeRef: {
+        FullName: 'NON'
+      },
+      SalesDesc: item.name,
+      SalesPrice: item.us_retail_price,
+      IncomeAccountRef: {
+        FullName: 'Sales'
+      },
+      PurchaseDesc: item.name,
+      PurchaseCost: item.cost,
+      COGSAccountRef: {
+        FullName: 'COGS'
+      },
+      AssetAccountRef: {
+        FullName: 'Inventory Asset'
+      }
+    }
+  };
+
+  var xmlDoc = getXMLRequest(qbRq);
+  var str = xmlDoc.end({'pretty': true});
+  console.log(str);
+  return str;
+}
+
 // Item is a DB item
 function modifyItemRq(item) {
   // can only do this one at a time
@@ -1067,7 +1096,7 @@ function findInQuickbooks(skus, qbws) {
       'SalesDesc',
       'SalesPrice',
       'PurchaseDesc',
-      'PurchasePrice',
+      'PurchaseCost',
       'PrefVendorRef'
     ]), response => {
       return xml2js(response, {explicitArray: false}).then(result => {
@@ -1443,6 +1472,7 @@ module.exports = {
   getXMLDoc: getXMLDoc,
   createShippingAddress : createShippingAddress,
   addCustomerRq : addCustomerRq,
+  createItemRq: createItemRq,
   addInvoiceRq : addInvoiceRq,
   getCustomer : getCustomerFromOrder,
   getProducts : getProducts,

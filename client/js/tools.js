@@ -32,7 +32,7 @@ $(document).ready(function() {
 			console.log(result);
 			var csv = 'sku,description,stock,us_cost,us_price,active\n';
 			result.ItemInventoryRet.forEach(item => {
-				var line = item.Name + ',' + item.SalesDesc + ',' + item.QuantityOnHand + ',' + item.SalesPrice + ',' + item.PurchaseCose + ',' + item.IsActive + '\n';
+				var line = item.Name + ',"' + item.SalesDesc + '",' + item.QuantityOnHand + ',' + item.SalesPrice + ',' + item.PurchaseCose + ',' + item.IsActive + '\n';
 				csv += line;
 			});
 			csv = 'data:/text/csv;charset=utf-8,' + csv;			

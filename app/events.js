@@ -578,7 +578,7 @@
  		socket.on('updateInventory', (items, memo, cb) => {
  			var request = helpers.modifyItemsInventoryRq(items, memo);
  			qbws.addRequest(request, () => {
- 				console.log('upodated the inventory');
+ 				console.log('updated the inventory');
  			});
  			cb();
  		});
@@ -587,6 +587,16 @@
  			console.log('finding some items in quickbooks');
  			helpers.findInQuickbooks(skus, qbws).then(response => {
  				cb(response);
+ 			});
+ 		});
+
+ 		socket.on('createItems', (items, cb) => {
+ 			cart3d.createItems(items).then(responses => {
+ 				cb(responses);
+ 			});
+
+ 			items.forEach(item => {
+ 				qbws.addRequest(helpers.createItemRq(item));
  			});
  		});
 

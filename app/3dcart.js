@@ -1446,6 +1446,66 @@ function getOrderInvoiceNumber(dbCustomOrder) {
   }
 }
 
+async function createItems(itemList) {
+  var promises = [];
+  var responses = [];
+  itemList.forEach(item => {
+    var cartItemUS = {
+      SKUInfo: {
+        SKU: item.sku,
+        Name: item.name,
+        Cost: item.cost,
+        RetailPrice: item.us_retail_price
+      },
+      MFGID: item.sku,
+      ManufacturerName: item.manufacturer,
+      Hide: true,
+      PriceLevel2: item.us_wholesale_price
+    };
+    if (item.barcode) {
+      cartItemUS.ExtraField8 = item.barcode;
+    }
+    if (item.country_of_origin) {
+      cartItemUS.ExtraField9 = item.country_of_origin;
+    }
+    var cartItemCan = {
+      SKUInfo: {
+        SKU: item.sku,
+        Name: item.name,
+        Cost: item.cost,
+        RetailPrice: item.can_retail_price
+      },
+      MFGID: item.sku,
+      ManufacturerName: item.manufacturer,
+      Hide: true,
+      PriceLevel7: item.can_wholesale_price
+    };
+    if (item.barcode) {
+      cartItemCan.ExtraField8 = item.barcode;
+    }
+    if (item.country_of_origin) {
+      cartItemCan.ExtraField9 = item.country_of_origin;
+    }
+
+    var usOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+      'POST', false);
+    usOptions.body = cartItemUS;
+    var canOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
+      'POST', true);
+    canOptions.body = cartItemCan;
+    promises.push(usOptions);
+    promises.push(canOptions);
+  });
+
+  for (let prom of promises) {
+    let response = await rp(prom);
+    await delay(200);
+    console.log(response);
+    responses.push(response);
+  }
+  return responses;
+}
+
 module.exports = {
  	getItems: getItems,
   refreshFrom3DCart: refreshFrom3DCart,
@@ -1472,4 +1532,5 @@ module.exports = {
   calculateBaseItemStock: calculateBaseItemStock,
   getManufacturers: getManufacturers,
   getOrderInvoiceNumber: getOrderInvoiceNumber,
+  createItems: createItems
 }
