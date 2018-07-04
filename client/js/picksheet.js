@@ -23,7 +23,7 @@ function buildPickTable(order) {
 		stockCol.text(item.ItemUnitStock);
 
 		var pickedCol = $('<td></td>');
-		pickedCol.append($('<input type="checkbox" style="width:25px;height:25px;margin:0;">'));
+		pickedCol.append($('<input type="checkbox" style="transform: scale(2);margin:0;">'));
 
 		row.append(locationCol);
 		row.append(skuCol);
