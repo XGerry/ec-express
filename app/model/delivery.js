@@ -14,7 +14,8 @@ var deliverySchema = new mongoose.Schema({
 		author: String
 	}],
 	manufacturer: String,
-	date: Date
+	date: Date,
+	poNumber: String
 });
 
 module.exports = mongoose.model('Delivery', deliverySchema);

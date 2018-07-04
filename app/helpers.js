@@ -1466,6 +1466,7 @@ function updateDeliveryFields(dbDelivery, delivery) {
   dbDelivery.comments = delivery.comments;
   dbDelivery.manufacturer = delivery.manufacturer;
   dbDelivery.date = delivery.date;
+  dbDelivery.poNumber = delivery.poNumber;
   return dbDelivery.save();
 }
 

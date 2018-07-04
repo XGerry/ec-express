@@ -137,23 +137,13 @@ html
 								option(value="in-house") In House
 								option(value="done") Done
 					.form-group.row
-						.col-12
-							label Purchase Orders
-							table.table-sm.table
-								thead
-									th ID
-									th Items
-									th
-								tbody
-									td PO-12345
-									td 34
-									td
-										button.btn.btn-outline-primary.btn-sm(type="button") View  
-											i.far.fa-external-link.fa-fw
+						.col-6
+							label Purchase Order
+							input#poNumber.form-control(type="text")
 
 				.modal-footer
-					button#addPOButton.btn.btn-outline-primary(type="button") Add PO
-					button#commentButton.btn.btn-outline-warning(type="button" disabled tooltip="Coming Soon!") Add Comment
+					//button#addPOButton.btn.btn-outline-primary(type="button") Add PO
+					//button#commentButton.btn.btn-outline-warning(type="button" disabled tooltip="Coming Soon!") Add Comment
 					button#saveDeliveryButton.btn.btn-success(type="button") Save
 					button#removeDeliveryButton.btn.btn-danger(type="button") Delete
 					button.btn.btn-default(type="button", data-dismiss="modal") Cancel

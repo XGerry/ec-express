@@ -26,10 +26,6 @@ $(document).ready(e => {
 	$('#saveDeliveryButton').click(e => {
 		saveDelivery();
 		$('#deliveryModal').modal('hide');
-		socket.emit('getDeliveries', deliveries => {
-			buildDeliverySummaries(deliveries);
-			buildDeliveryTable(deliveries);
-		});
 	});
 
 	$('#removeDeliveryButton').click(e => {
@@ -67,6 +63,7 @@ function populateDeliveryModal(delivery) {
 	$('#manufacturerSelect').val(delivery.manufacturer);
 	$('#deliveryDate').val(theDate.format('YYYY-MM-DD'));
 	$('#deliveryStatus').val(delivery.status);
+	$('#poNumber').val(delivery.poNumber);
 }
 
 function saveDeliveryFields() {
@@ -74,12 +71,18 @@ function saveDeliveryFields() {
 	theDelivery.status = $('#deliveryStatus').val();
 	theDelivery.manufacturer = $('#manufacturerSelect').val();
 	theDelivery.date = $('#deliveryDate').val();
+	theDelivery.poNumber = $('#poNumber').val();
 }
 
 function saveDelivery() {
 	saveDeliveryFields();
+	console.log(theDelivery);
 	socket.emit('saveDelivery', theDelivery, savedDelivery => {
 		theDelivery = savedDelivery;
+		socket.emit('getDeliveries', deliveries => {
+			buildDeliverySummaries(deliveries);
+			buildDeliveryTable(deliveries);
+		});
 	});
 }
 
