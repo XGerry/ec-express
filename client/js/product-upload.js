@@ -24,12 +24,24 @@ $(document).ready(function() {
 			console.log(responses);
 		});
 	});
+
+	$('#saveToSiteButton').click(e => {
+		socket.emit('createItemsIn3DCart', newItems, responses => {
+			console.log(responses);
+		});
+	});
+
+	$('#saveToQuickbooksButton').click(e => {
+		socket.emit('createItemsInQuickbooks', newItems, responses => {
+			console.log(responses);
+		});
+	});
 });
 
 function loadFromTemplate(data) {
 	console.log(data);
 	data = data.filter(d => {
-		return d.sku != '' && d.sku != undefined
+		return d.sku != '' && d.sku != undefined;
 	});
 	newItems = data;
 	$('#productInfo').text('Found ' + data.length + ' items in the file. Use the button below to send the items to 3D Cart and Quickbooks.');

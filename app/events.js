@@ -603,6 +603,18 @@
  			});
  		});
 
+ 		socket.on('createItemsIn3DCart', (items, cb) => {
+ 			cart3d.createItems(items).then(responses => {
+ 				cb(responses);
+ 			});
+ 		});
+
+ 		socket.on('createItemsInQuickbooks', (items, cb) => {
+ 			items.forEach(item => {
+ 				qbws.addRequest(helpers.createItemRq(item));
+ 			});
+ 		});
+
  		socket.on('saveItemLocations', (items, location, primary) => {
  			console.log('saving items');
  			Item.find({
