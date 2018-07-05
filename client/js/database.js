@@ -200,6 +200,29 @@ $(document).ready(function() {
 		}
 	});
 
+	$('#downloadFileButton').click(e => {
+		var file = 'sku,name,barcode,stock,price_us_retail,cost\r\n';
+		selectedItems.forEach(item => {
+			var line = item.sku + ',';
+			line += '"' + item.name + '",';
+			line += item.barcode + ',';
+			line += item.stock + ',';
+			line += item.usPrice + ',';
+			line += item.cost + '\r\n';
+			file += line;
+		});
+
+		var blob = new Blob([file], { type: 'text/csv;charset=utf-8;' });
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    var url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = "items.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+	});
+
 	$('#zeroQuantitiesButton').click(e => {
 		selectedItems.forEach(item => {
 			item.stock = 0;
