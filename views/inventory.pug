@@ -38,19 +38,21 @@ html
 									h5.mb-0 Inventory Sheet
 								.card-body
 									.form-group.row
-										.col-sm-6
+										.col-sm-4
 											label(for="itemSKU") SKU or Barcode
 											input#itemSKU.form-control(type="text", list="itemList")
 											datalist#itemList
-										.col-sm-6
-											label(for="itemQuantity") New Stock
+										.col-sm-4
+											label(for="itemQuantity") Current Stock
 											input#itemQuantity.form-control(type="number", value="1")
-									hr
+										.col-4
+											label(for="itemDifference") Add To Stock
+											input#itemDifference.form-control(type="number", value="0")
 									table.table.table-striped.table-hover#inventoryTable
 										thead
 											tr
 												th SKU
-												th Stock
+												th New Stock
 										tbody#inventoryTableBody
 					.row.pt-2
 						.col-12

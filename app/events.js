@@ -291,11 +291,14 @@
  			});
  		});
 
- 		socket.on('searchSKU', function(sku) {
+ 		socket.on('searchSKU', function(sku, cb) {
  			sku = sku.trim().toUpperCase();
  			var search = helpers.searchSKU(sku);
  			search.then(function(items) {
  				socket.emit('searchSKUFinished', items);
+ 				if (cb) {
+ 					cb(items);
+ 				}
  			});
  		});
 

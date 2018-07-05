@@ -16,12 +16,21 @@ $(document).ready(e => {
 				}
 
 				if (code === 13) {
-					addToInventoryList(item, 1); // default add 1 item
+					addToInventoryList(item, 1, true); // default add 1 item
 					$('#itemSKU').select();
+				} else {
+					$('#itemQuantity').val(getStockLevel(item));
 				}
 			});
 		} else if (e.ctrlKey && code === 40) { // down arrow
-			socket.emit('searchSKU', $('#itemSKU').val());
+			console.log('searching...');
+			socket.emit('searchSKU', $('#itemSKU').val(), items => {
+				$('#itemList').empty();
+				console.log('done');
+				items.forEach(item => {
+					$('#itemList').append($('<option>'+item.sku+'</option>'));
+				});
+			});
 		}
 	});
 
@@ -29,8 +38,23 @@ $(document).ready(e => {
 		var code = e.keyCode || e.which;
 		if (code === 13 || code === 9) {
 			var newStock = parseInt($('#itemQuantity').val().trim());
-			addToInventoryList(theItem, newStock);
-			$('#itemQuantity').val('1');
+			var oldStock = getStockLevel(theItem);
+			var difference = newStock - oldStock;
+			$('#itemDifference').val(difference);
+			if (code === 13) {
+				addToInventoryList(theItem, newStock, false); // set the new stock level
+			}
+		}
+	});
+
+	$('#itemDifference').on('keydown', e => {
+		var code = e.keyCode || e.which;
+		if (code === 13 || code === 9) {
+			e.preventDefault();
+			var difference = parseInt($('#itemDifference').val());	
+			var oldStock = getStockLevel(theItem);
+			addToInventoryList(theItem, difference, true);
+			$('#itemDifference').val('1');
 			$('#itemSKU').select();
 		}
 	});
@@ -56,19 +80,25 @@ function clearFields() {
 	}, 3000);
 }
 
-function addToInventoryList(item, stockLevel) {
+function addToInventoryList(item, stockLevel, addTo) {
 	// find the item in the list
 	var newItem = true;
 	for (var i of inventoryList) {
 		if (i.sku == item.sku) {
-			i.newStock += stockLevel;
+			if (addTo)
+				i.newStock += stockLevel;
+			else
+				i.newStock = stockLevel;
 			buildInventoryTable();
 			return;
 		}
 	}
 
 	// new item 
-	item.newStock = stockLevel;
+	if (addTo) 
+		item.newStock = item.stock + stockLevel;
+	else
+		item.newStock = stockLevel;
 	inventoryList.push(item);
 	buildInventoryTable();
 }
@@ -85,4 +115,13 @@ function buildInventoryTable() {
 		row.append(stock);
 		$('#inventoryTableBody').append(row);
 	}
+}
+
+function getStockLevel(item) {
+	for (let i of inventoryList) {
+		if (i.sku == item.sku) {
+			return parseInt(i.newStock);
+		}
+	}
+	return parseInt(item.stock);
 }
