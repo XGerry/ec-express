@@ -411,6 +411,11 @@ function buildItemTable(items) {
 			} else {
 				$('#canSalePrice').val(0.00);
 			}
+			if (item.cost != undefined) {
+				$('#itemCost').val(item.cost.toFixed(2));
+			} else {
+				$('#itemCost').val(0.00);
+			}
 
 			$('#itemImage').attr('src', 'https://ecstasycrafts.com/'+item.imageURL);
 			$('#stock').val(item.stock);

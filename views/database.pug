@@ -167,21 +167,28 @@ html
 						#generalInfo.collapse.show
 							.card-body
 								.row.form-group
-									.col-sm-6
+									.col-6
 										label(for="itemSKU") SKU
 										input#itemSKU.form-control(type="text", readonly)
-									.col-sm-6
+									.col-6
 										label(for="itemName") Name
 										input#itemName.form-control.enterKeySaveItem(type="text")
 								.row.form-group
-									.col-sm-6
+									.col-4
+										label(for="itemCost") Cost
+										.input-group
+											.input-group-prepend
+												.input-group-text
+													i.far.fa-dollar-sign
+											input#itemCost.form-control(type="number", step="any")
+									.col-4
 										label(for="usPrice") US Price
 										.input-group
 											.input-group-prepend
 												.input-group-text
 													i.far.fa-dollar-sign
 											input#usPrice.form-control(type="number", step="any")
-									.col-sm-6
+									.col-4
 										label(for="canPrice") Canadian Price
 										.input-group
 											.input-group-prepend
