@@ -5,6 +5,7 @@ var allItems = [];
 var selectedItems = [];
 var putAwayMode = false;
 var lastQuery = '';
+var inputTimer;
 
 var queries = {
 	$eq: [],
@@ -157,8 +158,19 @@ $(document).ready(function() {
 	});
 
 	$('#sku').on('input propertychange', function(e) {
+		if (inputTimer) {
+			clearTimeout(inputTimer);
+		}
 		var sku = $('#sku').val();
-		socket.emit('searchSKU', sku);
+
+		inputTimer = setTimeout(() => {
+			socket.emit('searchSKU', sku, (items) => {
+				$('#items').empty();
+				items.forEach(item => {
+					$('#items').append('<option>'+item.sku+'</option>');
+				});
+			});
+		}, 500);
 	});
 
 	$('.enterKeySearch').on('keyup', function(e) {
@@ -310,13 +322,6 @@ function findPutAwayItem(cb) {
 		cb(null);
 	}
 }
-
-socket.on('searchSKUFinished', function(items) {
-	$('#items').empty();
-	items.forEach(function(item) {
-		$('#items').append('<option>'+item.sku+'</option>');
-	});
-});
 
 socket.on('searchFinished', function(data) {
 	console.log(data);
