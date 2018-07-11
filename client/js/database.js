@@ -6,6 +6,7 @@ var selectedItems = [];
 var putAwayMode = false;
 var lastQuery = '';
 var inputTimer;
+var putAwayItem = {};
 
 var queries = {
 	$eq: [],
@@ -208,7 +209,31 @@ $(document).ready(function() {
 
 	$('#putAwaySKU').on('keyup', e => {
 		if (e.keyCode == 13) {
-			findPutAwayItem();
+			findPutAwayItem(item => {
+				putAwayItem = item;
+				if (putAwayItem != null) {
+					$('#putAwayPrimaryOrSecondary').select();
+				}
+			});
+		}
+	});
+
+	$('#putAwayPrimaryOrSecondary').on('keyup', e => {
+		if (e.keyCode == 13) {
+			// automatically save the item and clear the fields
+			var location = $('#putAwayPrimaryOrSecondary').val();
+			var primaryOrSecondary = $('input[name=locationType]:checked').val();
+			primaryOrSecondary = primaryOrSecondary == 'primary';
+			if (primaryOrSecondary) {
+				putAwayItem.location = location;
+			} else {
+				putAwayItem.secondLocation = location;
+			}
+
+			socket.emit('saveItem', putAwayItem, responses => {
+				$('putAwaySKU').select();
+				$('putAwayPrimaryOrSecondary').val('');
+			});
 		}
 	});
 
@@ -252,24 +277,8 @@ $(document).ready(function() {
 
 	$('#savePutAwayModal').click(e => {
 		// save the item first
-		var primary = $('#putAwayPrimary').val();
-		var secondary = $('#putAwaySecondary').val();
-		findPutAwayItem(putAwayItem => {
-			console.log(putAwayItem);
-			if (putAwayItem) {
-				if (primary != '') {
-					putAwayItem.location = primary;
-				}
-				if (secondary != '') {
-					putAwayItem.secondLocation = secondary;
-				}
-				socket.emit('saveItem', putAwayItem);
-			}
-			// clear the fields
-			$('#putAwayPrimary').val('');
-			$('#putAwaySecondary').val('');
-			$('#putAwaySKU').val('');
-		});
+		var location = $('#putAwayPrimaryOrSecondary').val();
+		
 
 		// save the location
 		var itemsOrLocations = $('#putAwayItems').val();
@@ -281,6 +290,14 @@ $(document).ready(function() {
 		if (items.length > 0 && location != '') {
 			socket.emit('saveItemLocations', items, location, primaryOrSecondary);
 		}
+
+		if (primaryOrSecondary) {
+			putAwayItem.location = location;
+		} else {
+			putAwayItem.secondLocation = location;
+		}
+
+
 
 		// clear the fields
 		$('#putAwayItems').val('');
