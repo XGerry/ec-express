@@ -250,11 +250,13 @@ $(document).ready(function() {
 			}
 
 			socket.emit('saveItem', putAwayItem, false, responses => {
-				$('#putAwaySKU').select();
-				$('#putAwayPrimaryOrSecondary').val('');
 				$('#putAwayInfo').text('Saved the item.');
 				putAwayItem = undefined;
 			});
+
+			putAwayItem = undefined;
+			$('#putAwaySKU').select();
+			$('#putAwayPrimaryOrSecondary').val('');
 		}
 	});
 
