@@ -215,9 +215,9 @@ $(document).ready(function() {
 				console.log(putAwayItem);
 				if (putAwayItem != undefined) {
 					$('#putAwayPrimaryOrSecondary').select();
-					$('#putAwayInfo').val('Item found.');
+					$('#putAwayInfo').text('Item found.');
 				} else {
-					$('#putAwayInfo').val('No item found.');
+					$('#putAwayInfo').text('No item found.');
 				}
 			});
 		}
@@ -228,9 +228,9 @@ $(document).ready(function() {
 			findPutAwayItem(item => {
 				putAwayItem = item;
 				if (item == undefined) {
-					$('#putAwayInfo').val('No item found.');
+					$('#putAwayInfo').text('No item found.');
 				} else {
-					$('#putAwayInfo').val('Item found.');
+					$('#putAwayInfo').text('Item found.');
 				}
 			});
 		}
@@ -252,7 +252,7 @@ $(document).ready(function() {
 			socket.emit('saveItem', putAwayItem, false, responses => {
 				$('#putAwaySKU').select();
 				$('#putAwayPrimaryOrSecondary').val('');
-				$('#putAwayInfo').val('Saved the item.');
+				$('#putAwayInfo').text('Saved the item.');
 				putAwayItem = undefined;
 			});
 		}
@@ -327,7 +327,7 @@ $(document).ready(function() {
 		// clear the fields
 		$('#putAwayItems').val('');
 		$('#putAwayLocation').val('');
-		$('#putAwayInfo').val('');
+		$('#putAwayInfo').text('');
 		putAwayItem = undefined;
 	});
 });
