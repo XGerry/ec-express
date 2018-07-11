@@ -230,9 +230,10 @@ $(document).ready(function() {
 				putAwayItem.secondLocation = location;
 			}
 
-			socket.emit('saveItem', putAwayItem, responses => {
-				$('putAwaySKU').select();
-				$('putAwayPrimaryOrSecondary').val('');
+			socket.emit('saveItem', putAwayItem, false, responses => {
+				$('#putAwaySKU').select();
+				$('#putAwayPrimaryOrSecondary').val('');
+				$('#putAwayInfo').val('Saved the item.');
 			});
 		}
 	});
@@ -297,11 +298,15 @@ $(document).ready(function() {
 			putAwayItem.secondLocation = location;
 		}
 
-
+		socket.emit('saveItem', putAwayItem, false, responses => {
+			$('#putAwaySKU').select();
+			$('#putAwayPrimaryOrSecondary').val('');
+		});
 
 		// clear the fields
 		$('#putAwayItems').val('');
 		$('#putAwayLocation').val('');
+		$('#putAwayInfo').val('');
 	});
 });
 
