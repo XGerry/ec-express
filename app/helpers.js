@@ -355,12 +355,12 @@ function createItemRq(item) {
           FullName: 'NON'
         },
         SalesDesc: item.name,
-        SalesPrice: item.us_retail_price,
+        SalesPrice: item.us_retail_price.replace('$', ''),
         IncomeAccountRef: {
           FullName: 'Sales'
         },
         PurchaseDesc: item.name,
-        PurchaseCost: item.cost,
+        PurchaseCost: item.cost.replace('$', ''),
         PurchaseTaxCodeRef: {
           FullName: 'NON'
         },

@@ -44,6 +44,11 @@ function loadFromTemplate(data) {
 		return d.sku != '' && d.sku != undefined;
 	});
 	newItems = data;
+	newItems.forEach(item => {
+		item.cost = item.cost.replace('$','');
+		item.us_retail_price.replace('$', '');
+		item.can_retail_price.replace('$', '');
+	});
 	$('#productInfo').text('Found ' + data.length + ' items in the file. Use the button below to send the items to 3D Cart and Quickbooks.');
 	$('#sendCard').show();
 	if (newItems.length > 0) {

@@ -6,7 +6,7 @@ var selectedItems = [];
 var putAwayMode = false;
 var lastQuery = '';
 var inputTimer;
-var putAwayItem = {};
+var putAwayItem = undefined;
 
 var queries = {
 	$eq: [],
@@ -207,12 +207,30 @@ $(document).ready(function() {
 		});
 	});
 
-	$('#putAwaySKU').on('keyup', e => {
-		if (e.keyCode == 13) {
+	$('#putAwaySKU').on('keydown', e => {
+		var code = e.keyCode || e.which;
+		if (code == 13 || code == 9) {
 			findPutAwayItem(item => {
 				putAwayItem = item;
-				if (putAwayItem != null) {
+				console.log(putAwayItem);
+				if (putAwayItem != undefined) {
 					$('#putAwayPrimaryOrSecondary').select();
+					$('#putAwayInfo').val('Item found.');
+				} else {
+					$('#putAwayInfo').val('No item found.');
+				}
+			});
+		}
+	});
+
+	$('#putAwaySKU').focusout(e => {
+		if (putAwayItem == undefined) {
+			findPutAwayItem(item => {
+				putAwayItem = item;
+				if (item == undefined) {
+					$('#putAwayInfo').val('No item found.');
+				} else {
+					$('#putAwayInfo').val('Item found.');
 				}
 			});
 		}
@@ -224,6 +242,7 @@ $(document).ready(function() {
 			var location = $('#putAwayPrimaryOrSecondary').val();
 			var primaryOrSecondary = $('input[name=locationType]:checked').val();
 			primaryOrSecondary = primaryOrSecondary == 'primary';
+
 			if (primaryOrSecondary) {
 				putAwayItem.location = location;
 			} else {
@@ -234,6 +253,7 @@ $(document).ready(function() {
 				$('#putAwaySKU').select();
 				$('#putAwayPrimaryOrSecondary').val('');
 				$('#putAwayInfo').val('Saved the item.');
+				putAwayItem = undefined;
 			});
 		}
 	});
@@ -279,7 +299,6 @@ $(document).ready(function() {
 	$('#savePutAwayModal').click(e => {
 		// save the item first
 		var location = $('#putAwayPrimaryOrSecondary').val();
-		
 
 		// save the location
 		var itemsOrLocations = $('#putAwayItems').val();
@@ -298,15 +317,18 @@ $(document).ready(function() {
 			putAwayItem.secondLocation = location;
 		}
 
-		socket.emit('saveItem', putAwayItem, false, responses => {
-			$('#putAwaySKU').select();
-			$('#putAwayPrimaryOrSecondary').val('');
-		});
+		if (putAwayItem) {
+			socket.emit('saveItem', putAwayItem, false, responses => {
+				$('#putAwaySKU').select();
+				$('#putAwayPrimaryOrSecondary').val('');
+			});
+		}
 
 		// clear the fields
 		$('#putAwayItems').val('');
 		$('#putAwayLocation').val('');
 		$('#putAwayInfo').val('');
+		putAwayItem = undefined;
 	});
 });
 
@@ -337,7 +359,6 @@ function findPutAwayItem(cb) {
 				barcode: skuOrBarcode
 			}]
 		}, items => {
-			$('#putAwayInfo').text(items.length + ' items found.');
 			cb(items[0]);
 		});
 	} else {
