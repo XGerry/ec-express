@@ -237,7 +237,7 @@ function checkError(response) {
           if (invoiceRs.$.statusCode == '3140' || 
               invoiceRs.$.statusCode == '3205' || 
               invoiceRs.$.statusCode == '3070' || 
-              invoiceRs.$.statusCode == '3405') { // error
+              invoiceRs.$.statusCode == '3045') { // error
             doc.imported = false;
             doc.message = invoiceRs.$.statusMessage;
             console.log('found an error: ' + doc.message);
