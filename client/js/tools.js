@@ -26,6 +26,16 @@ $(document).ready(function() {
 		socket.emit('bulkSaveItems', existingItems);
 	});
 
+	$('#replacePricingButton').click(() => {
+		var confirmation = confirm('Are you sure? Like, really, really sure?');
+		if (confirmation) {
+			socket.emit('updatePricingInQB');
+			$('#pricingInfo').text('This is going to take a while...');
+		} else {
+			$('#pricingInfo').text('Didn\'t think so...');
+		}
+	});
+
 	$('#getItemsFromQB').click(e => {
 		alert('Please wait for the web connector to run. When it has finished, your file will automatically download.');
 		socket.emit('findInQuickbooks', nonExistingItems, result => {

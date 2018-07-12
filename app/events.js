@@ -616,6 +616,14 @@
  			});
  		});
 
+ 		socket.on('updatePricingInQB', () => {
+ 			Item.find({sku: {$in: ['DF3410', 'DF3411', 'DF3412']}}).then(items => {
+ 				items.forEach(item => {
+ 					helpers.saveItem(item, qbws, false);
+ 				});
+ 			});
+ 		});
+
  		socket.on('saveItemLocations', (items, location, primary) => {
  			console.log('saving items');
  			Item.find({

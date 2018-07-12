@@ -16,15 +16,25 @@ html
 					p.lead Use the buttons below to perform misc tasks.
 
 				.container
-					.card
-						.card-header Item Checker
-						.card-body
-							p Select a .csv file that contains all the SKUs you would like to check. The file should have one column with #[strong sku] as the header.
-							input(type="file")#allSKUsFile
-							p#productInfo
-							p#existingItemsInfo
-							p#nonExistingItemsInfo
-							p#QBInfo
-							.btn-toolbar
-								button.btn.btn-info.disabled#unhideProductsButton Unhide all items
-								button.btn.btn-warning.ml-2.disabled#getItemsFromQB Find Non-Existing Items in QB
+					.row
+						.col
+							.card
+								.card-header Item Checker
+								.card-body
+									p Select a .csv file that contains all the SKUs you would like to check. The file should have one column with #[strong sku] as the header.
+									input(type="file")#allSKUsFile
+									p#productInfo
+									p#existingItemsInfo
+									p#nonExistingItemsInfo
+									p#QBInfo
+									.btn-toolbar
+										button.btn.btn-info.disabled#unhideProductsButton Unhide all items
+										button.btn.btn-warning.ml-2.disabled#getItemsFromQB Find Non-Existing Items in QB
+					.row.mt-2
+						.col
+							.card
+								.card-header Price Updater
+								.card-body
+									p Take all the current US pricing on the website and overwrite it in Quickbooks. Be careful when you do this...
+									button.btn.btn-danger(type="button")#replacePricingButton Replace Pricing
+									p#pricingInfo
