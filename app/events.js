@@ -617,7 +617,7 @@
  		});
 
  		socket.on('updatePricingInQB', () => {
- 			Item.find({sku: {$in: ['DF3410', 'DF3411', 'DF3412']}}).then(items => {
+ 			Item.find({sku: {$in: ['DF3413', 'DF3414']}}).then(items => {
  				items.forEach(item => {
  					helpers.saveItem(item, qbws, false);
  				});
