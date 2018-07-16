@@ -1166,6 +1166,8 @@ function saveItem(item, qbws, adjustInventory) {
       console.log('Saved options for both sites');
       console.log(responses);
       return responses;
+    }).catch(err => {
+      return err;
     });
   }
 }
