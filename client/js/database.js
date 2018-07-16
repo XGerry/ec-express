@@ -446,7 +446,8 @@ function buildItemTable(items) {
 			$('#itemNameTitle').text(item.name);
 			$('#itemSKU').val(item.sku);
 			$('#itemName').val(item.name);
-			$('#usPrice').val(item.usPrice.toFixed(2));
+			if (item.usPrice)
+				$('#usPrice').val(item.usPrice.toFixed(2));
 
 			if (item.canPrice != undefined) {
 				$('#canPrice').val(item.canPrice.toFixed(2));
