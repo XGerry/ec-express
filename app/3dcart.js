@@ -1162,13 +1162,15 @@ function saveItem(item, qbws, adjustInventory) {
     canOptions.body.AdvancedOptionStock = item.canStock;
     var canSave = rp(canOptions);
 
-    return Promise.all([usSave, canSave]).then(responses => {
-      console.log('Saved options for both sites');
-      console.log(responses);
-      return responses;
-    }).catch(err => {
-      return err;
-    });
+    return Promise.all([usSave, canSave])
+      .catch(err => {
+        return err;
+      })
+      .then(responses => {
+        console.log('Saved options for both sites');
+        console.log(responses);
+        return responses;
+      });
   }
 }
 
