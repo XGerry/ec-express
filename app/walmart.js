@@ -256,7 +256,7 @@ function getMPItem(item, processMode) {
 function getMPProduct(item) {
 	console.log('MP Product for ' + item.sku);
 	var imageURL = item.imageURL;
-	if (imageURL[0] != '/') {
+	if (imageURL && imageURL[0] != '/') {
 		imageURL = '/'+imageURL;
 	}
 	var mpProduct = {
