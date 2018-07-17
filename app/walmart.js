@@ -90,7 +90,6 @@ function getInventory(sku) {
 function updateInventoryItem(sku) {
 	var findItem = Item.findOne({sku: sku});
 	return findItem.then(function(item) {
-		item.walmartStock = 10;
 		return createInventoryRequest([item]);
 	});
 }
@@ -103,6 +102,7 @@ function updateInventory() {
 }
 
 function updateAllInventory() {
+	console.log('creating inventory request');
 	return Item.find({}).then(items => {
 		return createInventoryRequest(items);
 	});
@@ -203,7 +203,7 @@ function getInventoryItem(item) {
 		sku: item.sku,
 		quantity: {
 			unit: 'EACH',
-			amount: item.walmartStock
+			amount: item.stock
 		},
 		fulfillmentLagTime: 1
 	};
