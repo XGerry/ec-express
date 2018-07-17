@@ -111,6 +111,15 @@ function updateInventory() {
 		buildInventoryMessage);
 }
 
+function bulkAddInventory(skus) {
+	var itemPromise = Item.find({sku: {$in: skus}});
+	return doAmazonRequest(itemPromise, 
+		'_POST_INVENTORY_AVAILABILITY_DATA_',
+		'Inventory',
+		'POST',
+		buildInventoryMessage);
+}
+
 function inventorySync(itemPromise) {
 	return doAmazonRequest(itemPromise,'_POST_INVENTORY_AVAILABILITY_DATA_',
 		'Inventory',
@@ -409,6 +418,7 @@ module.exports = {
 	bulkAddImages: bulkAddImages,
 	bulkAddItems: bulkAddItems,
 	bulkAddPrices: bulkAddPrices,
+	bulkAddInventory: bulkAddInventory,
 	inventorySync: inventorySync,
 	listItem: listItem
 }

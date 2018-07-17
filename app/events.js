@@ -431,9 +431,16 @@
  				skus.push(item.sku);
  			});
 
- 			amazon.bulkAddItems(skus);
+ 			amazon.bulkAddItems(skus).then(response => {
+ 				console.log(response);
+	 			amazon.bulkAddPrices(skus).then(response => {
+ 					console.log(response);
+	 				amazon.bulkAddInventory(skus).then(response => {
+ 						console.log(response);
+	 				});
+	 			});
+ 			});
  			//amazon.bulkAddImages(skus);
- 			//amazon.bulkAddPrices(skus);
  		});
 
  		socket.on('getWalmartItem', function(sku) {

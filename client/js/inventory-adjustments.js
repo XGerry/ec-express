@@ -59,11 +59,34 @@ $(document).ready(e => {
 		}
 	});
 
+	$('#browseButton').click(e => {
+		e.preventDefault();
+		$('#fileInput').val('');
+		$('#fileInput').click();
+	});
+
 	$('#saveInventoryButton').click(e => {
 		var memo = $('#notesArea').val();
 		socket.emit('updateInventory', inventoryList, memo, response => {
 			$('#info').text('Inventory Adjustment request sent to Quickbooks. Run the Web Connector.');
 			clearFields();
+		});
+	});
+
+	$('#fileInput').on('change', e => {
+		console.log('file change');
+		$('#fileName').text(e.target.files[0].name);
+
+		$('#fileInput').parse({
+			config: {
+				complete: function(results, file) {
+					loadFromFile(results.data);
+				},
+				header: true
+			},
+			complete: function() {
+				console.log('all files done');
+			}
 		});
 	});
 });
@@ -82,7 +105,6 @@ function clearFields() {
 
 function addToInventoryList(item, stockLevel, addTo) {
 	// find the item in the list
-	var newItem = true;
 	for (var i of inventoryList) {
 		if (i.sku == item.sku) {
 			if (addTo)
@@ -124,4 +146,33 @@ function getStockLevel(item) {
 		}
 	}
 	return parseInt(item.stock);
+}
+
+function loadFromFile(data) {
+	$('#messages').empty();
+	data = data.filter(i => i.upc != '');
+	console.log(data);
+
+	// data should contain a list of upc codes
+	// go through the upc codes and count up the total items
+	var counts = {};
+	data.forEach(item => {
+		if (counts.hasOwnProperty(item.upc)) {
+			counts[item.upc]++;
+		} else {
+			counts[item.upc] = 1;
+		}
+	});
+
+	for (let upc of Object.keys(counts)) {
+		socket.emit('searchDB', { barcode: upc }, items => {
+			var theItem = items[0];
+			if (theItem == null) {
+				var message = 'Barcode: ' + upc + ' not found. Count: ' + counts[upc];
+				$('#messages').append($('<li>' + message + '</li>'))
+			} else {
+				addToInventoryList(theItem, counts[upc], true);
+			}
+		});
+	}
 }

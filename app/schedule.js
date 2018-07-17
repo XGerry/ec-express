@@ -9,7 +9,7 @@ var Item = require('./model/item.js');
 
 module.exports = function(qbws) {
   var sync = schedule.scheduleJob('0 4-20 * * *', () => {
-    syncOrdersAndInventory(qbws)
+    syncOrdersAndInventory(qbws);
   }); 
   var refresh = schedule.scheduleJob('0 21 * * *', () => {
     cart3d.refreshFrom3DCart().then(() => {
