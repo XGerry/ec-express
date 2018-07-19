@@ -696,11 +696,14 @@ function updateItemFields(item, cartItem, canadian) {
     item.hasOptions = true;
     // save the options
     cartItem.AdvancedOptionList.forEach(optionItem => {
+      console.log(optionItem.AdvancedOptionSufix);
       var optionSKU = optionItem.AdvancedOptionSufix.trim();
       Item.findOne({sku: optionSKU}).then(advancedOption => {
+        console.log('old option');
         if (advancedOption) {
           promises.push(updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian));
         } else if (optionItem.AdvancedOptionSufix != '') {
+          console.log('new option');
           var newOption = new Item();
           newOption.sku = optionSKU;
           promises.push(updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian));
@@ -724,7 +727,7 @@ function updateItemFields(item, cartItem, canadian) {
 }
 
 function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian) {
-  console.log('updating adnvanced option');
+  console.log('updating advanced option');
   console.log(advancedOption.sku);
   console.log(canadian);
   advancedOption.name = cartItem.SKUInfo.Name + ' - ' + optionItem.AdvancedOptionName;
