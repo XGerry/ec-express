@@ -631,7 +631,9 @@ async function getItemsFull(query, progressCallback, canadian) {
       var cartItems = await rp(options);
       progressCallback(i + 1, numOfRequests, cartItems);
       var responses = await bulkUpdateCartItems(cartItems, canadian);
+      console.log('responses:')
       console.log(responses);
+      console.log('----')
     }
 
     //return Promise.all(promises);
