@@ -630,10 +630,10 @@ async function getItemsFull(query, progressCallback, canadian) {
       options.qs.offset = i * 200; 
       var cartItems = await rp(options);
       progressCallback(i + 1, numOfRequests, cartItems);
-      promises.push(bulkUpdateCartItems(cartItems, canadian));
+      await bulkUpdateCartItems(cartItems, canadian);
     }
 
-    return Promise.all(promises);
+    //return Promise.all(promises);
   });
 }
 
