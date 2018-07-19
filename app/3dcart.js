@@ -724,6 +724,7 @@ function updateItemFields(item, cartItem, canadian) {
 }
 
 function updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian) {
+  console.log('updating adnvanced option');
   advancedOption.name = cartItem.SKUInfo.Name + ' - ' + optionItem.AdvancedOptionName;
   if (canadian) {
     advancedOption.optionIdCan = optionItem.AdvancedOptionCode;
