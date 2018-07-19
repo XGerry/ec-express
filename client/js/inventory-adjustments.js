@@ -75,12 +75,13 @@ $(document).ready(e => {
 
 	$('#fileInput').on('change', e => {
 		console.log('file change');
+		$('#info').text('Loading... Please wait.')
 		$('#fileName').text(e.target.files[0].name);
 
 		$('#fileInput').parse({
 			config: {
 				complete: function(results, file) {
-					loadFromFile(results.data);
+					populateFromFile(results.data);
 				},
 				header: true
 			},
@@ -150,29 +151,120 @@ function getStockLevel(item) {
 
 function loadFromFile(data) {
 	$('#messages').empty();
-	data = data.filter(i => i.upc != '');
+	data = data.filter(i => (i.upc != '' || i.sku != ''));
 	console.log(data);
 
 	// data should contain a list of upc codes
 	// go through the upc codes and count up the total items
 	var counts = {};
 	data.forEach(item => {
-		if (counts.hasOwnProperty(item.upc)) {
-			counts[item.upc]++;
-		} else {
-			counts[item.upc] = 1;
+		if (item.upc != '') {
+			if (counts.hasOwnProperty(item.upc)) {
+				if (item.stock && item.stock != '') {
+					var stockToAdd = parseInt(item.stock);
+					counts[item.upc] += stockToAdd;
+				} else {
+					counts[item.upc]++;
+				}
+			} else {
+				if (item.stock && item.stock != '') {
+					counts[item.upc] = parseInt(item.stock);
+				} else {
+					counts[item.upc] = 1;
+				}
+			}
+		} else if (item.sku != '') {
+			if (counts.hasOwnProperty(item.sku)) {
+				if (item.stock && item.stock != '') {
+					var stockToAdd = parseInt(item.stock);
+					counts[item.sku] += stockToAdd;
+				} else {
+					counts[item.sku]++
+				}
+			} else {
+				if (item.stock && item.stock != '') {
+					counts[item.sku] = parseInt(item.stock);
+				} else {
+					counts[item.sku] = 1;
+				}
+			}
 		}
 	});
 
 	for (let upc of Object.keys(counts)) {
-		socket.emit('searchDB', { barcode: upc }, items => {
+		socket.emit('searchDB', { $or: [{ barcode: upc }, { sku: upc }] }, items => {
 			var theItem = items[0];
 			if (theItem == null) {
-				var message = 'Barcode: ' + upc + ' not found. Count: ' + counts[upc];
+				var message = 'Barcode or SKU: ' + upc + ' not found. Count: ' + counts[upc];
 				$('#messages').append($('<li>' + message + '</li>'))
 			} else {
 				addToInventoryList(theItem, counts[upc], true);
 			}
 		});
 	}
+}
+
+function populateFromFile(data) {
+	var restocks = {};
+	$('#messages').empty();
+
+	data = data.filter(i => i.id != '');
+
+	// massage the data so we have a bunch of unique identifiers and correspoding counts
+	data.forEach(item => {
+		if (restocks.hasOwnProperty(item.id)) {
+			if (item.count && item.count != '') {
+				restocks[item.id] += parseInt(item.count);
+			} else {
+				restocks[item.id] ++;
+			}
+		} else {
+			if (item.count && item.count != '') {
+				restocks[item.id] = parseInt(item.count);
+			} else {
+				restocks[item.id] = 1;
+			}
+		}
+	});
+
+	var ids = Object.keys(restocks);
+	console.log('doing request');
+	console.log(ids.length);
+	// just one request to the database
+	socket.emit('searchDB', { 
+		$or: [{ 
+			barcode: {
+				$in: ids
+			}
+		}, {
+			sku: {
+				$in: ids
+			}
+		}]
+	}, items => {
+		$('#info').text('');
+		console.log(items.length);
+		items.forEach(item => {
+			var stockToAdd = restocks[item.barcode] || restocks[item.sku];
+			if (stockToAdd) {
+				addToInventoryList(item, stockToAdd, true);
+			}
+		});
+
+		// check which items weren't found
+		for (let id of ids) {
+			var exists = false;
+			for (let item of items) {
+				if (item.sku == id || item.barcode == id) {
+					exists = true;
+					break;
+				}
+			}
+			if (!exists) {
+				// this item wasn't found
+				var message = 'Barcode or SKU: ' + id + ' not found. Count: ' + restocks[id];
+				$('#messages').append($('<li>' + message + '</li>'))
+			}
+		}
+	});
 }

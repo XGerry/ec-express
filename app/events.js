@@ -319,11 +319,16 @@
  			});
  		});
 
- 		socket.on('saveCustomOrder', (order, saveToSite) => {
+ 		socket.on('saveCustomOrder', (order, saveToSite, cb) => {
  			console.log('saving custom order');
  			var savingOrder = cart3d.saveCustomOrder(order, saveToSite);
  			savingOrder.then(response => {
  				socket.emit('saveCustomOrderFinished', response);
+ 				if (cb)
+ 					cb(response);
+ 			}).catch(err => {
+ 				if (cb)
+ 					cb(err);
  			});
  		});
 
@@ -591,7 +596,19 @@
  			qbws.addRequest(request, () => {
  				console.log('updated the inventory');
  			});
- 			cb();
+
+ 			var promises = [];
+
+ 			items.forEach(item => {
+ 				Item.findOne({sku: item.sku}).then(i => {
+ 					i.stock = item.newStock;
+ 					promises.push(i.save());
+ 				});
+ 			});
+
+ 			Promise.all(promises).then(responses => {
+ 				cb();
+ 			});
  		});
 
  		socket.on('findInQuickbooks', (skus, cb) => {
