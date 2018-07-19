@@ -644,15 +644,16 @@ function bulkUpdateCartItems(cartItems, canadian) {
   var promises = [];
   cartItems.forEach(item => {
     var sku = item.SKUInfo.SKU.trim();
-    Item.findOne({sku: sku}).then(dbItem => {
+    var saveItem = Item.findOne({sku: sku}).then(dbItem => {
       if (item) {
-        promises.push(updateItemFields(dbItem, item, canadian));
+        return updateItemFields(dbItem, item, canadian);
       } else {
         var newItem = new Item();
         newItem.sku = sku;
-        promises.push(updateItemFields(dbItem, item, canadian));
+        return updateItemFields(dbItem, item, canadian);
       }
     });
+    promises.push(saveItem);
   });
   return Promise.all(promises);
 }
