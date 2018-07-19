@@ -700,11 +700,11 @@ function updateItemFields(item, cartItem, canadian) {
       var optionSKU = optionItem.AdvancedOptionSufix.trim();
       var saveOption = Item.findOne({sku: optionSKU}).then(advancedOption => {
         if (advancedOption) {
-          return updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian));
+          return updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian);
         } else if (optionItem.AdvancedOptionSufix != '') {
           var newOption = new Item();
           newOption.sku = optionSKU;
-          return updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian));
+          return updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian);
         }
       });
       promises.push(saveOption);
