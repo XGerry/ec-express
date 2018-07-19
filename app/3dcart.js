@@ -698,17 +698,16 @@ function updateItemFields(item, cartItem, canadian) {
     cartItem.AdvancedOptionList.forEach(optionItem => {
       console.log(optionItem.AdvancedOptionSufix);
       var optionSKU = optionItem.AdvancedOptionSufix.trim();
-      Item.findOne({sku: optionSKU}).then(advancedOption => {
-        console.log('old option');
+      var saveOption = Item.findOne({sku: optionSKU}).then(advancedOption => {
         if (advancedOption) {
-          promises.push(updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian));
+          return updateAdvancedOptionFields(advancedOption, cartItem, optionItem, canadian));
         } else if (optionItem.AdvancedOptionSufix != '') {
-          console.log('new option');
           var newOption = new Item();
           newOption.sku = optionSKU;
-          promises.push(updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian));
+          return updateAdvancedOptionFields(newOption, cartItem, optionItem, canadian));
         }
       });
+      promises.push(saveOption);
     });
   } else {
     item.hasOptions = false;
