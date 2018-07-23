@@ -50,13 +50,25 @@ $(document).ready(function() {
 		e.preventDefault();
 		$('#saveOrderButton').button('loading');
 		$('#orderInfo').text('Saving order. Please wait...');
-		socket.emit('saveCustomOrder', generateOrder(), true);
+		socket.emit('saveCustomOrder', generateOrder(), true, response => {
+			console.log(response);
+			if (response.error) {
+				$('#orderInfo').text(response.error);
+			} else {
+				onSaveOrderFinished(response.order);
+			}
+		});
 	});
 
 	$('#saveOrderButton').click(e => {
-		console.log('saving...');
 		$('#saveButton').button('loading');
-		socket.emit('saveCustomOrder', generateOrder(), false);
+		socket.emit('saveCustomOrder', generateOrder(), false, response => {
+			if (response.error) {
+				$('#orderInfo').text('There was an error when saving the order');
+			} else {
+				onSaveOrderFinished(response.order);
+			}
+		});
 	});
 
 	$('#sameAsShippingButton').click(function(e) {
@@ -250,11 +262,10 @@ socket.on('findingItemsFinished', items => {
 	calculateTotals();
 });
 
-socket.on('saveCustomOrderFinished', order => {
+function onSaveOrderFinished(order) {
 	theOrder = order;
 	$('#saveOrderButton').button('reset');
 	var invoiceNumber = order.invoiceNumber;
-	console.log(invoiceNumber);
 	var message = 'Saved successfully.';
 	if (invoiceNumber != undefined) {
 		message += ' ' + invoiceNumber;
@@ -264,7 +275,7 @@ socket.on('saveCustomOrderFinished', order => {
 	setTimeout(() => {
 		$('#orderInfo').text('');
 	}, 3000);
-});
+}
 
 function loadFromFile(items) {
 	originalCSV = items;
@@ -397,7 +408,7 @@ function addItemRow(item) {
 		$('#itemModal').modal();
 	});
 
-	$('#orderTableBody').append(row);
+	$('#orderTableBody').prepend(row);
 }
 
 function emptyItemLine() {

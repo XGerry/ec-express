@@ -1279,7 +1279,6 @@ function saveCustomOrder(order, saveToSite) {
           return getOrderInvoiceNumber(dbOrder);
         }
       }).catch((message) => {
-        console.log(message);
         return Promise.reject(new Error(message));
       });
     } else {

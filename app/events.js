@@ -323,12 +323,12 @@
  			console.log('saving custom order');
  			var savingOrder = cart3d.saveCustomOrder(order, saveToSite);
  			savingOrder.then(response => {
- 				socket.emit('saveCustomOrderFinished', response);
  				if (cb)
- 					cb(response);
+ 					cb({order: response});
  			}).catch(err => {
+ 				console.log(err.message);
  				if (cb)
- 					cb(err);
+ 					cb({error: err.message});
  			});
  		});
 

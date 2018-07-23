@@ -290,14 +290,8 @@ function serviceLog(data) {
     // TODO: Put the log file somewhere else
     var consoleLogging = true;
     if (consoleLogging) {
-        console.log(data);
+      console.log(data);
     }
-
-    fs.appendFile('log.log', chalk.stripColor(data) + '\n', function callback(err) {
-        if (err) {
-            console.log(err);
-        }
-    });
 }
 
 /**
