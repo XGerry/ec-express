@@ -1,1 +1,1 @@
-sku,name,cost,us_retail_price,can_retail_price,manufacturer,country_of_origin,barcode
+id,name,cost,price,manufacturer,gtin,extra_field_9

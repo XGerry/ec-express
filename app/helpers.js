@@ -345,9 +345,9 @@ function createItemRq(item) {
   var qbRq = {
     ItemInventoryAddRq: {
       ItemInventoryAdd: {
-        Name: item.sku,
+        Name: item.id,
         BarCode: {
-          BarCodeValue: item.barcode,
+          BarCodeValue: item.gtin,
           AssignEvenIfUsed: true,
           AllowOverride: true
         },
@@ -355,7 +355,7 @@ function createItemRq(item) {
           FullName: 'NON'
         },
         SalesDesc: item.name,
-        SalesPrice: item.us_retail_price.replace('$', ''),
+        SalesPrice: item.price.replace('$', ''),
         IncomeAccountRef: {
           FullName: 'Sales'
         },
@@ -366,6 +366,9 @@ function createItemRq(item) {
         },
         COGSAccountRef: {
           FullName: 'Cost of Goods Sold'
+        },
+        PrefVendorRef: {
+          FullName: item.manufacturer
         },
         AssetAccountRef: {
           FullName: 'Inventory Asset'

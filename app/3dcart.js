@@ -1120,7 +1120,7 @@ function saveItem(item, qbws, adjustInventory) {
       PriceLevel1: item.usPrice,
       //MFGID: item.sku,
       WarehouseLocation: item.location,
-      //GTIN: item.barcode,
+      GTIN: item.barcode,
       ExtraField8: item.barcode,
       ExtraField9: item.countryOfOrigin,
       Hide: item.hidden
@@ -1470,39 +1470,38 @@ async function createItems(itemList) {
   itemList.forEach(item => {
     var cartItemUS = {
       SKUInfo: {
-        SKU: item.sku,
+        SKU: item.id,
         Name: item.name,
         Cost: item.cost,
-        RetailPrice: item.us_retail_price
+        RetailPrice: item.price
       },
-      MFGID: item.sku,
+      MFGID: item.id,
       ManufacturerName: item.manufacturer,
-      Hide: true,
-      PriceLevel2: item.us_wholesale_price
+      Hide: true
     };
-    if (item.barcode) {
-      cartItemUS.ExtraField8 = item.barcode;
+    if (item.gtin) {
+      cartItemUS.ExtraField8 = item.gtin;
+      cartItemUS.GTIN = item.gtin;
     }
-    if (item.country_of_origin) {
-      cartItemUS.ExtraField9 = item.country_of_origin;
+    if (item.extra_field_9) {
+      cartItemUS.ExtraField9 = item.extra_field_9;
     }
     var cartItemCan = {
       SKUInfo: {
-        SKU: item.sku,
+        SKU: item.id,
         Name: item.name,
-        Cost: item.cost,
-        RetailPrice: item.can_retail_price
+        Cost: item.cost
       },
-      MFGID: item.sku,
+      MFGID: item.id,
       ManufacturerName: item.manufacturer,
-      Hide: true,
-      PriceLevel7: item.can_wholesale_price
+      Hide: true
     };
-    if (item.barcode) {
-      cartItemCan.ExtraField8 = item.barcode;
+    if (item.gtin) {
+      cartItemCan.ExtraField8 = item.gtin;
+      cartItemCan.GTIN = item.gtin;
     }
-    if (item.country_of_origin) {
-      cartItemCan.ExtraField9 = item.country_of_origin;
+    if (item.extra_field_9) {
+      cartItemCan.ExtraField9 = item.extra_field_9;
     }
 
     var usOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
