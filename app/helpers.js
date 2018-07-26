@@ -367,9 +367,9 @@ function createItemRq(item) {
         COGSAccountRef: {
           FullName: 'Cost of Goods Sold'
         },
-        PrefVendorRef: {
-          FullName: item.manufacturer
-        },
+        //PrefVendorRef: {
+        //  FullName: item.manufacturer
+        //},
         AssetAccountRef: {
           FullName: 'Inventory Asset'
         }
