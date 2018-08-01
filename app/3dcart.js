@@ -1473,7 +1473,8 @@ async function createItems(itemList) {
         SKU: item.id,
         Name: item.name,
         Cost: item.cost,
-        RetailPrice: item.price
+        RetailPrice: item.price,
+        Price: item.price
       },
       MFGID: item.id,
       ManufacturerName: item.manufacturer,
@@ -1491,6 +1492,8 @@ async function createItems(itemList) {
         SKU: item.id,
         Name: item.name,
         Cost: item.cost
+        //Price: item.price,
+        //RetailPrice: item.price
       },
       MFGID: item.id,
       ManufacturerName: item.manufacturer,
