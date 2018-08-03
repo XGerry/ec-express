@@ -193,6 +193,9 @@ function modifyInventoryRq(item) {
         AccountRef: {
           FullName: 'inventory changes'
         },
+        InventorySiteRef: {
+          FullName: 'Warehouse'
+        },
         Memo: 'Updated through EC-Express',
         InventoryAdjustmentLineAdd: {
           ItemRef: {
@@ -217,6 +220,9 @@ function modifyItemsInventoryRq(items, memo) {
       InventoryAdjustmentAdd: {
         AccountRef: {
           FullName: 'inventory changes'
+        },
+        InventorySiteRef: {
+          FullName: 'Warehouse'
         },
         Memo: memo,
         InventoryAdjustmentLineAdd: []
@@ -1425,7 +1431,7 @@ function setItemFieldsForAmazon(order) {
           }
         }
         item.ItemBarcode = dbItem.barcode;
-        item.ItemWarehouseLocationSecondary = db.secondLocation;
+        item.ItemWarehouseLocationSecondary = dbItem.secondLocation;
       }
     });
     promises.push(updateItem);
