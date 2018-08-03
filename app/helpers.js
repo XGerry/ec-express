@@ -1062,23 +1062,40 @@ function saveItem(item, qbws, adjustInventory) {
   Item.findOne({sku: item.sku}).then(theItem => {
     if (theItem) {
       // update the fields
-      theItem.name = item.name;
-      theItem.usPrice = item.usPrice;
-      theItem.canPrice = item.canPrice;
-      theItem.stock = item.stock;
-      theItem.usStock = item.usStock;
-      theItem.canStock = item.canStock;
-      theItem.location = item.location;
-      theItem.secondLocation = item.secondLocation;
-      theItem.barcode = item.barcode;
-      theItem.countryOfOrigin = item.countryOfOrigin;
-      theItem.isOption = item.isOption;
-      theItem.hasOptions = item.hasOptions;
-      theItem.inactive = item.inactive;
-      theItem.hidden = item.hidden;
-      theItem.onSale = item.onSale;
-      theItem.usSalePrice = item.usSalePrice;
-      theItem.canSalePrice = item.canSalePrice;
+      if (item.name)
+        theItem.name = item.name;
+      if (item.usPrice)
+        theItem.usPrice = item.usPrice;
+      if (item.canPrice)
+        theItem.canPrice = item.canPrice;
+      if (item.stock)
+        theItem.stock = item.stock;
+      if (item.usStock)
+        theItem.usStock = item.usStock;
+      if (item.canStock)
+        theItem.canStock = item.canStock;
+      if (item.location)
+        theItem.location = item.location;
+      if (item.secondLocation)
+        theItem.secondLocation = item.secondLocation;
+      if (item.barcode)
+        theItem.barcode = item.barcode;
+      if (item.countryOfOrigin)
+        theItem.countryOfOrigin = item.countryOfOrigin;
+      if (item.isOption != undefined)
+        theItem.isOption = item.isOption;
+      if (item.hasOptions != undefined)
+        theItem.hasOptions = item.hasOptions;
+      if (item.inactive != undefined)
+        theItem.inactive = item.inactive;
+      if (item.hidden != undefined)
+        theItem.hidden = item.hidden;
+      if (item.onSale != undefined)
+        theItem.onSale = item.onSale;
+      if (item.usSalePrice != undefined)
+        theItem.usSalePrice = item.usSalePrice;
+      if (theItem.canSalePrice != undefined)
+        theItem.canSalePrice = item.canSalePrice;
       theItem.save().then(savedItem => {
         if (savedItem.hasOptions == undefined || savedItem.hasOptions == false) {
           saveToQuickbooks(savedItem, qbws, adjustInventory);
@@ -1408,6 +1425,7 @@ function setItemFieldsForAmazon(order) {
           }
         }
         item.ItemBarcode = dbItem.barcode;
+        item.ItemWarehouseLocationSecondary = db.secondLocation;
       }
     });
     promises.push(updateItem);

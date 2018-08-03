@@ -128,7 +128,8 @@ mixin orderItemPanel(order)
 				tr
 					th.text-center(style="width:14%") Location
 					th.text-center SKU
-					th.text-center Quantity
+					th.text-center Ordered
+					th.text-center Quantity Picked
 					th.text-center Picked
 					th(style="width:30%") Description
 					th Stock Level
@@ -166,13 +167,11 @@ html
 							option(value=4) Shipped
 					span.navbar-text#orderInfo.ml-2
 					ul.navbar-nav.ml-auto
-						//li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+						li.dropdown.nav-item
+							button.dropdown-toggle.btn.btn-primary.mr-2(type="button" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
-								a(href="/new-order").dropdown-item New Order
-								a(href="#").dropdown-item#clearItemsButton Clear Items
-								.dropdown-divider
-								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+								a(href="#").dropdown-item#fixBarcodeButton Fix Barcode
+								a(href="#", data-toggle="modal", data-target="#fixLocationModal").dropdown-item#fixLocationButton Fix Location
 						button.btn.btn-primary.mr-2(type="button")#startPickingButton Start Picking
 						button.btn.btn-info.mr-2(type="button")#showSummaryButton Show Summary
 
@@ -200,14 +199,16 @@ html
 											tr
 												th SKU
 												th Description
-												th Quantity
+												th Ordered
 												th On-hand
+												th Second Location
 										tbody
 											tr
 												th#itemSku 12345
 												td#itemDescription A cute die.
 												th#itemQuantity
 												td#itemQuantityOnHand
+												th#itemSecondLocation
 							.row
 								.col-12.text-center
 									.carousel.slide(data-ride="carousel")#productImageCarousel
@@ -221,16 +222,11 @@ html
 								.col-12.text-center
 									h2 Proceed to the location
 									h2.text-primary#itemLocation
-									.input-group
-										input(type="text").form-control-lg.form-control#locationInput
-										.input-group-append
-											.input-group-text.text-white.bg-danger#locationInputGroup
-												i.far.fa-times.fa-fw#locationIcon
 							.row.mt-3
 								.col-12.text-center
-									h2 Scan the item
+									h2#itemInstructions Scan the item
 									h2.text-primary#itemSkuHeader
-									.input-group
+									.input-group#barcodeInput
 										input(type="text").form-control-lg.form-control#itemBarcodeInput
 										.input-group-append
 											.input-group-text.text-white.bg-danger#barcodeInputGroup
@@ -248,12 +244,43 @@ html
 												i.far.fa-plus.fa-fw
 							.row.mt-3
 								.col-12.text-center
-									button.btn.btn-lg.btn-secondary(type="button").mr-3#skipItemButton Skip
-									button.btn.btn-lg.btn-success(type="button")#donePickingButton Done
+									button.btn.btn-lg.btn-secondary(type="button").mr-3#prevItemButton Previous
+									button.btn.btn-lg.btn-success(type="button").mr-3#donePickingButton Done
+									button.btn.btn-lg.btn-secondary(type="button")#nextItemButton Next
 
 
 
 		+footer
+
+	#fixBarcodeModal.modal.fade(role="dialog")
+		.modal-dialog.modal-lg(role="document")
+			.modal-content
+				.modal-header
+					h4 Fix Barcode
+					button.close(data-dismiss="modal") &times;
+				.modal-body
+					.row.form-group
+						.col-12
+							label(for="newBarcode") New Barcode
+							input#newBarcode.form-control(type="text")
+				.modal-footer
+					button.btn.btn-success#saveBarcodeModal(type="button") Save
+					button.btn.btn-secondary(type="button", data-dismiss="modal") Close
+
+	#fixLocationModal.modal.fade(role="dialog")
+		.modal-dialog.modal-lg(role="document")
+			.modal-content
+				.modal-header
+					h4 Fix Location
+					button.close(data-dismiss="modal") &times;
+				.modal-body
+					.row.form-group
+						.col-12
+							label(for="newLocation") New Location
+							input#newLocation.form-control(type="text")
+				.modal-footer
+					button.btn.btn-success#saveLocationModal(type="button") Save
+					button.btn.btn-secondary(type="button", data-dismiss="modal") Close
 		
 		script(type="text/javascript", src="js/moment.js")
 		script(type="text/javascript", src="js/pick-order.js")

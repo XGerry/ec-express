@@ -196,7 +196,7 @@ function removeOrder(index) {
 }
 
 var clearRequests = function() {
-  req = [];
+  // req = []; // not needed now. This should be empty if we are finished
   orders = [];
   connectionErrCounter = 0; // reset this too
   finalCallbacks = [];
@@ -531,22 +531,23 @@ function (args) {
     announceMethod('closeConnection', args);
 
     retVal = 'OK';
+    if (connectionErrCounter > 0) {
+      var promises = [];
+      finalCallbacks.forEach(cb => {
+        promises.push(cb());
+      });
 
+      Promise.all(promises).then((vals) => {
+        console.log(vals);
+        finalCallbacks = [];
+        clearRequests();
+      }).catch(err => {
+        console.log(err);
+        clearRequests();
+      });
+    }
     // Resetting the connection error count and reset the requests
     connectionErrCounter = 0;
-    var promises = [];
-    finalCallbacks.forEach(cb => {
-      promises.push(cb());
-    });
-
-    Promise.all(promises).then((vals) => {
-      console.log(vals);
-      finalCallbacks = [];
-      clearRequests();
-    }).catch(err => {
-      console.log(err);
-      clearRequests();
-    });
 
     serviceLog('    Return values:');
     serviceLog('        string retVal = ' + retVal);

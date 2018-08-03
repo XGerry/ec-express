@@ -1,3 +1,4 @@
+var socket = io();
 var order;
 var theItem;
 var currentIndex = 0;
@@ -17,19 +18,26 @@ function buildPickTable(order) {
 		var descriptionText = descriptionCol.text();
 		var orderQuantityCol = $('<td></td>');
 		orderQuantityCol.text(item.ItemQuantity);
+		var quantityPickedCol = $('<td></td>');
+		if (item.quantityPicked) {
+			quantityPickedCol.text(item.quantityPicked);
+		} else {
+			quantityPickedCol.text('0');
+		}
 		totalItems += parseInt(item.ItemQuantity);
 		var stockCol = $('<td></td>');
 		stockCol.text(item.ItemUnitStock);
 
 		var pickedCol = $('<td></td>');
 		var pickedBox = $('<input type="checkbox" style="width:25px;height:25px;margin:0;">');
-		console.log(item.picked);
+
 		pickedBox.prop('checked', item.picked);
 		pickedCol.append(pickedBox);
 
 		row.append(locationCol);
 		row.append(skuCol);
 		row.append(orderQuantityCol);
+		row.append(quantityPickedCol);
 		row.append(pickedCol);
 		row.append(descriptionCol);
 		row.append(stockCol);
@@ -82,50 +90,48 @@ $(document).ready(e => {
 		showSummary();
 	});
 
-	$('#locationInput').on('keyup', e => {
-		if (e.keyCode == 13) {
-			var locationEntered = $('#locationInput').val();
-			if (theItem.ItemWarehouseLocation == locationEntered) {
-				scan('locationInputGroup', 'locationIcon', true);
-				$('#itemBarcodeInput').select();
-			} else {
-				scan('locationInputGroup', 'locationIcon', false);
-				$('#locationInput').select();
-			}
-		}
-	});
-
 	$('#itemBarcodeInput').on('keyup', e => {
 		if (e.keyCode == 13) {
 			var barcodeEntered = $('#itemBarcodeInput').val();
 			if (theItem.ItemBarcode == barcodeEntered) {
 				scan('barcodeInputGroup', 'barcodeIcon', true);
-				$('#donePickingButton').focus();
+				var pickCount = increasePickCount();
+				if (theItem.ItemQuantity == pickCount) {
+					// we're automatically done
+					donePicking(pickCount);
+				}
 			} else {
 				scan('barcodeInputGroup', 'barcodeIcon', false);
-				$('#itemBarcodeInput').select();
 			}
+			$('#itemBarcodeInput').select();
 		}
 	});
 
-	$('#skipItemButton').click(e => {
-		$('#locationInput').val('');
+	$('#nextItemButton').click(e => {
 		$('#itemBarcodeInput').val('');
 		currentIndex++;
+		pickNextItem();
+	});
+
+	$('#prevItemButton').click(e => {
+		$('#itemBarcodeInput').val('');
+		currentIndex--;
 		pickNextItem();
 	});
 
 	$('#donePickingButton').click(e => {
-		$('#locationInput').val('');
 		$('#itemBarcodeInput').val('');
-		theItem.picked = true;
-		currentIndex++;
-		pickNextItem();
+		var quantityPicked = parseInt($('#itemQuantityPicked').val());
+		if (theItem.picked && theItem.quantityPicked == quantityPicked) {
+			alert('You have already picked this item!');
+		} else {
+			donePicking(quantityPicked);
+		}
 	});
 
 	$('#minusButton').click(e => {
 		var currentValue = $('#itemQuantityPicked').val();
-		if (currentValue <= 1) {
+		if (currentValue <= 0) {
 			return;
 		} 
 		currentValue--;
@@ -133,13 +139,66 @@ $(document).ready(e => {
 	});	
 
 	$('#plusButton').click(e => {
-		var currentValue = $('#itemQuantityPicked').val();
-		currentValue++;
-		$('#itemQuantityPicked').val(currentValue);
+		increasePickCount();
+	});
+
+	$('#fixBarcodeButton').click(e => {
+		e.preventDefault();
+		if (theItem) {
+			$('#newBarcode').val(theItem.ItemBarcode);
+			$('#fixBarcodeModal').modal();
+			$('#newBarcode').focus().select();
+		}
+	});
+
+	$('#fixLocationButton').click(e => {
+		e.preventDefault();
+		if (theItem) {
+			$('#newLocation').val(theItem.ItemWarehouseLocation);
+			$('#fixLocationModal').modal();
+			$('#newLocation').focus().select();
+		}
+	});
+
+	$('#saveBarcodeModal').click(e => {
+		$('#fixBarcodeModal').modal('hide');
+		theItem.ItemBarcode = $('#fixBarcode').val();
+		socket.emit('saveItem', {
+			sku: theItem.ItemID,
+			barcode: theItem.ItemBarcode
+		}, false, responses => {
+			console.log('Saved the barcode');
+		});
+	});
+
+	$('#saveLocationModal').click(e => {
+		$('#fixLocationModal').modal('hide');
+		theItem.ItemBarcode = $('#newLocation').val();
+		socket.emit('saveItem', {
+			sku: theItem.ItemID,
+			location: theItem.ItemBarcode
+		}, false, responses => {
+			console.log('Saved the barcode');
+		});
 	});
 });
 
+function donePicking(quantityPicked) {
+	theItem.picked = true;
+	theItem.quantityPicked = quantityPicked;
+	currentIndex++;
+	pickNextItem();
+}
+
+function increasePickCount() {
+	var currentValue = $('#itemQuantityPicked').val();
+	currentValue++;
+	$('#itemQuantityPicked').val(currentValue);
+	return currentValue;
+}
+
 function showSummary() {
+	theItem = null;
 	$('#pickTable'+order.InvoiceNumberPrefix+order.InvoiceNumber).dataTable().fnDestroy();
 	$('#pickTableBody'+order.InvoiceNumberPrefix+order.InvoiceNumber).empty();
 	buildPickTable(order);
@@ -165,10 +224,25 @@ function populatePickFields(item) {
 	$('#itemSku').text(item.ItemID);
 	$('#itemDescription').html(item.ItemDescription);
 	$('#itemQuantity').text(item.ItemQuantity);
-	$('#locationInput').prop('placeholder', item.ItemWarehouseLocation);
-	$('#itemBarcodeInput').prop('placeholder', item.ItemBarcode);
+	$('#itemSecondLocation').text(item.ItemWarehouseLocationSecondary);
+	if (item.ItemBarcode) {
+		$('#itemInstructions').text('Scan the item');
+		$('#itemBarcodeInput').prop('placeholder', item.ItemBarcode);
+		$('#barcodeInput').show();
+		$('#itemBarcodeInput').select();
+	} else {
+		$('#itemInstructions').text('Pick the item');
+		$('#barcodeInput').hide();
+	}
 	$('#itemQuantityOnHand').text(item.ItemUnitStock);
-	$('#itemQuantityPicked').val(item.ItemQuantity);
+
+	if (item.picked) {
+		$('#donePickingButton').text('Picked');
+		$('#itemQuantityPicked').val(item.quantityPicked);
+	} else {
+		$('#donePickingButton').text('Done');
+		$('#itemQuantityPicked').val(0);
+	}
 
 	$('#productCarousel').empty();
 	if (item.ItemImage1) {
@@ -205,30 +279,15 @@ function pickNextItem() {
 		showSummary();
 	} else {
 		populatePickFields(theItem);
-		$('#locationInput').select();
-	}
+ 	}
 }
 
 function getValidItem() {
-	var donePicking = true;
-	for (var i = 0; i < order.OrderItemList.length; i++) {
-		if (!order.OrderItemList[i].picked) {
-			donePicking = false;
-			break;
-		}
-	}
-	if (donePicking) {
+	if (currentIndex >= order.OrderItemList.length || currentIndex < 0) {
+		currentIndex = 0;
 		return null;
 	}
-	if (currentIndex >= order.OrderItemList.length) {
-		currentIndex = 0;
-	}
-	var theItem = order.OrderItemList[currentIndex];
-	if (theItem.picked == true) {
-		currentIndex++;
-		return getValidItem();
-	}
-	return theItem;
+	return order.OrderItemList[currentIndex];
 }
 
 function sortItems() {
