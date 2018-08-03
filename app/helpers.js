@@ -993,8 +993,8 @@ function saveItemFromQB(item, qbItem) {
 function addItemProperties(data, item) { // don't update the barcode in here anymore
   if (data.DataExtName == 'Location') {
     if (item.location != data.DataExtValue) {
-      item.location = data.DataExtValue;
-      item.updated = true;
+      //item.location = data.DataExtValue;
+      //item.updated = true;
     }
   } else if (data.DataExtName == 'Country' || data.DataExtName == 'C Origin') {
     if (item.countryOfOrigin != data.DataExtValue.toUpperCase()) {
@@ -1008,8 +1008,8 @@ function addItemProperties(data, item) { // don't update the barcode in here any
     }
   } else if (data.DataExtName == 'Location 2') {
     if (item.secondLocation != data.DataExtValue) {
-      item.secondLocation = data.DataExtValue;
-      item.updated = true;
+      //item.secondLocation = data.DataExtValue;
+      //item.updated = true;
     }
   }
 }
