@@ -487,6 +487,20 @@ function getInvoiceRq(orders) {
   return str;
 }
 
+function getSalesOrdersRq(orders) {
+  var orderIds = orders.map(o => return o.orderId);
+  var orderQuery = {
+    SalesOrderQueryRq: {
+      '@requestID': 'salesOrderCheck',
+      RefNumber: orderIds
+    }
+  };
+
+  var xmlDoc = getXMLRequest(orderQuery);
+  var str = xmlDoc.end({'pretty': true});
+  return str;
+}
+
 function querySalesReceiptRq(start, end) {
   var salesReceiptQuery = {
     SalesReceiptQueryRq: {
@@ -501,6 +515,127 @@ function querySalesReceiptRq(start, end) {
 
   var xmlDoc = getXMLRequest(salesReceiptQuery);
   var str = xmlDoc.end({pretty:true});
+  return str;
+}
+
+module.exports.addSalesOrderRq = order => {
+  console.log('Creating sales order for ' + order.BillingFirstName + ' ' order.BillingLastName);
+  var invoiceAdds = [];
+  order.OrderItemList.forEach(item => {
+    invoiceAdds.push({
+      ItemRef : {
+        FullName : item.ItemID
+      },
+      Quantity : item.ItemQuantity,
+      Rate : item.ItemUnitPrice,
+      InventorySiteRef: {
+        FullName: 'Warehouse'
+      }
+    });
+  });
+
+  // another place there could be a discount
+  // let's just add all the discounts lumped into one line
+  if (order.OrderDiscount > 0) {
+    invoiceAdds.push({
+      ItemRef : {
+        FullName : "DISC"
+      },
+      Desc : 'All discounts on order',
+      Rate: order.OrderDiscount
+    });
+  }
+
+  // add the shipping cost as a line item
+  invoiceAdds.push({
+    ItemRef : {
+      FullName : "Shipping & Handling"
+    },
+    Rate : order.ShipmentList[0].ShipmentCost
+  });
+
+  // we need to add a surcharge if they are a Canadian customer (only when coming from the US website)
+  if (order.InvoiceNumberPrefix == 'AB-') {
+    var country = order.BillingCountry;
+    if (country === "CA" || country === "Canada") {
+      invoiceAdds.push({
+        ItemRef : {
+          FullName : "Subtotal"
+        }
+      });
+      invoiceAdds.push({
+        ItemRef : {
+          FullName : "Surcharge"
+        },
+        Quantity : 10
+      });
+    }
+  }
+  
+  var shippingMethod = order.ShipmentList[0].ShipmentMethodName.slice(0,15); // max 15 characters
+  shippingMethod = (shippingMethod !== '') ? shippingMethod : 'cheapest way'; // default for now
+
+  var paymentMethod3DCart = order.BillingPaymentMethod;
+  var paymentMethod = 'Online Credit Card';
+  if (paymentMethod3DCart.includes('card is on file')) {
+    paymentMethod = 'On Account';
+  } else if (paymentMethod3DCart.includes('PayPal')) {
+    paymentMethod = 'PayPal';
+  } else if (paymentMethod3DCart.includes('Check or Money Order')) {
+    paymentMethod = 'cheque';
+  } else if (paymentMethod3DCart.includes('On Account')) {
+    paymentMethod = 'On Account';
+  }
+
+  var customerRef = order.BillingLastName + ' ' + order.BillingFirstName;
+  // if (order.BillingCompany && order.BillingCompany != '') { // not doing this yet
+  //   customerRef = order.BillingCompany;
+  // }
+
+  // find the PO number in the comments
+  var commentArray = order.CustomerComments.split('\n');
+  var comments = '';
+  var po = '';
+  commentArray.forEach(comment => {
+    var code = comment.substring(0, 4);
+    if (code == 'PO: ') {
+      po = comment.substring(4);
+    } else {
+      comments += comment;
+    }
+  });
+
+  // An exception for Amazon
+  if (order.BillingFirstName == 'Amazon') {
+    customerRef = 'Amazon';
+  }
+
+  var obj = {
+    SalesOrderAddRq : {
+      '@requestID' : order.InvoiceNumberPrefix + order.InvoiceNumber,
+      SalesOrderAdd : {
+        CustomerRef : {
+          FullName : customerRef
+        },
+        TxnDate : order.OrderDate.slice(0,10), // had to remove the T from the DateTime - maybe this is dangerous?
+        RefNumber : order.InvoiceNumberPrefix + order.InvoiceNumber,
+        BillAddress: createBillingAddress(order),
+        ShipAddress : createShippingAddress(order),
+        PONumber: po,
+        TermsRef : {
+          FullName : paymentMethod
+        },
+        ShipMethodRef : {
+          FullName : shippingMethod
+        },
+        Memo : comments + ' - API Import ('+timecode+')',
+        IsToBePrinted : true,
+        SalesOrderLineAdd : invoiceAdds
+      }
+    }
+  };
+  var xmlDoc = getXMLRequest(obj);
+  var str = xmlDoc.end({'pretty' : true});
   return str;
 }
 
@@ -881,6 +1016,28 @@ function createInvoiceRequests(qbws) {
           return qbws.generateOrderRequest();
         });
       });
+    });
+  });
+}
+
+function createSalesOrders(qbws) {
+  Order.find({imported: false}).then(orders => {
+    var salesOrderRq = getSalesOrdersRq(orders);
+    qbws.addRequest(salesOrderRq, response => {
+      return xml2js(response, {explicitArray: false}).then(responseObject => {
+        var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
+        var promises = [];
+        if (Array.isArray(salesOrderRs.SalesOrderRet)) {
+          salesOrderRs.SalesOrderRet.forEach(salesOrder => {
+            promises.push(updateDuplicateOrder(salesOrderRq));
+          });
+        } else if (salesOrderRs.SalesOrderRet) {
+          promises.push(updateDuplicateOrder(salesOrderRs.SalesOrderRet))
+        }
+        return Promise.all(promises).then(() => {
+          return qbws.generateOrderRequest();
+        });
+      }
     });
   });
 }

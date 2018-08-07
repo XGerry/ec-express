@@ -218,7 +218,7 @@ function generateOrderRequest() {
     orders.forEach(order => {
       addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
       var invoiceRqId = order.orderId;
-      var xmlInvoiceRequest = helpers.addInvoiceRq(order.cartOrder, invoiceRqId); // make the request ID the order ID!
+      var xmlInvoiceRequest = helpers.addSalesOrderRq(order.cartOrder);
       addRequest(xmlInvoiceRequest, checkError, true); // make sure this only happens once
       order.requestID = invoiceRqId;
       promises.push(order.save());
