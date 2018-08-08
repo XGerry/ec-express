@@ -130,7 +130,7 @@
  		socket.on('getOrders', function(data) {
  			var query = {
  				limit: 200,
-        orderstatus : data.status, // Status of New = 1
+        orderstatus : 1, // Status of New = 1
       };
 
  			cart3d.getOrders(query, qbws).then(numberOfOrders => {
