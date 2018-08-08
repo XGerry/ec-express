@@ -131,15 +131,10 @@
  			var query = {
  				limit: 200,
         orderstatus : data.status, // Status of New = 1
-        datestart : data.startDate,
-        dateend : data.endDate
       };
 
-      if (data.number) {
-      	query.invoicenumber = data.number;
-      }
-
  			cart3d.getOrders(query, qbws).then(numberOfOrders => {
+ 				console.log(numberOfOrders);
  				socket.emit('getOrdersFinished', numberOfOrders);
  			});
  		});

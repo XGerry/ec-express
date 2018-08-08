@@ -36,6 +36,10 @@ $(document).ready(function() {
 		}
 	});
 
+	$('#importOrdersButton').click(e => {
+		socket.emit('getOrders');
+	});
+
 	$('#getItemsFromQB').click(e => {
 		alert('Please wait for the web connector to run. When it has finished, your file will automatically download.');
 		socket.emit('findInQuickbooks', nonExistingItems, result => {
