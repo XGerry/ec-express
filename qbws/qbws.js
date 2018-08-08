@@ -228,17 +228,17 @@ function generateOrderRequest() {
 
 function checkError(response) {
   return xml2js(response, {explicitArray: false}).then(result => {
-    var invoiceRs = result.QBXML.QBXMLMsgsRs.InvoiceAddRs;
-    if (invoiceRs) {
-      var requestID = invoiceRs.$.requestID;
+    var salesOrderRs = result.QBXML.QBXMLMsgsRs.SalesOrderAddRs;
+    if (salesOrderRs) {
+      var requestID = salesOrderRs.$.requestID;
       return Order.findOne({ orderId : requestID }).then(doc => {
         if (doc) {
-          if (invoiceRs.$.statusCode == '3140' || 
-              invoiceRs.$.statusCode == '3205' || 
-              invoiceRs.$.statusCode == '3070' || 
-              invoiceRs.$.statusCode == '3045') { // error
+          if (salesOrderRs.$.statusCode == '3140' || 
+              salesOrderRs.$.statusCode == '3205' || 
+              salesOrderRs.$.statusCode == '3070' || 
+              salesOrderRs.$.statusCode == '3045') { // error
             doc.imported = false;
-            doc.message = invoiceRs.$.statusMessage;
+            doc.message = salesOrderRs.$.statusMessage;
             console.log('found an error: ' + doc.message);
           } else {
             doc.imported = true;
