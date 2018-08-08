@@ -998,7 +998,7 @@ function safePrint(value) {
  */
 function createInvoiceRequests(qbws) {
   Order.find({imported: false}).then(orders => {
-    var invoiceRq = getInvoiceRq(orders);
+    var invoiceRq = getInvoiceRq(orders); //getInvoiceRq(orders);
     qbws.addRequest(invoiceRq, (response) => {
       var promises = [];
       return xml2js(response, {explicitArray: false}).then(responseObject => {
@@ -1020,7 +1020,7 @@ function createInvoiceRequests(qbws) {
   });
 }
 
-function createSalesOrders(qbws) {
+function createSalesOrdersRequests(qbws) {
   Order.find({imported: false}).then(orders => {
     var salesOrderRq = getSalesOrdersRq(orders);
     qbws.addRequest(salesOrderRq, response => {
@@ -1710,5 +1710,6 @@ module.exports = {
   saveDelivery: saveDelivery,
   getDeliveries: getDeliveries,
   removeDelivery: removeDelivery,
-  addSalesOrderRq: addSalesOrderRq
+  addSalesOrderRq: addSalesOrderRq,
+  createSalesOrdersRequests: createSalesOrdersRequests
 }
