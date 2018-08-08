@@ -546,7 +546,10 @@ function getOrders(query, qbws) {
           var orderReport = helpers.getOrderReport(settings);
           return orderReport.then((report) => {
             webhooks.orderBot(helpers.getSlackOrderReport(report));
-            return 'Done';
+            return Settings.findOne({}).then(s => {
+              s.lastImports = [];
+              s.save();
+            });
           });
         });
       });

@@ -7,7 +7,6 @@ var uuid = require('uuid');
 var xmlParser = require('xml2js').parseString; 
 var xml2js = require('xml2js-es6-promise');
 var Order = require('../app/model/order');
-var Settings = require('../app/model/settings');
 var helpers = require('../app/helpers.js');
 var async = require('async');
 
