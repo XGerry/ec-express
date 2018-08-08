@@ -540,6 +540,7 @@ function getOrders(query, qbws) {
     return Promise.all(promises).then(newOrders => {
       helpers.createInvoiceRequests(qbws);
       qbws.addFinalCallback(() => {
+        console.log('Generating Report');
         var findSettings = Settings.findOne({});
         return findSettings.then(settings => {
           var orderReport = helpers.getOrderReport(settings);

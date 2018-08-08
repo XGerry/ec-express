@@ -488,7 +488,7 @@ function getInvoiceRq(orders) {
 }
 
 function getSalesOrdersRq(orders) {
-  var orderIds = orders.map(o => return o.orderId);
+  var orderIds = orders.map(o => o.orderId);
   var orderQuery = {
     SalesOrderQueryRq: {
       '@requestID': 'salesOrderCheck',
@@ -519,7 +519,7 @@ function querySalesReceiptRq(start, end) {
 }
 
 module.exports.addSalesOrderRq = order => {
-  console.log('Creating sales order for ' + order.BillingFirstName + ' ' order.BillingLastName);
+  console.log('Creating sales order for ' + order.BillingFirstName + ' ' + order.BillingLastName);
   var invoiceAdds = [];
   order.OrderItemList.forEach(item => {
     invoiceAdds.push({
@@ -1037,7 +1037,7 @@ function createSalesOrders(qbws) {
         return Promise.all(promises).then(() => {
           return qbws.generateOrderRequest();
         });
-      }
+      });
     });
   });
 }
