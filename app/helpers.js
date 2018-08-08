@@ -488,6 +488,11 @@ function getInvoiceRq(orders) {
 }
 
 function getSalesOrdersRq(orders) {
+  if (orders.length == 0) { // this prevents quickbooks returning all the sales orders
+    orders.push({
+      orderId: 'AB-12345'
+    });
+  }
   var orderIds = orders.map(o => o.orderId);
   var orderQuery = {
     SalesOrderQueryRq: {
