@@ -518,7 +518,7 @@ function querySalesReceiptRq(start, end) {
   return str;
 }
 
-module.exports.addSalesOrderRq = order => {
+function addSalesOrderRq(order) {
   console.log('Creating sales order for ' + order.BillingFirstName + ' ' + order.BillingLastName);
   var invoiceAdds = [];
   order.OrderItemList.forEach(item => {
@@ -1709,5 +1709,6 @@ module.exports = {
   savePO: savePO,
   saveDelivery: saveDelivery,
   getDeliveries: getDeliveries,
-  removeDelivery: removeDelivery
+  removeDelivery: removeDelivery,
+  addSalesOrderRq: addSalesOrderRq
 }
