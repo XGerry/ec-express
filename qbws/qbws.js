@@ -531,7 +531,7 @@ function (args) {
     announceMethod('closeConnection', args);
 
     retVal = 'OK';
-    if (connectionErrCounter == 0) {
+    if (connectionErrCounter < 5) {
       var promises = [];
       finalCallbacks.forEach(cb => {
         promises.push(cb());
