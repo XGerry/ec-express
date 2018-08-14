@@ -383,6 +383,10 @@ function createItemRq(item) {
     }
   };
 
+  if (item.gtin == undefined || item.gtin == '') {
+    delete qbRq.ItemInventoryAddRq.ItemInventoryAddRq.ItemInventoryAdd.BarCode;
+  }
+
   var xmlDoc = getXMLRequest(qbRq);
   var str = xmlDoc.end({'pretty': true});
   console.log(str);
