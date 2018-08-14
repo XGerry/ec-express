@@ -805,9 +805,11 @@ function createInvoiceFromSalesOrder(qbws, order) {
         var addInvoiceRq = {
           InvoiceAddRq: {
             '@requestID': orderId,
-            RefNumber: salesOrder.RefNumber,
-            LinkToTxnID: salesOrder.TxnID,
-            InvoiceLineAdd: invoiceAdds
+            InvoiceAdd: {
+              RefNumber: salesOrder.RefNumber,
+              LinkToTxnID: salesOrder.TxnID,
+              InvoiceLineAdd: invoiceAdds
+            }
           }
         };
 
