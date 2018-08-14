@@ -795,7 +795,7 @@ function createInvoiceFromSalesOrder(qbws, order) {
         salesOrder.SalesOrderLineRet.forEach(item => {
           invoiceAdds.push({
             Quantity: 1,
-            Rate: item.Rate,
+            //Rate: item.Rate,
             //ClassRef: '',
             //Amount: '',
             InventorySiteRef: {
