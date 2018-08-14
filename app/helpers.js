@@ -491,7 +491,7 @@ function getInvoiceRq(orders) {
   return str;
 }
 
-function getSalesOrdersRq(orders) {
+function getSalesOrdersRq(orders, includeLineItems) {
   if (orders.length == 0) { // this prevents quickbooks returning all the sales orders
     orders.push({
       orderId: 'AB-12345'
@@ -501,7 +501,8 @@ function getSalesOrdersRq(orders) {
   var orderQuery = {
     SalesOrderQueryRq: {
       '@requestID': 'salesOrderCheck',
-      RefNumber: orderIds
+      RefNumber: orderIds,
+      IncludeLineItems: includeLineItems
     }
   };
 
@@ -782,14 +783,14 @@ function addInvoiceRq(order, requestID) {
 function createInvoiceFromSalesOrder(qbws, order) {
   var orderId = order.InvoiceNumberPrefix+order.InvoiceNumber;
   console.log('adding sales order request');
-  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}]), xmlResponse => {
+  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], true), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
       var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
       if (salesOrderRs == undefined) {
         console.log('Sales order not created yet!');
       } else if (salesOrderRs.SalesOrderRet) {
         var salesOrder = salesOrderRs.SalesOrderRet;
-
+        console.log(salesOrder);
         var invoiceAdds = [];
         salesOrder.SalesOrderLineRet.forEach(item => {
           invoiceAdds.push({
@@ -1074,7 +1075,7 @@ function createInvoiceRequests(qbws) {
 
 function createSalesOrdersRequests(qbws) {
   Order.find({imported: false}).then(orders => {
-    var salesOrderRq = getSalesOrdersRq(orders);
+    var salesOrderRq = getSalesOrdersRq(orders, false);
     qbws.addRequest(salesOrderRq, response => {
       return xml2js(response, {explicitArray: false}).then(responseObject => {
         var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
