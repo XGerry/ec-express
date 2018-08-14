@@ -124,6 +124,11 @@
  			helpers.createInvoiceRequests(qbws);
  		});
 
+ 		socket.on('createInvoice', order => {
+ 			var orderId = order.InvoiceNumberPrefix+order.InvoiceNumber;
+ 			helpers.createInvoice(qbws, order);
+ 		});
+
  		/**
  		 * Find all the orders in 3D Cart and save them to our db
  		 */

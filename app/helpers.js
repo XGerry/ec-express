@@ -779,6 +779,48 @@ function addInvoiceRq(order, requestID) {
   return str;
 }
 
+function createInvoiceFromSalesOrder(qbws, order) {
+  var orderId = order.InvoiceNumberPrefix+order.InvoiceNumber;
+  qbws.addRequest(helpers.getSalesOrdersRq([{orderId: orderId}]), xmlResponse => {
+    return xml2js(response, {explicitArray: false}).then(responseObject => {
+      var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
+      if (salesOrderRs == undefined) {
+        console.log('Sales order not created yet!');
+      } else if (salesOrderRs.SalesOrderRet) {
+        var salesOrder = salesOrderRs.SalesOrderRet;
+
+        var invoiceAdds = [];
+        salesOrder.SalesOrderLineRet.forEach(item => {
+          invoiceAdds.push({
+            Quantity: 1,
+            LinkToTxnID: {
+              TxnID: salesOrder.TxnID,
+              TxnLineID: item.TxnLineID
+            }
+          });
+        });
+
+        var addInvoiceRq = {
+          InvoiceAddRq: {
+            '@requestID': orderId,
+            RefNumber: salesOrder.RefNumber,
+            LinkToTxnID: salesOrder.TxnID,
+            InvoiceLineAdd: invoiceAdds
+          }
+        };
+
+        var xmlDoc = getXMLRequest(addInvoiceRq);
+        var str = xmlDoc.end({pretty: true});
+        console.log(str);
+        qbws.addRequest(str);
+        return 'Done';
+      } else {
+        console.log('Error check the sales order');
+      }
+    });
+  });
+}
+
 function buildAmazonXML(orders) {
   var obj = '';
 }

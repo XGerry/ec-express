@@ -86,6 +86,14 @@ $(document).ready(e => {
 		$('#pickarea').show();
 	});
 
+	$('#saveToQuickbooks').click(e => {
+		console.log(order);
+		// TODO: validate the order
+		socket.emit('createInvoice', order, response => {
+			console.log('response');
+		});
+	});
+
 	$('#showSummaryButton').click(e => {
 		showSummary();
 	});
@@ -178,7 +186,7 @@ $(document).ready(e => {
 			sku: theItem.ItemID,
 			location: theItem.ItemBarcode
 		}, false, responses => {
-			console.log('Saved the barcode');
+			console.log('Saved the location');
 		});
 	});
 });
