@@ -798,9 +798,9 @@ function createInvoiceFromSalesOrder(qbws, order) {
             //Rate: item.Rate,
             //ClassRef: '',
             //Amount: '',
-            InventorySiteRef: {
-              FullName: 'Warehouse'
-            },
+            //InventorySiteRef: {
+            //  FullName: 'Warehouse'
+            //},
             SalesTaxCodeRef: item.SalesTaxCodeRef,
             LinkToTxn: {
               TxnID: salesOrder.TxnID,
