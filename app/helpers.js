@@ -796,13 +796,13 @@ function createInvoiceFromSalesOrder(qbws, order) {
           invoiceAdds.push({
             Quantity: 1,
             Rate: item.Rate,
-            ClassRef: '',
-            Amount: '',
+            //ClassRef: '',
+            //Amount: '',
             InventorySiteRef: {
               FullName: 'Warehouse'
             },
             SalesTaxCodeRef: item.SalesTaxCodeRef,
-            LinkToTxnID: {
+            LinkToTxn: {
               TxnID: salesOrder.TxnID,
               TxnLineID: item.TxnLineID
             }

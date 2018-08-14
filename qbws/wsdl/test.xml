@@ -12,6 +12,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>21.00</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>37218B-1534262695</TxnLineID>
@@ -20,6 +29,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>5.41</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>37218C-1534262695</TxnLineID>
@@ -28,6 +46,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>3.60</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>37218D-1534262695</TxnLineID>
@@ -36,6 +63,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>3.09</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>37218E-1534262695</TxnLineID>
@@ -44,6 +80,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>8.75</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>37218F-1534262695</TxnLineID>
@@ -52,6 +97,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>9.25</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>372190-1534262695</TxnLineID>
@@ -60,6 +114,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>20.00</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>372191-1534262695</TxnLineID>
@@ -68,6 +131,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>8.50</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>372192-1534262695</TxnLineID>
@@ -76,6 +148,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>7.50</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>372193-1534262695</TxnLineID>
@@ -84,6 +165,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>7.50</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>372194-1534262695</TxnLineID>
@@ -92,6 +182,15 @@
         <InvoiceLineAdd>
           <Quantity>1</Quantity>
           <Rate>20.00</Rate>
+          <ClassRef/>
+          <Amount/>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
+          <SalesTaxCodeRef>
+            <ListID>80000007-1410624698</ListID>
+            <FullName>NON</FullName>
+          </SalesTaxCodeRef>
           <LinkToTxnID>
             <TxnID>372189-1534262695</TxnID>
             <TxnLineID>372195-1534262695</TxnLineID>
