@@ -4,6 +4,9 @@
   <QBXMLMsgsRq onError="continueOnError">
     <InvoiceAddRq requestID="AB-38588">
       <InvoiceAdd>
+        <CustomerRef>
+          <ListID>80008BED-1534262695</ListID>
+        </CustomerRef>
         <RefNumber>AB-38588</RefNumber>
         <LinkToTxnID>372189-1534262695</LinkToTxnID>
         <InvoiceLineAdd>

@@ -795,6 +795,7 @@ function createInvoiceFromSalesOrder(qbws, order) {
         salesOrder.SalesOrderLineRet.forEach(item => {
           invoiceAdds.push({
             Quantity: 1,
+            Rate: item.Rate
             LinkToTxnID: {
               TxnID: salesOrder.TxnID,
               TxnLineID: item.TxnLineID
