@@ -125,8 +125,7 @@
  		});
 
  		socket.on('createInvoice', order => {
- 			var orderId = order.InvoiceNumberPrefix+order.InvoiceNumber;
- 			helpers.createInvoice(qbws, order);
+ 			helpers.createInvoiceFromSalesOrder(qbws, order);
  		});
 
  		/**

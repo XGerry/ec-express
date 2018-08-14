@@ -781,6 +781,7 @@ function addInvoiceRq(order, requestID) {
 
 function createInvoiceFromSalesOrder(qbws, order) {
   var orderId = order.InvoiceNumberPrefix+order.InvoiceNumber;
+  console.log('adding sales order request');
   qbws.addRequest(helpers.getSalesOrdersRq([{orderId: orderId}]), xmlResponse => {
     return xml2js(response, {explicitArray: false}).then(responseObject => {
       var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
@@ -1762,5 +1763,6 @@ module.exports = {
   getDeliveries: getDeliveries,
   removeDelivery: removeDelivery,
   addSalesOrderRq: addSalesOrderRq,
-  createSalesOrdersRequests: createSalesOrdersRequests
+  createSalesOrdersRequests: createSalesOrdersRequests,
+  createInvoiceFromSalesOrder: createInvoiceFromSalesOrder
 }
