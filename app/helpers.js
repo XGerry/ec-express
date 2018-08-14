@@ -803,7 +803,7 @@ function createInvoiceFromSalesOrder(qbws, order) {
             },
             SalesTaxCodeRef: item.SalesTaxCodeRef,
             LinkToTxn: {
-              //TxnID: salesOrder.TxnID,
+              TxnID: salesOrder.TxnID,
               TxnLineID: item.TxnLineID
             }
           });
@@ -817,7 +817,7 @@ function createInvoiceFromSalesOrder(qbws, order) {
                 ListID: salesOrder.CustomerRef.ListID
               },
               RefNumber: salesOrder.RefNumber,
-              LinkToTxnID: salesOrder.TxnID,
+              //LinkToTxnID: salesOrder.TxnID,
               InvoiceLineAdd: invoiceAdds
             }
           }
