@@ -191,6 +191,19 @@ module.exports = function(app, passport) {
     }
   });
 
+  app.get('/invoice', (req, res) => {
+    var orderId = req.query.orderId;
+    if (orderId) {
+      getCartOrder(orderId).then(order => {
+        res.render('invoice', {
+          order: order
+        });
+      });
+    } else {
+      res.render('/');
+    }
+  });
+
   function getCartOrder(orderId) {
     var prefix = orderId.split('-')[0];
     var invoiceId = orderId.split('-')[1];

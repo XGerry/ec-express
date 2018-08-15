@@ -1,0 +1,178 @@
+mixin billingAddress(order)
+	address
+		h3 Billing
+		strong=order.BillingFirstName + " " + order.BillingLastName
+		br
+		if (order.BillingCompany)
+			strong=order.BillingCompany
+			br 
+		=order.BillingAddress
+		br
+		if (order.BillingAddress2)
+			=order.BillingAddress2
+			br
+		=order.BillingCity + ", " + order.BillingState
+		br
+		=order.BillingCountry + ", " + order.BillingZipCode
+
+mixin shippingAddress(shippingInfo)
+	address
+		h3 Shipping
+		strong=shippingInfo.ShipmentFirstName + " " + shippingInfo.ShipmentLastName
+		br
+		if (shippingInfo.ShipmentCompany)
+			strong=shippingInfo.ShipmentCompany
+			br
+		=shippingInfo.ShipmentAddress
+		br
+		if (shippingInfo.ShipmentAddress2)
+			=shippingInfo.ShipmentAddress2
+			br
+		=shippingInfo.ShipmentCity + ", " + shippingInfo.ShipmentState
+		br
+		=shippingInfo.ShipmentCountry + ", " + shippingInfo.ShipmentZipCode
+
+mixin pickTableRow(item)
+	tr
+		td= item.ItemWarehouseLocation
+		td= item.ItemID
+		td= item.ItemQuantity
+		td Test
+		td= item.ItemDescription
+		td= item.ItemUnitStock
+
+mixin customerInfoPanel(order)
+	.card
+		.card-header
+			h2.mb-0.text-right.card-title=order.InvoiceNumberPrefix + order.InvoiceNumber
+		.card-body.collapse.show#orderInfo
+			.row
+				.col-12
+					table.table.table-striped.table-hover.table-sm
+						thead
+							tr
+								th Phone
+								th Email
+								th Order Date
+								th Customer Type
+						tbody.infoTableBody
+							tr
+								td= order.ShipmentList[0].ShipmentPhone
+								td.email= order.BillingEmail
+								td= moment(new Date(order.OrderDate)).format('dddd MMM Do, h:mm:ss a')
+								td(id="customerType"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+					table.table.table-striped.table-hover.table-sm
+						thead 
+							tr
+								th Payment Method
+								th Items
+								th Value
+								th Ship Method
+								th Ship Cost
+						tbody.infoTableBody
+							tr
+								td= order.BillingPaymentMethod
+								td(id="totalItems"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+								td= '$'+order.OrderAmount.toFixed(2)
+								td= order.ShipmentList[0].ShipmentMethodName
+								td= '$'+order.ShipmentList[0].ShipmentCost.toFixed(2)
+			.row
+				.col-lg-2.col-sm-2
+					+billingAddress(order)
+				.col-lg-2.col-sm-2
+					+shippingAddress(order.ShipmentList[0])
+				.col-lg-8.col-sm-8
+					.row
+						.col-12
+							label Shipping Cost
+							input(type="text" value=order.ShipmentList[0].ShipmentCost.toFixed(2)).form-control#shippingCost
+			
+			if (order.CustomerComments)
+				.row
+					.col-lg-12.col-sm-12
+						h4 Comments
+						.well
+							p=order.CustomerComments
+
+mixin orderItemPanel(order)
+	h3 Invoice
+	#pickSheet
+		table.table.table-striped.table-hover(id="pickTable"+order.InvoiceNumberPrefix+order.InvoiceNumber).pick-table
+			thead
+				tr
+					th.text-center(style="width:14%") Location
+					th.text-center SKU
+					th.text-center Ordered
+					th.text-center Invoiced
+					th Description
+					th Stock Level
+			tbody(id="pickTableBody"+order.InvoiceNumberPrefix+order.InvoiceNumber)
+
+mixin orderSection(order)
+	.container-fluid
+		+customerInfoPanel(order)
+	.container-fluid.pt-2
+		+orderItemPanel(order)
+	.pagebreak
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Invoice
+	body
+		#wrapper
+			+sidebarNav("invoice")
+
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2#orderNavTitle 
+					form.form-inline
+						select.form-control#orderStatus
+							option(value=1) New
+							option(value=2) Processing
+							option(value=3) Backorder
+							option(value=6) Pre-order
+							option(value=9) Awaiting Payment
+							option(value=13) Awaiting Shipment
+							option(value=4) Shipped
+					span.navbar-text#orderInfo.ml-2
+					ul.navbar-nav.ml-auto
+						li.dropdown.nav-item
+							button.dropdown-toggle.btn.btn-primary.mr-2(type="button" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#fixBarcodeButton Fix Barcode
+								a(href="#", data-toggle="modal", data-target="#fixLocationModal").dropdown-item#fixLocationButton Fix Location
+						button.btn.btn-primary.mr-2(type="button")#startPickingButton Start Picking
+						button.btn.btn-info.mr-2(type="button")#showSummaryButton Show Summary
+
+						.btn-group
+							button.btn.btn-success(type="button")#saveOrderButton Save
+							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
+							.dropdown-menu.dropdown-menu-right
+								a.dropdown-item(href="#")#saveToSiteButton Save to 3D Cart
+								a.dropdown-item(href="#")#saveToQuickbooks Save to QB
+				.container.pt-3
+					if (order)
+						+orderSection(order)
+					else if (orders)
+						for order in orders
+							+orderSection(order)
+					else
+						h1 Error
+		+footer
+		
+		script(type="text/javascript", src="js/moment.js")
+		script(type="text/javascript", src="js/invoice.js")
+		if (order)
+			script.
+				$(document).ready(e=> {
+					buildPickTable(!{JSON.stringify(order)});
+				});
+		else if (orders)
+			script.
+				$(document).ready(e=> {
+					buildPickTables(!{JSON.stringify(orders)});
+				});

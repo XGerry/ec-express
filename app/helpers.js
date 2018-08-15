@@ -1171,7 +1171,7 @@ function findItemAndSave(qbItem) {
 }
 
 function saveItemFromQB(item, qbItem) {
-  var theStock = qbItem.QuantityOnHand;
+  var theStock = parseInt(qbItem.QuantityOnHand) - parseInt(qbItem.QuantityOnSalesOrder);
   if (theStock < 0) {
     theStock = 0;
   }
