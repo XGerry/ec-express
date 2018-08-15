@@ -1177,6 +1177,7 @@ function saveItemFromQB(item, qbItem) {
   } else {
     theStock = parseInt(qbItem.QuantityOnHand);
   }
+  console.log(qbItem.QuantityOnSalesOrder);
   if (theStock < 0 || theStock == NaN) {
     theStock = 0;
   }
