@@ -1171,8 +1171,13 @@ function findItemAndSave(qbItem) {
 }
 
 function saveItemFromQB(item, qbItem) {
-  var theStock = parseInt(qbItem.QuantityOnHand) - parseInt(qbItem.QuantityOnSalesOrder);
-  if (theStock < 0) {
+  var theStock;
+  if (qbItem.QuantityOnSalesOrder) {
+    theStock = parseInt(qbItem.QuantityOnHand) - parseInt(qbItem.QuantityOnSalesOrder);
+  } else {
+    theStock = parseInt(qbItem.QuantityOnHand);
+  }
+  if (theStock < 0 || theStock == NaN) {
     theStock = 0;
   }
 
