@@ -128,6 +128,12 @@
  			helpers.createInvoiceFromSalesOrder(qbws, order);
  		});
 
+ 		socket.on('saveOrder', order => {
+ 			cart3d.invoiceOrder(order).then(response => {
+ 				console.log(response);
+ 			});
+ 		});
+
  		/**
  		 * Find all the orders in 3D Cart and save them to our db
  		 */

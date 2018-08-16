@@ -3,9 +3,18 @@ var order;
 
 $(document).ready(e => {
 	$('#saveToQuickbooks').click(e => {
+		e.preventDefault();
 		getInvoicedItems();
 		console.log(order);
 		socket.emit('createInvoice', order);
+	});
+
+	$('#saveToSiteButton').click(e => {
+		e.preventDefault();
+		getInvoicedItems();
+		socket.emit('saveOrder', order, response => {
+			console.log(response);
+		});
 	});
 });
 
@@ -87,4 +96,6 @@ function getInvoicedItems() {
 			}
 		}
 	});
+
+	order.ShipmentList[0].ShipmentCost = $('#shippingCost').val();
 }

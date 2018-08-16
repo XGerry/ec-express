@@ -1349,6 +1349,15 @@ function buildCartOrder(customer) {
   return cartOrder;
 }
 
+function invoiceOrder(order) {
+  order.OrderItemList.forEach(item => {
+    item.ItemQuantity = item.quantityPicked;
+  });
+  delete order.PaymentTokenID;
+
+  return saveOrder(order, order.OrderID, order.InvoiceNumberPrefix == 'CA-');
+}
+
 function searchCustomer(email, canadian) {
   var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers', 'GET', canadian);
   options.qs = {
@@ -1554,5 +1563,6 @@ module.exports = {
   calculateBaseItemStock: calculateBaseItemStock,
   getManufacturers: getManufacturers,
   getOrderInvoiceNumber: getOrderInvoiceNumber,
-  createItems: createItems
+  createItems: createItems,
+  invoiceOrder: invoiceOrder
 }
