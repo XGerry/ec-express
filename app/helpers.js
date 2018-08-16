@@ -792,9 +792,14 @@ function createInvoiceFromSalesOrder(qbws, order) {
         var salesOrder = salesOrderRs.SalesOrderRet;
         console.log(salesOrder);
         var invoiceAdds = [];
+        var quantityPickedMap = {};
+        order.OrderItemList.forEach(i => {
+          quantityPickedMap[i.ItemID] = i.quantityPicked;
+        });
+
         salesOrder.SalesOrderLineRet.forEach(item => {
           invoiceAdds.push({
-            Quantity: 1,
+            Quantity: quantityPickedMap[item.ItemRef.FullName],
             //Rate: item.Rate,
             //ClassRef: '',
             //Amount: '',

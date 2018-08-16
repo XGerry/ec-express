@@ -2,6 +2,11 @@ var socket = io();
 var order;
 
 $(document).ready(e => {
+	$('#saveToQuickbooks').click(e => {
+		getInvoicedItems();
+		console.log(order);
+		socket.emit('createInvoice', order);
+	});
 });
 
 
@@ -25,7 +30,7 @@ function buildPickTable(order) {
 		stockCol.text(item.ItemUnitStock);
 
 		var pickedCol = $('<td></td>');
-		var pickedQuantity = $('<input type="number" class="form-control">');
+		var pickedQuantity = $('<input type="number" class="form-control item-field" sku="'+item.ItemID+'">');
 		pickedQuantity.val(item.ItemQuantity);
 		pickedCol.append(pickedQuantity);
 
@@ -68,4 +73,18 @@ function buildPickTables(orders) {
 		buildPickTable(order);
 	});
 	window.print();
+}
+
+function getInvoicedItems() {
+	$('.item-field').each((i, elem) => {
+		var sku = $(elem).attr('sku');
+		var quantity = $(elem).val();
+		for (item of order.OrderItemList) {
+			if (item.ItemID == sku) {
+				item.quantityPicked = parseInt(quantity);
+				item.picked = true;
+				break;
+			}
+		}
+	});
 }
