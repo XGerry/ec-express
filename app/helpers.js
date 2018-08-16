@@ -492,6 +492,21 @@ function getInvoiceRq(orders) {
   return str;
 }
 
+function modifySalesOrder(order) {
+  var obj = {
+    SalesOrderModRq: {
+      SalesOrderMod: {
+        TxnID: order.TxnID,
+        IsManuallyClosed: true
+      }
+    }
+  };
+
+  var xmlDoc = getXMLRequest(obj);
+  var str = xmlDoc.end({pretty: true});
+  return str;
+}
+
 function getSalesOrdersRq(orders, includeLineItems) {
   if (orders.length == 0) { // this prevents quickbooks returning all the sales orders
     orders.push({
@@ -779,6 +794,20 @@ function addInvoiceRq(order, requestID) {
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({'pretty' : true});
   return str;
+}
+
+function closeSalesOrders(qbws, orderId) {
+  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], true), xmlResponse => {
+    return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+      var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
+      if (salesOrderRs == undefined) {
+        console.log('Sales order not created yet!');
+      } else if (salesOrderRs.SalesOrderRet) {
+        var salesOrder = salesOrderRs.SalesOrderRet;
+        qbws.addRequest(modifySalesOrder(salesOrder));
+      }
+    });
+  });
 }
 
 function createInvoiceFromSalesOrder(qbws, order) {
@@ -1183,7 +1212,7 @@ function saveItemFromQB(item, qbItem) {
   } else {
     theStock = parseInt(qbItem.QuantityOnHand);
   }
-  
+
   if (theStock < 0 || theStock == NaN) {
     theStock = 0;
   }
@@ -1789,5 +1818,6 @@ module.exports = {
   removeDelivery: removeDelivery,
   addSalesOrderRq: addSalesOrderRq,
   createSalesOrdersRequests: createSalesOrdersRequests,
-  createInvoiceFromSalesOrder: createInvoiceFromSalesOrder
+  createInvoiceFromSalesOrder: createInvoiceFromSalesOrder,
+  closeSalesOrders: closeSalesOrders
 }

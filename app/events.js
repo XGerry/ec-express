@@ -149,6 +149,10 @@
  			});
  		});
 
+ 		socket.on('closeSalesOrder', orderId => {
+ 			helpers.closeSalesOrders(orderId);
+ 		});
+
  		/**
  		 * Load orders from 3D Cart
  		 */
