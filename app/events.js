@@ -150,7 +150,7 @@
  		});
 
  		socket.on('closeSalesOrder', orderId => {
- 			helpers.closeSalesOrders(orderId);
+ 			helpers.closeSalesOrders(qbws, orderId);
  		});
 
  		/**
