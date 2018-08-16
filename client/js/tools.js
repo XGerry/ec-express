@@ -58,6 +58,10 @@ $(document).ready(function() {
 			link.click();
 		});
 	});
+
+	$('#closeSalesOrderButton', e => {
+		socket.emit('closeSalesOrder', $('#salesOrderNumber').val());
+	});
 });
 
 function loadFromTemplate(data) {
