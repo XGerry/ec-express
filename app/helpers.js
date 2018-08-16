@@ -797,13 +797,14 @@ function addInvoiceRq(order, requestID) {
 }
 
 function closeSalesOrders(qbws, orderId) {
-  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], true), xmlResponse => {
+  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], false), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
       var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
       if (salesOrderRs == undefined) {
         console.log('Sales order not created yet!');
       } else if (salesOrderRs.SalesOrderRet) {
         var salesOrder = salesOrderRs.SalesOrderRet;
+        console.log(salesOrder);
         qbws.addRequest(modifySalesOrder(salesOrder));
       }
     });

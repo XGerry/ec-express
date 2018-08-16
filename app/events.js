@@ -150,6 +150,7 @@
  		});
 
  		socket.on('closeSalesOrder', orderId => {
+ 			console.log(orderId);
  			helpers.closeSalesOrders(qbws, orderId);
  		});
 
