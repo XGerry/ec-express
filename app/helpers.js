@@ -513,7 +513,7 @@ function getSalesOrderByDate(start, end) {
   var orderQuery = {
     SalesOrderQueryRq: {
       '@requestID': 'getSalesOrders',
-      MaxReturned: 100,
+      MaxReturned: 2,
       TxnDateRangeFilter: {
         FromTxnDate: start,
         ToTxnDate: end
@@ -828,7 +828,9 @@ function closeSalesOrders(qbws, orderId) {
         var salesOrder = salesOrderRs.SalesOrderRet;
         if (Array.isArray(salesOrder)) {
           salesOrder.forEach(so => {
-            qbws.addRequest(modifySalesOrder(so));
+            console.log(salesOrder);
+            if (so.IsFullyInvoiced == false)
+              qbws.addRequest(modifySalesOrder(so));
           });
         } else {
           qbws.addRequest(modifySalesOrder(salesOrder));

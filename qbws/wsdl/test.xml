@@ -2,11 +2,14 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <SalesOrderModRq>
-      <SalesOrderMod>
-        <TxnID>1165B9-1442595692</TxnID>
-        <IsManuallyClosed>true</IsManuallyClosed>
-      </SalesOrderMod>
-    </SalesOrderModRq>
+    <SalesOrderQueryRq requestID="getSalesOrders">
+      <MaxReturned>100</MaxReturned>
+      <TxnDateRangeFilter>
+        <FromTxnDate/>
+        <ToTxnDate>2017-01-01</ToTxnDate>
+      </TxnDateRangeFilter>
+      
+      <IncludeLineItems>false</IncludeLineItems>
+    </SalesOrderQueryRq>
   </QBXMLMsgsRq>
 </QBXML>
