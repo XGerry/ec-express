@@ -827,7 +827,6 @@ function closeSalesOrders(qbws, orderId) {
         var salesOrder = salesOrderRs.SalesOrderRet;
         if (Array.isArray(salesOrder)) {
           salesOrder.forEach(so => {
-            console.log(salesOrder);
             if (so.IsFullyInvoiced == 'false')
               qbws.addRequest(modifySalesOrder(so));
           });

@@ -64,6 +64,8 @@ function buildPickTable(order) {
 	}
 	$('#customerType'+order.InvoiceNumberPrefix+order.InvoiceNumber).text(customerType);
 
+	$('#linkTo3DCart').prop('href', getURLFromOrder(order));
+
 	var pickTable = $('#pickTable'+order.InvoiceNumberPrefix+order.InvoiceNumber).DataTable({
 		bDestroy: true,
 		order: [[0, 'asc']],
@@ -82,6 +84,13 @@ function buildPickTables(orders) {
 		buildPickTable(order);
 	});
 	window.print();
+}
+
+function getURLFromOrder(order) {
+	var url = 'https://www.ecstasycrafts.';
+	url += order.InvoiceNumberPrefix == 'CA-' ? 'ca' : 'com';
+	url += '/admin/order_details.asp?orderid=' + order.OrderID;
+	return url;
 }
 
 function getInvoicedItems() {
