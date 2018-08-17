@@ -518,7 +518,6 @@ function getSalesOrderByDate(start, end) {
         FromTxnDate: start,
         ToTxnDate: end
       },
-      IsFullyInvoiced: false,
       IncludeLineItems: false
     }
   };
