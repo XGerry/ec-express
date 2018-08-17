@@ -59,7 +59,7 @@ $(document).ready(function() {
 		});
 	});
 
-	$('#closeSalesOrderButton', e => {
+	$('#closeSalesOrderButton').click(e => {
 		var orderId = $('#salesOrderNumber').val();
 		console.log(orderId);
 		socket.emit('closeSalesOrder', orderId);
