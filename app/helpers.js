@@ -513,7 +513,7 @@ function getSalesOrderByDate(start, end) {
   var orderQuery = {
     SalesOrderQueryRq: {
       '@requestID': 'getSalesOrders',
-      MaxReturned: 2,
+      MaxReturned: 200,
       TxnDateRangeFilter: {
         FromTxnDate: start,
         ToTxnDate: end
