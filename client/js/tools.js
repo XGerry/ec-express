@@ -60,7 +60,9 @@ $(document).ready(function() {
 	});
 
 	$('#closeSalesOrderButton', e => {
-		socket.emit('closeSalesOrder', $('#salesOrderNumber').val());
+		var orderId = $('#salesOrderNumber').val();
+		console.log(orderId);
+		socket.emit('closeSalesOrder', orderId);
 	});
 });
 
