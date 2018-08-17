@@ -497,6 +497,7 @@ function modifySalesOrder(order) {
     SalesOrderModRq: {
       SalesOrderMod: {
         TxnID: order.TxnID,
+        EditSequence: order.EditSequence,
         IsManuallyClosed: true
       }
     }
