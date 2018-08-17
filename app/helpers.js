@@ -509,6 +509,23 @@ function modifySalesOrder(order) {
   return str;
 }
 
+function getSalesOrderByDate(start, end) {
+  var orderQuery = {
+    SalesOrderQueryRq: {
+      '@requestID': 'getSalesOrders',
+      TxnDateRangeFilter: {
+        FromTxnDate: start,
+        ToTxnDate: end
+      },
+      IncludeLineItems: false
+    }
+  };
+
+  var xmlDoc = getXMLRequest(orderQuery);
+  var str = xmlDoc.end({'pretty': true});
+  return str;
+}
+
 function getSalesOrdersRq(orders, includeLineItems) {
   if (orders.length == 0) { // this prevents quickbooks returning all the sales orders
     orders.push({
@@ -799,15 +816,20 @@ function addInvoiceRq(order, requestID) {
 }
 
 function closeSalesOrders(qbws, orderId) {
-  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], false), xmlResponse => {
+  qbws.addRequest(getSalesOrderByDate('', '2017-01-01'), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
       var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
       if (salesOrderRs == undefined) {
         console.log('Sales order not created yet!');
       } else if (salesOrderRs.SalesOrderRet) {
         var salesOrder = salesOrderRs.SalesOrderRet;
-        console.log(salesOrder);
-        qbws.addRequest(modifySalesOrder(salesOrder));
+        if (Array.isArray(salesOrder)) {
+          salesOrder.forEach(so => {
+            qbws.addRequest(modifySalesOrder(so));
+          });
+        } else {
+          qbws.addRequest(modifySalesOrder(salesOrder));
+        }
       }
     });
   });
