@@ -525,6 +525,7 @@ function getSalesOrderByDate(start, end) {
 
   var xmlDoc = getXMLRequest(orderQuery);
   var str = xmlDoc.end({'pretty': true});
+  console.log(str);
   return str;
 }
 
