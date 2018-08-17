@@ -848,7 +848,6 @@ function createInvoiceFromSalesOrder(qbws, order) {
         console.log('Sales order not created yet!');
       } else if (salesOrderRs.SalesOrderRet) {
         var salesOrder = salesOrderRs.SalesOrderRet;
-        console.log(salesOrder);
         var invoiceAdds = [];
         var quantityPickedMap = {};
         order.OrderItemList.forEach(i => {
@@ -856,20 +855,23 @@ function createInvoiceFromSalesOrder(qbws, order) {
         });
 
         salesOrder.SalesOrderLineRet.forEach(item => {
-          invoiceAdds.push({
-            Quantity: quantityPickedMap[item.ItemRef.FullName],
-            //Rate: item.Rate,
-            //ClassRef: '',
-            //Amount: '',
-            //InventorySiteRef: {
-            //  FullName: 'Warehouse'
-            //},
-            SalesTaxCodeRef: item.SalesTaxCodeRef,
-            LinkToTxn: {
-              TxnID: salesOrder.TxnID,
-              TxnLineID: item.TxnLineID
-            }
-          });
+          if (item.ItemRef.FullName == 'Shipping & Handling') {
+            invoiceAdds.push({
+              ItemRef: {
+                FullName: 'Shipping & Handling',
+                Rate: order.ShipmentList[0].ShipmentCost
+              }
+            });
+          } else {
+            invoiceAdds.push({
+              Quantity: quantityPickedMap[item.ItemRef.FullName],
+              SalesTaxCodeRef: item.SalesTaxCodeRef,
+              LinkToTxn: {
+                TxnID: salesOrder.TxnID,
+                TxnLineID: item.TxnLineID
+              }
+            });
+          }
         });
 
         var addInvoiceRq = {
