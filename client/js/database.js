@@ -243,9 +243,9 @@ $(document).ready(function() {
 			var primaryOrSecondary = $('input[name=locationType]:checked').val();
 			primaryOrSecondary = primaryOrSecondary == 'primary';
 
-			if (primaryOrSecondary) {
+			if (primaryOrSecondary && putAwayItem) {
 				putAwayItem.location = location;
-			} else {
+			} else if (putAwayItem) {
 				putAwayItem.secondLocation = location;
 			}
 
@@ -313,9 +313,9 @@ $(document).ready(function() {
 			socket.emit('saveItemLocations', items, location, primaryOrSecondary);
 		}
 
-		if (primaryOrSecondary) {
+		if (primaryOrSecondary && putAwayItem) {
 			putAwayItem.location = location;
-		} else {
+		} else if (putAwayItem) {
 			putAwayItem.secondLocation = location;
 		}
 

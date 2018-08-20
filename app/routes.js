@@ -200,8 +200,12 @@ module.exports = function(app, passport) {
         });
       });
     } else {
-      res.render('/');
+      res.redirect('/');
     }
+  });
+
+  app.get('/invoice-home', (req, res) => {
+    res.render('invoice-home');
   });
 
   function getCartOrder(orderId) {
