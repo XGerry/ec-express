@@ -1334,14 +1334,16 @@ function buildCartOrder(customer) {
     BillingPaymentMethodID: '49', // need to look up all of these
     ShipmentList: [{
       ShipmentOrderStatus: 1, // NEW
-      ShipmentFirstName: customer.firstname,
-      ShipmentLastName: customer.lastname,
+      ShipmentFirstName: customer.shipmentFirstName,
+      ShipmentLastName: customer.shipmentLastName,
+      ShipmentCompany: customer.shipmentCompany,
       ShipmentAddress: customer.shippingAddress,
+      ShipmentAddress2: customer.shippingAddress2,
       ShipmentCity: customer.shippingCity,
       ShipmentState: customer.shippingState,
       ShipmentCountry: customer.shippingCountry,
       ShipmentZipCode: customer.shippingZipCode,
-      ShipmentPhone: customer.phone
+      ShipmentPhone: customer.shipmentPhone
     }],
     OrderItemList: [],
     OrderStatusID: 1 // NEW

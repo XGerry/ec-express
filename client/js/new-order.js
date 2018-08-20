@@ -443,6 +443,10 @@ function saveCustomer() {
 	theCustomer.billingState = $('#billingState').val();
 	theCustomer.billingCountry = $('#billingCountry').val();
 	theCustomer.billingZipCode = $('#billingZip').val();
+	theCustomer.shipmentFirstName = $('#shipmentFirstName').val();
+	theCustomer.shipmentLastName = $('#shipmentLastName').val();
+	theCustomer.shipmentPhone = $('#shipmentPhone').val();
+	theCustomer.shipmentCompany = $('#shipmentCompany').val();
 	theCustomer.shippingAddress = $('#shippingAddress').val();
 	theCustomer.shippingAddress2 = $('#shippingAddress2').val();
 	theCustomer.shippingCity = $('#shippingCity').val();
@@ -491,6 +495,10 @@ function setCustomerModalFields(customer) {
 	$('#billingState').val(customer.billingState);
 	$('#billingCountry').val(customer.billingCountry);
 	$('#billingZip').val(customer.billingZipCode);
+	$('#shipmentFirstName').val(customer.shipmentFirstName);
+	$('#shipmentLastName').val(customer.shipmentLastName);
+	$('#shipmentCompany').val(customer.shipmentCompany);
+	$('#shipmentPhone').val(customer.shipmentPhone);
 	$('#shippingAddress').val(customer.shippingAddress);
 	$('#shippingAddress2').val(customer.shippingAddress2);
 	$('#shippingCity').val(customer.shippingCity);
@@ -513,6 +521,10 @@ function populateCustomerInfo(customer) {
 	$('#billingState').val(customer.BillingState);
 	$('#billingCountry').val(customer.BillingCountry);
 	$('#billingZip').val(customer.BillingZipCode);
+	$('#shipmentFirstName').val(customer.ShipmentFirstName);
+	$('#shipmentLastName').val(customer.ShipmentLastName);
+	$('#shipmentCompany').val(customer.ShipmentCompany);
+	$('#shipmentPhone').val(customer.ShipmentPhone);
 	$('#shippingAddress').val(customer.ShippingAddress1);
 	$('#shippingAddress2').val(customer.ShippingAddress2);
 	$('#shippingCity').val(customer.ShippingCity);

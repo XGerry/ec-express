@@ -213,6 +213,7 @@ html
 								.input-group-append
 									button.btn.btn-primary(type="button")#searchCustomerButton Search
 							p#emailSearchInfo
+					h5 Billing Address
 					.form-group.row
 						.col-6
 							label(for="customerFirstName") First Name
@@ -227,7 +228,6 @@ html
 						.col-6
 							label(for="customerPhone") Phone
 							input#customerPhone.form-control(type="text")
-					h5 Billing Address
 					.form-group.row
 						.col-4
 							label(for="billingAddress") Address
@@ -250,6 +250,20 @@ html
 							input#billingZip.form-control(type="text")
 					button.btn-primary.btn.pull-right#sameAsShippingButton(type="button") Copy Address
 					h5 Shipping Address
+					.form-group.row
+						.col-6
+							label(for="customerFirstName") First Name
+							input#shipmentFirstName.form-control(type="text")
+						.col-6
+							label(for="customerLastName") Last Name
+							input#shipmentLastName.form-control(type="text")
+					.form-group.row
+						.col-6
+							label Company Name
+							input#shipmentCompany.form-control(type="text")
+						.col-6
+							label(for="customerPhone") Phone
+							input#shipmentPhone.form-control(type="text")
 					.form-group.row
 						.col-4
 							label(for="shippingAddress") Address
