@@ -99,7 +99,7 @@ $(document).ready(e => {
 	});
 
 	$('#itemBarcodeInput').on('keyup', e => {
-		if (e.keyCode == 13) {
+		if (e.keyCode == 13 || e.which == 13) {
 			var barcodeEntered = $('#itemBarcodeInput').val();
 			if (theItem.ItemBarcode == barcodeEntered) {
 				scan('barcodeInputGroup', 'barcodeIcon', true);

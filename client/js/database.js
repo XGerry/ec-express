@@ -175,14 +175,14 @@ $(document).ready(function() {
 	});
 
 	$('.enterKeySearch').on('keyup', function(e) {
-		if (e.keyCode == 13) {
+		if (e.keyCode == 13 || e.which == 13) {
 			lastQuery = getQuery();
 			socket.emit('searchDB', lastQuery);
 		}
 	});
 
 	$('.enterKeySaveItem').on('keyup', function(e) {
-		if (e.keyCode == 13) {
+		if (e.keyCode == 13 || e.which == 13) {
 			saveItem(theItem);
 		}
 	});
@@ -237,7 +237,7 @@ $(document).ready(function() {
 	});
 
 	$('#putAwayPrimaryOrSecondary').on('keyup', e => {
-		if (e.keyCode == 13) {
+		if (e.keyCode == 13 || e.which) {
 			// automatically save the item and clear the fields
 			var location = $('#putAwayPrimaryOrSecondary').val();
 			var primaryOrSecondary = $('input[name=locationType]:checked').val();
