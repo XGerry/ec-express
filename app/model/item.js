@@ -59,6 +59,10 @@ var itemSchema = new mongoose.Schema({
 	size: String,
 	categories: [String],
 	lastOrderDate: Date,
+	needsRestocking: {
+		type: Boolean,
+		default: false
+	},
 	orderCount: {
 		type: Number,
 		default: 0

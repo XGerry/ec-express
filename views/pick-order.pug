@@ -171,7 +171,8 @@ html
 							button.dropdown-toggle.btn.btn-primary.mr-2(type="button" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
 								a(href="#").dropdown-item#fixBarcodeButton Fix Barcode
-								a(href="#", data-toggle="modal", data-target="#fixLocationModal").dropdown-item#fixLocationButton Fix Location
+								a(href="#").dropdown-item#fixLocationButton Fix Location
+								a(href="#").dropdown-item#needsRestockButton Item Needs Restocking
 						button.btn.btn-primary.mr-2(type="button")#startPickingButton Start Picking
 						button.btn.btn-info.mr-2(type="button")#showSummaryButton Show Summary
 
@@ -248,8 +249,6 @@ html
 									button.btn.btn-lg.btn-secondary(type="button").mr-3#prevItemButton Previous
 									button.btn.btn-lg.btn-success(type="button").mr-3#donePickingButton Done
 									button.btn.btn-lg.btn-secondary(type="button")#nextItemButton Next
-
-
 
 		+footer
 

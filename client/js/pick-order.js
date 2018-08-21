@@ -168,6 +168,16 @@ $(document).ready(e => {
 		}
 	});
 
+	$('#needsRestockButton').click(e => {
+		e.preventDefault();
+		if (theItem) {
+			theItem.needsRestocking = true;
+			socket.emit('saveItem', theItem, false, responses => {
+				console.log('Saved the item');
+			});
+		}
+	});
+
 	$('#saveBarcodeModal').click(e => {
 		$('#fixBarcodeModal').modal('hide');
 		theItem.ItemBarcode = $('#fixBarcode').val();
