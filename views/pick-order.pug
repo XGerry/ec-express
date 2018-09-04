@@ -77,11 +77,12 @@ mixin customerInfoPanel(order)
 								td= order.ShipmentList[0].ShipmentMethodName
 								td= '$'+order.ShipmentList[0].ShipmentCost.toFixed(2)
 			.row
-				.col-lg-2.col-sm-2
+				.col-sm-6
 					+billingAddress(order)
-				.col-lg-2.col-sm-2
+				.col-sm-6
 					+shippingAddress(order.ShipmentList[0])
-				.col-lg-8.col-sm-8
+			.row
+				.col-sm-12
 					.row
 						.col-lg-6.col-sm-6
 							h4 Billing Status

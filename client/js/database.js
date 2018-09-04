@@ -174,8 +174,8 @@ $(document).ready(function() {
 		}, 500);
 	});
 
-	$('.enterKeySearch').on('keyup', function(e) {
-		if (e.keyCode == 13 || e.which == 13) {
+	$('.enterKeySearch').on('keypress', function(e) {
+		if (e.key == 13 || e.which == 13) {
 			lastQuery = getQuery();
 			socket.emit('searchDB', lastQuery);
 		}
