@@ -176,8 +176,10 @@ $(document).ready(function() {
 
 	$('.enterKeySearch').on('keypress', function(e) {
 		if (e.key == 13 || e.which == 13) {
-			lastQuery = getQuery();
-			socket.emit('searchDB', lastQuery);
+			setTimeout(() => {
+				lastQuery = getQuery();
+				socket.emit('searchDB', lastQuery);
+			}, 500);
 		}
 	});
 
