@@ -1363,6 +1363,7 @@ function saveItem(item, qbws, adjustInventory) {
     console.log(item);
     return;
   }
+  
   Item.findOne({sku: item.sku}).then(theItem => {
     if (theItem) {
       // update the fields
