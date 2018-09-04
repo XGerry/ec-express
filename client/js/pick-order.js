@@ -98,20 +98,22 @@ $(document).ready(e => {
 		showSummary();
 	});
 
-	$('#itemBarcodeInput').on('keyup', e => {
-		if (e.keyCode == 13 || e.which == 13) {
-			var barcodeEntered = $('#itemBarcodeInput').val();
-			if (theItem.ItemBarcode == barcodeEntered) {
-				scan('barcodeInputGroup', 'barcodeIcon', true);
-				var pickCount = increasePickCount();
-				if (theItem.ItemQuantity == pickCount) {
-					// we're automatically done
-					donePicking(pickCount);
+	$('#itemBarcodeInput').on('keypress', e => {
+		if (e.key == 13 || e.which == 13) {
+			setTimeout(() => {
+				var barcodeEntered = $('#itemBarcodeInput').val();
+				if (theItem.ItemBarcode == barcodeEntered) {
+					scan('barcodeInputGroup', 'barcodeIcon', true);
+					var pickCount = increasePickCount();
+					if (theItem.ItemQuantity == pickCount) {
+						// we're automatically done
+						donePicking(pickCount);
+					}
+				} else {
+					scan('barcodeInputGroup', 'barcodeIcon', false);
 				}
-			} else {
-				scan('barcodeInputGroup', 'barcodeIcon', false);
-			}
-			$('#itemBarcodeInput').select();
+				$('#itemBarcodeInput').select();
+			}, 500)
 		}
 	});
 
