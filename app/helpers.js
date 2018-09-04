@@ -1358,12 +1358,11 @@ function updateCustomer(dbCustomer, customer) {
 
 function saveItem(item, qbws, adjustInventory) {
   // save the item in our db
-  if (item.sku == undefined) {
+  if (item == undefined) {
     console.log('invalid item save.');
-    console.log(item);
     return;
   }
-  
+
   Item.findOne({sku: item.sku}).then(theItem => {
     if (theItem) {
       // update the fields
