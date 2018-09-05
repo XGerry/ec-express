@@ -251,10 +251,12 @@ $(document).ready(function() {
 				putAwayItem.secondLocation = location;
 			}
 
-			socket.emit('saveItem', putAwayItem, false, responses => {
-				$('#putAwayInfo').text('Saved the item.');
-				//putAwayItem = undefined; // can't wipe the item here because we could have a new one by now
-			});
+			if (putAwayItem != undefined) {
+				socket.emit('saveItem', putAwayItem, false, responses => {
+					$('#putAwayInfo').text('Saved the item.');
+					//putAwayItem = undefined; // can't wipe the item here because we could have a new one by now
+				});
+			}
 
 			putAwayItem = undefined;
 			$('#putAwaySKU').select();
