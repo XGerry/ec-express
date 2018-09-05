@@ -239,7 +239,7 @@ $(document).ready(function() {
 	});
 
 	$('#putAwayPrimaryOrSecondary').on('keyup', e => {
-		if (e.key == 13) {
+		if (e.keyCode == 13 || e.which == 13) {
 			// automatically save the item and clear the fields
 			var location = $('#putAwayPrimaryOrSecondary').val();
 			var primaryOrSecondary = $('input[name=locationType]:checked').val();
