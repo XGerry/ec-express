@@ -17,10 +17,14 @@ $(document).ready(e => {
 
 	query.orderstatus = 2; // Processing
 	socket.emit('loadOrders', query, null, orders => {
-		buildSummaryTable('#processingSummaryTable', orders);
+		buildSummaryTable('#processingSummaryTable', orders, true);
 		showProgress();
 		$('#processingCardFooter').text(orders.length + ' orders waiting to be picked.');
 		scanForDuplicates(orders);
+		var dueOrders = $('.due').length;
+		var overdueOrders = $('.overdue').length;
+		$('#overdueOrders').text(overdueOrders + ' orders were placed over 72 hours ago and have not been shipped.');
+		$('#dueOrders').text(dueOrders + ' orders need to be shipped today.');
 	});
 
 	query.orderstatus = 3; // Backorder
@@ -63,7 +67,21 @@ function showProgress() {
 	}
 }
 
-function buildSummaryTable(tableId, orders) {
+function buildSummaryTable(tableId, orders, highlight) {
+	var overdue = moment().subtract(3, 'days');
+	var overdueDay = overdue.day();
+	if (overdueDay == 0 || overdueDay == 6 || overdueDay == 5) {
+		overdue.subtract('2', 'days');
+	}
+	overdue.startOf('day');
+	var due = moment().subtract(3, 'days');
+	var dueDay = due.day();
+	if (dueDay == 0 || dueDay == 6 || dueDay == 5) {
+		due.subtract('2', 'days');
+	}
+	due.add('1', 'day');
+	due.startOf('day');
+
 	orders.sort((a, b) => {
 		var aDate = moment(a.OrderDate);
 		var bDate = moment(b.OrderDate);
@@ -82,6 +100,17 @@ function buildSummaryTable(tableId, orders) {
 		var name = $('<td></td>').text(order.BillingFirstName + ' ' + order.BillingLastName);
 		//var amount = $('<td></td>').text('$' + order.OrderAmount.toFixed(2));
 		var date = $('<td></td>').text(moment(order.OrderDate).format('MMM Do'));
+
+		if (highlight) {
+			if (moment(order.OrderDate).isBefore(due)) {
+				row.addClass('bg-primary due');
+			}
+			if (moment(order.OrderDate).isBefore(overdue)) {
+				row.removeClass('bg-primary due');
+				row.addClass('bg-danger text-white overdue');
+			}
+		}
+
 		row.append(id);
 		row.append(name);
 		//row.append(amount);

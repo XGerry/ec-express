@@ -141,11 +141,12 @@ function buildInventoryTable() {
 		}
 		if (item.quantityDifference) {
 			stock.text(item.stock + item.quantityDifference);
-			differnece.text(item.quantityDifference);
+			difference.text(item.quantityDifference);
 		}
 
 		row.append(sku);
 		row.append(stock);
+		row.append(difference)
 		$('#inventoryTableBody').append(row);
 	}
 }

@@ -35,12 +35,8 @@ html
 						.progress-bar.progress-bar-striped.progress-bar-animated#summaryProgress
 					.row.mt-3
 						.col-6
-							.alert.alert-danger
-								strong= overdue + ' orders '
-								| were placed over 72 hours ago and have not been shipped.
-							.alert.alert-info
-								strong= today + ' orders '
-								| placed in the past 24 hours.
+							.alert.alert-danger#overdueOrders
+							.alert.alert-info#dueOrders
 						.col-6
 							.card
 								.card-header

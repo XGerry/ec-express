@@ -374,34 +374,6 @@ module.exports = function(app, passport) {
   });
 
   app.get('/order-dashboard', (req, res) => {
-    // find any orders that are over the 72 hour mark
-    // that are in new or processing
-    var endDate = moment().subtract(72, 'hours');
-    if (endDate.day() == 0) {
-      endDate.subtract(2, 'days');
-    } else if (endDate.day() == 6) {
-      endDate.subtract(2, 'days');
-    } else if (endDate.day() == 5) {
-      endDate.subtract(2, 'days');
-    }
-    var startDate = moment('1990-01-01');
-    reporting.getOrderReport(startDate, endDate, [1, 2])
-    .then(responses => {
-      var total = 0;
-      responses.forEach(x => total += x.TotalCount);
-      var now = moment(new Date());
-
-      var yesterday = moment(now).subtract(1, 'days');
-      reporting.getOrderReport(yesterday, now, [1, 2, 3, 6, 9, 13, 4])
-      .then(responses => {
-        var ordersToday = 0;
-        console.log(responses);
-        responses.forEach(x => ordersToday += x.TotalCount);
-        res.render('order-dashboard', {
-          overdue: total,
-          today: ordersToday
-        });
-      });
-    });
+    res.render('order-dashboard');
   });
 }
