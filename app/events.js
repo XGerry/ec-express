@@ -611,7 +611,11 @@
 
  			items.forEach(item => {
  				Item.findOne({sku: item.sku}).then(i => {
- 					i.stock = item.newStock;
+ 					if (item.newStock)
+ 						i.stock = item.newStock;
+ 					else if (item.quantityDifference) {
+ 						i.stock += item.quantityDifference;
+ 					}
  					promises.push(i.save());
  				});
  			});
