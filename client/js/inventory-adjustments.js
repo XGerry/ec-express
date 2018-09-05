@@ -109,7 +109,7 @@ function addToInventoryList(item, stockLevel, addTo) {
 	for (var i of inventoryList) {
 		if (i.sku == item.sku) {
 			if (addTo)
-				i.newStock += stockLevel;
+				i.quantityDifference += stockLevel;
 			else
 				i.newStock = stockLevel;
 			buildInventoryTable();
@@ -119,7 +119,7 @@ function addToInventoryList(item, stockLevel, addTo) {
 
 	// new item 
 	if (addTo) 
-		item.newStock = item.stock + stockLevel;
+		item.quantityDifference = stockLevel;
 	else
 		item.newStock = stockLevel;
 	inventoryList.push(item);
@@ -132,7 +132,17 @@ function buildInventoryTable() {
 	for (var item of inventoryList) {
 		var row = $('<tr></tr>');
 		var sku = $('<td></td>').text(item.sku);
-		var stock = $('<td></td>').text(item.newStock);
+		var stock = $('<td></td>');
+		var difference = $('<td></td>');
+
+		if (item.newStock) {
+			stock.text(item.newStock);
+			difference.text(item.stock - item.newStock);
+		}
+		if (item.quantityDifference) {
+			stock.text(item.stock + item.quantityDifference);
+			differnece.text(item.quantityDifference);
+		}
 
 		row.append(sku);
 		row.append(stock);
@@ -210,7 +220,7 @@ function populateFromFile(data) {
 
 	data = data.filter(i => i.id != '');
 
-	// massage the data so we have a bunch of unique identifiers and correspoding counts
+	// massage the data so we have a bunch of unique identifiers and corresponding counts
 	data.forEach(item => {
 		if (restocks.hasOwnProperty(item.id)) {
 			if (item.count && item.count != '') {

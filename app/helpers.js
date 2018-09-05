@@ -236,9 +236,14 @@ function modifyItemsInventoryRq(items, memo) {
         FullName: item.sku
       },
       QuantityAdjustment: {
-        NewQuantity: item.newStock
       }
     };
+
+    if (item.newStock != undefined) {
+      itemLineAdd.QuantityAdjustment.NewQuantity = item.newStock;
+    } else if (item.quantityDifference != undefined) {
+      itemLineAdd.QuantityAdjustment.QuantityDifference = item.quantityDifference;
+    }
 
     qbRq.InventoryAdjustmentAddRq.InventoryAdjustmentAdd.InventoryAdjustmentLineAdd.push(itemLineAdd);
   });
