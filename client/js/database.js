@@ -252,7 +252,8 @@ $(document).ready(function() {
 			}
 
 			if (putAwayItem != undefined) {
-				socket.emit('saveItem', putAwayItem, false, responses => {
+
+				socket.emit('saveItem', JSON.parse(JSON.stringify(putAwayItem)), false, responses => {
 					$('#putAwayInfo').text('Saved the item.');
 					//putAwayItem = undefined; // can't wipe the item here because we could have a new one by now
 				});
