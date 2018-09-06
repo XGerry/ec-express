@@ -14,8 +14,20 @@ html
 				.container
 					.starter-template
 						h1 Unpaid Order Report
-						p.lead Select and order to see it in more detail.
-				.container-fluid
+						p.lead Enter the start and end dates (MM/DD/YYYY) and run the report.
+					.form-row
+						.col-6
+							label Start Date
+							input.form-control(type="text", placeholder="MM/DD/YYYY")#startDate
+						.col-6
+							label End Date
+							input.form-control(type="text", placeholder="MM/DD/YYYY")#endDate
+					.row.mt-2
+						.col-12.text-center
+							button.btn.btn-outline-success(type="button")#runReportButton Run!
+
+
+				.container-fluid.mt-2
 					.row
 						.col-12
 							.progress
@@ -31,13 +43,23 @@ html
 										th Date
 										th Payment Type
 								tbody#orderReportBody
+								tfoot
+									tr
+										th#totalValue
 									
 		+footer
 
 	script.
 		var socket = io();
+		var totalValue = 0;
 		$(document).ready(e => {
-			socket.emit('getUnpaidOrderReport', '08/01/2018', '09/01/2018');
+			$('#runReportButton').click(e => {
+				$('#reportProgress').css('width', '0%');
+				$('#orderReportBody').empty();
+				$('#totalValue').text('$0.00');
+				totalValue = 0;
+				socket.emit('getUnpaidOrderReport', $('#startDate').val(), $('#endDate').val());
+			})
 		});
 
 		socket.on('receivedUnpaidOrders', (orders, progress) => {
@@ -58,6 +80,8 @@ html
 				row.append(date);
 				row.append(method);
 
+				totalValue += order.OrderAmount;
 				$('#orderReportBody').append(row);
+				$('#totalValue').text('$' + totalValue.toFixed(2));
 			});
 		});

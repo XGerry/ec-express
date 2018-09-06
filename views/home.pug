@@ -67,13 +67,10 @@ html
 								i.fal.fa-chart-line.fa-fw.fa-5x
 								p.card-text.pt-2 View and create reports for products, orders and shipments.
 								.input-group
-									select.form-control
-										option Dashboard
-										option Orders
-										option Products
-										option Shipments
+									select.form-control#reportsSelect
+										option(value="/unpaid-orders") Unpaid Orders
 									.input-group-append
-										button.btn.btn-primary.disabled Go
-							.card-footer 115 orders this week for $112,000.
+										button.btn.btn-primary#reportsGoButton Go
+							.card-footer WIP
 
 		+footer

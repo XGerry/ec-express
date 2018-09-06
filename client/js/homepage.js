@@ -10,6 +10,10 @@ $(document).ready(e => {
   $('#deliveriesGoButton').click(e => {
   	redirectToPage('deliveriesSelect');
   });
+
+  $('#reportsGoButton').click(e => {
+    redirectToPage('reportsSelect');
+  });
 });
 
 function redirectToPage(selectId) {

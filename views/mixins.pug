@@ -157,8 +157,10 @@ mixin sidebarNav(active)
 					+internalLink("/deliveries", "Dashboard")
 					+internalLink("/purchase-orders", "Purchase Orders")
 			li
-				a(href="#") Reports 
-					span.badge.badge-info(style="text-indent: 0px;") Coming Soon!
+				a(href="#reports-nav" data-toggle="collapse").dropdown-link Reports
+					i.fas.fa-caret-down.fa-fw.fa-inverse.fa-angle-right
+				ul.collapse#reports-nav.pl-0.sub-menu
+					+internalLink("/unpaid-orders", "Unpaid Orders")
 
 mixin externalLink(url, text, icon, iconType)
 	li
