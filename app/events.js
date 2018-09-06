@@ -4,6 +4,7 @@
  var cart3d = require('./3dcart');
  var amazon = require('./amazon');
  var facebook = require('./facebook');
+ var reporting = require('./reporting');
  var helpers = require('./helpers');
  var walmart = require('./walmart');
  var Settings = require('./model/settings');
@@ -683,6 +684,12 @@
  					}
  					cart3d.saveItem(item, qbws);
  				});
+ 			});
+ 		});
+
+ 		socket.on('getUnpaidOrderReport', (startDate, endDate) => {
+ 			reporting.getUnpaidOrders(startDate, endDate, (orders, progress) => {
+ 				socket.emit('receivedUnpaidOrders', orders, progress);
  			});
  		});
  	});

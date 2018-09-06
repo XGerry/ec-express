@@ -379,7 +379,8 @@ function loadOrders(query, canadian) {
   return doRequest.then(orders => {
     return orders;
   }).catch(err => {
-    console.log(err);
+    //console.log(err);
+    console.log('no orders found');
     return [];
   });
 }
@@ -393,7 +394,8 @@ function loadItems(query, canadian) {
   return doRequest.then(products => {
     return products;
   }).catch(err => {
-    console.log(err);
+    //console.log(err);
+    console.log('no items found');
     return [];
   });
 }

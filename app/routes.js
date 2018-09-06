@@ -376,4 +376,8 @@ module.exports = function(app, passport) {
   app.get('/order-dashboard', (req, res) => {
     res.render('order-dashboard');
   });
+
+  app.get('/unpaid-orders', (req, res) => {
+    res.render('unpaid-orders');
+  });
 }

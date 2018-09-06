@@ -1,0 +1,63 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Unpaid Order Report
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js")
+
+	body
+		#wrapper
+			+sidebarNav("list-orders")
+			
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 Unpaid Order Report
+						p.lead Select and order to see it in more detail.
+				.container-fluid
+					.row
+						.col-12
+							.progress
+								.progress-bar.progress-bar-striped.progress-bar-animated#reportProgress
+					.row
+						.col-12
+							table.table-hover.table#orderTable
+								thead
+									tr
+										th Invoice Number
+										th Customer Name
+										th Value
+										th Date
+										th Payment Type
+								tbody#orderReportBody
+									
+		+footer
+
+	script.
+		var socket = io();
+		$(document).ready(e => {
+			socket.emit('getUnpaidOrderReport', '08/01/2018', '09/01/2018');
+		});
+
+		socket.on('receivedUnpaidOrders', (orders, progress) => {
+			$('#reportProgress').css('width', progress + '%');
+
+			orders.forEach(order => {
+				var row = $('<tr></tr>');
+				var invoiceNumber = $('<td></td>');
+				invoiceNumber.append($('<a></a>').text(order.InvoiceNumberPrefix + order.InvoiceNumber).prop('href', 'https://www.ecstasycrafts.com/admin2/order_details.asp?orderid=' + order.OrderID).prop('target', '_blank'));
+				var name = $('<td></td>').text(order.BillingFirstName + ' ' + order.BillingLastName);
+				var value = $('<td></td>').text('$' + order.OrderAmount.toFixed(2));
+				var date = $('<td></td>').text(moment(order.OrderDate).format('MMM Do, YYYY'));
+				var method = $('<td></td>').text(order.TransactionList[0].TransactionMethod);
+
+				row.append(invoiceNumber);
+				row.append(name);
+				row.append(value);
+				row.append(date);
+				row.append(method);
+
+				$('#orderReportBody').append(row);
+			});
+		});
