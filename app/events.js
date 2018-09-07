@@ -612,12 +612,17 @@
 
  			items.forEach(item => {
  				Item.findOne({sku: item.sku}).then(i => {
- 					if (item.newStock)
- 						i.stock = item.newStock;
- 					else if (item.quantityDifference) {
- 						i.stock += item.quantityDifference;
+ 					if (i) {
+	 					if (item.newStock)
+	 						i.stock = item.newStock;
+	 					else if (item.quantityDifference) {
+	 						i.stock += item.quantityDifference;
+	 					}
+	 					promises.push(i.save());
+ 					} else {
+ 						console.log('Can not find item: ');
+ 						console.log(item);
  					}
- 					promises.push(i.save());
  				});
  			});
 
