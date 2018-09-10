@@ -25,7 +25,7 @@ mixin processingCard(name, id, colour, textColour)
 							th Name
 							th Order Date
 							th Due Date
-							th Number of Items
+							th Items
 					tbody(id=id+"SummaryTable")
 			.card-footer(id=id+"CardFooter")
 
@@ -54,8 +54,10 @@ html
 							.alert.alert-danger#overdueOrders
 							.alert.alert-info#dueOrders
 					.row.mt-3
-						.col-12
-							+processingCard("Processing", "processing", "bg-primary", "text-white")
+						.col-6
+							+processingCard("US Orders", "us-processing", "bg-primary", "text-white")
+						.col-6
+							+processingCard("Canadian Orders", "ca-processing", "bg-primary", "text-white")
 					.row.mt-3
 						.col-12
 							.card

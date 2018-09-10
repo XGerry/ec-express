@@ -19,7 +19,6 @@ $(document).ready(e => {
 	socket.emit('loadOrders', query, null, orders => {
 		buildSummaryTable('#processingSummaryTable', orders, true);
 		showProgress();
-		$('#processingCardFooter').text(orders.length + ' orders waiting to be picked.');
 		scanForDuplicates(orders);
 		var dueOrders = $('.due').length;
 		var overdueOrders = $('.overdue').length;
@@ -86,12 +85,16 @@ function buildSummaryTable(tableId, orders, processing) {
 	});
 	$(''+tableId).empty();
 
+	var canadianOrderCount = 0;
+	var usOrderCount = 0;
 	orders.forEach(order => {
+		var canadian = order.InvoiceNumberPrefix == 'CA-';
 		var row = $('<tr></tr>');
 		var id = $('<td></td>').text(order.InvoiceNumberPrefix + order.InvoiceNumber);
 		var name = $('<td></td>').text(order.BillingFirstName + ' ' + order.BillingLastName);
 		//var amount = $('<td></td>').text('$' + order.OrderAmount.toFixed(2));
 		var date = $('<td></td>').text(moment(order.OrderDate).format('MMM Do'));
+
 
 		row.append(id);
 		row.append(name);
@@ -102,20 +105,35 @@ function buildSummaryTable(tableId, orders, processing) {
 			var items = $('<td></td>');
 			// highlight the rows based on their due date
 			var orderDate = moment(order.OrderDate);
-			if (orderDate.day() == 0) { // Sunday
-				dueDate.text(orderDate.day(3).format('MMM Do')); // Wednesday
-			} else if (orderDate.day() == 1) { // Monday
-				dueDate.text(orderDate.day(3).format('MMM Do')); // Wednesday
-			} else if (orderDate.day() == 2) { // Tuesday
-				dueDate.text(orderDate.day(4).format('MMM Do')); // Thursday
-			} else if (orderDate.day() == 3) { // Wednesday
-				dueDate.text(orderDate.day(4).format('MMM Do')); // Thursday
-			} else if (orderDate.day() == 4) { // Thursday
-				dueDate.text(orderDate.day(5).format('MMM Do')); // Friday
-			} else if (orderDate.day() == 5) { // Friday
-				dueDate.text(orderDate.day(8).format('MMM Do')); // Next Monday
-			} else if (orderDate.day() == 6) { // Saturday
-				dueDate.text(orderDate.day(9).format('MMM Do')); // Next Tuesday
+			if (canadian) {
+				if (orderDate.day() == 3) { // Wednesday
+					orderDate.day(8); // Next Monday
+				} else if (orderDate.day() == 4) { // Thursday
+					orderDate.day(9); // Next Tuesday
+				} else if (orderDate.day() == 5) { // Friday
+					orderDate.day(10); // Next Wednesday
+				} else if (orderDate.day() == 6) { // Saturday
+					orderDate.day(10); // Next Wednesday
+				} else {
+					orderDate.add(3, 'days');
+				}
+				dueDate.text(orderDate.format('MMM Do'));
+			} else {
+				if (orderDate.day() == 0) { // Sunday
+					dueDate.text(orderDate.day(3).format('MMM Do')); // Wednesday
+				} else if (orderDate.day() == 1) { // Monday
+					dueDate.text(orderDate.day(3).format('MMM Do')); // Wednesday
+				} else if (orderDate.day() == 2) { // Tuesday
+					dueDate.text(orderDate.day(4).format('MMM Do')); // Thursday
+				} else if (orderDate.day() == 3) { // Wednesday
+					dueDate.text(orderDate.day(4).format('MMM Do')); // Thursday
+				} else if (orderDate.day() == 4) { // Thursday
+					dueDate.text(orderDate.day(5).format('MMM Do')); // Friday
+				} else if (orderDate.day() == 5) { // Friday
+					dueDate.text(orderDate.day(8).format('MMM Do')); // Next Monday
+				} else if (orderDate.day() == 6) { // Saturday
+					dueDate.text(orderDate.day(9).format('MMM Do')); // Next Tuesday
+				}
 			}
 
 			if (orderDate.isBefore(tomorrow)) {
@@ -135,15 +153,28 @@ function buildSummaryTable(tableId, orders, processing) {
 
 			items.text(totaltems);
 			row.append(items);
+
+			if (canadian) {
+				$('#ca-processingSummaryTable').append(row);
+				canadianOrderCount++;
+			} else {
+				$('#us-processingSummaryTable').append(row);
+				usOrderCount++;
+			}
+		} else {
+			$(''+tableId).append(row);
 		}
 		
-		$(''+tableId).append(row);
-
 		row.click(e => {
 			var url = getURLFromOrder(order);
 			window.open(url, '_blank');
 		});
 	});
+
+	if (processing) {
+		$('#ca-processingCardFooter').text(canadianOrderCount + ' Canadian orders need to be picked.');
+		$('#us-processingCardFooter').text(usOrderCount + ' US orders need to be picked.');
+	}
 }
 
 function scanForDuplicates(orders) {
