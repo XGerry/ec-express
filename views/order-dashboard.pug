@@ -13,6 +13,22 @@ mixin summaryCard(name, id, colour, textColour)
 				tbody(id=id+"SummaryTable")
 		.card-footer(id=id+"CardFooter")
 
+mixin processingCard(name, id, colour, textColour)
+	.card
+			.card-header(class=colour + ' ' + textColour)
+				h5.mb-0=name
+			.card-body.summary-card
+				table.table.table-sm.table-hover
+					thead
+						tr
+							th ID
+							th Name
+							th Order Date
+							th Due Date
+							th Number of Items
+					tbody(id=id+"SummaryTable")
+			.card-footer(id=id+"CardFooter")
+
 doctype html
 include mixins
 html
@@ -34,10 +50,14 @@ html
 					.progress
 						.progress-bar.progress-bar-striped.progress-bar-animated#summaryProgress
 					.row.mt-3
-						.col-6
+						.col-12
 							.alert.alert-danger#overdueOrders
 							.alert.alert-info#dueOrders
-						.col-6
+					.row.mt-3
+						.col-12
+							+processingCard("Processing", "processing", "bg-primary", "text-white")
+					.row.mt-3
+						.col-12
 							.card
 								.card-header
 									h5.mb-0 Customers with Multiple Orders
@@ -45,7 +65,6 @@ html
 								.card-footer#multipleOrderFooter
 					.card-deck.mt-3
 						+summaryCard("New", "new", "bg-light")
-						+summaryCard("Processing", "processing", "bg-primary", "text-white")
 						+summaryCard("Back Order", "backorder", "bg-warning")
 					.card-deck.mt-3
 						+summaryCard("Preorder", "preorder", "bg-info", "text-white")

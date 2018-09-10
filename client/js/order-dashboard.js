@@ -23,8 +23,8 @@ $(document).ready(e => {
 		scanForDuplicates(orders);
 		var dueOrders = $('.due').length;
 		var overdueOrders = $('.overdue').length;
-		$('#overdueOrders').text(overdueOrders + ' orders were placed over 72 hours ago and have not been shipped.');
-		$('#dueOrders').text(dueOrders + ' orders need to be shipped today.');
+		$('#overdueOrders').text(overdueOrders + ' orders are overdue.');
+		$('#dueOrders').text(dueOrders + ' orders need to be picked today.');
 	});
 
 	query.orderstatus = 3; // Backorder
@@ -67,20 +67,11 @@ function showProgress() {
 	}
 }
 
-function buildSummaryTable(tableId, orders, highlight) {
-	var overdue = moment().subtract(3, 'days');
-	var overdueDay = overdue.day();
-	if (overdueDay == 0 || overdueDay == 6 || overdueDay == 5) {
-		overdue.subtract('2', 'days');
-	}
-	overdue.startOf('day');
-	var due = moment().subtract(3, 'days');
-	var dueDay = due.day();
-	if (dueDay == 0 || dueDay == 6 || dueDay == 5) {
-		due.subtract('2', 'days');
-	}
-	due.add('1', 'day');
-	due.startOf('day');
+function buildSummaryTable(tableId, orders, processing) {
+	var today = moment();
+	today.startOf('day');
+	var tomorrow = moment().add(1, 'day');
+	tomorrow.startOf('day');
 
 	orders.sort((a, b) => {
 		var aDate = moment(a.OrderDate);
@@ -94,6 +85,7 @@ function buildSummaryTable(tableId, orders, highlight) {
 		}
 	});
 	$(''+tableId).empty();
+
 	orders.forEach(order => {
 		var row = $('<tr></tr>');
 		var id = $('<td></td>').text(order.InvoiceNumberPrefix + order.InvoiceNumber);
@@ -101,20 +93,50 @@ function buildSummaryTable(tableId, orders, highlight) {
 		//var amount = $('<td></td>').text('$' + order.OrderAmount.toFixed(2));
 		var date = $('<td></td>').text(moment(order.OrderDate).format('MMM Do'));
 
-		if (highlight) {
-			if (moment(order.OrderDate).isBefore(due)) {
-				row.addClass('bg-primary due');
+		row.append(id);
+		row.append(name);
+		row.append(date);
+
+		if (processing) {
+			var dueDate = $('<td></td>');
+			var items = $('<td></td>');
+			// highlight the rows based on their due date
+			var orderDate = moment(order.OrderDate);
+			if (orderDate.day() == 0) { // Sunday
+				dueDate.text(orderDate.day(3).format('MMM Do')); // Wednesday
+			} else if (orderDate.day() == 1) { // Monday
+				dueDate.text(orderDate.day(3).format('MMM Do')); // Wednesday
+			} else if (orderDate.day() == 2) { // Tuesday
+				dueDate.text(orderDate.day(4).format('MMM Do')); // Thursday
+			} else if (orderDate.day() == 3) { // Wednesday
+				dueDate.text(orderDate.day(4).format('MMM Do')); // Thursday
+			} else if (orderDate.day() == 4) { // Thursday
+				dueDate.text(orderDate.day(5).format('MMM Do')); // Friday
+			} else if (orderDate.day() == 5) { // Friday
+				dueDate.text(orderDate.day(8).format('MMM Do')); // Next Monday
+			} else if (orderDate.day() == 6) { // Saturday
+				dueDate.text(orderDate.day(9).format('MMM Do')); // Next Tuesday
 			}
-			if (moment(order.OrderDate).isBefore(overdue)) {
+
+			if (orderDate.isBefore(tomorrow)) {
+				row.addClass('bg-primary due text-white');
+			}
+
+			if (orderDate.isBefore(today)) {
 				row.removeClass('bg-primary due');
 				row.addClass('bg-danger text-white overdue');
 			}
-		}
 
-		row.append(id);
-		row.append(name);
-		//row.append(amount);
-		row.append(date);
+			row.append(dueDate);
+			var totaltems = 0;
+			order.OrderItemList.forEach(i => {
+				totaltems += i.ItemQuantity;
+			});
+
+			items.text(totaltems);
+			row.append(items);
+		}
+		
 		$(''+tableId).append(row);
 
 		row.click(e => {
