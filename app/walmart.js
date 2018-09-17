@@ -259,6 +259,7 @@ function getMPProduct(item) {
 	if (imageURL && imageURL[0] != '/') {
 		imageURL = '/'+imageURL;
 	}
+	console.log(imageURL);
 	var mpProduct = {
 		productName: item.name,
 		category: {
@@ -267,11 +268,12 @@ function getMPProduct(item) {
 					shortDescription: item.name,
 					brand: item.manufacturerName,
 					manufacturer: item.manufacturerName,
-					mainImageUrl: 'https://www.ecstasycrafts.com' + imageURL
+					mainImageUrl: 'https://www.ecstasycrafts.ca' + imageURL
 				}
 			}
 		}
 	};
+	console.log(mpProduct.category.ArtAndCraftCategory.ArtAndCraft);
 	return mpProduct;
 }
 

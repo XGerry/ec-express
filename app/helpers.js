@@ -660,6 +660,8 @@ function addSalesOrderRq(order) {
   // An exception for Amazon
   if (order.BillingFirstName == 'Amazon') {
     customerRef = 'Amazon';
+  } else if (order.BillingFirstName == 'Amazon.') {
+    customerRef = 'Amazon. ca';
   }
 
   var obj = {
