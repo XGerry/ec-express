@@ -199,6 +199,7 @@ itemSchema.methods.updateAdvancedOptionFields = function(parentItem, optionItem,
 itemSchema.methods.saveItem = function(item) {
 	function saveProperty(propName) {
 		var propValue = item[propName];
+		console.log(propValue);
 		if (propValue != undefined) {
 			this[propName] = propValue;
 		}
