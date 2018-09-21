@@ -223,6 +223,8 @@ itemSchema.methods.saveItem = function(item) {
 	saveProperty('usSalePrice');
 	saveProperty('canSalePrice');
 
+	this.barcode = item.barcode;
+
 	return this.save();
 }
 
