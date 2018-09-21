@@ -1166,7 +1166,7 @@ function createSalesOrdersRequests(qbws) {
         var promises = [];
         if (Array.isArray(salesOrderRs.SalesOrderRet)) {
           salesOrderRs.SalesOrderRet.forEach(salesOrder => {
-            promises.push(updateDuplicateOrder(salesOrderRq));
+            promises.push(updateDuplicateOrder(salesOrder));
           });
         } else if (salesOrderRs.SalesOrderRet) {
           promises.push(updateDuplicateOrder(salesOrderRs.SalesOrderRet))
