@@ -197,35 +197,7 @@ itemSchema.methods.updateAdvancedOptionFields = function(parentItem, optionItem,
 }
 
 itemSchema.methods.saveItem = function(item) {
-	function saveProperty(propName) {
-		var propValue = item[propName];
-		console.log(propValue);
-		if (propValue != undefined) {
-			this[propName] = propValue;
-		}
-	}
-
-	saveProperty('name');
-	saveProperty('usPrice');
-	saveProperty('canPrice');
-	saveProperty('stock');
-	saveProperty('usStock');
-	saveProperty('canStock');
-	saveProperty('location');
-	saveProperty('secondLocation');
-	saveProperty('barcode');
-	saveProperty('countryOfOrigin');
-	saveProperty('isOption');
-	saveProperty('hasOptions');
-	saveProperty('inactive');
-	saveProperty('hidden');
-	saveProperty('onSale');
-	saveProperty('usSalePrice');
-	saveProperty('canSalePrice');
-
-	this.barcode = item.barcode;
-
-	return this.save();
+	this.save(item);
 }
 
 itemSchema.methods.updateFromQuickbooks = function(qbItem) {
