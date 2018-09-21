@@ -189,11 +189,6 @@ function addStartingCallback(fnc) {
   startingCallbacks.push(fnc);
 }
 
-function removeOrder(index) {
-  if (index > -1)
-    orders.splice(index, 1);
-}
-
 var clearRequests = function() {
   // req = []; // not needed now. This should be empty if we are finished
   orders = [];
@@ -204,10 +199,6 @@ var clearRequests = function() {
 
 function addFinalCallback(fnc) {
   finalCallbacks.push(fnc);
-}
-
-function getOrders() {
-  return orders;
 }
 
 function generateOrderRequest() {
@@ -801,8 +792,6 @@ module.exports = {
     clearRequests : clearRequests,
     addFinalCallback: addFinalCallback,
     companyFile : companyFile,
-    removeOrder: removeOrder,
-    getOrders: getOrders,
     addStartingCallback: addStartingCallback,
     generateOrderRequest: generateOrderRequest
 };

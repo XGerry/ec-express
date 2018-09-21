@@ -49,6 +49,7 @@ app.use('/', express.static(__dirname + '/client'));
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/js', express.static(__dirname + '/node_modules/papaparse')); // redirect Papaparse
 app.use('/js', express.static(__dirname + '/node_modules/moment')); // redirect Moment
+app.use('/js', express.static(__dirname + '/node_modules/jsbarcode/dist')); // redirect JS Barcode
 //app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 var server = app.listen(process.env.PORT || 3000, function() {

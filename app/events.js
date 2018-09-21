@@ -10,6 +10,7 @@
  var Settings = require('./model/settings');
  var CustomOrder = require('./model/customOrder');
  var Item = require('./model/item');
+ var Batch = require('./model/batch');
  const fs = require('fs');
  var path = require('path');
 
@@ -202,16 +203,6 @@
  			}, query.canadian).then(response => {
  				console.log('done');
  				socket.emit('getItemsFinished');
- 			});
- 		});
-
- 		/**
- 		 * Updates the items based on what was passed in
- 		 */
- 		socket.on('updateItems', function(cartItems, bulkUpdates) {
- 			cart3d.updateItems(cartItems, bulkUpdates, function(progress, total) {
- 			}, function(responses) {
- 				socket.emit('updateItemsFinished', responses);
  			});
  		});
 
@@ -695,6 +686,12 @@
  		socket.on('getUnpaidOrderReport', (startDate, endDate) => {
  			reporting.getUnpaidOrders(startDate, endDate, (orders, progress) => {
  				socket.emit('receivedUnpaidOrders', orders, progress);
+ 			});
+ 		});
+
+ 		socket.on('getAutoBatch', (cb) => {
+ 			Batch.createAutoBatch(100, 20).then(batch => {
+ 				cb(batch);
  			});
  		});
  	});

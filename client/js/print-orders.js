@@ -1,15 +1,8 @@
 var socket = io();
 
 $(document).ready(e => {
-	socket.emit('loadOrders', {
-		orderstatus: 1,
-		limit: 200
-	});
-
 	$('#printAllButton').click(e => {
-		var status = $('#orderStatus').val();
-		console.log(status);
-		window.open('/picksheet?orderStatus='+status);
+		window.open('/picksheet?orderStatus=1');
 	});
 
 	$('#orderStatus').on('change', e => {
@@ -19,11 +12,12 @@ $(document).ready(e => {
 			limit: 200
 		});
 	});
-});
 
-socket.on('loadOrdersFinished', orders => {
-	$('#printAllButton').button('reset');
-	buildOrderTable(orders);
+	$('#createBatchButton').click(e => {
+		socket.emit('getAutoBatch', batch => {
+			window.location = '/batch-sheet?id='+batch._id;
+		});
+	});
 });
 
 function buildOrderTable(orders) {
@@ -43,7 +37,8 @@ function buildOrderTable(orders) {
 	});
 }
 
-function buildTableRow(order) {
+function buildTableRow(dbOrder) {
+	var order = dbOrder.cartOrder;
 	var row = $('<tr></tr>');
 	var invoiceNumberCol = $('<td></td>');
 	invoiceNumberCol.text(''+order.InvoiceNumberPrefix + order.InvoiceNumber);

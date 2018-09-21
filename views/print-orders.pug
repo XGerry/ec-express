@@ -1,9 +1,11 @@
 mixin tableRow(order)
 	tr
-		td
-			a(href="/picksheet?id="+order._id)=order.InvoiceNumberPrefix + order.InvoiceNumber
-		td=order.BillingFirstName + ' ' + order.BillingLastName
-		td=order.OrderType
+		td=order.orderId
+		td=order.name
+		td=order.cartOrder.BillingCompany
+		td=order.items.length
+		td=order.items.reduce((total, item) => total + parseInt(item.quantity), 0)
+		td='$' + order.orderValue.toFixed(2)
 
 doctype html
 include mixins
@@ -11,6 +13,7 @@ html
 	include includes/head
 		title Print Orders
 	body
+
 		#wrapper
 			+sidebarNav("print-orders")
 			
@@ -20,20 +23,9 @@ html
 					.starter-template
 						h1 All Orders
 						p.lead Select and order to see it in more detail.
-						button.btn-outline-primary.btn(type="button")#printAllButton Print All
+						button.btn-outline-primary.btn(type="button")#printAllButton Print All New Orders
+						button.btn-outline-success.btn.ml-2(type="button")#createBatchButton Create Batch
 
-				.container
-					.row.form-group
-						.col-lg-12
-							label Order Status
-							select.form-control#orderStatus
-								option(value=1) New
-								option(value=2) Processing
-								option(value=3) Partial
-								option(value=4) Shipped
-								option(value=6) Hold
-								option(value=8) Completed
-								option(value=9) Backorder
 				.container
 					.row
 						.col-lg-12
@@ -47,6 +39,12 @@ html
 										th Number of Items
 										th Value of Order
 								tbody#orderTableBody
+									each order in orders
+										+tableRow(order)
+		+footer
+		script.
+			console.log(!{JSON.stringify(orders)})
+
 
 	include includes/end
 		script(src="./js/print-orders.js")

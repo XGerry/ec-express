@@ -3,6 +3,7 @@ var path = require('path');
 var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
 var Order = require('./model/order');
+var Batch = require('./model/batch');
 var CustomOrder = require('./model/customOrder');
 var PurchaseOrder = require('./model/purchaseOrder');
 var Item = require('./model/item');
@@ -237,7 +238,7 @@ module.exports = function(app, passport) {
     var orderId = req.query.orderId;
     var id = req.query.id;
     if (id) {
-      var findOrder = cart3d.findOne({_id: orderId});
+      var findOrder = Order.findOne({_id: orderId});
       findOrder.then(order => {
         res.render('picksheet', {
           orders: order
@@ -332,7 +333,11 @@ module.exports = function(app, passport) {
   });
 
   app.get('/print-orders', (req, res) => {
-    res.render('print-orders');
+    Order.find({picked: false, batch: {$exists: false}}).sort('orderDate').then(orders => {
+      res.render('print-orders', {
+        orders: orders
+      });
+    });
   });
 
   app.get('/deliveries', (req, res) => {
@@ -379,5 +384,52 @@ module.exports = function(app, passport) {
 
   app.get('/unpaid-orders', (req, res) => {
     res.render('unpaid-orders');
+  });
+
+  app.get('/batch-sheet', (req, res) => { 
+    var id = req.query.id;
+    Batch.findOne({_id: id}).populate({
+      path: 'orders',
+      model: 'Order',
+      populate: {
+        path: 'items.item',
+        model: 'Item'
+      }
+    }).then(batch => {
+      if (batch) {
+        res.render('batch-sheet', {
+          batch: batch
+        });
+      } else {
+        res.redirect('/batches');
+      }
+    });
+  });
+
+  app.get('/batches', (req, res) => {
+    Batch.find({}).then(batches => {
+      res.render('batches', {
+        batches: batches
+      });
+    });
+  });
+
+  app.get('/sort-batch', (req, res) => {
+    Batch.findOne({_id: req.query.id}).populate({
+      path: 'orders',
+      model: 'Order',
+      populate: {
+        path: 'items.item',
+        model: 'Item'
+      }
+    }).then(batch => {
+      if (batch) {
+        res.render('sort-batch', {
+          batch: batch
+        });
+      } else {
+        res.redirect('/batches');
+      }
+    })
   });
 }

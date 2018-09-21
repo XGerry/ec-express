@@ -1234,83 +1234,11 @@ function findItemAndSave(qbItem) {
         return null;
       }
       else {
-        return saveItemFromQB(item, qbItem);
+        return item.updateFromQuickbooks(qbItem);
       }
     });
   } else {  
     return 'No item to save';
-  }
-}
-
-function saveItemFromQB(item, qbItem) {
-  var theStock;
-  if (qbItem.QuantityOnSalesOrder) {
-    theStock = parseInt(qbItem.QuantityOnHand) - parseInt(qbItem.QuantityOnSalesOrder);
-  } else {
-    theStock = parseInt(qbItem.QuantityOnHand);
-  }
-
-  if (theStock < 0 || theStock == NaN) {
-    theStock = 0;
-  }
-
-  var itemIsInactive = false;
-  if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
-    itemIsInactive = true;
-    theStock = 0;
-  }
-
-  var updated = (item.usStock != theStock) || (item.canStock != theStock);
-  updated = updated || (item.inactive != itemIsInactive);
-
-  item.updated = updated;
-  item.stock = theStock;
-  item.usStock = theStock;
-  item.canStock = theStock;
-  item.amazonStock = theStock;
-  item.walmartStock = theStock;
-  item.inactive = itemIsInactive;
-
-  if (qbItem.DataExtRet) {
-    if (qbItem.DataExtRet instanceof Array) {
-      qbItem.DataExtRet.forEach(function(data) {
-        addItemProperties(data, item);
-      });
-    } else {
-      addItemProperties(qbItem.DataExtRet, item);
-    }
-  }
-
-  if (qbItem.BarCodeValue && item.barcode != qbItem.BarCodeValue) {
-    item.barcode = qbItem.BarCodeValue;
-  }
-  item.listId = qbItem.ListID;
-  item.editSequence = qbItem.EditSequence;
-
-  return item.save();
-}
-
-function addItemProperties(data, item) { // don't update the barcode in here anymore
-  if (data.DataExtName == 'Location') {
-    if (item.location != data.DataExtValue) {
-      //item.location = data.DataExtValue;
-      //item.updated = true;
-    }
-  } else if (data.DataExtName == 'Country' || data.DataExtName == 'C Origin') {
-    if (item.countryOfOrigin != data.DataExtValue.toUpperCase()) {
-      item.countryOfOrigin = data.DataExtValue.toUpperCase();
-      item.updated = true;
-    }
-  } else if (data.DataExtName == 'HTC Code') {
-    if (item.htcCode != data.DataExtValue) {
-      item.htcCode = data.DataExtValue;
-      item.updated = true;
-    }
-  } else if (data.DataExtName == 'Location 2') {
-    if (item.secondLocation != data.DataExtValue) {
-      //item.secondLocation = data.DataExtValue;
-      //item.updated = true;
-    }
   }
 }
 
@@ -1372,42 +1300,7 @@ function saveItem(item, qbws, adjustInventory) {
 
   Item.findOne({sku: item.sku}).then(theItem => {
     if (theItem) {
-      // update the fields
-      if (item.name)
-        theItem.name = item.name;
-      if (item.usPrice)
-        theItem.usPrice = item.usPrice;
-      if (item.canPrice)
-        theItem.canPrice = item.canPrice;
-      if (item.stock)
-        theItem.stock = item.stock;
-      if (item.usStock)
-        theItem.usStock = item.usStock;
-      if (item.canStock)
-        theItem.canStock = item.canStock;
-      if (item.location)
-        theItem.location = item.location;
-      if (item.secondLocation)
-        theItem.secondLocation = item.secondLocation;
-      if (item.barcode)
-        theItem.barcode = item.barcode;
-      if (item.countryOfOrigin)
-        theItem.countryOfOrigin = item.countryOfOrigin;
-      if (item.isOption != undefined)
-        theItem.isOption = item.isOption;
-      if (item.hasOptions != undefined)
-        theItem.hasOptions = item.hasOptions;
-      if (item.inactive != undefined)
-        theItem.inactive = item.inactive;
-      if (item.hidden != undefined)
-        theItem.hidden = item.hidden;
-      if (item.onSale != undefined)
-        theItem.onSale = item.onSale;
-      if (item.usSalePrice != undefined)
-        theItem.usSalePrice = item.usSalePrice;
-      if (theItem.canSalePrice != undefined)
-        theItem.canSalePrice = item.canSalePrice;
-      theItem.save().then(savedItem => {
+      theItem.saveItem(item).then(savedItem => {
         if (savedItem.hasOptions == undefined || savedItem.hasOptions == false) {
           saveToQuickbooks(savedItem, qbws, adjustInventory);
         }

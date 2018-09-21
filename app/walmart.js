@@ -268,7 +268,7 @@ function getMPProduct(item) {
 					shortDescription: item.name,
 					brand: item.manufacturerName,
 					manufacturer: item.manufacturerName,
-					mainImageUrl: 'https://www.ecstasycrafts.ca' + imageURL
+					mainImageUrl: 'https://www.ecstasycrafts.com' + imageURL
 				}
 			}
 		}

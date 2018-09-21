@@ -1,0 +1,142 @@
+mixin orderSummaryTableRow(order, index)
+	tr(id=order._id+'-row')
+		td=index+1
+		td=order.orderId
+		td=order.name
+		td=order.items.length
+		td=order.items.reduce((total, item) => total + item.quantity, 0)
+		td(id=order._id+'-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Sort Batch
+	body
+		#wrapper
+			+sidebarNav("batch-sheet")
+
+			#page-content
+				+menuToggle
+				.container.pt-3
+					.row
+						.col-12.text-center
+							h2 Sort Batch
+					.row.pt-2
+						.col-12
+							table.table-sm.table
+								thead 
+									tr 
+										th Total Number of SKUs
+										th Total Number of Items
+										th Number of Orders
+								tbody
+									tr
+										td=batch.numberOfSkus
+										td=batch.numberOfItems
+										td=batch.orders.length
+					.row.justify-content-center
+						.col-8
+							input.form-control.form-control-lg(type="text" placeholder="Scan the barcode of your item here")#item-barcode
+					.row.pt-5
+						.col
+							h2#boxNumber Box Number
+						.col
+							h2#orderId Order ID
+						.col
+							button.btn.btn-outline-success.btn-lg.disabled#doneSortingButton Done
+
+					.row.pt-5
+						.col-12
+							table.table-sm.table
+								thead
+									tr
+										th Box Number
+										th Order ID
+										th Customer
+										th Number of SKUs
+										th Total Items
+										th Items Picked
+								tbody#ordersSummary
+									each order, index in batch.orders
+										+orderSummaryTableRow(order, index)
+
+		+footer
+		script.
+			var batch = !{JSON.stringify(batch)};
+			$(document).ready(e => {
+				console.log(batch);
+				$('#item-barcode').select();
+
+				$('#doneSortingButton').click(e => {
+					refreshPickedQuantities();
+					resetSorting();
+				});
+
+				$('#item-barcode').on('keypress', e => {
+					var key = e.which || e.keyCode;
+					if (key == 13) { // enter key
+						var barcode = $('#item-barcode').val();
+						if (barcode != '') {
+							// find the item and display the order it belongs to
+							try {
+								var match = sortItem(barcode);
+								$('#boxNumber').text(match.box);
+								$('#orderId').text(match.orderId);
+								$('#doneSortingButton').removeClass('disabled');
+								$('#item-barcode').addClass('diabled');
+								$('#'+match._id+'-row').addClass('bg-primary text-white');
+							} catch (e) {
+								alert(e);
+								resetSorting();
+							}
+						}
+					}
+				});
+			});
+
+			function sortItem(barcode) {
+				var match = {}
+				var foundMatch = false;
+				for (let [index, order] of batch.orders.entries()) {
+					for (let item of order.items) {
+						if (item.item.barcode == barcode) {
+							if (item.pickedQuantity < item.quantity) {
+								item.pickedQuantity++;
+								match.orderId = order.orderId;
+								match._id = order._id;
+								match.box = index + 1;
+								foundMatch = true;
+								break;
+							} else {
+								console.log('this particular item has been picked already, moving on');
+							}
+						}
+					}
+				}
+
+				if (foundMatch) {
+					return match;
+				} else {
+					throw 'No orders in this batch need that item. You have possibly picked the wrong item, or the wrong quantity.'; 
+				}
+			}
+
+			function resetSorting() {
+				$('#item-barcode').select();
+				$('#boxNumber').text('Box Number');
+				$('#orderId').text('Order ID');
+			}
+
+			function refreshPickedQuantities() {
+				batch.orders.forEach(order => {
+					var totalPicked = order.items.reduce((total, item) => total + item.pickedQuantity, 0);
+					var totalQuantity = order.items.reduce((total, item) => total + item.quantity, 0);
+					$('#'+order._id+'-picked').text(totalPicked);
+					$('#'+order._id+'-row').removeClass('bg-primary text-white');
+
+					if (totalPicked == totalQuantity) {
+						$('#'+order._id+'-row').addClass('bg-success text-white');
+					}
+				});
+			}

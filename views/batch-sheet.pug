@@ -1,0 +1,105 @@
+mixin pickTableRow(item, quantity)
+	tr
+		td.text-center= item.location
+		td.text-center= item.secondLocation
+		td.text-center
+			strong=item.sku
+		td.text-center= quantity
+		td.text-center
+			input(type="checkbox", style="transform: scale(2);margin: 0;")
+		td!= item.name
+		td= item.usStock
+
+mixin orderSummaryTableRow(order)
+	tr
+		td=order.orderId
+		td=order.name
+		td=order.cartOrder.BillingCompany
+		td=order.items.length
+		td=order.items.reduce((total, item) => total + item.quantity, 0)
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Batch Sheet
+	body
+		#wrapper
+			+sidebarNav("batch-sheet")
+
+			#page-content
+				+menuToggle
+				.container.pt-3
+					.row
+						.col-12.text-center
+							h2 Batch Picking Sheet
+					.row.pt-2
+						.col-8
+							table.table-sm.table
+								thead 
+									tr 
+										th Total Number of SKUs
+										th Total Number of Items
+										th Number of Orders
+								tbody
+									tr
+										td=batch.numberOfSkus
+										td=batch.numberOfItems
+										td=batch.orders.length
+						.col-4
+							svg#barcode(jsbarcode-value=batch._id, jsbarcode-displayvalue="true", jsbarcode-width=1)
+					.row.pt-2
+						.col-12
+							table.table-sm.table
+								thead
+									tr
+										th Order ID
+										th Customer
+										th Company
+										th Number of Items
+										th Number of SKUs
+								tbody
+									each order in batch.orders
+										+orderSummaryTableRow(order)
+					.row.pt-2
+						table.table.table-striped.pick-table
+							thead
+								tr
+									th.text-center(style="width:14%") Location
+									th.text-center Location 2
+									th.text-center SKU
+									th.text-center Quantity
+									th.text-center Picked
+									th(style="width:30%") Description
+									th Stock Level
+							tbody
+								-
+									var allItems = batch.orders.reduce((arr, order) => {
+										return arr.concat(order.items);
+									}, []);
+									allItems.sort((a, b) => {
+										if (a.item.location == undefined) {
+											a.item.location = '';
+										}
+										if (b.item.location == undefined) {
+											b.item.location = '';
+										}
+										if (a.item.location < b.item.location) {
+											return -1;
+										} else	if (a.item.location > b.item.location) {
+											return 1;
+										}	else {
+											if (a.item.sku < b.item.sku) {
+												return -1;
+											} else {
+												return 1;
+											}
+										}
+									});
+								each item in allItems
+									+pickTableRow(item.item, item.quantity)
+
+		+footer
+		script.
+			JsBarcode('#barcode').init();
+			console.log(!{JSON.stringify(batch)})

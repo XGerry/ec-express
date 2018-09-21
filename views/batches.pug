@@ -1,0 +1,65 @@
+mixin tableRow(batch)
+	tr(onclick="openBatch('"+batch._id+"')")
+		td=batch.orders.length
+		td=batch.numberOfSkus
+		td=batch.numberOfItems
+		td=batch.completed
+		td= moment(batch.startTime).format('MMMM Do, h:mm:ss a')
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Batch Orders
+	body
+		script.
+			function openBatch(id) {
+				window.location = '/batch-sheet?id='+id;
+			}
+
+		#wrapper
+			+sidebarNav("print-orders")
+			
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 All Batches
+						p.lead Select a batch to view it.
+						button.btn-outline-success.btn.ml-2(type="button")#createBatchButton Create Batch
+
+				.container
+					.form-row
+						.col-12
+							h3 Sort Batch
+							input.form-control.form-control-lg(type="text", placeholder="Scan batch barcode here")#sortBatch
+					.row.pt-3
+						.col-lg-12
+							table.table-hover.table
+								thead
+									tr
+										th Number of Orders
+										th Number of SKUs
+										th Number of Items
+										th Completed
+										th Start Date
+								tbody#orderTableBody
+									each batch in batches
+										+tableRow(batch)
+		+footer
+		script.
+			$(document).ready(e => {
+				$('#sortBatch').select();
+				$('#sortBatch').on('keypress', e => {
+					var key = e.keyCode || e.which;
+					if (key == 13) { // enter key
+						var batch_id = $('#sortBatch').val();
+						if (batch_id != '') {
+							window.location = '/sort-batch?id=' + batch_id;
+						}
+					}
+				});
+			});
+
+	include includes/end
+
