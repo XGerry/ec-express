@@ -1311,6 +1311,8 @@ function saveItem(item, qbws, adjustInventory, canadian) {
       });
     }
   });
+
+  console.log('Waiting for Web Connector.');
 }
 
 function findInQuickbooks(skus, qbws) {
@@ -1358,7 +1360,7 @@ function saveToQuickbooks(item, qbws, adjustInventory, canadian) {
   qbws.addRequest(getItemRq(item), response => {
     return xml2js(response, {explicitArray: false}).then(result => {
       var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
-      if (itemInventoryRs.$.requestID == 'itemRequest-'+item.sku) {
+      if (itemInventoryRs.$.requestID == 'itemRequest-'+item.sku && itemInventoryRs.$.statusCode != '500') {
         console.log('\ngot the item request\n');
         item.editSequence = itemInventoryRs.ItemInventoryRet.EditSequence;
         item.listId = itemInventoryRs.ItemInventoryRet.ListID;
