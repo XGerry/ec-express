@@ -652,7 +652,7 @@
  		});
 
  		socket.on('updatePricingInQB', (canadian) => {
- 			Item.find({}).limit(100).then(items => {
+ 			Item.find({}).limit(100).offset(100).then(items => {
  				items.forEach(item => {
  					helpers.saveItem(item, qbws, false, canadian);
  				});
