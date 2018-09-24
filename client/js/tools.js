@@ -29,7 +29,7 @@ $(document).ready(function() {
 	$('#replacePricingButton').click(() => {
 		var confirmation = confirm('Are you sure? Like, really, really sure?');
 		if (confirmation) {
-			socket.emit('updatePricingInQB');
+			socket.emit('updatePricingInQB', true); // the boolean is for canadian pricing!!! be careful!!!
 			$('#pricingInfo').text('This is going to take a while...');
 		} else {
 			$('#pricingInfo').text('Didn\'t think so...');

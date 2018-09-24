@@ -400,7 +400,7 @@ function createItemRq(item) {
 }
 
 // Item is a DB item
-function modifyItemRq(item) {
+function modifyItemRq(item, canadian) {
   // can only do this one at a time
   var modRq = {
     ListID: item.listId,
@@ -413,6 +413,10 @@ function modifyItemRq(item) {
     IsActive: !item.inactive,
     SalesPrice: item.usPrice,
   };
+
+  if (canadian) {
+    modRq.SalesPrice = item.canPrice;
+  }
 
   var qbRq = {
     ItemInventoryModRq: {
@@ -1291,7 +1295,7 @@ function updateCustomer(dbCustomer, customer) {
   dbCustomer.save();
 }
 
-function saveItem(item, qbws, adjustInventory) {
+function saveItem(item, qbws, adjustInventory, canadian) {
   // save the item in our db
   if (item == undefined) {
     console.log('invalid item save.');
@@ -1302,7 +1306,7 @@ function saveItem(item, qbws, adjustInventory) {
     if (theItem) {
       theItem.saveItem(item).then(savedItem => {
         if (savedItem.hasOptions == undefined || savedItem.hasOptions == false) {
-          saveToQuickbooks(savedItem, qbws, adjustInventory);
+          saveToQuickbooks(savedItem, qbws, adjustInventory, canadian);
         }
       });
     }
@@ -1348,7 +1352,7 @@ function findInQuickbooks(skus, qbws) {
  * Gets the item from Quickbooks, updates the necessary information. Then
  * provides a callback function which takes the savedItem and the item from QB.
  */
-function saveToQuickbooks(item, qbws, adjustInventory) {
+function saveToQuickbooks(item, qbws, adjustInventory, canadian) {
   // create request in qb
   console.log('\nADDING GET ITEM REQUEST\n');
   qbws.addRequest(getItemRq(item), response => {
@@ -1360,7 +1364,7 @@ function saveToQuickbooks(item, qbws, adjustInventory) {
         item.listId = itemInventoryRs.ItemInventoryRet.ListID;
         return item.save().then(savedItem => {
           console.log('\nadding modify item request\n');
-          qbws.addRequest(modifyItemRq(savedItem), (response) => {
+          qbws.addRequest(modifyItemRq(savedItem, canadian), (response) => {
             console.log('\nadding inventory and custom field request\n');
             if (adjustInventory) {
               qbws.addRequest(modifyInventoryRq(savedItem));

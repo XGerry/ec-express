@@ -651,10 +651,10 @@
  			});
  		});
 
- 		socket.on('updatePricingInQB', () => {
- 			Item.find({}).then(items => {
+ 		socket.on('updatePricingInQB', (canadian) => {
+ 			Item.find({}).limit(10).then(items => {
  				items.forEach(item => {
- 					helpers.saveItem(item, qbws, false);
+ 					helpers.saveItem(item, qbws, false, canadian);
  				});
  			});
  		});
@@ -692,6 +692,14 @@
  		socket.on('getAutoBatch', (cb) => {
  			Batch.createAutoBatch(100, 20).then(batch => {
  				cb(batch);
+ 			});
+ 		});
+
+ 		socket.on('finishBatch', (batch, cb) => {
+ 			Batch.findOne({_id: batch._id}).populate('orders').then(dbBatch => {
+				dbBatch.finish(batch).then(batch => {
+					cb(batch);
+				});
  			});
  		});
  	});

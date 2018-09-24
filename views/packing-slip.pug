@@ -1,0 +1,120 @@
+mixin billingAddress(order)
+	address
+		h3 Billing
+		strong=order.BillingFirstName + " " + order.BillingLastName
+		br
+		if (order.BillingCompany)
+			strong=order.BillingCompany
+			br 
+		=order.BillingAddress
+		br
+		if (order.BillingAddress2)
+			=order.BillingAddress2
+			br
+		=order.BillingCity + ", " + order.BillingState
+		br
+		=order.BillingCountry + ", " + order.BillingZipCode
+
+mixin shippingAddress(shippingInfo)
+	address
+		h3 Shipping
+		strong=shippingInfo.ShipmentFirstName + " " + shippingInfo.ShipmentLastName
+		br
+		if (shippingInfo.ShipmentCompany)
+			strong=shippingInfo.ShipmentCompany
+			br
+		=shippingInfo.ShipmentAddress
+		br
+		if (shippingInfo.ShipmentAddress2)
+			=shippingInfo.ShipmentAddress2
+			br
+		=shippingInfo.ShipmentCity + ", " + shippingInfo.ShipmentState
+		br
+		=shippingInfo.ShipmentCountry + ", " + shippingInfo.ShipmentZipCode
+
+mixin itemRow(item)
+	tr
+		td=item.item.sku
+		td=item.quantity
+		td=item.pickedQuantity
+		td=item.item.name
+
+mixin customerInfoPanel(order)
+	h2= order.orderId
+	.row
+		.col-12
+			table.table.table-striped.table-hover.table-sm
+				thead
+					tr
+						th Phone
+						th Email
+						th Order Date
+				tbody.infoTableBody
+					tr
+						td= order.cartOrder.ShipmentList[0].ShipmentPhone
+						td.email= order.cartOrder.BillingEmail
+						td= moment(new Date(order.orderDate)).format('dddd MMM Do, h:mm:ss a')
+	.row
+		.col-lg-2.col-sm-2
+			+billingAddress(order.cartOrder)
+		.col-lg-2.col-sm-2
+			+shippingAddress(order.cartOrder.ShipmentList[0])
+		.col-8
+			table.table.table-striped.table-hover.table-sm
+				thead 
+					tr
+						th Items Ordered
+						th Items Shipped
+						th Value
+						th Ship Method
+				tbody.infoTableBody
+					tr
+						td= order.items.reduce((total, item) => total + item.quantity, 0)
+						td= order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+						td= '$'+order.orderValue.toFixed(2)
+						td= order.cartOrder.ShipmentList[0].ShipmentMethodName
+
+			
+	if (order.cartOrder.CustomerComments)
+		.row
+			.col-lg-12.col-sm-12
+				h4 Comments
+				.well
+					p=order.cartOrder.CustomerComments
+
+mixin orderItemPanel(order)
+	#pickSheet
+		table.table.table-striped.table-hover.pick-table
+			thead
+				tr
+					th SKU
+					th Ordered
+					th Picked
+					th Description
+			tbody
+				each item in order.items
+					+itemRow(item)
+
+mixin orderSection(order)
+	.container
+		+customerInfoPanel(order)
+	.container.pt-2
+		+orderItemPanel(order)
+	.pagebreak
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Packing Slips
+	body
+		#wrapper
+			+sidebarNav("packing")
+
+			#page-content
+				+menuToggle
+				.container.pt-3
+				each order in batch.orders
+					if (order.toPrint)
+						+orderSection(order)
+		+footer

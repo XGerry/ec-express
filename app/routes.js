@@ -388,14 +388,7 @@ module.exports = function(app, passport) {
 
   app.get('/batch-sheet', (req, res) => { 
     var id = req.query.id;
-    Batch.findOne({_id: id}).populate({
-      path: 'orders',
-      model: 'Order',
-      populate: {
-        path: 'items.item',
-        model: 'Item'
-      }
-    }).then(batch => {
+    loadBatch(id).then(batch => {
       if (batch) {
         res.render('batch-sheet', {
           batch: batch
@@ -415,14 +408,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/sort-batch', (req, res) => {
-    Batch.findOne({_id: req.query.id}).populate({
-      path: 'orders',
-      model: 'Order',
-      populate: {
-        path: 'items.item',
-        model: 'Item'
-      }
-    }).then(batch => {
+    loadBatch(req.query.id).then(batch => {
       if (batch) {
         res.render('sort-batch', {
           batch: batch
@@ -430,6 +416,29 @@ module.exports = function(app, passport) {
       } else {
         res.redirect('/batches');
       }
-    })
+    });
   });
+
+  app.get('/packing-slip', (req, res) => {
+    loadBatch(req.query.id).then(batch => {
+      if (batch) {
+        res.render('packing-slip', {
+          batch: batch
+        });
+      } else {
+        res.redirect('/batches');
+      }
+    });
+  });
+
+  function loadBatch(id) {
+    return Batch.findOne({_id: id}).populate({
+      path: 'orders',
+      model: 'Order',
+      populate: {
+        path: 'items.item',
+        model: 'Item'
+      }
+    });
+  }
 }

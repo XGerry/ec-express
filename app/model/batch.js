@@ -62,4 +62,18 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	});
 }
 
+batchSchema.methods.finish = function(batch) {
+	this.set(batch);
+	this.endTime = new Date();
+	this.completed = true;
+
+	this.orders.forEach(order => {
+		order.picked = true;
+		order.isNew = false;
+		order.save();
+	});
+
+	return this.save();
+}
+
 module.exports = mongoose.model('Batch', batchSchema);

@@ -22,23 +22,31 @@ var orderSchema = new mongoose.Schema({
 	}],
 	name : String,
 	orderId : String,
-	imported : Boolean,
 	requestId : Number,
 	message : String,
-	completed: {
-		type: Boolean,
-		default: false
-	},
 	timecode: Number,
-	retry: Boolean,
-	canadian: Boolean,
-	manual: Boolean,
 	orderValue: Number,
-	picked: {
+	orderDate: Date,
+	manual: Boolean,
+	retry: Boolean, // the order is being imported again
+	canadian: Boolean, // the order is canadian
+	imported : Boolean, // the order has been imported as a sales order in quickbooks
+	completed: { // status (pretty sure this is deprecated)
 		type: Boolean,
 		default: false
 	},
-	orderDate: Date
+	picked: { // the order has been picked
+		type: Boolean,
+		default: false
+	},
+	invoiced: { // the order has been invoiced in quickbooks
+		type: Boolean,
+		default: false
+	},
+	toPrint: {
+		type: Boolean,
+		default: true
+	}
 }, {
 	usePushEach: true
 });
