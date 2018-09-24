@@ -656,6 +656,7 @@
  				items.forEach(item => {
  					helpers.saveItem(item, qbws, false, canadian);
  				});
+ 				console.log('Waiting for Web Connector.');
  			});
  		});
 

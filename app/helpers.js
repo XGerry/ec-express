@@ -1311,8 +1311,6 @@ function saveItem(item, qbws, adjustInventory, canadian) {
       });
     }
   });
-
-  console.log('Waiting for Web Connector.');
 }
 
 function findInQuickbooks(skus, qbws) {
