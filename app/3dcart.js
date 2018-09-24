@@ -521,12 +521,16 @@ function createOrderInDB(order) {
     if (dbOrder) {
       if (dbOrder.imported == false && dbOrder.picked == false && dbOrder.batch == null) { // can still update the order
         return dbOrder.updateFrom3DCart(order);
+      } else {
+        dbOrder.timecode = helpers.getTimeCode();
+        return dbOrder.save();
       }
     } else {
       var newOrder = new Order();
       newOrder.orderId = orderId;
       newOrder.imported = false;
       newOrder.retry = false;
+      newOrder.timecode = helpers.getTimeCode();
       return newOrder.updateFrom3DCart(order);
     }
   });
