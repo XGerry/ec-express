@@ -19,7 +19,7 @@ var qbws,
     password = 'password',
     // Change companyFile to an empty string to use the company file
     //     currently open in Quickbooks
-    companyFile = ''; //'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\ECCrafts-2018.QBW',
+    companyFile = 'C:\\Users\\Public\\Documents\\Intuit\\QuickBooks\\Company Files\\Retail StoreB..QBW',
     req = [],
     orders = [],
     finalCallbacks = [];
