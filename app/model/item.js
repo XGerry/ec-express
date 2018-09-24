@@ -198,7 +198,7 @@ itemSchema.methods.updateAdvancedOptionFields = function(parentItem, optionItem,
 
 itemSchema.methods.saveItem = function(item) {
 	this.set(item);
-	this.save();
+	return this.save();
 }
 
 itemSchema.methods.updateFromQuickbooks = function(qbItem) {
