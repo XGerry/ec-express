@@ -30,6 +30,7 @@ var orderSchema = new mongoose.Schema({
 	manual: Boolean,
 	retry: Boolean, // the order is being imported again
 	canadian: Boolean, // the order is canadian
+	amazon: Boolean,
 	imported : Boolean, // the order has been imported as a sales order in quickbooks
 	completed: { // status (pretty sure this is deprecated)
 		type: Boolean,
@@ -55,6 +56,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
 	this.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
   this.cartOrder = cartOrder;
   this.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
+  this.amazon = cartOrder.InvoiceNumberPrefix == 'AZ-';
   this.orderDate = new Date(cartOrder.OrderDate);
   this.markModified('cartOrder');
   this.orderValue = cartOrder.OrderAmount;

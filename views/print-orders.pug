@@ -24,10 +24,16 @@ html
 						h1 All Orders
 						p.lead Select and order to see it in more detail.
 						button.btn-outline-primary.btn(type="button")#printAllButton Print All New Orders
-						button.btn-outline-success.btn.ml-2(type="button")#createBatchButton Create Batch
+					.row
+						.col-12.text-center
+							select.form-control.form-control-lg#batchType(style="width: 200px; display: inline-block;")
+								option(value="us") US
+								option(value="ca") CA
+								option(value="az") Amazon
+							button.btn-outline-success.btn.btn-lg.ml-2.mb-2(type="button")#createBatchButton Create Batch
 
 				.container
-					.row
+					.row.pt-3
 						.col-lg-12
 							table.table-hover.table
 								thead

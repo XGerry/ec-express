@@ -24,7 +24,7 @@ var batchSchema = new mongoose.Schema({
 	}
 });
 
-batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus) {
+batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus, batchType) {
 	var newBatch = new this();
 	newBatch.startTime = new Date();
 
@@ -46,7 +46,18 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 		}
 	}
 
-	return Order.find({picked: false, batch: {$exists:false}}).sort('orderDate').then(orders => {
+	var query = {picked: false, batch: {$exists:false}};
+
+	if (batchType == 'ca') {
+		query.canadian = true;
+	} else if (batchType == 'us') {
+		query.canadian = false;
+		query.amazon = false;
+	} else if (batchType == 'az') {
+		query.amazon = true;
+	}
+
+	return Order.find(query).sort('orderDate').then(orders => {
 		console.log('Found ' + orders.length + ' unpicked orders');
 		// Add the first order to the batch to start it off
 		newBatch.orders.push(orders[0]._id);

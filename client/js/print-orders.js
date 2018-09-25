@@ -14,7 +14,8 @@ $(document).ready(e => {
 	});
 
 	$('#createBatchButton').click(e => {
-		socket.emit('getAutoBatch', batch => {
+		var batchType = $('#batchType').val();
+		socket.emit('getAutoBatch', batchType, batch => {
 			window.location = '/batch-sheet?id='+batch._id;
 		});
 	});

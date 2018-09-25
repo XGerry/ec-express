@@ -690,8 +690,8 @@
  			});
  		});
 
- 		socket.on('getAutoBatch', (cb) => {
- 			Batch.createAutoBatch(100, 20).then(batch => {
+ 		socket.on('getAutoBatch', (batchType, cb) => {
+ 			Batch.createAutoBatch(200, 20, batchType).then(batch => {
  				cb(batch);
  			});
  		});
