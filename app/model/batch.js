@@ -57,18 +57,21 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 		query.amazon = true;
 	}
 
+	console.log(query);
 	return Order.find(query).sort('orderDate').then(orders => {
 		console.log('Found ' + orders.length + ' unpicked orders');
-		// Add the first order to the batch to start it off
-		newBatch.orders.push(orders[0]._id);
-		orders[0].batch = newBatch._id;
-		orders[0].save();
-		newBatch.numberOfSkus = orders[0].items.length;
-		newBatch.numberOfItems = orders[0].items.reduce((total, item) => {
-			return total + item.quantity;
-		}, 0);
-		orders.forEach(o => addOrderToBatch(o));
-		return newBatch.save();
+		if (orders.length > 0) {
+			// Add the first order to the batch to start it off
+			newBatch.orders.push(orders[0]._id);
+			orders[0].batch = newBatch._id;
+			orders[0].save();
+			newBatch.numberOfSkus = orders[0].items.length;
+			newBatch.numberOfItems = orders[0].items.reduce((total, item) => {
+				return total + item.quantity;
+			}, 0);
+			orders.forEach(o => addOrderToBatch(o));
+			return newBatch.save();
+		}
 	});
 }
 
