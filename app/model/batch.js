@@ -54,7 +54,9 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 		query.canadian = false;
 		query.amazon = false;
 	} else if (batchType == 'az') {
-		query.amazon = true;
+		query.$or = {
+			[{amazon: false}, {amazon: {$exists: false}}]
+		};
 	}
 
 	console.log(query);
