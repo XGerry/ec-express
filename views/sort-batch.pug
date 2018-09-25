@@ -1,5 +1,5 @@
 mixin orderSummaryTableRow(order, index)
-	tr(class=order._id + '-row')
+	tr(class=order._id + '-row').sortTableRow
 		td=index+1
 		td=order.orderId
 		td=order.name
@@ -10,11 +10,12 @@ mixin orderSummaryTableRow(order, index)
 			input(type="checkbox", style="transform: scale(2);margin: 0;", id=order._id+'-print', checked=order.toPrint)
 
 mixin modalOrderTableRow(order, index)
-	tr(class=order._id + '-row')
-		td=index+1
-		td=order.orderId
-		td=order.items.reduce((total, item) => total + item.quantity, 0)
-		td(class=order._id + '-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+	tr(class=order._id + '-row').sortTableRow
+		td.text-center
+			h5=index+1
+		td.text-center=order.orderId
+		td.text-center=order.items.reduce((total, item) => total + item.quantity, 0)
+		td.text-center(class=order._id + '-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
 
 mixin itemRow(item)
 	tr(onclick="noBarcodeSort(event, '"+item.item._id+"')", id=item._id+"-row")
@@ -108,29 +109,24 @@ html
 						button.close(type="button", data-dismiss="modal", aria-label="Close")
 							span(aria-hidden="true") &times;
 					.modal-body
-						.row.text-center
-							.col-4 Box Number
-							.col-4 Order Number
-							.col-4 Quantity
-						.row.text-center.pt-2
-							.col-4
-								h5#boxNumber
-							.col-4
-								h5#orderId
-							.col-4
-								input.form-control.form-control-lg(type="number")#sortModalQuantity
-						.row.pt-2
+						.row
 							.col-12.text-center
 								img#modalImage(width="auto" style="max-height:300px;")
+						.row.pt-2.text-center
+							.col-12
+								h6 Quantity
+						.row.justify-content-center
+							.col-4.text-center
+								input.form-control.form-control-lg(type="number")#sortModalQuantity
 						.row.pt-2
 							.col-12
 								table.table.table-sm
 									thead
 										tr
-											th Box
-											th Order
-											th Total Items
-											th Items Picked
+											th.text-center Box
+											th.text-center Order
+											th.text-center Total Items
+											th.text-center Items Picked
 									tbody
 										each order, index in batch.orders
 											+modalOrderTableRow(order, index)
@@ -149,13 +145,7 @@ html
 				refreshPickedQuantities();
 
 				$('#confirmSortingButton').click(e => {
-					$('#sortModal').modal('hide');
-					var pickedQuantity = parseInt($('#sortModalQuantity').val());
-					theItem.pickedQuantity += pickedQuantity;
-					refreshPickedQuantities();
-					console.log(theItem._id);
-					$('#'+theItem._id+'-row').remove();
-					$('#item-barcode').select();
+					confirmSorting();
 				});
 
 				$('#cancelSortingButton').click(e => {
@@ -174,6 +164,17 @@ html
 							console.log(response);
 							window.location='/packing-slip?id='+batch._id;
 						});
+					}
+				});
+
+				$('#sortModal').on('shown.bs.modal', e => {
+					$('#sortModalQuantity').select();
+				});
+
+				$('#sortModalQuantity').on('keypress', e => {
+					var key = e.which || e.keyCode;
+					if (key == 13) { // enter key
+						confirmSorting();
 					}
 				});
 
@@ -216,14 +217,18 @@ html
 				}
 
 				if (foundMatch) {
-
 					return match;
 				} else {
 					throw 'No orders in this batch need that item. You have possibly picked the wrong item, or the wrong quantity.'; 
 				}
 			}
 
-			function resetSorting() {
+			function confirmSorting() {
+				$('#sortModal').modal('hide');
+				var pickedQuantity = parseInt($('#sortModalQuantity').val());
+				theItem.pickedQuantity += pickedQuantity;
+				refreshPickedQuantities();
+				$('#'+theItem._id+'-row').remove();
 				$('#item-barcode').select();
 			}
 
@@ -273,12 +278,9 @@ html
 			function showSortModal(match) {
 				$('#sortModal').modal();
 				$('#modalItemSku').text(match.item.item.sku);
-				$('#boxNumber').text(match.box);
-				$('#orderId').text(match.orderId);
 				$('.'+match._id+'-row').each((i, obj) => {
 					$(obj).addClass('bg-primary text-white');
 				});
 				$('#modalImage').prop('src', 'https://www.ecstasycrafts.com/'+match.item.item.imageURL);
 				$('#sortModalQuantity').val(match.item.quantity);
-				$('#sortModalQuantity').select();
 			}

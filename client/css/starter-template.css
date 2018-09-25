@@ -310,3 +310,7 @@ li a.active {
 	max-height: 500px;
 	overflow-y: scroll;
 }
+
+.sortTableRow {
+	transition: background 0.5s;
+}
