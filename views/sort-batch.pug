@@ -1,22 +1,27 @@
 mixin orderSummaryTableRow(order, index)
-	tr(id=order._id+'-row')
+	tr(class=order._id + '-row')
 		td=index+1
 		td=order.orderId
 		td=order.name
 		td=order.items.length
 		td=order.items.reduce((total, item) => total + item.quantity, 0)
-		td(id=order._id+'-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+		td(class=order._id + '-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
 		th
 			input(type="checkbox", style="transform: scale(2);margin: 0;", id=order._id+'-print', checked=order.toPrint)
 
+mixin modalOrderTableRow(order, index)
+	tr(class=order._id + '-row')
+		td=index+1
+		td=order.orderId
+		td=order.items.reduce((total, item) => total + item.quantity, 0)
+		td(class=order._id + '-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+
 mixin itemRow(item)
-	tr(onclick="noBarcodeSort(event, '"+item.item._id+"')", id=item.item._id+"-row")
+	tr(onclick="noBarcodeSort(event, '"+item.item._id+"')", id=item._id+"-row")
 		td=item.item.sku
 		td
 			img(src="https://www.ecstasycrafts.com/"+item.item.imageURL, width="100px", height="auto")
 		td=item.quantity
-		td
-			input.form-control(type="number", value=item.quantity, id=item.item._id+'-picked')
 
 doctype html
 include mixins
@@ -52,14 +57,6 @@ html
 						.col-8
 							input.form-control.form-control-lg(type="text" placeholder="Scan the barcode of your item here")#item-barcode
 					.row.pt-5
-						.col
-							h2#boxNumber Box Number
-						.col
-							h2#orderId Order ID
-						.col
-							button.btn.btn-outline-success.btn-lg.disabled#doneSortingButton Done
-
-					.row.pt-5
 						.col-12
 							table.table-sm.table
 								thead
@@ -75,21 +72,19 @@ html
 									each order, index in batch.orders
 										+orderSummaryTableRow(order, index)
 					.row.pt-2
-						h2 Items without a barcode
+						h2 Items in Batch
 						table.table.table-hover
 							thead
 								tr
 									th SKU
 									th Image
 									th Ordered
-									th Picked
 							-
 								var allItems = batch.orders.reduce((arr, order) => {
 									return arr.concat(order.items);
 								}, []);
-								allItems.filter(item => item.barcode == undefined || item.barcode == '');
 								allItems.sort((a, b) => {
-									if (a.sku < b.sku)
+									if (a.item.sku < b.item.sku)
 										return -1;
 									else
 										return 1;
@@ -103,19 +98,70 @@ html
 					.row.pt-5
 						.col-12.text-center
 							button.btn.btn-success.btn-lg#finishedSortingButton Finished Sorting
-
 		+footer
+
+		.modal(role="dialog" tabindex="-1").fade#sortModal
+			.modal-dialog(role="document")
+				.modal-content
+					.modal-header
+						h5.modal-title#modalItemSku
+						button.close(type="button", data-dismiss="modal", aria-label="Close")
+							span(aria-hidden="true") &times;
+					.modal-body
+						.row.text-center
+							.col-4 Box Number
+							.col-4 Order Number
+							.col-4 Quantity
+						.row.text-center.pt-2
+							.col-4
+								h5#boxNumber
+							.col-4
+								h5#orderId
+							.col-4
+								input.form-control.form-control-lg(type="number")#sortModalQuantity
+						.row.pt-2
+							.col-12.text-center
+								img#modalImage(width="auto" style="max-height:300px;")
+						.row.pt-2
+							.col-12
+								table.table.table-sm
+									thead
+										tr
+											th Box
+											th Order
+											th Total Items
+											th Items Picked
+									tbody
+										each order, index in batch.orders
+											+modalOrderTableRow(order, index)
+
+					.modal-footer
+						button.btn.btn-primary(type="button")#confirmSortingButton Confirm
+						button.btn.btn-secondary(data-dismiss="modal")#cancelSortingButton Cancel
+
 		script.
 			var socket = io();
 			var batch = !{JSON.stringify(batch)};
-			var rowToRemove;
+			var theItem;
 			$(document).ready(e => {
 				console.log(batch);
 				$('#item-barcode').select();
+				refreshPickedQuantities();
 
-				$('#doneSortingButton').click(e => {
+				$('#confirmSortingButton').click(e => {
+					$('#sortModal').modal('hide');
+					var pickedQuantity = parseInt($('#sortModalQuantity').val());
+					theItem.pickedQuantity += pickedQuantity;
 					refreshPickedQuantities();
-					resetSorting();
+					console.log(theItem._id);
+					$('#'+theItem._id+'-row').remove();
+					$('#item-barcode').select();
+				});
+
+				$('#cancelSortingButton').click(e => {
+					$('#sortModal').modal('hide');
+					refreshPickedQuantities();
+					$('#item-barcode').select();
 				});
 
 				$('#finishedSortingButton').click(e => {
@@ -124,7 +170,6 @@ html
 						batch.orders.forEach(order => {
 							order.toPrint = $('#'+order._id+'-print').is(':checked');
 						});
-						console.log(batch);
 						socket.emit('finishBatch', batch, response => {
 							console.log(response);
 							window.location='/packing-slip?id='+batch._id;
@@ -140,14 +185,9 @@ html
 							// find the item and display the order it belongs to
 							try {
 								var match = sortItem(barcode);
-								$('#boxNumber').text(match.box);
-								$('#orderId').text(match.orderId);
-								$('#doneSortingButton').removeClass('disabled');
-								$('#item-barcode').addClass('diabled');
-								$('#'+match._id+'-row').addClass('bg-primary text-white');
+								showSortModal(match);
 							} catch (e) {
 								alert(e);
-								resetSorting();
 							}
 						}
 					}
@@ -161,10 +201,11 @@ html
 					for (let item of order.items) {
 						if (item.item.barcode == barcode) {
 							if (item.pickedQuantity < item.quantity) {
-								item.pickedQuantity++;
 								match.orderId = order.orderId;
 								match._id = order._id;
 								match.box = index + 1;
+								match.item = item;
+								theItem = item;
 								foundMatch = true;
 								break;
 							} else {
@@ -175,6 +216,7 @@ html
 				}
 
 				if (foundMatch) {
+
 					return match;
 				} else {
 					throw 'No orders in this batch need that item. You have possibly picked the wrong item, or the wrong quantity.'; 
@@ -183,38 +225,29 @@ html
 
 			function resetSorting() {
 				$('#item-barcode').select();
-				$('#boxNumber').text('Box Number');
-				$('#orderId').text('Order ID');
-				if (rowToRemove) {
-					$('#'+rowToRemove+'-row').remove();
-					rowToRemove = undefined;
-				}
 			}
 
 			function refreshPickedQuantities() {
 				batch.orders.forEach(order => {
 					var totalPicked = order.items.reduce((total, item) => total + item.pickedQuantity, 0);
 					var totalQuantity = order.items.reduce((total, item) => total + item.quantity, 0);
-					$('#'+order._id+'-picked').text(totalPicked);
-					$('#'+order._id+'-row').removeClass('bg-primary text-white');
+					$('.'+order._id+'-picked').each((i, obj) => {
+						$(obj).text(totalPicked);
+					});
+					$('.'+order._id+'-row').each((i, obj) => {
+						$(obj).removeClass('bg-primary text-white');
+					});
 
 					if (totalPicked == totalQuantity) {
-						$('#'+order._id+'-row').addClass('bg-success text-white');
+						$('.'+order._id+'-row').each((i, obj) => {
+							$(obj).addClass('bg-success text-white');
+						});
 					}
 				});
 			}
 
 			function noBarcodeSort(e, id) {
-				if (e.target.id == id+'-picked') {
-					// we're editing the picked quantity, so do nothing
-					return;
-				}
 				var match = {};
-				if (rowToRemove) {
-					alert('Please click Done to verify that you placed the item in the box!');
-					return;
-				}
-
 				batch.orders.forEach((order, index) => {
 					order.items.forEach(item => {
 						if (item.item._id == id) {
@@ -223,7 +256,8 @@ html
 								match.orderId = order.orderId;
 								match._id = order._id;
 								match.box = index + 1;
-								item.pickedQuantity += parseInt($('#'+id+'-picked').val());
+								match.item = item;
+								theItem = item;
 							}
 						}
 					});
@@ -233,11 +267,18 @@ html
 					alert('Could not find the order that item belongs to.');
 					return;
 				}
+				showSortModal(match);
+			}
 
+			function showSortModal(match) {
+				$('#sortModal').modal();
+				$('#modalItemSku').text(match.item.item.sku);
 				$('#boxNumber').text(match.box);
 				$('#orderId').text(match.orderId);
-				$('#doneSortingButton').removeClass('disabled');
-				$('#item-barcode').addClass('diabled');
-				$('#'+match._id+'-row').addClass('bg-primary text-white');
-				rowToRemove = id;
+				$('.'+match._id+'-row').each((i, obj) => {
+					$(obj).addClass('bg-primary text-white');
+				});
+				$('#modalImage').prop('src', 'https://www.ecstasycrafts.com/'+match.item.item.imageURL);
+				$('#sortModalQuantity').val(match.item.quantity);
+				$('#sortModalQuantity').select();
 			}
