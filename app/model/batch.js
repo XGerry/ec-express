@@ -62,11 +62,12 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 		console.log('Found ' + orders.length + ' unpicked orders');
 		if (orders.length > 0) {
 			// Add the first order to the batch to start it off
-			newBatch.orders.push(orders[0]._id);
-			orders[0].batch = newBatch._id;
-			orders[0].save();
-			newBatch.numberOfSkus = orders[0].items.length;
-			newBatch.numberOfItems = orders[0].items.reduce((total, item) => {
+			var firstOrder = orders.shift();
+			newBatch.orders.push(firstOrder._id);
+			firstOrder.batch = newBatch._id;
+			firstOrder.save();
+			newBatch.numberOfSkus = firstOrder.items.length;
+			newBatch.numberOfItems = firstOrder.items.reduce((total, item) => {
 				return total + item.quantity;
 			}, 0);
 			orders.forEach(o => addOrderToBatch(o));
