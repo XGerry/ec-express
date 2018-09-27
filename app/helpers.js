@@ -1061,7 +1061,7 @@ function createSalesOrdersRequests(qbws) {
 }
 
 function updateSalesOrder(order, qbws) {
-  var salesOrderRq = getSalesOrdersRq([order], false);
+  var salesOrderRq = getSalesOrdersRq([order], true);
   qbws.addRequest(salesOrderRq, xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
       console.log(responseObject);
