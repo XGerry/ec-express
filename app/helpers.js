@@ -746,7 +746,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                 // assume that it worked
                 Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
                   invoicedOrder.invoiced = true;
-                  invoicedOrder.save();
+                  invoicedOrder.updateOrderStatus(9); // Awaiting Payment
                 });
               });
             }

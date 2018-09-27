@@ -42,11 +42,13 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 			newBatch.numberOfItems = possibleTotalItems;
 			newBatch.numberOfSkus = possibleTotalSkus;
 			order.batch = newBatch._id;
-			order.save();
+			order.save().then(o => {
+				o.updateOrderStatus(2); // Processing
+			});
 		}
 	}
 
-	var query = {picked: false, batch: {$exists:false}};
+	var query = {picked: false, batch: null};
 
 	if (batchType == 'ca') {
 		query.canadian = true;
@@ -57,7 +59,6 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 		query.amazon = true;
 	}
 
-	console.log(query);
 	return Order.find(query).sort('orderDate').then(orders => {
 		console.log('Found ' + orders.length + ' unpicked orders');
 		if (orders.length > 0) {
@@ -65,15 +66,15 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 			var firstOrder = orders.shift();
 			newBatch.orders.push(firstOrder._id);
 			firstOrder.batch = newBatch._id;
-			firstOrder.save();
+			firstOrder.updateOrderStatus(2);
 			newBatch.numberOfSkus = firstOrder.items.length;
 			newBatch.numberOfItems = firstOrder.items.reduce((total, item) => {
 				return total + item.quantity;
 			}, 0);
 			orders.forEach(o => addOrderToBatch(o));
 			return newBatch.save();
-		
-}	});
+		}	
+	});
 }
 
 batchSchema.methods.finish = function(batch) {

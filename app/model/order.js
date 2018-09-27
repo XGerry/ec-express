@@ -3,6 +3,7 @@ var builder = require('xmlbuilder');
 var request = require('request');
 var rp = require('request-promise-native');
 var Item = require('./item');
+var helpers = require('../helpers');
 var moment = require('moment');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
@@ -89,6 +90,22 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   return Promise.all(promises).then(() => {
   	return this.save();
   });
+}
+
+orderSchema.methods.updateOrderStatus = function(status) {
+	this.cartOrder.OrderStatusID = status;
+	this.markModified('cartOrder');
+
+	var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
+	options.body = {
+		OrderStatusID: status
+	};
+
+	return this.save().then(o => {
+		return rp(options).then(response => {
+			return response;
+		});
+	});
 }
 
 orderSchema.methods.updateOrder = function(order) {
