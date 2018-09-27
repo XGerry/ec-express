@@ -325,6 +325,8 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
 				// we have a match, update the quantity and price
 				lineItem.Quantity = item.quantity;
 				lineItem.Rate = item.price;
+				delete lineItem.Invoiced;
+				delete lineItem.Amount;
 				newItem = false;
 				salesOrderItems.push(lineItem);
 			}
