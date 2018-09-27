@@ -1063,6 +1063,7 @@ function createSalesOrdersRequests(qbws) {
 function updateSalesOrder(order, qbws) {
   var salesOrderRq = getSalesOrdersRq([order], false);
   qbws.addRequest(salesOrderRq, responseObject => {
+    console.log(responseObject);
     var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
     if (salesOrderRs == undefined) {
       console.log('Sales order not created yet!');
