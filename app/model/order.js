@@ -327,6 +327,7 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
 				lineItem.Rate = item.price;
 				delete lineItem.Invoiced;
 				delete lineItem.Amount;
+				delete lineItem.IsManuallyClosed;
 				newItem = false;
 				salesOrderItems.push(lineItem);
 			}
