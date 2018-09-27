@@ -1073,7 +1073,7 @@ function updateSalesOrder(order, qbws) {
         if (Array.isArray(salesOrder)) {
           salesOrder = salesOrder[0]; // just do the first one
         }
-        qbws.addRequest(order.modifySalesOrderRq(salesOrderRs));
+        qbws.addRequest(order.modifySalesOrderRq(salesOrder));
       }
     });
   });

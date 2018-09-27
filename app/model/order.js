@@ -334,7 +334,7 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
   		SalesOrderMod: {
   			TxnID: qbOrder.TxnID,
   			EditSequence: qbOrder.EditSequence,
-  			SalesORderLineMod: invoiceAdds
+  			SalesOrderLineMod: invoiceAdds
   		}
   	}
   };
