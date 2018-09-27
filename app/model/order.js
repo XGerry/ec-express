@@ -315,36 +315,36 @@ orderSchema.methods.addSalesOrderRq = function() {
 orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
 	// for now, let's just update the items
   var salesOrderItems = [];
-  if (Array.isArray(qbOrder.SalesOrderLineRet)) {
-  		this.items.forEach(item => {
-  			var newItem = true;
-  			qbOrder.SalesOrderLineRet.forEach(lineItem => {
-  				if (lineItem.ItemRef.FullName == item.item.sku) {
-  					// we have a match, update the quantity and price
-  					lineItem.Quantity = item.quantity;
-  					lineItem.Rate = item.price;
-  					newItem = false;
-  					salesOrderItems.push(lineItem);
-  				}
-  			});
-
-  			if (newItem) {
-  				var lineItem = {
-  					TxnID: -1,
-			  		ItemRef: {
-			        FullName: item.item.sku
-			      },
-			      Quantity: item.quantity,
-			      Rate: item.price,
-			      InventorySiteRef: {
-			        FullName: 'Warehouse'
-			      }
-			  	};
-			  	invoiceAdds.push(lineItem);
-  			}
-  		});
-  	});
+  if (!Array.isArray(qbOrder.SalesOrderLineRet)) {
+  	qbOrder.SalesOrderLineRet = [qbOrder.SalesOrderLineRet];
   }
+	this.items.forEach(item => {
+		var newItem = true;
+		qbOrder.SalesOrderLineRet.forEach(lineItem => {
+			if (lineItem.ItemRef.FullName == item.item.sku) {
+				// we have a match, update the quantity and price
+				lineItem.Quantity = item.quantity;
+				lineItem.Rate = item.price;
+				newItem = false;
+				salesOrderItems.push(lineItem);
+			}
+		});
+
+		if (newItem) {
+			var lineItem = {
+				TxnID: -1,
+	  		ItemRef: {
+	        FullName: item.item.sku
+	      },
+	      Quantity: item.quantity,
+	      Rate: item.price,
+	      InventorySiteRef: {
+	        FullName: 'Warehouse'
+	      }
+	  	};
+	  	salesOrderItems.push(lineItem);
+		}
+  });
 
   var obj = {
   	SalesOrderModRq: {
