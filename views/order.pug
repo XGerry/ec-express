@@ -197,6 +197,15 @@ shtml
 						}, 2000);
 					});
 				});
+
+				$('#updateQuickbooks').click(e => {
+					socket.emit('updateOrderQB', theOrder._id, message => {
+						$('#orderInfo').text(message);
+						setTimeout(() => {
+							$('#orderInfo').text('');
+						}, 2000);
+					});
+				});
 			});
 
 			function showModal(item) {

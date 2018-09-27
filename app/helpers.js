@@ -574,129 +574,6 @@ function querySalesReceiptRq(start, end) {
   return str;
 }
 
-function addSalesOrderRq(order) {
-  console.log('Creating sales order for ' + order.BillingFirstName + ' ' + order.BillingLastName);
-  var invoiceAdds = [];
-  order.OrderItemList.forEach(item => {
-    invoiceAdds.push({
-      ItemRef : {
-        FullName : item.ItemID
-      },
-      Quantity : item.ItemQuantity,
-      Rate : item.ItemUnitPrice,
-      InventorySiteRef: {
-        FullName: 'Warehouse'
-      }
-    });
-  });
-
-  // another place there could be a discount
-  // let's just add all the discounts lumped into one line
-  if (order.OrderDiscount > 0) {
-    invoiceAdds.push({
-      ItemRef : {
-        FullName : "DISC"
-      },
-      Desc : 'All discounts on order',
-      Rate: order.OrderDiscount
-    });
-  }
-
-  // add the shipping cost as a line item
-  invoiceAdds.push({
-    ItemRef : {
-      FullName : "Shipping & Handling"
-    },
-    Rate : order.ShipmentList[0].ShipmentCost
-  });
-
-  // we need to add a surcharge if they are a Canadian customer (only when coming from the US website)
-  if (order.InvoiceNumberPrefix == 'AB-') {
-    var country = order.BillingCountry;
-    if (country === "CA" || country === "Canada") {
-      invoiceAdds.push({
-        ItemRef : {
-          FullName : "Subtotal"
-        }
-      });
-      invoiceAdds.push({
-        ItemRef : {
-          FullName : "Surcharge"
-        },
-        Quantity : 10
-      });
-    }
-  }
-  
-  var shippingMethod = order.ShipmentList[0].ShipmentMethodName.slice(0,15); // max 15 characters
-  shippingMethod = (shippingMethod !== '') ? shippingMethod : 'cheapest way'; // default for now
-
-  var paymentMethod3DCart = order.BillingPaymentMethod;
-  var paymentMethod = 'Online Credit Card';
-  if (paymentMethod3DCart.includes('card is on file')) {
-    paymentMethod = 'On Account';
-  } else if (paymentMethod3DCart.includes('PayPal')) {
-    paymentMethod = 'PayPal';
-  } else if (paymentMethod3DCart.includes('Check or Money Order')) {
-    paymentMethod = 'cheque';
-  } else if (paymentMethod3DCart.includes('On Account')) {
-    paymentMethod = 'On Account';
-  }
-
-  var customerRef = order.BillingLastName + ' ' + order.BillingFirstName;
-  // if (order.BillingCompany && order.BillingCompany != '') { // not doing this yet
-  //   customerRef = order.BillingCompany;
-  // }
-
-  // find the PO number in the comments
-  var commentArray = order.CustomerComments.split('\n');
-  var comments = '';
-  var po = '';
-  commentArray.forEach(comment => {
-    var code = comment.substring(0, 4);
-    if (code == 'PO: ') {
-      po = comment.substring(4);
-    } else {
-      comments += comment;
-    }
-  });
-
-  // An exception for Amazon
-  if (order.BillingFirstName == 'Amazon') {
-    customerRef = 'Amazon';
-  } else if (order.BillingFirstName == 'Amazon.') {
-    customerRef = 'Amazon. ca';
-  }
-
-  var obj = {
-    SalesOrderAddRq : {
-      '@requestID' : order.InvoiceNumberPrefix + order.InvoiceNumber,
-      SalesOrderAdd : {
-        CustomerRef : {
-          FullName : customerRef
-        },
-        TxnDate : order.OrderDate.slice(0,10), // had to remove the T from the DateTime - maybe this is dangerous?
-        RefNumber : order.InvoiceNumberPrefix + order.InvoiceNumber,
-        BillAddress: createBillingAddress(order),
-        ShipAddress : createShippingAddress(order),
-        PONumber: po,
-        TermsRef : {
-          FullName : paymentMethod
-        },
-        ShipMethodRef : {
-          FullName : shippingMethod
-        },
-        Memo : comments + ' - API Import ('+timecode+')',
-        IsToBePrinted : true,
-        SalesOrderLineAdd : invoiceAdds
-      }
-    }
-  };
-  var xmlDoc = getXMLRequest(obj);
-  var str = xmlDoc.end({'pretty' : true});
-  return str;
-}
-
 function addInvoiceRq(order, requestID) {
   console.log('Creating invoice for ' + order.BillingFirstName + ' ' + order.BillingLastName);
 
@@ -1180,6 +1057,22 @@ function createSalesOrdersRequests(qbws) {
         });
       });
     });
+  });
+}
+
+function updateSalesOrder(order, qbws) {
+  var salesOrderRq = getSalesOrdersRq([order], false);
+  qbws.addRequest(salesOrderRq, response => {
+    var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
+    if (salesOrderRs == undefined) {
+      console.log('Sales order not created yet!');
+    } else if (salesOrderRs.SalesOrderRet) {
+      var salesOrder = salesOrderRs.SalesOrderRet;
+      if (Array.isArray(salesOrder)) {
+        salesOrder = salesOrder[0]; // just do the first one
+      }
+      qbws.addRequest(order.modifySalesOrderRq(salesOrderRs));
+    }
   });
 }
 
@@ -1755,8 +1648,8 @@ module.exports = {
   saveDelivery: saveDelivery,
   getDeliveries: getDeliveries,
   removeDelivery: removeDelivery,
-  addSalesOrderRq: addSalesOrderRq,
   createSalesOrdersRequests: createSalesOrdersRequests,
   createInvoiceFromSalesOrder: createInvoiceFromSalesOrder,
-  closeSalesOrders: closeSalesOrders
+  closeSalesOrders: closeSalesOrders,
+  updateSalesOrder: updateSalesOrder
 }

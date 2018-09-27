@@ -714,5 +714,16 @@
  				});
  			});
  		});
+
+ 		socket.on('updateOrderQB', (id, cb) => {
+ 			Order.findOne({_id: id}).populate('items.item').then(order => {
+ 				if (order) {
+ 					helpers.updateSalesOrder(order, qbws);
+ 					cb('Sent to QB. Wait for the Web Connector to run.')
+ 				} else {
+ 					cb('Order not found.');
+ 				}
+ 			});
+ 		});
  	});
  }

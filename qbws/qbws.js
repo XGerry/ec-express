@@ -204,11 +204,11 @@ function addFinalCallback(fnc) {
 function generateOrderRequest() {
   var promises = [];
   var requestNumber = 1;
-  return Order.find({imported: false}).then(orders => {
+  return Order.find({imported: false}).populate('items.item').then(orders => {
     orders.forEach(order => {
       addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
       var invoiceRqId = order.orderId;
-      var xmlInvoiceRequest = helpers.addSalesOrderRq(order.cartOrder);
+      var xmlInvoiceRequest = order.addSalesOrderRq();
       addRequest(xmlInvoiceRequest, checkError, true); // make sure this only happens once
       order.requestID = invoiceRqId;
       promises.push(order.save());
