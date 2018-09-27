@@ -1062,18 +1062,20 @@ function createSalesOrdersRequests(qbws) {
 
 function updateSalesOrder(order, qbws) {
   var salesOrderRq = getSalesOrdersRq([order], false);
-  qbws.addRequest(salesOrderRq, responseObject => {
-    console.log(responseObject);
-    var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
-    if (salesOrderRs == undefined) {
-      console.log('Sales order not created yet!');
-    } else if (salesOrderRs.SalesOrderRet) {
-      var salesOrder = salesOrderRs.SalesOrderRet;
-      if (Array.isArray(salesOrder)) {
-        salesOrder = salesOrder[0]; // just do the first one
+  qbws.addRequest(salesOrderRq, xmlResponse => {
+    return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+      console.log(responseObject);
+      var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
+      if (salesOrderRs == undefined) {
+        console.log('Sales order not created yet!');
+      } else if (salesOrderRs.SalesOrderRet) {
+        var salesOrder = salesOrderRs.SalesOrderRet;
+        if (Array.isArray(salesOrder)) {
+          salesOrder = salesOrder[0]; // just do the first one
+        }
+        qbws.addRequest(order.modifySalesOrderRq(salesOrderRs));
       }
-      qbws.addRequest(order.modifySalesOrderRq(salesOrderRs));
-    }
+    });
   });
 }
 
