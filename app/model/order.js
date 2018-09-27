@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var request = require('request');
+var rp = require('request-promise-native');
 var Item = require('./item');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
@@ -18,9 +20,11 @@ var orderSchema = new mongoose.Schema({
 		pickedQuantity: {
 			type: Number,
 			default: 0
-		}
+		},
+		price: Number
 	}],
-	name : String,
+	name: String,
+	email: String,
 	orderId : String,
 	requestId : Number,
 	message : String,
@@ -60,6 +64,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   this.orderDate = new Date(cartOrder.OrderDate);
   this.markModified('cartOrder');
   this.orderValue = cartOrder.OrderAmount;
+  this.email = cartOrder.BillingEmail;
   var promises = [];
   this.items = [];
   cartOrder.OrderItemList.forEach(item => {
@@ -69,7 +74,8 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
 		  	this.items.push({
 		  		item: dbItem._id,
 		  		quantity: item.ItemQuantity,
-		  		pickedQuantity: 0
+		  		pickedQuantity: 0,
+		  		price: item.ItemUnitPrice
 		  	});
   		} else {
   			console.log('item not found');
@@ -81,6 +87,27 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   return Promise.all(promises).then(() => {
   	return this.save();
   });
+}
+
+orderSchema.methods.updateOrder = function(order) {
+	this.set(order);
+	var oldOrder = this.cartOrder;
+	// replace the items
+	oldOrder.OrderItemList = [];
+
+	this.items.forEach(item => {
+		var orderItem = {
+	    ItemID: item.item.sku,
+	    ItemQuantity: item.quantity,
+	    ItemUnitPrice: item.price,
+	    ItemDescription: item.item.name
+	  };
+	  oldOrder.OrderItemList.push(orderItem);
+	});
+
+	delete oldOrder.PaymentTokenID; // 3D Cart Doesn't like it when you send this
+	this.markModified('cartOrder');
+	return this.save();
 }
 
 function setItemFieldsForAmazon(order) {

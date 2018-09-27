@@ -18,7 +18,7 @@ html
 			}
 
 		#wrapper
-			+sidebarNav("print-orders")
+			+sidebarNav
 			
 			#page-content
 				+menuToggle
@@ -26,7 +26,7 @@ html
 					.starter-template
 						h1 All Batches
 						p.lead Select a batch to view it.
-						button.btn-outline-success.btn.ml-2(type="button")#createBatchButton Create Batch
+						a.btn-outline-success.btn.ml-2(href="/print-orders") Create Batch
 
 				.container
 					.form-row

@@ -150,8 +150,8 @@ module.exports = function(app, passport) {
     });
   });
 
-  app.get('/orders', function(req, res) {
-    res.render('orders');
+  app.get('/order-sync', function(req, res) {
+    res.render('order-sync');
   });
 
   app.get('/database', function(req, res) {
@@ -404,6 +404,26 @@ module.exports = function(app, passport) {
       res.render('batches', {
         batches: batches
       });
+    });
+  });
+
+  app.get('/orders', (req, res) => {
+    Order.find({}).then(orders => {
+      res.render('orders', {
+        orders: orders
+      });
+    });
+  });
+
+  app.get('/order', (req, res) => {
+    Order.findOne({_id: req.query.id}).populate('items.item').then(order => {
+      if (order) {
+        res.render('order', {
+          order: order
+        });
+      } else {
+        res.redirect('/orders');
+      }
     });
   });
 

@@ -1,0 +1,223 @@
+mixin itemRow(item, order)
+	tr(onclick="editItem('"+item._id+"')")
+		td=item.item.sku
+		td=item.item.name
+		td=item.quantity
+		td=item.pickedQuantity
+		td='$' + item.price.toFixed(2)
+		td='$' + (item.price * item.quantity).toFixed(2)
+
+doctype html
+include mixins
+shtml
+	include includes/head
+		title=order.orderId
+	body
+		#wrapper
+			+sidebarNav("orders")
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2=order.orderId
+					//form.form-inline
+						select.form-control#orderStatus
+							option(value=1) New
+							option(value=2) Processing
+							option(value=3) Backorder
+							option(value=6) Pre-order
+							option(value=9) Awaiting Payment
+							option(value=13) Awaiting Shipment
+							option(value=4) Shipped
+					span.navbar-text#orderInfo.ml-2
+					ul.navbar-nav.ml-auto
+						li.dropdown.nav-item
+							button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
+							//a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							//ul.dropdown-menu.dropdown-menu-right
+								a(href="/new-order").dropdown-item New Order
+								a(href="#").dropdown-item#clearItemsButton Clear Items
+								.dropdown-divider
+								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+						.btn-group
+							button.btn.btn-success(type="button")#saveOrderButton Save
+							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
+							.dropdown-menu.dropdown-menu-right
+								a.dropdown-item(href="#")#updateQuickbooks Update in QB
+
+				.container.pt-3
+					.row
+						.col
+							h4 Information
+							table.table.table-sm#customerTable
+								thead
+									tr
+										th Name
+										th Email
+										th Phone
+										th Value
+										th Picked
+										th Invoiced
+										th Batch
+								tbody#customerTableBody
+									tr
+										td=order.name
+										td=order.cartOrder.BillingEmail
+										td=order.cartOrder.BillingPhoneNumber
+										td='$'+order.orderValue.toFixed(2)
+										td
+											input(type="checkbox" checked=order.picked style="transform: scale(2);")#pickedCheckbox
+										td
+											input(type="checkbox" checked=order.invoiced style="transform: scale(2);")#invoicedCheckbox
+										td
+											if (order.batch)
+												a(href="batch-sheet?id="+order.batch) View
+											else
+												| None
+
+
+					if (order.cartOrder.CustomerComments)
+						.row
+							.col
+								h5 Comments
+								p=order.cartOrder.CustomerComments
+					.row.pt-2
+						.col
+							h4 Order
+							table.table.table-striped.table-hover#orderTable
+								thead
+									tr
+										th SKU
+										th Name
+										th Ordered
+										th Picked
+										th Price
+										th Line Total
+								tbody#orderTableBody
+									each item in order.items
+										+itemRow(item, order.cartOrder)
+		
+		#addItemModal.modal(tabindex="-1" role="dialog").fade
+			.modal-dialog(role="document")
+				.modal-content
+					.modal-header
+						h5 Add or Edit Item
+						button.close(type="button", data-dismiss="modal", aria-label="Close")
+							span(aria-hidden="true") &times;
+					.modal-body
+						.row
+							.col
+								label SKU
+								input.form-control(type="text")#itemSKU
+							.col
+								label Quantity
+								input.form-control(type="number")#itemQuantity
+							.col
+								label Price
+								.input-group
+									.input-group-prepend
+										.input-group-text $
+									input.form-control(type="number")#itemPrice
+					.modal-footer
+						button.btn-primary.btn(type="button")#saveItemButton Save
+						button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
+
+		+footer
+		script.
+			var socket = io();
+			var theOrder = !{JSON.stringify(order)};
+			var theItem;
+			var addingItem = false;
+			console.log(theOrder);
+			$(document).ready(e => {
+				$('#addItemButton').click(e => {
+					addingItem = true;
+					var newItem = {
+						item: {
+							sku: ''
+						},
+						quantity: 1,
+						price: 0
+					}
+					showModal(newItem);
+				});
+
+				$('#saveItemButton').click(e => {
+					theItem.quantity = $('#itemQuantity').val();
+					theItem.price = $('#itemPrice').val();
+					if (addingItem) {
+						theOrder.items.push(theItem);
+					}
+					recalculateTotal();
+					socket.emit('updateOrder', theOrder, response => {
+						location.reload();
+					});
+				});
+
+				$('#itemSKU').change(e => {
+					socket.emit('searchSKU', $('#itemSKU').val(), items => {
+						if (items.length == 0) { // item was not found
+							alert('The SKU was not found in the database. Please try again.')
+							$('#itemSKU').select();
+							return;
+						}
+						theItem.item = items[0];
+						if (theOrder.canadian) {
+							theItem.price = items[0].canPrice;
+						} else {
+							theItem.price = items[0].usPrice;
+						}
+						$('#itemPrice').val(theItem.price.toFixed(2));
+					});
+				});
+
+				$('#addItemModal').on('shown.bs.modal', e => {
+					$('#itemSKU').select();
+				});
+
+				$('#addItemModal').on('hidden.bs.modal', e => {
+					addingItem = false;
+				});
+
+				$('#pickedCheckbox').on('change', e => {
+					theOrder.picked = $('#pickedCheckbox').is(':checked');
+				});
+
+				$('#invoicedCheckbox').on('change', e => {
+					theOrder.invoiced = $('#invoicedCheckbox').is(':checked');
+				});
+
+				$('#saveOrderButton').click(e => {
+					recalculateTotal();
+					socket.emit('updateOrder', theOrder, response => {
+						console.log(response);
+						$('#orderInfo').text('Saved Successfully!');
+						setTimeout(() => {
+							$('#orderInfo').text('');
+						}, 2000);
+					});
+				});
+			});
+
+			function showModal(item) {
+				theItem = item;
+				$('#addItemModal').modal();
+				$('#itemSKU').val(item.item.sku);
+				$('#itemQuantity').val(item.quantity);
+				$('#itemPrice').val(item.price.toFixed(2));
+			}
+
+			function editItem(id) {
+				for (item of theOrder.items) {
+					if (item._id == id)
+						showModal(item);
+				}
+			}
+
+			function recalculateTotal() {
+				theOrder.orderValue = 0;
+				theOrder.items.forEach(item => {
+					theOrder.orderValue += (item.quantity * item.price);
+				});
+			}
+

@@ -72,8 +72,8 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 			}, 0);
 			orders.forEach(o => addOrderToBatch(o));
 			return newBatch.save();
-		}
-	});
+		
+}	});
 }
 
 batchSchema.methods.finish = function(batch) {

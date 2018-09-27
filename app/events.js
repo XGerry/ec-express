@@ -11,6 +11,7 @@
  var CustomOrder = require('./model/customOrder');
  var Item = require('./model/item');
  var Batch = require('./model/batch');
+ var Order = require('./model/order');
  const fs = require('fs');
  var path = require('path');
 
@@ -701,6 +702,16 @@
 				dbBatch.finish(batch).then(batch => {
 					cb(batch);
 				});
+ 			});
+ 		});
+
+ 		socket.on('updateOrder', (order, cb) => {
+ 			Order.findOne({_id: order._id}).populate('items.item').then(dbOrder => {
+ 				dbOrder.updateOrder(order).then(savedOrder => {
+ 					cart3d.saveOrder(savedOrder.cartOrder, savedOrder.cartOrder.OrderID, savedOrder.canadian).then(response => {
+ 						cb(response);
+ 					});
+ 				});
  			});
  		});
  	});
