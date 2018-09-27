@@ -725,5 +725,12 @@
  				}
  			});
  		});
+
+ 		socket.on('autoInvoiceOrders', cb => {
+ 			Order.find({picked: true, invoiced: false}).populate('items.item').then(orders => {
+ 				helpers.createInvoicesFromSalesOrders(qbws, order);
+ 				cb('Requests have been generated!');
+ 			});
+ 		});
  	});
  }

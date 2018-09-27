@@ -726,6 +726,37 @@ function closeSalesOrders(qbws, orderId) {
   });
 }
 
+function createInvoicesFromSalesOrders(qbws, orders) {
+  qbws.addRequest(getSalesOrdersRq(orders, true), xmlResponse => {
+    return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+      var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
+      if (salesOrderRs == undefined) {
+        console.log('Sales order not created yet!');
+      } else if (salesOrderRs.SalesOrderRet) {
+        var salesOrders = salesOrderRs.SalesOrderRet;
+        if (!Array.isArray(salesOrders)) {
+          salesOrders = [salesOrders];
+        }
+
+        salesOrders.forEach(so => {
+          orders.forEach(dbOrder => {
+            if (so.RefNumber == dbOrder.orderId) {
+              qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
+                console.log(response); 
+                // assume that it worked
+                Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
+                  invoicedOrder.invoiced = true;
+                  invoicedOrder.save();
+                });
+              });
+            }
+          });
+        });
+      }
+    });
+  });
+}
+
 function createInvoiceFromSalesOrder(qbws, order) {
   var orderId = order.InvoiceNumberPrefix+order.InvoiceNumber;
   console.log('adding sales order request');
@@ -1653,6 +1684,7 @@ module.exports = {
   removeDelivery: removeDelivery,
   createSalesOrdersRequests: createSalesOrdersRequests,
   createInvoiceFromSalesOrder: createInvoiceFromSalesOrder,
+  createInvoicesFromSalesOrders: createInvoicesFromSalesOrders,
   closeSalesOrders: closeSalesOrders,
   updateSalesOrder: updateSalesOrder
 }

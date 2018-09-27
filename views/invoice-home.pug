@@ -1,3 +1,11 @@
+mixin orderRow(order)
+	tr
+		td=order.orderId
+		td=order.name
+		td=order.items.reduce((total, item) => total + item.quantity, 0)
+		td=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+		td='$' + order.orderValue.toFixed(2)
+
 doctype html
 include mixins
 html
@@ -12,29 +20,31 @@ html
 				.container
 					.starter-template
 						h1 Invoicing
-						p.lead Enter an order number to invoice it quickly.
+						p.lead Orders that need to be invoiced
 					.row
-						.col-12
-							.form-row
-								.col-6
-									label Prefix
-									select.form-control#prefix
-										option AB-
-										option CA-
-										option AZ-
-								.col-6
-									label Number
-									input.form-control(type="text")#orderNumber
-					.row.mt-2
-						.col-12.text-center
-							button.btn.btn-outline-success(type="button")#goButton Go!
-				script.
-					$(document).ready(e => {
-						$('#goButton').click(e => {
-							e.preventDefault();
-							var prefix = $('#prefix').val();
-							var number = $('#orderNumber').val();
-							window.location = '/invoice?orderId='+prefix+number;
-						});
-					});
+						.col.text-center
+							button.btn.btn-outline-success.btn-lg(type="button")#invoiceButton Invoice All
+				.container.pt-3
+					.row
+						.col
+							table.table-striped.table.table-hover
+								thead
+									tr
+										th Order ID
+										th Name
+										th Items Ordered
+										th Items Picked
+										th Value
+								tbody
+									for order in orders
+										+orderRow(order)
+					
 		+footer
+
+		script.
+			var socket = io();
+			$('#invoiceButton').click(e => {
+				socket.emit('autoInvoiceOrders', response => {
+					alert(response);
+				});
+			});

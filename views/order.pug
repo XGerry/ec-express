@@ -32,13 +32,14 @@ shtml
 					span.navbar-text#orderInfo.ml-2
 					ul.navbar-nav.ml-auto
 						li.dropdown.nav-item
-							button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
-							//a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
-							//ul.dropdown-menu.dropdown-menu-right
-								a(href="/new-order").dropdown-item New Order
-								a(href="#").dropdown-item#clearItemsButton Clear Items
-								.dropdown-divider
-								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
+								
+								//a(href="#").dropdown-item#clearItemsButton Clear Items
+								//.dropdown-divider
+								//a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+						button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
 						.btn-group
 							button.btn.btn-success(type="button")#saveOrderButton Save
 							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")

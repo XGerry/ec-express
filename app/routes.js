@@ -206,7 +206,11 @@ module.exports = function(app, passport) {
   });
 
   app.get('/invoice-home', (req, res) => {
-    res.render('invoice-home');
+    Order.find({picked: true, invoiced: false}).then(orders => {
+      res.render('invoice-home', {
+        orders: orders
+      });
+    });
   });
 
   function getCartOrder(orderId) {

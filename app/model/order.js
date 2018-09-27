@@ -361,6 +361,51 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
 
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({pretty: true});
+  return str;
+}
+
+orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
+	var invoiceItems = [];
+  var quantityPickedMap = {};
+  this.items.forEach(i => {
+    quantityPickedMap[i.item.sku] = i.pickedQuantity;
+  });
+
+  qbSalesOrder.SalesOrderLineRet.forEach(item => {
+    if (item.ItemRef.FullName == 'Shipping & Handling') {
+      invoiceItems.push({
+        ItemRef: {
+          FullName: 'Shipping & Handling',
+          Rate: this.cartOrder.ShipmentList[0].ShipmentCost // TODO make shipment cost more accessible
+        }
+      });
+    } else {
+      invoiceItems.push({
+        Quantity: quantityPickedMap[item.ItemRef.FullName],
+        SalesTaxCodeRef: item.SalesTaxCodeRef,
+        LinkToTxn: {
+          TxnID: qbSalesOrder.TxnID,
+          TxnLineID: item.TxnLineID
+        }
+      });
+    }
+  });
+
+  var addInvoiceRq = {
+    InvoiceAddRq: {
+      '@requestID': this.orderId,
+      InvoiceAdd: {
+        CustomerRef: {
+          ListID: qbSalesOrder.CustomerRef.ListID
+        },
+        RefNumber: this.orderId,
+        InvoiceLineAdd: invoiceItems
+      }
+    }
+  };
+
+  var xmlDoc = getXMLRequest(addInvoiceRq);
+  var str = xmlDoc.end({pretty: true});
   console.log(str);
   return str;
 }
