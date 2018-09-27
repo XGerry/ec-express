@@ -728,7 +728,7 @@
 
  		socket.on('autoInvoiceOrders', cb => {
  			Order.find({picked: true, invoiced: false}).populate('items.item').then(orders => {
- 				helpers.createInvoicesFromSalesOrders(qbws, order);
+ 				helpers.createInvoicesFromSalesOrders(qbws, orders);
  				cb('Requests have been generated!');
  			});
  		});
