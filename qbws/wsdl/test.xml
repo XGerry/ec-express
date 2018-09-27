@@ -5,7 +5,7 @@
     <SalesOrderModRq>
       <SalesOrderMod>
         <TxnID>3A2ABC-1538057808</TxnID>
-        <EditSequence>1538057808</EditSequence>
+        <EditSequence>1538064669</EditSequence>
         <SalesOrderLineMod>
           <TxnLineID>3A2ABE-1538057808</TxnLineID>
           <ItemRef>
@@ -15,7 +15,6 @@
           <Desc>Deco Sticker - Fan Gold</Desc>
           <Quantity>10</Quantity>
           <Rate>2.49</Rate>
-          <Amount>17.43</Amount>
           <InventorySiteRef>
             <ListID>80000001-1532697044</ListID>
             <FullName>Warehouse</FullName>
@@ -35,7 +34,6 @@
           <Desc>Deco Sticker - fan silver</Desc>
           <Quantity>3</Quantity>
           <Rate>2.49</Rate>
-          <Amount>9.96</Amount>
           <InventorySiteRef>
             <ListID>80000001-1532697044</ListID>
             <FullName>Warehouse</FullName>
@@ -45,6 +43,17 @@
             <FullName>NON</FullName>
           </SalesTaxCodeRef>
           <IsManuallyClosed>false</IsManuallyClosed>
+        </SalesOrderLineMod>
+        <SalesOrderLineMod>
+          <TxnID>-1</TxnID>
+          <ItemRef>
+            <FullName>300G</FullName>
+          </ItemRef>
+          <Quantity>3</Quantity>
+          <Rate>2.49</Rate>
+          <InventorySiteRef>
+            <FullName>Warehouse</FullName>
+          </InventorySiteRef>
         </SalesOrderLineMod>
       </SalesOrderMod>
     </SalesOrderModRq>

@@ -334,7 +334,7 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
 
 		if (newItem) {
 			var lineItem = {
-				TxnID: -1,
+				TxnLineID: -1,
 	  		ItemRef: {
 	        FullName: item.item.sku
 	      },
