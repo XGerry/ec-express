@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var builder = require('xmlbuilder');
 var request = require('request');
 var rp = require('request-promise-native');
 var Item = require('./item');
@@ -395,6 +396,14 @@ function createBillingAddress(order) {
   billingAddress.PostalCode = order.BillingZipCode;
   billingAddress.Country = order.BillingCountry;
   return billingAddress;
+}
+
+function getXMLRequest(request) {
+  var xmlDoc = builder.create('QBXML', { version: '1.0', encoding: 'ISO-8859-1'})
+  .instructionBefore('qbxml', 'version="13.0"')
+  .ele('QBXMLMsgsRq', { 'onError': 'continueOnError' });
+  xmlDoc.ele(request);
+  return xmlDoc;
 }
 
 module.exports = mongoose.model('Order', orderSchema);
