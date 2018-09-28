@@ -3,7 +3,6 @@ var builder = require('xmlbuilder');
 var request = require('request');
 var rp = require('request-promise-native');
 var Item = require('./item');
-var helpers = require('../helpers');
 var moment = require('moment');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
@@ -106,8 +105,8 @@ orderSchema.methods.updateOrderStatus = function(status) {
 			return response;
 		});
 	});
-}
 
+}
 orderSchema.methods.updateOrder = function(order) {
 	this.set(order);
 	var oldOrder = this.cartOrder;
@@ -486,6 +485,20 @@ function getXMLRequest(request) {
   .ele('QBXMLMsgsRq', { 'onError': 'continueOnError' });
   xmlDoc.ele(request);
   return xmlDoc;
+}
+
+function get3DCartOptions(url, method, canadian) {
+  var options = {
+    url: url,
+    method: method,
+    headers: {
+      SecureUrl: 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com'),
+      PrivateKey: process.env.CART_PRIVATE_KEY,
+      Token: canadian ? process.env.CART_TOKEN_CANADA : process.env.CART_TOKEN 
+    },
+    json: true
+  }
+  return options;
 }
 
 module.exports = mongoose.model('Order', orderSchema);
