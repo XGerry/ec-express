@@ -110,8 +110,12 @@ batchSchema.methods.finish = function(batch) {
 	this.orders.forEach(order => {
 		order.picked = true;
 		order.isNew = false;
-		order.save();
+		order.save().then(o => {
+			o.updateOrderStatus(9); // Processing Payment
+		});
 	});
+
+
 
 	return this.save();
 }
