@@ -1,5 +1,5 @@
 mixin orderSummaryTableRow(order, index)
-	tr(class=order._id + '-row').sortTableRow
+	tr(class=order._id + '-row' onclick="openOrder('"+order._id+"')").sortTableRow
 		td=index+1
 		td=order.orderId
 		td=order.name
@@ -59,7 +59,7 @@ html
 							input.form-control.form-control-lg(type="text" placeholder="Scan the barcode of your item here")#item-barcode
 					.row.pt-5
 						.col-12
-							table.table-sm.table
+							table.table-sm.table.table-hover
 								thead
 									tr
 										th Box Number
@@ -283,4 +283,8 @@ html
 				});
 				$('#modalImage').prop('src', 'https://www.ecstasycrafts.com/'+match.item.item.imageURL);
 				$('#sortModalQuantity').val(match.item.quantity);
+			}
+
+			function openOrder(id) {
+				window.open('/order?id='+id, '_blank');
 			}

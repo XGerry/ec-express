@@ -1,5 +1,5 @@
 mixin orderRow(order)
-	tr(onclick="orderSelected('"+order._id+"')")
+	tr(onclick="orderSelected('"+order._id+"', event)")
 		td=order.orderId
 		td=order.name
 		td=moment(order.orderDate).format('MMM Do')
@@ -52,6 +52,8 @@ html
 				order: [[2, 'asc']]
 			});
 
-			function orderSelected(id) {
-				window.location="/order?id="+id;
+			function orderSelected(id, e) {
+				if (e.target.localName != 'a') {
+					window.location="/order?id="+id;
+				}
 			}
