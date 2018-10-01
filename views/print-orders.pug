@@ -1,5 +1,7 @@
 mixin tableRow(order)
 	tr
+		td
+			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check
 		td=order.orderId
 		td=order.name
 		td=order.cartOrder.BillingCompany
@@ -12,6 +14,7 @@ include mixins
 html
 	include includes/head
 		title Print Orders
+		script(src="./js/print-orders.js")
 	body
 
 		#wrapper
@@ -31,6 +34,9 @@ html
 								option(value="ca") CA
 								option(value="az") Amazon
 							button.btn-outline-success.btn.btn-lg.ml-2.mb-2(type="button")#createBatchButton Create Batch
+					.row
+						.col-12.text-center
+							button.btn-outline-primary.btn.btn-lg.ml-2.mb-2(type="button")#customBatchButton Custom Batch
 
 				.container
 					.row.pt-3
@@ -38,6 +44,7 @@ html
 							table.table-hover.table
 								thead
 									tr
+										th
 										th Order Number
 										th Customer Name
 										th Company Name
@@ -50,7 +57,22 @@ html
 		+footer
 		script.
 			console.log(!{JSON.stringify(orders)})
+			$(document).ready(e => {
+				$('#customBatchButton').click(e => {
+					var orderIds = [];
+					$('.order-check').each((i, obj) => {
+						if ($(obj).is(':checked')) {
+							orderIds.push($(obj).attr('order-id'));
+						}
+					});
+					console.log(orderIds);
+					if (orderIds.length > 0) {
+						socket.emit('getCustomBatch', orderIds, (batch) => {
+							window.location = '/batch-sheet?id='+batch._id;
+						});
+					}
+				});
+			});	
 
 
 	include includes/end
-		script(src="./js/print-orders.js")

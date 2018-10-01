@@ -77,6 +77,31 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	});
 }
 
+batchSchema.statics.createCustomBatch = function(orderIds) {
+	var newBatch = new this();
+	newBatch.startTime = new Date();
+
+	return Order.find({_id: {$in: orderIds}}).then(orders => {
+		console.log(orders.length);
+		orders.forEach(order => {
+			var numberOfSkus = parseInt(order.items.length);
+			var numberOfItems = order.items.reduce((totalItems, item) => {
+				return totalItems + parseInt(item.quantity);
+			}, 0);
+
+			newBatch.orders.push(order._id);
+			newBatch.numberOfItems += numberOfItems;
+			newBatch.numberOfSkus += numberOfSkus;
+			order.batch = newBatch._id;
+			order.save().then(o => {
+				o.updateOrderStatus(2); // Processing
+			});
+		});
+
+		return newBatch.save();
+	});
+}
+
 batchSchema.methods.finish = function(batch) {
 	this.set(batch);
 	this.endTime = new Date();

@@ -697,6 +697,12 @@
  			});
  		});
 
+ 		socket.on('getCustomBatch', (ids, cb) => {
+ 			Batch.createCustomBatch(ids).then(batch => {
+ 				cb(batch);
+ 			});
+ 		});
+
  		socket.on('finishBatch', (batch, cb) => {
  			Batch.findOne({_id: batch._id}).populate('orders').then(dbBatch => {
 				dbBatch.finish(batch).then(batch => {
