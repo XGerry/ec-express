@@ -95,7 +95,7 @@ orderSchema.methods.updateOrderStatus = function(status) {
 	this.cartOrder.OrderStatusID = status;
 	this.markModified('cartOrder');
 
-	var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
+	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = {
 		OrderStatusID: status
 	};
