@@ -416,11 +416,11 @@ function buildItemTable(items) {
 		}
 		var canadaPrice = '-';
 		if (item.canPrice != undefined) {
-			canadaPrice = '$'+item.canPrice.toFixed(2);
+			canadaPrice = item.canPrice.toFixed(2);
 		}
 
 		var usPrice = $('<td></td>').text('$'+americanPrice);
-		var canPrice = $('<td></td>').text(canadaPrice);
+		var canPrice = $('<td></td>').text('$'+canadaPrice);
 		var stock = $('<td></td>').text(item.stock+'');
 		var location = $('<td></td>').text(item.location);
 		var barcodeCol = $('<td></td>').text(item.barcode);
@@ -430,6 +430,7 @@ function buildItemTable(items) {
 		row.append(sku);
 		row.append(name);
 		row.append(usPrice);
+		row.append(canPrice);
 		row.append(location);
 		row.append(barcodeCol);
 		row.append(stock);

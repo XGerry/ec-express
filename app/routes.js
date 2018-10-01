@@ -11,6 +11,8 @@ var Manifest = require('./model/manifest');
 var cart3d = require('./3dcart');
 var reporting = require('./reporting');
 var helpers = require('./helpers');
+var request = require('request');
+var rp = require('request-promise-native');
 var moment = require('moment');
 
 // application/x-www-form-urlencoded
@@ -446,9 +448,27 @@ module.exports = function(app, passport) {
   app.get('/packing-slip', (req, res) => {
     loadBatch(req.query.id).then(batch => {
       if (batch) {
-        res.render('packing-slip', {
-          batch: batch
+        var promises = [];
+        batch.orders.forEach(o => {
+          console.log(o.cartOrder.CustomerID);
+          if (o.cartOrder.CustomerID == 0) {
+            o.customerType = 0;
+            promises.push(o.save());
+          } else {
+            var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+o.cartOrder.CustomerID, 'GET', this.canadian);
+            var getCustomerGroup = rp(options).then(response => {
+              console.log(response);
+              o.customerType = response.CustomerGroupID;
+              return o.save();
+            });
+            promises.push(getCustomerGroup);
+          }
         });
+        Promise.all(promises).then(r => {
+          res.render('packing-slip', {
+            batch: batch
+          });
+        })
       } else {
         res.redirect('/batches');
       }

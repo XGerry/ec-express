@@ -49,11 +49,21 @@ mixin customerInfoPanel(order)
 						th Phone
 						th Email
 						th Order Date
+						th Customer Type
 				tbody.infoTableBody
 					tr
 						td= order.cartOrder.ShipmentList[0].ShipmentPhone
 						td.email= order.cartOrder.BillingEmail
 						td= moment(new Date(order.orderDate)).format('dddd MMM Do, h:mm:ss a')
+						td
+							if (order.CustomerGroupID == '2' || order.CustomerGroupID == '14')
+								| Wholesale
+							if (order.CustomerGroupID == '3') 
+								| Teacher 
+							if (order.CustomerGroupID == '4')
+								| Preferred Customer
+							else 
+								| Retail
 	.row
 		.col-lg-2.col-sm-2
 			+billingAddress(order.cartOrder)
@@ -67,14 +77,15 @@ mixin customerInfoPanel(order)
 						th Items Shipped
 						th Value
 						th Ship Method
+						th Payment Method
 				tbody.infoTableBody
 					tr
 						td= order.items.reduce((total, item) => total + item.quantity, 0)
 						td= order.items.reduce((total, item) => total + item.pickedQuantity, 0)
 						td= '$'+order.orderValue.toFixed(2)
 						td= order.cartOrder.ShipmentList[0].ShipmentMethodName
+						td= order.cartOrder.BillingPaymentMethod
 
-			
 	if (order.cartOrder.CustomerComments)
 		.row
 			.col-lg-12.col-sm-12

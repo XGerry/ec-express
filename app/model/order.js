@@ -25,6 +25,7 @@ var orderSchema = new mongoose.Schema({
 		},
 		price: Number
 	}],
+	customerType: String,
 	name: String,
 	email: String,
 	orderId : String,
@@ -67,6 +68,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   this.markModified('cartOrder');
   this.orderValue = cartOrder.OrderAmount;
   this.email = cartOrder.BillingEmail;
+
   var promises = [];
   this.items = [];
   cartOrder.OrderItemList.forEach(item => {
