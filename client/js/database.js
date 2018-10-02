@@ -266,13 +266,15 @@ $(document).ready(function() {
 	});
 
 	$('#downloadFileButton').click(e => {
-		var file = 'sku,name,barcode,stock,price_us_retail,cost\r\n';
+		var file = 'sku,name,location,barcode,stock,price_us_retail,price_ca_retail,cost\r\n';
 		selectedItems.forEach(item => {
 			var line = item.sku + ',';
 			line += '"' + item.name + '",';
+			line += item.location + ',';
 			line += item.barcode + ',';
 			line += item.stock + ',';
 			line += item.usPrice + ',';
+			line += item.canPrice + ',';
 			line += item.cost + '\r\n';
 			file += line;
 		});

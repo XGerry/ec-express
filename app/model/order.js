@@ -127,6 +127,7 @@ orderSchema.methods.updateOrder = function(order) {
 
 	delete oldOrder.PaymentTokenID; // 3D Cart Doesn't like it when you send this
 	delete oldOrder.TransactionList;
+	delete oldOrder.
 	this.markModified('cartOrder');
 	return this.save();
 }
