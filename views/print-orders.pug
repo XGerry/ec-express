@@ -3,7 +3,7 @@ mixin tableRow(order)
 		td
 			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check
 		td=order.orderId
-		td=moment(order.orderDate).format('YYYY-MM-DD')
+		td=moment(order.orderDate).format('YYYY-MM-DD HH:mm')
 		td=order.name
 		td=order.cartOrder.BillingCompany
 		td=order.items.length

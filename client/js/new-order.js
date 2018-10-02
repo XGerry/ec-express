@@ -342,6 +342,8 @@ function fillItemLine(item) {
 }
 
 function determineItemPrice(item) {
+	console.log(item);
+	console.log(theCustomer);
 	var price = 0;
 
 	if (originalCSV) { // check to see if there were prices in the spreadsheet
