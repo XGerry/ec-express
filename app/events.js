@@ -736,6 +736,7 @@
  				batch.orders.forEach(order => {
  					order.invoiceTo3DCart();
  				});
+ 				cb('Invoice request generated!');
  			});
  		});
 
