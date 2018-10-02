@@ -42,7 +42,7 @@ html
 			var socket = io();
 			var batch = !{JSON.stringify(batch)};
 			$('#invoiceButton').click(e => {
-				socket.emit('invoiceBatch', response => {
+				socket.emit('invoiceBatch', batch._id, response => {
 					alert(response);
 				});
 			});
