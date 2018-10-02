@@ -713,10 +713,8 @@
 
  		socket.on('updateOrder', (order, cb) => {
  			Order.findOne({_id: order._id}).populate('items.item').then(dbOrder => {
- 				dbOrder.updateOrder(order).then(savedOrder => {
- 					cart3d.saveOrder(savedOrder.cartOrder, savedOrder.cartOrder.OrderID, savedOrder.canadian).then(response => {
- 						cb(response);
- 					});
+ 				dbOrder.updateOrder(order).then(response => {
+ 					cb(response);
  				});
  			});
  		});
