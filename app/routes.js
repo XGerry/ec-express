@@ -469,7 +469,7 @@ module.exports = function(app, passport) {
             o.customerType = 0;
             promises.push(o.save());
           } else {
-            var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+o.cartOrder.CustomerID, 'GET', this.canadian);
+            var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+o.cartOrder.CustomerID, 'GET', o.canadian);
             var getCustomerGroup = rp(options).then(response => {
               console.log(response);
               if (Array.isArray(response)) {
