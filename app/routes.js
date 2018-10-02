@@ -472,6 +472,9 @@ module.exports = function(app, passport) {
             var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+o.cartOrder.CustomerID, 'GET', this.canadian);
             var getCustomerGroup = rp(options).then(response => {
               console.log(response);
+              if (Array.isArray(response)) {
+                response = response[0];
+              }
               o.customerType = response.CustomerGroupID;
               return o.save();
             });
