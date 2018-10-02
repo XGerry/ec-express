@@ -40,8 +40,9 @@ html
 
 		script.
 			var socket = io();
+			var batch = !{JSON.stringify(batch)};
 			$('#invoiceButton').click(e => {
-				socket.emit('autoInvoiceOrders', response => {
+				socket.emit('invoiceBatch', response => {
 					alert(response);
 				});
 			});

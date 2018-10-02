@@ -107,8 +107,8 @@ orderSchema.methods.updateOrderStatus = function(status) {
 			return response;
 		});
 	});
-
 }
+
 orderSchema.methods.updateOrder = function(order) {
 	this.set(order);
 	var oldOrder = this.cartOrder;
@@ -126,8 +126,29 @@ orderSchema.methods.updateOrder = function(order) {
 	});
 
 	delete oldOrder.PaymentTokenID; // 3D Cart Doesn't like it when you send this
+	delete oldOrder.TransactionList;
 	this.markModified('cartOrder');
 	return this.save();
+}
+
+orderSchema.methods.invoiceTo3DCart = function() {
+	var cartOrder = this.cartOrder;
+	cartOrder.OrderItemList = [];
+	this.items.forEach(item => {
+		var orderItem = {
+	    ItemID: item.item.sku,
+	    ItemQuantity: item.pickedQuantity,
+	    ItemUnitPrice: item.price,
+	    ItemDescription: item.item.name
+	  };
+	  cartOrder.OrderItemList.push(orderItem);
+	});
+	delete cartOrder.PaymentTokenID; // 3D Cart Doesn't like it when you send this
+	delete oldOrder.TransactionList;
+
+	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
+	options.body = cartOrder;
+	return rp(options);
 }
 
 orderSchema.methods.customerRq = function() {

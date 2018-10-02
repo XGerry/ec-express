@@ -744,6 +744,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
               qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                 console.log(response); 
                 // assume that it worked
+                // TODO: check for error
                 Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
                   invoicedOrder.invoiced = true;
                   invoicedOrder.updateOrderStatus(9); // Awaiting Payment

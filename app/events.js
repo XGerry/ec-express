@@ -732,11 +732,31 @@
  			});
  		});
 
+ 		socket.on('invoiceBatch', (id, cb) => {
+ 			loadBatch(id).then(batch => {
+ 				helpers.createInvoicesFromSalesOrders(qbws, batch.orders);
+ 				batch.orders.forEach(order => {
+ 					order.invoiceTo3DCart();
+ 				});
+ 			});
+ 		});
+
  		socket.on('autoInvoiceOrders', cb => {
  			Order.find({picked: true, invoiced: false}).populate('items.item').then(orders => {
  				helpers.createInvoicesFromSalesOrders(qbws, orders);
  				cb('Requests have been generated!');
  			});
  		});
+
+ 		function loadBatch(id) {
+	    return Batch.findOne({_id: id}).populate({
+	      path: 'orders',
+	      model: 'Order',
+	      populate: {
+	        path: 'items.item',
+	        model: 'Item'
+	      }
+	    });
+	  }
  	});
  }
