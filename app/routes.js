@@ -215,6 +215,20 @@ module.exports = function(app, passport) {
     });
   });
 
+  app.get('/invoice-batch', (req, res) => {
+    loadBatch(req.query.id).then(batch => {
+      if (batch) {
+        res.render('invoice-batch', {
+          batch: batch
+        });
+      } else {
+        res.redirect('invoice-home');
+      }
+    }).catch(err => {
+      res.redirect('invoice-home');
+    });
+  });
+
   function getCartOrder(orderId) {
     var prefix = orderId.split('-')[0];
     var invoiceId = orderId.split('-')[1];

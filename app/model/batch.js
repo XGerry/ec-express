@@ -115,8 +115,6 @@ batchSchema.methods.finish = function(batch) {
 		});
 	});
 
-
-
 	return this.save();
 }
 

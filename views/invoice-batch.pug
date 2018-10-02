@@ -1,0 +1,51 @@
+mixin orderRow(order)
+	tr(onclick="openOrder('"+order._id+"')")
+		td=order.orderId
+		td=order.name
+		td=order.items.reduce((total, item) => total + item.quantity, 0)
+		td=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+		td='$' + order.orderValue.toFixed(2)
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Invoicing
+	body
+		#wrapper
+			+sidebarNav("invoice-home")
+			
+			#page-content
+				+menuToggle
+				.container
+					.row.pt-3
+						.col.text-center
+							button.btn.btn-outline-success.btn-lg(type="button")#invoiceButton Auto Invoice All
+				.container.pt-3
+					.row
+						.col
+							table.table-striped.table.table-hover
+								thead
+									tr
+										th Order ID
+										th Name
+										th Items Ordered
+										th Items Picked
+										th Value
+								tbody
+									for order in batch.orders
+										+orderRow(order)
+					
+		+footer
+
+		script.
+			var socket = io();
+			$('#invoiceButton').click(e => {
+				socket.emit('autoInvoiceOrders', response => {
+					alert(response);
+				});
+			});
+
+			function openOrder(id) {
+				window.open('/order?id='+id, '_blank');
+			}

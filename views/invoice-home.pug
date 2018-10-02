@@ -20,31 +20,24 @@ html
 				.container
 					.starter-template
 						h1 Invoicing
-						p.lead Orders that need to be invoiced
-					.row
-						.col.text-center
-							button.btn.btn-outline-success.btn-lg(type="button")#invoiceButton Invoice All
-				.container.pt-3
-					.row
-						.col
-							table.table-striped.table.table-hover
-								thead
-									tr
-										th Order ID
-										th Name
-										th Items Ordered
-										th Items Picked
-										th Value
-								tbody
-									for order in orders
-										+orderRow(order)
+						p.lead Scan your batch barcode in the field below
+				.row.justify-content-center
+					.col-8
+						input.form-control.form-control-lg(type="text" placeholder="Scan the Batch Barcode here.")#batchBarcode
 					
 		+footer
 
 		script.
-			var socket = io();
-			$('#invoiceButton').click(e => {
-				socket.emit('autoInvoiceOrders', response => {
-					alert(response);
+			$(document).ready(e => {
+				$('#batchBarcode').select();
+
+				$('#batchBarcode').on('keypress', e => {
+					var key = e.which || e.keyCode;
+					if (key == 13) { // enter key
+						var code = $('#batchBarcode').val();
+						if (code) {
+							window.location = '/invoice-batch?id='+code;
+						}
+					}
 				});
 			});
