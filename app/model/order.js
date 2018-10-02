@@ -392,10 +392,17 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
   qbSalesOrder.SalesOrderLineRet.forEach(item => {
     if (item.ItemRef.FullName == 'Shipping & Handling') {
       invoiceItems.push({
-        ItemRef: {
-          FullName: 'Shipping & Handling',
-          Rate: this.cartOrder.ShipmentList[0].ShipmentCost // TODO make shipment cost more accessible
-        }
+      	SalesTaxCodeRef: {
+      		item.SalesTaxCodeRef,
+      		LinkToTxn: {
+      			qbSalesOrder.TxnID,
+      			TxnLineID: item.TxnLineID
+      		}
+      	}
+        // ItemRef: {
+        //   FullName: 'Shipping & Handling',
+        //   //Rate: this.cartOrder.ShipmentList[0].ShipmentCost // TODO make shipment cost more accessible
+        // }
       });
     } else {
       invoiceItems.push({
