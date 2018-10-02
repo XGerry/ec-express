@@ -739,6 +739,15 @@
  			});
  		});
 
+ 		socket.on('invoiceOrder', (id, cb) => {
+ 			Order.findOne({_id: id}).populate('items.item').then(order => {
+ 				order.invoiceTo3DCart().then(response => {
+ 					cb(response);
+ 				});
+ 				helpers.createInvoicesFromSalesOrders(qbws, [order]);
+ 			});
+ 		});
+
  		socket.on('autoInvoiceOrders', cb => {
  			Order.find({picked: true, invoiced: false}).populate('items.item').then(orders => {
  				helpers.createInvoicesFromSalesOrders(qbws, orders);

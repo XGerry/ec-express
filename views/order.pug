@@ -45,6 +45,7 @@ shtml
 							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
 							.dropdown-menu.dropdown-menu-right
 								a.dropdown-item(href="#")#updateQuickbooks Update in QB
+								a.dropdown-item(href="#")#invoiceOrder Invoice Order
 
 				.container.pt-3
 					.row
@@ -202,6 +203,15 @@ shtml
 				$('#updateQuickbooks').click(e => {
 					socket.emit('updateOrderQB', theOrder._id, message => {
 						$('#orderInfo').text(message);
+						setTimeout(() => {
+							$('#orderInfo').text('');
+						}, 2000);
+					});
+				});
+
+				$('#invoiceOrder').click(e => {
+					socket.emit('invoiceOrder', theOrder._id, message => {
+						$('#orderInfo').text(message[0].message + ' - Run the web connector.');
 						setTimeout(() => {
 							$('#orderInfo').text('');
 						}, 2000);
