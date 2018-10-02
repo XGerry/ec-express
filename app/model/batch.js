@@ -102,6 +102,11 @@ batchSchema.statics.createCustomBatch = function(orderIds) {
 	});
 }
 
+batchSchema.methods.removeOrder = function(orderId) {
+	this.orders.splice(orders.indexOf(orderId), 1);
+	return this.save();
+}
+
 batchSchema.methods.finish = function(batch) {
 	this.set(batch);
 	this.endTime = new Date();

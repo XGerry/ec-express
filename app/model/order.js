@@ -93,6 +93,12 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   });
 }
 
+orderSchema.methods.removeBatch = function() {
+	this.batch.removeOrder(this._id);
+	this.batch = null;
+	return this.save();
+}
+
 orderSchema.methods.updateOrderStatus = function(status) {
 	this.cartOrder.OrderStatusID = status;
 	this.markModified('cartOrder');

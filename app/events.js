@@ -749,6 +749,14 @@
  			});
  		});
 
+ 		socket.on('removeOrderFromBatch', (id, cb) => {
+ 			Order.findOne({_id: id}).populate('batch').then(order => {
+ 				order.removeBatch().then(o => {
+ 					cb('done');
+ 				});
+ 			});
+ 		});
+
  		socket.on('autoInvoiceOrders', cb => {
  			Order.find({picked: true, invoiced: false}).populate('items.item').then(orders => {
  				helpers.createInvoicesFromSalesOrders(qbws, orders);
