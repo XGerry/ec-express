@@ -104,7 +104,7 @@ batchSchema.statics.createCustomBatch = function(orderIds) {
 
 batchSchema.methods.removeOrder = function(orderId) {
 	console.log(this.orders);
-	this.orders.splice(orders.indexOf(orderId), 1);
+	this.orders.splice(this.orders.indexOf(orderId), 1);
 	return this.save();
 }
 
