@@ -2,7 +2,7 @@ mixin orderRow(order)
 	tr(onclick="orderSelected('"+order._id+"', event)")
 		td=order.orderId
 		td=order.name
-		td=moment(order.orderDate).format('MMM Do')
+		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
 		td=order.cartOrder.BillingCompany
 		td='$' + order.orderValue.toFixed(2)
 		td=order.picked ? 'yes' : 'no'
@@ -49,7 +49,7 @@ html
 			$('#orderTable').DataTable({
 				bDestroy: true,
 				pageLength: 100,
-				order: [[2, 'asc']]
+				order: [[2, 'desc']]
 			});
 
 			function orderSelected(id, e) {
