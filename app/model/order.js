@@ -111,7 +111,8 @@ orderSchema.methods.updateOrderStatus = function(status) {
 
 orderSchema.methods.updateOrder = function(order) {
 	this.set(order);
-	var oldOrder = this.cartOrder;
+	this.save();
+	var oldOrder = {};
 	// replace the items
 	oldOrder.OrderItemList = [];
 
@@ -125,15 +126,13 @@ orderSchema.methods.updateOrder = function(order) {
 	  oldOrder.OrderItemList.push(orderItem);
 	});
 
-	delete oldOrder.PaymentTokenID; // 3D Cart Doesn't like it when you send this
-	delete oldOrder.TransactionList;
-	delete oldOrder.
-	this.markModified('cartOrder');
-	return this.save();
+	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
+	options.body = oldOrder;
+	return rp(options);
 }
 
 orderSchema.methods.invoiceTo3DCart = function() {
-	var cartOrder = this.cartOrder;
+	var cartOrder = {};
 	cartOrder.OrderItemList = [];
 	this.items.forEach(item => {
 		var orderItem = {
@@ -144,8 +143,6 @@ orderSchema.methods.invoiceTo3DCart = function() {
 	  };
 	  cartOrder.OrderItemList.push(orderItem);
 	});
-	delete cartOrder.PaymentTokenID; // 3D Cart Doesn't like it when you send this
-	delete oldOrder.TransactionList;
 
 	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = cartOrder;
