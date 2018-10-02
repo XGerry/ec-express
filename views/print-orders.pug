@@ -1,8 +1,9 @@
 mixin tableRow(order)
-	tr
+	tr(onclick="openOrder('"+order._id+"', event)")
 		td
 			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check
 		td=order.orderId
+		td=moment(order.orderDate).format('YYYY-MM-DD')
 		td=order.name
 		td=order.cartOrder.BillingCompany
 		td=order.items.length
@@ -38,14 +39,15 @@ html
 						.col-12.text-center
 							button.btn-outline-primary.btn.btn-lg.ml-2.mb-2(type="button")#customBatchButton Custom Batch
 
-				.container
+				.container-fluid
 					.row.pt-3
 						.col-lg-12
-							table.table-hover.table
+							table.table-hover.table#orderTable
 								thead
 									tr
 										th
 										th Order Number
+										th Order Date
 										th Customer Name
 										th Company Name
 										th Number of SKUs
@@ -56,7 +58,6 @@ html
 										+tableRow(order)
 		+footer
 		script.
-			console.log(!{JSON.stringify(orders)})
 			$(document).ready(e => {
 				$('#customBatchButton').click(e => {
 					var orderIds = [];
@@ -65,14 +66,25 @@ html
 							orderIds.push($(obj).attr('order-id'));
 						}
 					});
-					console.log(orderIds);
 					if (orderIds.length > 0) {
 						socket.emit('getCustomBatch', orderIds, (batch) => {
 							window.location = '/batch-sheet?id='+batch._id;
 						});
 					}
 				});
+
+				$('#orderTable').dataTable({
+					order: [[2, 'asc']],
+					pageLength: 25
+				});
 			});	
+
+			function openOrder(id, e) {
+				console.log(e);
+				if (e.target.localName != 'input') {
+					window.open('/order?id='+id, '_blank');
+				}
+			}
 
 
 	include includes/end
