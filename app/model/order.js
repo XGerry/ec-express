@@ -395,7 +395,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
       	SalesTaxCodeRef: {
       		item.SalesTaxCodeRef,
       		LinkToTxn: {
-      			qbSalesOrder.TxnID,
+      			TxnID: qbSalesOrder.TxnID,
       			TxnLineID: item.TxnLineID
       		}
       	}
