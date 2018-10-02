@@ -392,12 +392,10 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
   qbSalesOrder.SalesOrderLineRet.forEach(item => {
     if (item.ItemRef.FullName == 'Shipping & Handling') {
       invoiceItems.push({
-      	SalesTaxCodeRef: {
-      		item.SalesTaxCodeRef,
-      		LinkToTxn: {
-      			TxnID: qbSalesOrder.TxnID,
-      			TxnLineID: item.TxnLineID
-      		}
+      	SalesTaxCodeRef: item.SalesTaxCodeRef,
+      	LinkToTxn: {
+      		TxnID: qbSalesOrder.TxnID,
+      		TxnLineID: item.TxnLineID
       	}
         // ItemRef: {
         //   FullName: 'Shipping & Handling',
