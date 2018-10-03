@@ -9,8 +9,8 @@ mixin orderRow(order)
 mixin batchRow(batch)
 	tr(onclick="openBatch('"+batch._id+"')")
 		td=batch.orders.length
-		td=batch.startTime
-		td=batch.endTime
+		td=moment(batch.startTime).format('MMM Do, hh:mm a')
+		td=moment(batch.endTime).format('MMM Do, hh:mm a')
 
 doctype html
 include mixins
