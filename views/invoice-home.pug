@@ -6,6 +6,12 @@ mixin orderRow(order)
 		td=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
 		td='$' + order.orderValue.toFixed(2)
 
+mixin batchRow(batch)
+	tr
+		td=batch.orders.length
+		td=batch.startDate
+		td=batch.endDate
+
 doctype html
 include mixins
 html
@@ -20,11 +26,24 @@ html
 				.container
 					.starter-template
 						h1 Invoicing
-						p.lead Scan your batch barcode in the field below
-				.row.justify-content-center
-					.col-8
-						input.form-control.form-control-lg(type="text" placeholder="Scan the Batch Barcode here.")#batchBarcode
-					
+						p.lead Scan your batch barcode in the field below, or choose an open batch from the list
+				
+				.container
+					.row.justify-content-center
+						.col-8
+							input.form-control.form-control-lg(type="text" placeholder="Scan the Batch Barcode here.")#batchBarcode
+					.row
+						.col-12
+							table.table.table-striped.table-hover
+								thead
+									tr
+										th Number of Orders
+										th Start Date
+										th End Date
+								tbody
+									each batch in batches
+										+batchRow(batch)
+						
 		+footer
 
 		script.

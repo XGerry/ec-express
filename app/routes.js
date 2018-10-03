@@ -208,9 +208,9 @@ module.exports = function(app, passport) {
   });
 
   app.get('/invoice-home', (req, res) => {
-    Order.find({picked: true, invoiced: false}).then(orders => {
+    Batch.find({completed: true}).then(batches => {
       res.render('invoice-home', {
-        orders: orders
+        batches: batches
       });
     });
   });
