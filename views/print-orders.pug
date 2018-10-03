@@ -26,17 +26,16 @@ html
 				.container
 					.starter-template
 						h1 Unpicked Orders
-						//p.lead Select and order to see it in more detail.
+						p.lead Select and order to see it in more detail.
 						button.btn-outline-primary.btn(type="button")#printAllButton Print All New Orders
 					.row
-						.col-12.text-center
+						.col-6.text-center
 							select.form-control.form-control-lg#batchType(style="width: 200px; display: inline-block;")
 								option(value="us") US
 								option(value="ca") CA
 								option(value="az") Amazon
-							button.btn-outline-success.btn.btn-lg.ml-2.mb-2(type="button")#createBatchButton Create Batch
-					.row
-						.col-12.text-center
+							button.btn-outline-success.btn.btn-lg.ml-2.mb-2(type="button")#createBatchButton Auto Batch
+						.col-6.text-center
 							button.btn-outline-primary.btn.btn-lg.ml-2.mb-2(type="button")#customBatchButton Custom Batch
 
 				.container-fluid
