@@ -1,10 +1,12 @@
 mixin tableRow(batch)
-	tr(onclick="openBatch('"+batch._id+"')")
+	tr(onclick="openBatch('"+batch._id+"', event)")
 		td=batch.orders.length
 		td=batch.numberOfSkus
 		td=batch.numberOfItems
 		td=batch.completed
 		td= moment(batch.startTime).format('MMMM Do, h:mm:ss a')
+		th
+			a.btn.btn-secondary(href="/packing-slip?id="+batch._id) View
 
 doctype html
 include mixins
@@ -13,8 +15,10 @@ html
 		title Batch Orders
 	body
 		script.
-			function openBatch(id) {
-				window.location = '/batch-sheet?id='+id;
+			function openBatch(id, e) {
+				if (e.target.localName != 'a') {
+					window.location = '/batch-sheet?id='+id;
+				}
 			}
 
 		#wrapper
@@ -43,6 +47,7 @@ html
 										th Number of Items
 										th Completed
 										th Start Date
+										th Packing Slips
 								tbody#orderTableBody
 									each batch in batches
 										+tableRow(batch)
