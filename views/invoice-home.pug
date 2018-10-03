@@ -7,7 +7,7 @@ mixin orderRow(order)
 		td='$' + order.orderValue.toFixed(2)
 
 mixin batchRow(batch)
-	tr
+	tr(onclick="openBatch('"+batch._id+"')")
 		td=batch.orders.length
 		td=batch.startDate
 		td=batch.endDate
@@ -32,7 +32,7 @@ html
 					.row.justify-content-center
 						.col-8
 							input.form-control.form-control-lg(type="text" placeholder="Scan the Batch Barcode here.")#batchBarcode
-					.row
+					.row.pt-2
 						.col-12
 							table.table.table-striped.table-hover
 								thead
@@ -60,3 +60,7 @@ html
 					}
 				});
 			});
+
+			function openBatch(id) {
+				window.location = '/invoice-batch?id='+id;
+			}
