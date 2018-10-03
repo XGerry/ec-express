@@ -464,28 +464,28 @@ module.exports = function(app, passport) {
       if (batch) {
         var promises = [];
         batch.orders.forEach(o => {
-          console.log(o.cartOrder.CustomerID);
-          if (o.cartOrder.CustomerID == 0) {
-            o.customerType = 0;
-            promises.push(o.save());
-          } else {
-            var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+o.cartOrder.CustomerID, 'GET', o.canadian);
-            var getCustomerGroup = rp(options).then(response => {
-              console.log(response);
-              if (Array.isArray(response)) {
-                response = response[0];
-              }
-              o.customerType = response.CustomerGroupID;
-              return o.save();
-            });
-            promises.push(getCustomerGroup);
+          if (o.customerType == undefined || o.customerType == null) { 
+            if (o.cartOrder.CustomerID == 0) {
+              o.customerType = 0;
+              promises.push(o.save());
+            } else {
+              var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+o.cartOrder.CustomerID, 'GET', o.canadian);
+              var getCustomerGroup = rp(options).then(response => {
+                if (Array.isArray(response)) {
+                  response = response[0];
+                }
+                o.customerType = response.CustomerGroupID;
+                return o.save();
+              });
+              promises.push(getCustomerGroup);
+            }
           }
         });
         Promise.all(promises).then(r => {
           res.render('packing-slip', {
             batch: batch
           });
-        })
+        });
       } else {
         res.redirect('/batches');
       }
