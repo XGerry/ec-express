@@ -519,7 +519,7 @@ function createOrderInDB(order) {
   var findOrder = Order.findOne({orderId: orderId});
   return findOrder.then(dbOrder => {
     if (dbOrder) {
-      if (dbOrder.imported == false && dbOrder.picked == false && dbOrder.batch == null) { // can still update the order
+      if (dbOrder.imported == false) { // can still update the order
         return dbOrder.updateFrom3DCart(order);
       } else {
         dbOrder.timecode = helpers.getTimeCode();
