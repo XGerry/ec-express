@@ -59,8 +59,9 @@ shtml
 										th Email
 										th Phone
 										th Value
-										th Picked
-										th Invoiced
+										th.text-center Picked
+										th.text-center Invoiced
+										th.text-center Paid
 										th Batch
 								tbody#customerTableBody
 									tr
@@ -68,15 +69,26 @@ shtml
 										td=order.cartOrder.BillingEmail
 										td=order.cartOrder.BillingPhoneNumber
 										td='$'+order.orderValue.toFixed(2)
-										td
+										td.text-center
 											input(type="checkbox" checked=order.picked style="transform: scale(2);")#pickedCheckbox
-										td
+										td.text-center
 											input(type="checkbox" checked=order.invoiced style="transform: scale(2);")#invoicedCheckbox
+										td.text-center
+											input(type="checkbox" checked=order.paid style="transform: scale(2);")#paidCheckbox
 										td
 											if (order.batch)
 												a(href="batch-sheet?id="+order.batch) View
 											else
 												| None
+					.row
+						.col
+							table.table.table-sm
+								thead
+									tr
+										th Payment method
+								tbody
+									tr
+										td= order.cartOrder.BillingPaymentMethod
 
 
 					if (order.cartOrder.CustomerComments)
@@ -188,6 +200,10 @@ shtml
 
 				$('#invoicedCheckbox').on('change', e => {
 					theOrder.invoiced = $('#invoicedCheckbox').is(':checked');
+				});
+
+				$('#paidCheckbox').on('change', e => {
+					theOrder.paid = $('#paidCheckbox').is(':checked');
 				});
 
 				$('#saveOrderButton').click(e => {

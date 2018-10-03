@@ -54,6 +54,10 @@ var orderSchema = new mongoose.Schema({
 	toPrint: {
 		type: Boolean,
 		default: true
+	},
+	paid: {
+		type: Boolean,
+		default: false
 	}
 }, {
 	usePushEach: true
@@ -100,9 +104,6 @@ orderSchema.methods.removeBatch = function() {
 }
 
 orderSchema.methods.updateOrderStatus = function(status) {
-	this.cartOrder.OrderStatusID = status;
-	this.markModified('cartOrder');
-
 	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = {
 		OrderStatusID: status
