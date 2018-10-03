@@ -6,7 +6,7 @@ mixin tableRow(batch)
 		td=batch.completed
 		td= moment(batch.startTime).format('MMMM Do, h:mm:ss a')
 		th
-			a.btn.btn-secondary(href="/packing-slip?id="+batch._id) View
+			a.btn.btn-secondary(href="/packing-slip?id="+batch._id, target="_blank") View
 
 doctype html
 include mixins
