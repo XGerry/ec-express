@@ -61,37 +61,39 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 
 	return Order.find(query).sort('orderDate').then(rushedOrders => {
 		console.log('Found ' + rushedOrders.length + ' rush orders');
+		var promises = [];
 		if (rushedOrders.length > 0) {
 			// add the first order
 			var firstRushedOrder = rushedOrders.shift();
 			newBatch.orders.push(firstRushedOrder._id);
 			firstRushedOrder.batch = newBatch._id;
 			firstRushedOrder.updateOrderStatus(2);
-			return newBatch.recalculate().then(async () => {
-				for (order of rushedOrders) {
-					await addOrderToBatch(order);
-				}
-				// now the non-rushed orders
-				delete query.rush;
-				return Order.find(query).sort('orderDate').then(orders => {
-					console.log('Found ' + orders.length + ' unpicked orders');
-					if (orders.length > 0) {
-						if (newBatch.orders.length == 0) {
-							var firstOrder = orders.shift();
-							newBatch.orders.push(firstOrder._id);
-							firstOrder.batch = newBatch._id;
-							firstOrder.updateOrderStatus(2);
-						}
-						return newBatch.recalculate().then(async () => {
-							for (order of orders) {
-								await addOrderToBatch(order);
-							}
-							return newBatch.save();
-						});
-					}	
-				});
-			});
+			promises.add(newBatch.recalculate());
 		}
+		return Promise.all(promises).then(async () => {
+			for (order of rushedOrders) {
+				await addOrderToBatch(order);
+			}
+			// now the non-rushed orders
+			delete query.rush;
+			return Order.find(query).sort('orderDate').then(orders => {
+				console.log('Found ' + orders.length + ' unpicked orders');
+				if (orders.length > 0) {
+					if (newBatch.orders.length == 0) {
+						var firstOrder = orders.shift();
+						newBatch.orders.push(firstOrder._id);
+						firstOrder.batch = newBatch._id;
+						firstOrder.updateOrderStatus(2);
+					}
+					return newBatch.recalculate().then(async () => {
+						for (order of orders) {
+							await addOrderToBatch(order);
+						}
+						return newBatch.save();
+					});
+				}	
+			});
+		});
 	});
 }
 
