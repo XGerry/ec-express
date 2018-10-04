@@ -76,10 +76,12 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 				return Order.find(query).sort('orderDate').then(orders => {
 					console.log('Found ' + orders.length + ' unpicked orders');
 					if (orders.length > 0) {
-						var firstOrder = orders.shift();
-						newBatch.orders.push(firstOrder._id);
-						firstOrder.batch = newBatch._id;
-						firstOrder.updateOrderStatus(2);
+						if (newBatch.orders.length == 0) {
+							var firstOrder = orders.shift();
+							newBatch.orders.push(firstOrder._id);
+							firstOrder.batch = newBatch._id;
+							firstOrder.updateOrderStatus(2);
+						}
 						return newBatch.recalculate().then(async () => {
 							for (order of orders) {
 								await addOrderToBatch(order);
