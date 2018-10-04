@@ -249,13 +249,13 @@ shtml
 				});
 
 				$('#deleteOrder').click(e => {
-				e.preventDefault();
-				var yes = confirm('Are you sure you want to delete the order from the system? If the order has a status of "New" in 3D Cart it will be imported again.');
-				if (yes) {
-					socket.emit('deleteOrder', theOrder._id, cb => {
-						window.location = '/orders';
-					});
-				}
+					e.preventDefault();
+					var yes = confirm('Are you sure you want to delete the order from the system? If the order has a status of "New" in 3D Cart it will be imported again.');
+					if (yes) {
+						socket.emit('deleteOrder', theOrder._id, cb => {
+							window.location = '/orders';
+						});
+					}
 				});
 			});
 
