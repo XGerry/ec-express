@@ -68,7 +68,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 			newBatch.orders.push(firstRushedOrder._id);
 			firstRushedOrder.batch = newBatch._id;
 			firstRushedOrder.updateOrderStatus(2);
-			promises.add(newBatch.recalculate());
+			promises.push(newBatch.recalculate());
 		}
 		return Promise.all(promises).then(async () => {
 			for (order of rushedOrders) {
