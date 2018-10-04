@@ -60,6 +60,7 @@ shtml
 										th.text-center Picked
 										th.text-center Invoiced
 										th.text-center Paid
+										th.text-center Rush
 										th Batch
 								tbody#customerTableBody
 									tr
@@ -73,6 +74,8 @@ shtml
 											input(type="checkbox" checked=order.invoiced style="transform: scale(2);")#invoicedCheckbox
 										td.text-center
 											input(type="checkbox" checked=order.paid style="transform: scale(2);")#paidCheckbox
+										td.text-center
+											input(type="checkbox" checked=order.rush style="transform: scale(2);")#rushCheckbox
 										td
 											if (order.batch)
 												a(href="batch-sheet?id="+order.batch) View
@@ -207,6 +210,10 @@ shtml
 
 				$('#paidCheckbox').on('change', e => {
 					theOrder.paid = $('#paidCheckbox').is(':checked');
+				});
+
+				$('#rushCheckbox').on('change', e => {
+					theOrder.rush = $('#rushCheckbox').is(':checked');
 				});
 
 				$('#saveOrderButton').click(e => {

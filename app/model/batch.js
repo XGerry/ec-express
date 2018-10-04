@@ -39,12 +39,9 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 
 		if (possibleTotalSkus < maxNumberOfSkus && possibleTotalItems < maxNumberOfItems) {
 			newBatch.orders.push(order._id);
-			newBatch.numberOfItems = possibleTotalItems;
-			newBatch.numberOfSkus = possibleTotalSkus;
 			order.batch = newBatch._id;
-			order.save().then(o => {
-				o.updateOrderStatus(2); // Processing
-			});
+			o.updateOrderStatus(2); // Processing
+			newBatch.recalculate();
 		}
 	}
 
@@ -59,21 +56,36 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 		query.amazon = true;
 	}
 
-	return Order.find(query).sort('orderDate').then(orders => {
-		console.log('Found ' + orders.length + ' unpicked orders');
-		if (orders.length > 0) {
-			// Add the first order to the batch to start it off
-			var firstOrder = orders.shift();
-			newBatch.orders.push(firstOrder._id);
-			firstOrder.batch = newBatch._id;
-			firstOrder.updateOrderStatus(2);
-			newBatch.numberOfSkus = firstOrder.items.length;
-			newBatch.numberOfItems = firstOrder.items.reduce((total, item) => {
-				return total + item.quantity;
-			}, 0);
-			orders.forEach(o => addOrderToBatch(o));
-			return newBatch.save();
-		}	
+	// first add any orders that need to be rushed
+	query.rush = true;
+
+	return Order.find(query).sort('orderDate').then(rushedOrders => {
+		console.log('Found ' + orders.length + ' rush orders');
+		if (rushedOrders.length > 0) {
+			// add the first order
+			var firstRushedOrder = rushedOrders.shift();
+			newBatch.orders.push(firstRushedOrder._id);
+			firstRushedOrder.batch = newBatch._id;
+			firstRushedOrder.updateOrderStatus(2);
+			newBatch.recalculate();
+			rushedOrders.forEach(ro => {
+				addOrderToBatch(ro);
+			});
+		}
+		// now the non-rushed orders
+		delete query.rush;
+		return Order.find(query).sort('orderDate').then(orders => {
+			console.log('Found ' + orders.length + ' unpicked orders');
+			if (orders.length > 0) {
+				var firstOrder = orders.shift();
+				newBatch.orders.push(firstOrder._id);
+				firstOrder.batch = newBatch._id;
+				firstOrder.updateOrderStatus(2);
+				newBatch.recalculate();
+				orders.forEach(o => addOrderToBatch(o));
+				return newBatch.save();
+			}	
+		});
 	});
 }
 
@@ -107,7 +119,21 @@ batchSchema.methods.removeOrder = function(orderId) {
 	if (index >= 0) {
 		this.orders.splice(index, 1);
 	}
-	return this.save();
+	return this.recalculate();
+}
+
+batchSchema.methods.recalculate = function() {
+	return this.populate('orders').execPopulate().then(() => {
+		this.numberOfItems = 0;
+		this.numberOfSkus = 0;
+		this.orders.forEach(o => {
+			this.numberOfSkus += o.items.length;
+			this.numberOfItems += o.items.reduce((totalItems, item) => {
+				return totalItems + parseInt(item.quantity);
+			}, 0);
+		});
+		return this.save();
+	});
 }
 
 batchSchema.methods.finish = function(batch) {

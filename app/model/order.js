@@ -58,6 +58,10 @@ var orderSchema = new mongoose.Schema({
 	paid: {
 		type: Boolean,
 		default: false
+	},
+	rush: {
+		type: Boolean,
+		default: false
 	}
 }, {
 	usePushEach: true
