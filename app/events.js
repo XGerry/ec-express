@@ -764,6 +764,12 @@
  			});
  		});
 
+ 		socket.on('deleteOrder', (id, cb) => {
+ 			Order.remove({_id: id}).then(res => {
+ 				cb(res);
+ 			});
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',
