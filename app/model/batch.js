@@ -60,7 +60,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	query.rush = true;
 
 	return Order.find(query).sort('orderDate').then(rushedOrders => {
-		console.log('Found ' + orders.length + ' rush orders');
+		console.log('Found ' + rushedOrders.length + ' rush orders');
 		if (rushedOrders.length > 0) {
 			// add the first order
 			var firstRushedOrder = rushedOrders.shift();
