@@ -28,7 +28,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	var newBatch = new this();
 	newBatch.startTime = new Date();
 
-	function addOrderToBatch(order) {
+	async function addOrderToBatch(order) {
 		var numberOfSkus = parseInt(order.items.length);
 		var numberOfItems = order.items.reduce((totalItems, item) => {
 			return totalItems + parseInt(item.quantity);
@@ -41,7 +41,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 			newBatch.orders.push(order._id);
 			order.batch = newBatch._id;
 			order.updateOrderStatus(2); // Processing
-			newBatch.recalculate();
+			return newBatch.recalculate();
 		}
 	}
 
@@ -67,25 +67,29 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 			newBatch.orders.push(firstRushedOrder._id);
 			firstRushedOrder.batch = newBatch._id;
 			firstRushedOrder.updateOrderStatus(2);
-			newBatch.recalculate();
-			rushedOrders.forEach(ro => {
-				addOrderToBatch(ro);
+			return newBatch.recalculate().then(async () => {
+				for (order of rushedOrders) {
+					await addOrderToBatch(order);
+				}
+				// now the non-rushed orders
+				delete query.rush;
+				return Order.find(query).sort('orderDate').then(orders => {
+					console.log('Found ' + orders.length + ' unpicked orders');
+					if (orders.length > 0) {
+						var firstOrder = orders.shift();
+						newBatch.orders.push(firstOrder._id);
+						firstOrder.batch = newBatch._id;
+						firstOrder.updateOrderStatus(2);
+						return newBatch.recalculate().then(async () => {
+							for (order of orders) {
+								await addOrderToBatch(order);
+							}
+							return newBatch.save();
+						});
+					}	
+				});
 			});
 		}
-		// now the non-rushed orders
-		delete query.rush;
-		return Order.find(query).sort('orderDate').then(orders => {
-			console.log('Found ' + orders.length + ' unpicked orders');
-			if (orders.length > 0) {
-				var firstOrder = orders.shift();
-				newBatch.orders.push(firstOrder._id);
-				firstOrder.batch = newBatch._id;
-				firstOrder.updateOrderStatus(2);
-				newBatch.recalculate();
-				orders.forEach(o => addOrderToBatch(o));
-				return newBatch.save();
-			}	
-		});
 	});
 }
 
