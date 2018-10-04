@@ -40,7 +40,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 		if (possibleTotalSkus < maxNumberOfSkus && possibleTotalItems < maxNumberOfItems) {
 			newBatch.orders.push(order._id);
 			order.batch = newBatch._id;
-			o.updateOrderStatus(2); // Processing
+			order.updateOrderStatus(2); // Processing
 			newBatch.recalculate();
 		}
 	}
