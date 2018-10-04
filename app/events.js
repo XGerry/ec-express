@@ -705,8 +705,8 @@
 
  		socket.on('finishBatch', (batch, cb) => {
  			Batch.findOne({_id: batch._id}).populate('orders').then(dbBatch => {
-				dbBatch.finish(batch).then(batch => {
-					cb(batch);
+				dbBatch.finish(batch).then(savedBatch => {
+					cb(savedBatch);
 				});
  			});
  		});

@@ -35,11 +35,9 @@ shtml
 							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
 								a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
+								.dropdown-divider
 								a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
-								
-								//a(href="#").dropdown-item#clearItemsButton Clear Items
-								//.dropdown-divider
-								//a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
 						button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
 						.btn-group
 							button.btn.btn-success(type="button")#saveOrderButton Save
@@ -133,6 +131,9 @@ shtml
 									.input-group-prepend
 										.input-group-text $
 									input.form-control(type="number")#itemPrice
+							.col
+								label Picked
+								input.form-control(type="number")#itemPickedQuantity
 					.modal-footer
 						button.btn-primary.btn(type="button")#saveItemButton Save
 						button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
@@ -152,7 +153,8 @@ shtml
 							sku: ''
 						},
 						quantity: 1,
-						price: 0
+						price: 0,
+						pickedQuantity: 0
 					}
 					showModal(newItem);
 				});
@@ -160,6 +162,7 @@ shtml
 				$('#saveItemButton').click(e => {
 					theItem.quantity = $('#itemQuantity').val();
 					theItem.price = $('#itemPrice').val();
+					theItem.pickedQuantity = $('#itemPickedQuantity').val();
 					if (addingItem) {
 						theOrder.items.push(theItem);
 					}
@@ -237,9 +240,17 @@ shtml
 
 				$('#removeFromBatchButton').click(e => {
 					e.preventDefault();
-					socket.emit('removeOrderFromBatch', theOrder._id, response => {
-						location.reload();
-					});
+					var yes = confirm('Are you sure you want to remove this order from it\'s batch?');
+					if (yes) {
+						socket.emit('removeOrderFromBatch', theOrder._id, response => {
+							location.reload();
+						});
+					}
+				});
+
+				$('#deleteOrder').click(e => {
+				e.preventDefault();
+				
 				});
 			});
 
@@ -249,6 +260,7 @@ shtml
 				$('#itemSKU').val(item.item.sku);
 				$('#itemQuantity').val(item.quantity);
 				$('#itemPrice').val(item.price.toFixed(2));
+				$('#itemPickedQuantity').val(item.pickedQuantity);
 			}
 
 			function editItem(id) {
