@@ -4,7 +4,7 @@ mixin tableRow(batch)
 		td=batch.numberOfSkus
 		td=batch.numberOfItems
 		td=batch.completed
-		td= moment(batch.startTime).format('MMMM Do, h:mm:ss a')
+		td(data-sort=moment(batch.startTime))=moment(batch.startTime).format('MMMM Do, h:mm:ss a')
 		th
 			a.btn.btn-secondary(href="/packing-slip?id="+batch._id, target="_blank") View
 

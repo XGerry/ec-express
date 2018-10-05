@@ -101,7 +101,9 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
 
 orderSchema.methods.removeBatch = function() {
 	return this.populate('batch').execPopulate().then(() => {
-		this.batch.removeOrder(this._id);
+		if (this.batch) {
+			this.batch.removeOrder(this._id);
+		}
 		this.batch = null;
 		return this.save();
 	});
