@@ -104,6 +104,7 @@ orderSchema.methods.removeBatch = function() {
 		if (this.batch) {
 			this.batch.removeOrder(this._id);
 		}
+		console.log(this.batch);
 		this.batch = null;
 		return this.save();
 	});
