@@ -752,7 +752,6 @@
  		socket.on('removeOrderFromBatch', (id, cb) => {
  			Order.findOne({_id: id}).populate('batch').then(order => {
  				order.removeBatch().then(o => {
- 					console.log(o.batch);
  					cb('done');
  				});
  			});

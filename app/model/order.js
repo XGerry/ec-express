@@ -107,6 +107,7 @@ orderSchema.methods.removeBatch = function() {
 		this.batch = null;
 		return this.save().then(savedOrder => {
 			console.log(savedOrder.batch);
+			return Promise.resolve();
 		});
 	});
 }
