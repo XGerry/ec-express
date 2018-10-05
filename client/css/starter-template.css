@@ -314,3 +314,15 @@ li a.active {
 .sortTableRow {
 	transition: background 0.5s;
 }
+
+table tbody tr.can-row {
+	background-color: #FF5B5B;
+}
+
+table tbody tr.us-row {
+	background-color: #5B67FF;
+}
+
+table tbody tr.rush {
+	background-color: #22AD00;
+}

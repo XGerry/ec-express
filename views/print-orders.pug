@@ -1,5 +1,5 @@
 mixin tableRow(order)
-	tr(onclick="openOrder('"+order._id+"', event)")
+	tr(onclick="openOrder('"+order._id+"', event)" class=order.canadian ? 'can-row' : 'us-row' class=order.rush ? 'rush text-white' : '')
 		td
 			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check
 		td=order.orderId
@@ -41,7 +41,7 @@ html
 				.container-fluid
 					.row.pt-3
 						.col-lg-12
-							table.table-hover.table#orderTable
+							table.table-hover.table#orderTable.table-dark
 								thead
 									tr
 										th
@@ -74,7 +74,7 @@ html
 
 				$('#orderTable').dataTable({
 					order: [[2, 'asc']],
-					pageLength: 25
+					pageLength: 100
 				});
 			});	
 
