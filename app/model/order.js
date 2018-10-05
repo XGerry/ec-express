@@ -103,7 +103,7 @@ orderSchema.methods.removeBatch = function() {
 	if (this.batch) {
 		console.log(this.batch);
 		return this.populate('batch').execPopulate().then(() => {
-			console.log(this.batch._id);
+			console.log(this.batch);
 			if (this.batch) {
 				return this.batch.removeOrder(this._id).then(() => {
 					this.batch = null;
