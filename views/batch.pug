@@ -1,0 +1,102 @@
+mixin orderRow(order)
+	tr(onclick="window.location='/order?id="+order._id+"'")
+		td=order.orderId
+		td=order.name
+		td=order.items.length
+		td=0
+		td=0
+		td='$'+order.orderValue.toFixed(2)
+
+
+doctype html
+include mixins
+shtml
+	include includes/head
+		title Batch
+	body
+		#wrapper
+			+sidebarNav("orders")
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2=batch._id
+					span.navbar-text#orderInfo.ml-2
+					ul.navbar-nav.ml-auto
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#finishBatchButton Finish
+								.dropdown-divider
+								a#deleteBatchButton(href="#").dropdown-item.bg-danger.text-white Delete
+						a.btn-outline-primary.btn.mr-2(href="/batch-sheet?id="+batch._id) Pick Sheet
+						a.btn-outline-primary.btn.mr-2(href="/packing-slip?id="+batch._id) Packing Slip
+						button.btn-primary.btn.mr-2(type="button")#addOrderButton Add Order
+						//.btn-group
+							button.btn.btn-success(type="button")#saveOrderButton Save
+							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
+							.dropdown-menu.dropdown-menu-right
+								a.dropdown-item(href="#")#updateQuickbooks Update in QB
+								a.dropdown-item(href="#")#invoiceOrder Invoice Order
+
+				.container.pt-3
+					.row
+						.col
+							h4 Information
+							table.table.table-sm#customerTable
+								thead
+									tr
+										th Start Date
+										th End Date
+										th Completed
+										th Number of Orders
+								tbody#customerTableBody
+									tr
+										td=moment(batch.startTime).format('MMM Do - h:mm:ss a')
+										td=batch.endTime ? moment(batch.endTime).format('MMM Do hh:mm:ss a') : '-'
+										td=batch.completed ? 'yes' : 'no'
+										td=batch.orders.length
+
+					.row.pt-2
+						.col
+							h4 Orders
+							table.table.table-striped.table-hover#orderTable
+								thead
+									tr
+										th Id
+										th Name
+										th Number of SKUs
+										th Ordered
+										th Picked
+										th Value
+								tbody#orderTableBody
+									each order in batch.orders
+										+orderRow(order)
+
+		+footer
+		script.
+			var socket = io();
+			var theBatch = !{JSON.stringify(batch)};
+			console.log(theBatch);
+
+			$(document).ready(e => {
+				$('#finishBatchButton').click(e => {
+					socket.emit('finishBatch', theBatch, response => {
+						location.reload();
+					});
+				});
+
+				$('#deleteBatchButton').click(e => {
+					e.preventDefault();
+					var yes = confirm('Are you sure you want to delete this batch? All associated orders will no longer have a batch.');
+					if (yes) {
+						socket.emit('deleteBatch', theBatch._id, done => {
+							location.reload();
+						});
+					}
+				});
+
+				$('#addOrderButton').click(e => {
+					socket.emit('addOrder')
+				});	
+			});

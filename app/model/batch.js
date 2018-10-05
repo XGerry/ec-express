@@ -144,6 +144,15 @@ batchSchema.methods.recalculate = function() {
 	});
 }
 
+batchSchema.methods.delete = function() {
+	return this.populate('orders').execPopulate().then(() => {
+		this.orders.forEach(o => {
+			o.removeBatch();
+		});
+		return this.remove({_id: this._id});
+	});
+}
+
 batchSchema.methods.finish = function(batch) {
 	this.set(batch);
 	this.endTime = new Date();

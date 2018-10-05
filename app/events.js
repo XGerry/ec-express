@@ -770,6 +770,18 @@
  			});
  		});
 
+ 		socket.on('deleteBatch', (id, cb) => {
+ 			Batch.findOne({_id: id}).then(batch => {
+ 				if (batch) {
+ 					batch.delete().then(() => {
+ 						cb();
+ 					});
+ 				} else {
+ 					cb();
+ 				}
+ 			});
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',

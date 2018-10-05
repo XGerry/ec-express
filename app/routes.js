@@ -479,6 +479,18 @@ module.exports = function(app, passport) {
     });
   });
 
+  app.get('/batch', (req, res) => {
+    loadBatch(req.query.id).then(batch => {
+      if (batch) {
+        res.render('batch', {
+          batch: batch
+        });
+      } else {
+        res.redirect('/batches');
+      }
+    });
+  });
+
   function loadBatch(id) {
     return Batch.findOne({_id: id}).populate({
       path: 'orders',
