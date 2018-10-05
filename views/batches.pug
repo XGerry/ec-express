@@ -39,7 +39,7 @@ html
 							input.form-control.form-control-lg(type="text", placeholder="Scan batch barcode here")#sortBatch
 					.row.pt-3
 						.col-lg-12
-							table.table-hover.table
+							table.table-hover.table#batchTable
 								thead
 									tr
 										th Number of Orders
@@ -54,6 +54,13 @@ html
 		+footer
 		script.
 			$(document).ready(e => {
+				$('#batchTable').DataTable({
+					bDestroy: true,
+					pageLength: 100,
+					order: [[4, 'desc']]
+				});
+
+
 				$('#sortBatch').select();
 				$('#sortBatch').on('keypress', e => {
 					var key = e.keyCode || e.which;
