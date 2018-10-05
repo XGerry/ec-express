@@ -87,9 +87,11 @@ shtml
 								thead
 									tr
 										th Payment method
+										th Customer Type
 								tbody
 									tr
 										td= order.cartOrder.BillingPaymentMethod
+										td= order.customerType == 0 ? 'Retail' : 'Wholesale'
 
 
 					if (order.cartOrder.CustomerComments)
@@ -183,11 +185,7 @@ shtml
 							return;
 						}
 						theItem.item = items[0];
-						if (theOrder.canadian) {
-							theItem.price = items[0].canPrice;
-						} else {
-							theItem.price = items[0].usPrice;
-						}
+						theItem.price = determineItemPrice(items[0]);
 						$('#itemPrice').val(theItem.price.toFixed(2));
 					});
 				});
@@ -265,6 +263,22 @@ shtml
 					}
 				});
 			});
+
+			function determineItemPrice(item) {
+				if (theOrder.canadian) {
+					if (theOrder.customerType == 0) {
+						return item.canPrice;
+					} else {
+						return item.canWholesalePrice;
+					}
+				} else {
+					if (theOrder.customerType == 0) {
+						return item.usPrice;
+					} else {
+						return item.usWholesalePrice;
+					}
+				}
+			}
 
 			function showModal(item) {
 				theItem = item;

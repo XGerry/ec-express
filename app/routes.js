@@ -438,8 +438,10 @@ module.exports = function(app, passport) {
   app.get('/order', (req, res) => {
     Order.findOne({_id: req.query.id}).populate('items.item').then(order => {
       if (order) {
-        res.render('order', {
-          order: order
+        getCustomerType(order).then(() => {
+          res.render('order', {
+            order: order
+          });
         });
       } else {
         res.redirect('/orders');
@@ -464,22 +466,7 @@ module.exports = function(app, passport) {
       if (batch) {
         var promises = [];
         batch.orders.forEach(o => {
-          if (o.customerType == undefined || o.customerType == null) { 
-            if (o.cartOrder.CustomerID == 0) {
-              o.customerType = 0;
-              promises.push(o.save());
-            } else {
-              var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+o.cartOrder.CustomerID, 'GET', o.canadian);
-              var getCustomerGroup = rp(options).then(response => {
-                if (Array.isArray(response)) {
-                  response = response[0];
-                }
-                o.customerType = response.CustomerGroupID;
-                return o.save();
-              });
-              promises.push(getCustomerGroup);
-            }
-          }
+          promises.push(getCustomerType(o));
         });
         Promise.all(promises).then(r => {
           res.render('packing-slip', {
@@ -501,5 +488,25 @@ module.exports = function(app, passport) {
         model: 'Item'
       }
     });
+  }
+
+  function getCustomerType(order) {
+    if (order.customerType == undefined || order.customerType == null) { 
+      if (order.cartOrder.CustomerID == 0) {
+        order.customerType = 0;
+        return order.save();
+      } else {
+        var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+order.cartOrder.CustomerID, 'GET', order.canadian);
+        return rp(options).then(response => {
+          if (Array.isArray(response)) {
+            response = response[0];
+          }
+          order.customerType = response.CustomerGroupID;
+          return order.save();
+        });
+      }
+    } else { // already has the customer type
+      return Promise.resolve();
+    }
   }
 }
