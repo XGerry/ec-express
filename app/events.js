@@ -750,9 +750,13 @@
  		});
 
  		socket.on('removeOrderFromBatch', (id, cb) => {
- 			Order.findOne({_id: id}).populate('batch').then(order => {
- 				order.removeBatch().then(o => {
- 					cb('done');
+ 			Order.findOne({_id: id}).then(order => {
+ 				// order.removeBatch().then(o => {
+ 				// 	cb('done');
+ 				// });
+ 				order.batch = null;
+ 				order.save().then(o => {
+ 					cb();
  				});
  			});
  		});
