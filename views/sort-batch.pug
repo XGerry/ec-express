@@ -224,12 +224,17 @@ html
 			}
 
 			function confirmSorting() {
-				$('#sortModal').modal('hide');
 				var pickedQuantity = parseInt($('#sortModalQuantity').val());
-				theItem.pickedQuantity += pickedQuantity;
-				refreshPickedQuantities();
-				$('#'+theItem._id+'-row').remove();
-				$('#item-barcode').select();
+				if (pickedQuantity > theItem.quantity || pickedQuantity == NaN) {
+					alert('Invalid item quantity! Fix the quantity and try again.');
+				} else {
+					$('#sortModal').modal('hide');
+					theItem.pickedQuantity += pickedQuantity;
+					refreshPickedQuantities();
+					$('#'+theItem._id+'-row').remove();
+					$('#item-barcode').select();
+				}
+
 			}
 
 			function refreshPickedQuantities() {
