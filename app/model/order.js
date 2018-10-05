@@ -111,11 +111,13 @@ orderSchema.methods.removeBatch = function() {
 				});
 			} else {
 				this.batch = null;
+				this.markModified('batch');
 				return this.save();
 			}
 		});
 	} else {
 		this.batch = null;
+		this.markModified('batch');
 		return this.save();
 	}
 }
