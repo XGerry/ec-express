@@ -3,8 +3,8 @@ mixin orderRow(order)
 		td=order.orderId
 		td=order.name
 		td=order.items.length
-		td=0
-		td=0
+		td=order.items.reduce((total, item) => total + parseInt(item.quantity), 0)
+		td=order.items.reduce((total, item) => total + parseInt(item.pickedQuantity), 0)
 		td='$'+order.orderValue.toFixed(2)
 
 
