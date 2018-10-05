@@ -100,16 +100,18 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
 }
 
 orderSchema.methods.removeBatch = function() {
-	return this.populate('batch').execPopulate().then(() => {
-		if (this.batch) {
-			this.batch.removeOrder(this._id);
-		}
-		this.batch = null;
-		return this.save().then(savedOrder => {
-			console.log(savedOrder.batch);
-			return Promise.resolve();
-		});
-	});
+	this.batch = null;
+	return this.save();
+	// return this.populate('batch').execPopulate().then(() => {
+	// 	if (this.batch) {
+	// 		this.batch.removeOrder(this._id);
+	// 	}
+	// 	this.batch = null;
+	// 	return this.save().then(savedOrder => {
+	// 		console.log(savedOrder.batch);
+	// 		return Promise.resolve();
+	// 	});
+	// });
 }
 
 orderSchema.methods.updateOrderStatus = function(status) {
