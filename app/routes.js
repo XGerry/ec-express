@@ -168,10 +168,10 @@ module.exports = function(app, passport) {
     var customId = req.query.id;
     console.log(customId);
     if (customId) {
-      CustomOrder.findOne({_id: customId}).then(order => {
+      CustomOrder.findOne({_id: customId}).then(cOrder => {
         console.log('found custom order');
         res.render('new-order', {
-          order: order
+          customOrder: cOrder
         });
       });
     } else {

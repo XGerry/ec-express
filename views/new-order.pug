@@ -408,9 +408,8 @@ html
 					button#removeFromOrderButton.btn.btn-danger(type="button") Remove
 					button.btn.btn-default(type="button", data-dismiss="modal") Cancel
 	
-	script.
-		var customOrder = !{JSON.stringify(order)};
-		console.log(customOrder);
-		if (customOrder) {
+	if (customOrder)
+		script.
+			var customOrder = !{JSON.stringify(customOrder)};
+			console.log(customOrder);
 			loadOrder(customOrder);
-		}
