@@ -168,11 +168,13 @@ module.exports = function(app, passport) {
     var customId = req.query.id;
     if (customId) {
       CustomOrder.findOne({_id: customId}).then(order => {
+        console.log('found custom order');
         res.render('new-order', {
           order: order
         });
       });
     } else {
+      console.log('no custom order');
       res.render('new-order');
     }
   });
@@ -489,6 +491,10 @@ module.exports = function(app, passport) {
         res.redirect('/batches');
       }
     });
+  });
+
+  app.get('/transfer', (req, res) => {
+    res.render('transfer');
   });
 
   function loadBatch(id) {

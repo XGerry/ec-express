@@ -1,0 +1,138 @@
+doctype html
+include mixins
+html
+	include includes/head
+		script(src="/js/papaparse.min.js")
+		title Inventory Transfer
+	body
+		#wrapper
+			+sidebarNav("inventory")
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2#orderNavTitle Inventory Transfer
+					span.navbar-text#info.ml-2
+					ul.navbar-nav.ml-auto
+						//li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="/inventory").dropdown-item New Adjustment
+								a(href="#").dropdown-item#clearItemsButton Clear Items
+								.dropdown-divider
+								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Import
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#browseButton Browse for file
+								input(type="file" style="display:none;")#fileInput
+						.btn-group
+							button.btn.btn-success(type="button")#saveInventoryButton Save to Quickbooks
+
+				.container.pt-3
+					.row
+						.col
+							.card
+								.card-header 
+									h5.mb-0 Site
+								.card-body
+									.form-group.row
+										.col
+											label(for="fromSite") From
+											select.form-control#fromSite
+												option Warehouse
+												option Store
+												option Event
+										.col
+											label(for="toSite") To
+											select.form-control#toSite
+												option Warehouse
+												option Store
+												option Event
+					.row.pt-2
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Item
+								.card-body
+									.form-group.row
+										.col-sm-4
+											label(for="itemSKU") SKU or Barcode
+											input#itemSKU.form-control(type="text", list="itemList")
+											datalist#itemList
+										.col-sm-4
+											label(for="itemQuantity") Current Stock
+											input#itemQuantity.form-control(type="number", value="1", readonly)
+										.col-4
+											label(for="itemTransfer") Transfer
+											input#itemTransfer.form-control(type="number", value="0")
+									table.table.table-striped.table-hover#inventoryTable
+										thead
+											tr
+												th SKU
+												th New Stock
+												th Difference
+										tbody#inventoryTableBody
+					.row.pt-2
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Options
+								.card-body
+									.row
+										.col-sm-12
+											label Comments
+											textarea.form-control(rows="5")#notesArea
+					.row.pt-2
+						.col-12
+							.card
+								.card-header
+									h5.mb-0 Messages
+								.card-body
+									.row
+										.col-sm-12
+											ul#messages
+		+footer
+
+	script.
+		var itemList = [];
+		var theItem = null;
+		$(document).ready(e => {
+			$('#itemSKU').on('keydown', e => {
+				var code = e.keyCode || e.which;
+				if (code === 13 || code === 9) { // enter or tab key
+					var sku = $('#itemSKU').val().trim();
+					socket.emit('searchDB', {$or: [{ sku: sku }, { barcode: sku }]}, items => {
+						var item = items[0];
+						theItem = item;
+						if (item == null) {
+							$('#itemSKU').select();
+							return;
+						}
+						$('#itemQuantity').val(theItem.stock);
+					});
+				} else if (e.ctrlKey && code === 40) { // down arrow
+					console.log('searching...');
+					socket.emit('searchSKU', $('#itemSKU').val(), items => {
+						$('#itemList').empty();
+						console.log('done');
+						items.forEach(item => {
+							$('#itemList').append($('<option>'+item.sku+'</option>'));
+						});
+					});
+				}
+			});
+
+			$('#itemTransfer').on('keypress', e => {
+				var code = e.keyCode || e.which;
+				if (code == 13) {
+					var transferQuantity = parseInt($('#itemTransfer').val());
+					var itemToTransfer = {
+						sku: theItem.sku,
+						transfer: transferQuantity
+					};
+					itemList.push(itemToTransfer);
+					addItemRow(itemToTransfer);
+				}
+			});
+		});
