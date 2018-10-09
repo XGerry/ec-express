@@ -407,5 +407,10 @@ html
 					button#saveItemButton.btn.btn-success(type="button") Save
 					button#removeFromOrderButton.btn.btn-danger(type="button") Remove
 					button.btn.btn-default(type="button", data-dismiss="modal") Cancel
-script.
-	loadOrder(!{JSON.stringify(order)})
+	
+	script.
+		var customOrder = !{JSON.stringify(order)};
+		console.log(customOrder);
+		if (customOrder) {
+			loadOrder(customOrder);
+		}
