@@ -1222,10 +1222,10 @@ function updateItemSites(response) {
       var sku = site.ItemInventoryRef.FullName || site.ItemInventoryAssemblyRef.FullName;
       sku = sku.trim();
       console.log(sku);
-      var updateItem = Item.find({sku: sku}).then(item => {
-        if (item) {
+      var updateItem = Item.findOne({sku: sku}).then(dbItem => {
+        if (dbItem) {
           var stock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
-          return item.setStock(stock);
+          return dbItem.setStock(stock);
         } else {
           console.log('Item not found: ' + sku);
           return Promise.resolve();
