@@ -95,7 +95,10 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   });
 
   return Promise.all(promises).then(() => {
-  	return this.save();
+  	// after the order is created, move it to the queue
+  	return this.save().then(savedOrder => {
+  		return savedOrder.updateOrderStatus(8); // Queued
+  	});
   });
 }
 
