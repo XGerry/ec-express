@@ -1212,7 +1212,6 @@ function updateInventoryPart(response) {
 function updateItemSites(response) {
   return xml2js(response, {explicitArray: false}).then(result => {
     var itemSitesRs = result.QBXML.QBXMLMsgsRs.ItemSitesQueryRs;
-    console.log(itemSitesRs);
     sitesRet = itemSitesRs.ItemSitesRet;
     if (!Array.isArray(sitesRet)) {
       sitesRet = [sitesRet];
@@ -1221,10 +1220,8 @@ function updateItemSites(response) {
     sitesRet.forEach(site => {
       var sku = site.ItemInventoryRef.FullName || site.ItemInventoryAssemblyRef.FullName;
       sku = sku.trim();
-      console.log(sku);
       var updateItem = Item.findOne({sku: sku}).then(dbItem => {
         if (dbItem) {
-          console.log(site);
           var theStock;
           if (site.QuantityOnSalesOrders) {
             theStock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrders);
