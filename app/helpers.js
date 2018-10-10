@@ -1224,6 +1224,7 @@ function updateItemSites(response) {
       console.log(sku);
       var updateItem = Item.findOne({sku: sku}).then(dbItem => {
         if (dbItem) {
+          console.log(site);
           var stock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
           return dbItem.setStock(stock);
         } else {
