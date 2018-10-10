@@ -1213,6 +1213,20 @@ function updateItemSites(response) {
   return xml2js(response, {explicitArray: false}).then(result => {
     var itemSitesRs = result.QBXML.QBXMLMsgsRs.ItemSitesQueryRs;
     console.log(itemSitesRs);
+    sitesRet = itemSitesRs.ItemSitesRet;
+    if (!Array.isArray(sitesRet)) {
+      sitesRet = [sitesRet];
+    }
+    var promises = [];
+    sitesRet.forEach(site => {
+      var sku = site.ItemInventoryRef.FullName || site.ItemInventoryAssemblyRef.FullName;
+      var updateItem = Item.find({sku: sku}).then(item => {
+        var stock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
+        return item.setStock(stock);
+      });
+      promises.push(updateItem);
+    });
+    return Promise.all(promises);
   });
 }
 

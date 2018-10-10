@@ -201,6 +201,21 @@ itemSchema.methods.saveItem = function(item) {
 	return this.save();
 }
 
+itemSchema.methods.setStock = function(stock) {
+  if (stock < 0 || stock == NaN) {
+    stock = 0;
+  }
+  var updated = this.stock != stock;
+  if (updated) {
+    this.usStock = stock;
+    this.canStock = stock;
+    this.amazonStock = stock;
+    this.walmartStock = stock;
+  }
+  this.updated = updated;
+  return this.save();
+}
+
 itemSchema.methods.updateFromQuickbooks = function(qbItem) {
 	function addItemProperties(data) { // don't update the barcode in here anymore
 	  if (data.DataExtName == 'Location') {
