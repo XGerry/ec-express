@@ -1225,8 +1225,16 @@ function updateItemSites(response) {
       var updateItem = Item.findOne({sku: sku}).then(dbItem => {
         if (dbItem) {
           console.log(site);
-          var stock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
-          return dbItem.setStock(stock);
+          var theStock;
+          if (qbItem.QuantityOnSalesOrder) {
+            theStock = parseInt(qbItem.QuantityOnHand) - parseInt(qbItem.QuantityOnSalesOrder);
+          } else {
+            theStock = parseInt(qbItem.QuantityOnHand);
+          }
+          if (theStock < 0 || theStock == NaN) {
+            theStock = 0;
+          }
+          return dbItem.setStock(theStock);
         } else {
           console.log('Item not found: ' + sku);
           return Promise.resolve();
