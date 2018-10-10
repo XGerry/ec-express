@@ -692,7 +692,7 @@
  		});
 
  		socket.on('getAutoBatch', (batchType, cb) => {
- 			Batch.createAutoBatch(200, 20, batchType).then(batch => {
+ 			Batch.createAutoBatch(200, 35, batchType).then(batch => {
  				cb(batch);
  			});
  		});

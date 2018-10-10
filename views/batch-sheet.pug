@@ -1,7 +1,7 @@
 mixin pickTableRow(item, quantity)
 	tr
-		td.text-center= item.location
-		td.text-center= item.secondLocation
+		td.text-center
+			strong=item.location
 		td.text-center
 			strong=item.sku
 		td.text-center= quantity
@@ -9,6 +9,7 @@ mixin pickTableRow(item, quantity)
 			input(type="checkbox", style="transform: scale(2);margin: 0;")
 		td!= item.name
 		td= item.usStock
+		td.text-center= item.secondLocation
 
 mixin orderSummaryTableRow(order)
 	tr
@@ -66,12 +67,12 @@ html
 							thead
 								tr
 									th.text-center(style="width:14%") Location
-									th.text-center Location 2
 									th.text-center SKU
 									th.text-center Quantity
 									th.text-center Picked
 									th(style="width:30%") Description
 									th Stock Level
+									th.text-center Location 2
 							tbody
 								-
 									var allItems = batch.orders.reduce((arr, order) => {
