@@ -1423,20 +1423,15 @@ function queryAllItems(qbws) {
   return Item.find({}).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart, true);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly, true); // how do we know if it's a bundle?
-    var promises = [];
-    items.forEach(item => {
-      item.updated = false;
-      promises.push(item.save());
-    });
-    return Promise.all(promises);
+    return Item.update({}, {$set: {updated: false}});
   });
 }
 
 function runInventory(qbws) {
   return Item.find({}).then(items => {
     var siteRq = getItemSiteInventory(items);
-    console.log(siteRq);
     qbws.addRequest(siteRq, updateItemSites, true);
+    return Item.update({}, {$set: {updated: false}});
   });
 }
 
