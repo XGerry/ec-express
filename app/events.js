@@ -54,7 +54,7 @@
  						total: total
  					});
  				}).then(responses => {
- 					helpers.queryAllItems(qbws).then(() => {
+ 					helpers.runInventory(qbws).then(() => {
  						qbws.addFinalCallback(() => {
  							socket.emit('webConnectorFinished');
  							saveInventory().then(() => {
