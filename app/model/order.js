@@ -137,6 +137,7 @@ orderSchema.methods.updateOrderStatus = function(status) {
 
 orderSchema.methods.updateOrder = function(order) {
 	this.set(order);
+	console.log(order);
 	this.save();
 	var oldOrder = {};
 	// replace the items

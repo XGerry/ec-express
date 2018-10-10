@@ -1218,7 +1218,12 @@ function updateItemSites(response) {
     }
     var promises = [];
     sitesRet.forEach(site => {
-      var sku = site.ItemInventoryRef.FullName || site.ItemInventoryAssemblyRef.FullName;
+      var sku = ''; 
+      if (site.ItemInventoryRef) {
+        sku = site.ItemInventoryRef.FullName;
+      } else {
+        sku = site.ItemInventoryAssemblyRef.FullName;
+      }
       sku = sku.trim();
       var updateItem = Item.findOne({sku: sku}).then(dbItem => {
         if (dbItem) {
