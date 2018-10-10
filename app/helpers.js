@@ -1226,8 +1226,8 @@ function updateItemSites(response) {
         if (dbItem) {
           console.log(site);
           var theStock;
-          if (site.QuantityOnSalesOrder) {
-            theStock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
+          if (site.QuantityOnSalesOrders) {
+            theStock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrders);
           } else {
             theStock = parseInt(site.QuantityOnHand);
           }
