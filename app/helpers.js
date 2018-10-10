@@ -1226,10 +1226,10 @@ function updateItemSites(response) {
         if (dbItem) {
           console.log(site);
           var theStock;
-          if (qbItem.QuantityOnSalesOrder) {
-            theStock = parseInt(qbItem.QuantityOnHand) - parseInt(qbItem.QuantityOnSalesOrder);
+          if (site.QuantityOnSalesOrder) {
+            theStock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
           } else {
-            theStock = parseInt(qbItem.QuantityOnHand);
+            theStock = parseInt(site.QuantityOnHand);
           }
           if (theStock < 0 || theStock == NaN) {
             theStock = 0;
