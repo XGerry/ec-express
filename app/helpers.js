@@ -1220,9 +1220,16 @@ function updateItemSites(response) {
     var promises = [];
     sitesRet.forEach(site => {
       var sku = site.ItemInventoryRef.FullName || site.ItemInventoryAssemblyRef.FullName;
+      sku = sku.trim();
+      console.log(sku);
       var updateItem = Item.find({sku: sku}).then(item => {
-        var stock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
-        return item.setStock(stock);
+        if (item) {
+          var stock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrder);
+          return item.setStock(stock);
+        } else {
+          console.log('Item not found: ' + sku);
+          return Promise.resolve();
+        }
       });
       promises.push(updateItem);
     });
