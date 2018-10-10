@@ -25,7 +25,7 @@ var orderSchema = new mongoose.Schema({
 		},
 		price: Number
 	}],
-	customerType: String,
+	customerType: Number,
 	name: String,
 	email: String,
 	orderId : String,

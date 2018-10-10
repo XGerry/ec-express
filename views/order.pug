@@ -56,7 +56,6 @@ shtml
 										th Name
 										th Email
 										th Phone
-										th Value
 										th.text-center Picked
 										th.text-center Invoiced
 										th.text-center Paid
@@ -67,7 +66,6 @@ shtml
 										td=order.name
 										td=order.cartOrder.BillingEmail
 										td=order.cartOrder.BillingPhoneNumber
-										td='$'+order.orderValue.toFixed(2)
 										td.text-center
 											input(type="checkbox" checked=order.picked style="transform: scale(2);")#pickedCheckbox
 										td.text-center
@@ -88,10 +86,36 @@ shtml
 									tr
 										th Payment method
 										th Customer Type
+										th Original Value
+										th Picked Value
 								tbody
 									tr
 										td= order.cartOrder.BillingPaymentMethod
 										td= order.customerType == 0 ? 'Retail' : 'Wholesale'
+										td='$'+order.orderValue.toFixed(2)
+										-
+											var pickedValue = 0;
+											order.items.forEach(item => {
+												var itemPrice = 0;
+												if (order.canadian) {
+													if (order.customerType == 0) {
+														itemPrice = item.item.canPrice;
+													} else {
+														itemPrice = item.item.canWholesalePrice;
+													}
+												} else {
+													if (order.customerType == 0) {
+														itemPrice = item.item.usPrice;
+													} else {
+														itemPrice = item.item.usWholesalePrice;
+													}
+												}
+												var lineValue = itemPrice * item.pickedQuantity;
+												pickedValue += lineValue;
+											});
+										td= '$' + pickedValue.toFixed(2)
+
+
 
 
 					if (order.cartOrder.CustomerComments)
