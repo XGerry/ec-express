@@ -88,6 +88,7 @@ shtml
 										th Customer Type
 										th Original Value
 										th Picked Value
+										th Order Date
 								tbody
 									tr
 										td= order.cartOrder.BillingPaymentMethod
@@ -114,6 +115,7 @@ shtml
 												pickedValue += lineValue;
 											});
 										td= '$' + pickedValue.toFixed(2)
+										td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
 
 
 
