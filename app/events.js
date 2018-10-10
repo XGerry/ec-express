@@ -786,6 +786,11 @@
  			});
  		});
 
+ 		socket.on('transferInventory', (inventoryTransfer, cb) => {
+ 			helpers.transferInventory(inventoryTransfer, qbws);
+ 			cb('Run the web connector!');
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',

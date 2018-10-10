@@ -726,6 +726,48 @@ function closeSalesOrders(qbws, orderId) {
   });
 }
 
+function getInventoryTransferRq(transfer) {
+  var itemList = [];
+  transfer.items.forEach(item => {
+    var transferItem = {
+      ItemRef: {
+        FullName: item.sku
+      },
+      QuantityToTransfer: item.transfer
+    };
+    itemList.push(transferItem);
+  });
+
+  var obj = {
+    TransferInventoryAddRq: {
+      TransferInventoryAdd: {
+        FromInventorySiteRef: {
+          FullName: transfer.from
+        },
+        ToInventorySiteRef: {
+          FullName: transfer.to
+        },
+        Memo: 'Done through EC-Express',
+        TransferInventoryLineAdd: itemList
+      }
+    }
+  }
+
+  var xmlDoc = getXMLRequest(obj);
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
+function transferInventory(inventoryTransfer, qbws) {
+  var transferRq = getInventoryTransferRq(inventoryTransfer);
+  console.log(transferRq);
+  qbws.addRequest(transferRq, xmlResponse => {
+    return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+      console.log(responseObject);
+    });
+  });
+}
+
 function createInvoicesFromSalesOrders(qbws, orders) {
   qbws.addRequest(getSalesOrdersRq(orders, true), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
@@ -1687,5 +1729,6 @@ module.exports = {
   createInvoiceFromSalesOrder: createInvoiceFromSalesOrder,
   createInvoicesFromSalesOrders: createInvoicesFromSalesOrders,
   closeSalesOrders: closeSalesOrders,
-  updateSalesOrder: updateSalesOrder
+  updateSalesOrder: updateSalesOrder,
+  transferInventory: transferInventory
 }

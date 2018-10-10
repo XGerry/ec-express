@@ -70,8 +70,8 @@ html
 										thead
 											tr
 												th SKU
-												th New Stock
-												th Difference
+												th Transfer Quantity
+												th
 										tbody#inventoryTableBody
 					.row.pt-2
 						.col-12
@@ -97,6 +97,7 @@ html
 	script.
 		var itemList = [];
 		var theItem = null;
+		var socket = io();
 		$(document).ready(e => {
 			$('#itemSKU').on('keydown', e => {
 				var code = e.keyCode || e.which;
@@ -123,9 +124,35 @@ html
 				}
 			});
 
-			$('#itemTransfer').on('keypress', e => {
+			$('#browseButton').click(e => {
+				e.preventDefault();
+				$('#fileInput').val('');
+				$('#fileInput').click();
+			});
+
+			$('#fileInput').on('change', e => {
+				console.log('file change');
+				$('#info').text('Loading... Please wait.')
+				$('#fileName').text(e.target.files[0].name);
+
+				$('#fileInput').parse({
+					config: {
+						complete: function(results, file) {
+							populateFromFile(results.data);
+						},
+						header: true
+					},
+					complete: function() {
+						console.log('all files done');
+					}
+				});
+			});
+
+			$('#itemTransfer').on('keydown', e => {
 				var code = e.keyCode || e.which;
-				if (code == 13) {
+				if (code == 13 || code == 9) {
+					e.preventDefault();
+					e.stopPropagation();
 					var transferQuantity = parseInt($('#itemTransfer').val());
 					var itemToTransfer = {
 						sku: theItem.sku,
@@ -133,6 +160,47 @@ html
 					};
 					itemList.push(itemToTransfer);
 					addItemRow(itemToTransfer);
+					$('#itemSKU').select();
 				}
 			});
+
+			$('#saveInventoryButton').click(e => {
+				var inventoryTransfer = {
+					from: $('#fromSite').val(),
+					to: $('#toSite').val(),
+					items: itemList
+				};
+				socket.emit('transferInventory', inventoryTransfer, response => {
+					console.log(response);
+				});
+			});
 		});
+
+		function addItemRow(item) {
+			var row = $('<tr></tr>');
+			var sku = $('<td></td>').text(item.sku);
+			var transfer = $('<td></td>').text(item.transfer);
+			var removeCol = $('<td></td>').addClass('text-center');
+			var remove = $('<button></button>').addClass('close').html('&times;')
+
+			remove.click(e => {
+				console.log('removing item');
+				itemList.splice(itemList.indexOf(item), 1);
+				row.remove();
+			});
+			removeCol.append(remove);
+
+			row.append(sku);
+			row.append(transfer);
+			row.append(removeCol);
+
+			$('#inventoryTableBody').append(row);
+		}
+
+		function populateFromFile(data) {
+			data = data.filter(i => i.sku != '');
+			data.forEach(item => {
+				itemList.push(item);
+				addItemRow(item);
+			});
+		}

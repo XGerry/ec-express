@@ -59,18 +59,18 @@ $(document).ready(e => {
 		}
 	});
 
-	$('#browseButton').click(e => {
-		e.preventDefault();
-		$('#fileInput').val('');
-		$('#fileInput').click();
-	});
-
 	$('#saveInventoryButton').click(e => {
 		var memo = $('#notesArea').val();
 		socket.emit('updateInventory', inventoryList, memo, response => {
 			$('#info').text('Inventory Adjustment request sent to Quickbooks. Run the Web Connector.');
 			clearFields();
 		});
+	});
+
+	$('#browseButton').click(e => {
+		e.preventDefault();
+		$('#fileInput').val('');
+		$('#fileInput').click();
 	});
 
 	$('#fileInput').on('change', e => {

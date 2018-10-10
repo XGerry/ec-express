@@ -2,41 +2,22 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <InvoiceAddRq requestID="AB-39464">
-      <InvoiceAdd>
-        <CustomerRef>
-          <ListID>80008D90-1538244707</ListID>
-        </CustomerRef>
-        <RefNumber>AB-39464</RefNumber>
-        <InvoiceLineAdd>
-          <Quantity>1</Quantity>
-          <SalesTaxCodeRef>
-            <ListID>80000007-1410624698</ListID>
-            <FullName>NON</FullName>
-          </SalesTaxCodeRef>
-          <LinkToTxn>
-            <TxnID>3A4ABE-1538244708</TxnID>
-            <TxnLineID>3A4AC0-1538244708</TxnLineID>
-          </LinkToTxn>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <Quantity>1</Quantity>
-          <SalesTaxCodeRef>
-            <ListID>80000007-1410624698</ListID>
-            <FullName>NON</FullName>
-          </SalesTaxCodeRef>
-          <LinkToTxn>
-            <TxnID>3A4ABE-1538244708</TxnID>
-            <TxnLineID>3A4AC1-1538244708</TxnLineID>
-          </LinkToTxn>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
+    <TransferInventoryAddRq>
+      <TransferInventoryAdd>
+        <FromInventorySiteRef>
+          <FullName>Warehouse</FullName>
+        </FromInventorySiteRef>
+        <ToInventorySiteRef>
+          <FullName>Store</FullName>
+        </ToInventorySiteRef>
+        <Memo>Done through EC-Express</Memo>
+        <TransferInventoryLineAdd>
           <ItemRef>
-            <FullName>Shipping &amp; Handling</FullName>
-            <Rate>5.5</Rate>
+            <FullName>1014G</FullName>
           </ItemRef>
-        </InvoiceLineAdd>
-      </InvoiceAdd>
-    </InvoiceAddRq>
+          <QuantityToTransfer>5</QuantityToTransfer>
+        </TransferInventoryLineAdd>
+      </TransferInventoryAdd>
+    </TransferInventoryAddRq>
   </QBXMLMsgsRq>
 </QBXML>
