@@ -186,6 +186,32 @@ function queryItemRq(items, limit) {
   return str;
 }
 
+function getItemSiteInventory(items) {
+  var skus = [];
+  items.forEach(item => {
+    skus.push(item.sku);
+  });
+  var obj = {
+    ItemSitesQueryRq: {
+      //ItemTypeFilter: 'InventoryAndAssembly',
+      ItemSiteFilter: {
+        ItemFilter: {
+          FullName: skus
+        },
+        SiteFilter: {
+          FullName: 'Warehouse' // only get the inventory from the warehouse
+        }
+      },
+      ActiveStatus: 'All',
+      IncludeRetElement: ['QuantityOnHand', 'QuantityOnSalesOrder']
+    }
+  };
+
+  var xmlDoc = getXMLRequest(obj);
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
 function modifyInventoryRq(item) {
   var qbRq = {
     InventoryAdjustmentAddRq : {
@@ -1183,6 +1209,13 @@ function updateInventoryPart(response) {
   });
 }
 
+function updateItemSites(response) {
+  return xml2js(response, {explicitArray: false}).then(result => {
+    var itemSitesRs = result.QBXML.QBXMLMsgsRs.ItemSitesQueryRs;
+    console.log(itemSitesRs);
+  });
+}
+
 function updateInventoryAssembly(response) {
   return xml2js(response, {explicitArray: false}).then(result => {
     var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.ItemInventoryAssemblyQueryRs;
@@ -1364,6 +1397,14 @@ function queryAllItems(qbws) {
       promises.push(item.save());
     });
     return Promise.all(promises);
+  });
+}
+
+function runInventory(qbws) {
+  return Item.find({}).limit(10).then(items => {
+    var siteRq = getItemSiteInventory(items);
+    console.log(siteRq);
+    qbws.addRequest(siteRq, updateItemSites, true);
   });
 }
 
@@ -1730,5 +1771,6 @@ module.exports = {
   createInvoicesFromSalesOrders: createInvoicesFromSalesOrders,
   closeSalesOrders: closeSalesOrders,
   updateSalesOrder: updateSalesOrder,
-  transferInventory: transferInventory
+  transferInventory: transferInventory,
+  runInventory: runInventory
 }

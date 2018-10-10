@@ -64,6 +64,10 @@ $(document).ready(function() {
 		console.log(orderId);
 		socket.emit('closeSalesOrder', orderId);
 	});
+
+	$('#runInventoryButton').click(e => {
+		socket.emit('runInventory');
+	});
 });
 
 function loadFromTemplate(data) {

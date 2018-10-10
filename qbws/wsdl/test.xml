@@ -2,22 +2,27 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <TransferInventoryAddRq>
-      <TransferInventoryAdd>
-        <FromInventorySiteRef>
+    <ItemSitesQueryRq>
+      <ItemSiteFilter>
+        <ItemFilter>
+          <FullName>BC115</FullName>
+          <FullName>APA34</FullName>
+          <FullName>APA56</FullName>
+          <FullName>APA12</FullName>
+          <FullName>BC12</FullName>
+          <FullName>BC15</FullName>
+          <FullName>BC155</FullName>
+          <FullName>BC25</FullName>
+          <FullName>AFFD001</FullName>
+          <FullName>BC3</FullName>
+        </ItemFilter>
+        <SiteFilter>
           <FullName>Warehouse</FullName>
-        </FromInventorySiteRef>
-        <ToInventorySiteRef>
-          <FullName>Store</FullName>
-        </ToInventorySiteRef>
-        <Memo>Done through EC-Express</Memo>
-        <TransferInventoryLineAdd>
-          <ItemRef>
-            <FullName>1014G</FullName>
-          </ItemRef>
-          <QuantityToTransfer>5</QuantityToTransfer>
-        </TransferInventoryLineAdd>
-      </TransferInventoryAdd>
-    </TransferInventoryAddRq>
+        </SiteFilter>
+      </ItemSiteFilter>
+      <ActiveStatus>All</ActiveStatus>
+      <IncludeRetElement>QuantityOnHand</IncludeRetElement>
+      <IncludeRetElement>QuantityOnSalesOrder</IncludeRetElement>
+    </ItemSitesQueryRq>
   </QBXMLMsgsRq>
 </QBXML>

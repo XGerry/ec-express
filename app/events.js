@@ -791,6 +791,10 @@
  			cb('Run the web connector!');
  		});
 
+ 		socket.on('runInventory', () => {
+ 			helpers.runInventory(qbws);
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',
