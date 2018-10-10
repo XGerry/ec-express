@@ -201,6 +201,7 @@ itemSchema.methods.saveItem = function(item) {
 	return this.save();
 }
 
+// update the stock from quickbooks
 itemSchema.methods.setStock = function(stock) {
   if (stock < 0 || stock == NaN) {
     stock = 0;
