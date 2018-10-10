@@ -38,7 +38,7 @@ function syncOrdersAndInventory(qbws) {
     cart3d.getItems(qbws, (counter, total) => {
       process.stdout.write((counter/total*100).toFixed(2) + '%\r');
     }).then(responses => {
-      helpers.queryAllItems(qbws).then(() => {
+      helpers.runInventory(qbws).then(() => {
         qbws.addFinalCallback(() => {
           saveInventory().then((responses) => {
             console.log(responses);
