@@ -209,6 +209,7 @@ itemSchema.methods.setStock = function(stock) {
   }
   var updated = this.stock != stock;
   if (updated) {
+    this.stock = stock;
     this.usStock = stock;
     this.canStock = stock;
     this.amazonStock = stock;
