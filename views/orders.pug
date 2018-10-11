@@ -3,6 +3,7 @@ mixin orderRow(order)
 		td=order.orderId
 		td=order.name
 		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
+		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
 		td=order.cartOrder.BillingCompany
 		td='$' + order.orderValue.toFixed(2)
 		td=order.picked ? 'yes' : 'no'
@@ -26,7 +27,7 @@ html
 					h1 Orders
 					p.lead View the orders in the database.
 
-				.container
+				.container-fluid
 					.row
 						.col
 							table.table.table-striped.table-hover#orderTable
@@ -35,6 +36,7 @@ html
 										th Order ID
 										th Name
 										th Date
+										th Due Date
 										th Company
 										th Value
 										th Picked

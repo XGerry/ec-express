@@ -326,3 +326,11 @@ table tbody tr.us-row {
 table tbody tr.rush {
 	background-color: #22AD00;
 }
+
+.overdue {
+	background-color: #FFB79A;
+}
+
+.due {
+	background-color: #BBF8FC;
+}

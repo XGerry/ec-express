@@ -402,7 +402,11 @@ module.exports = function(app, passport) {
   });
 
   app.get('/order-dashboard', (req, res) => {
-    res.render('order-dashboard');
+    Order.find({picked: false}).then(orders => {
+      res.render('order-dashboard', {
+        orders: orders
+      });
+    });
   });
 
   app.get('/unpaid-orders', (req, res) => {

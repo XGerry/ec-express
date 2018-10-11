@@ -34,6 +34,7 @@ var orderSchema = new mongoose.Schema({
 	timecode: Number,
 	orderValue: Number,
 	orderDate: Date,
+	dueDate: Date,
 	manual: Boolean,
 	retry: Boolean, // the order is being imported again
 	canadian: Boolean, // the order is canadian
@@ -74,6 +75,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   this.markModified('cartOrder');
   this.orderValue = cartOrder.OrderAmount;
   this.email = cartOrder.BillingEmail;
+  this.dueDate = getDueDate(cartOrder.OrderDate, this);
 
   var promises = [];
   this.items = [];
@@ -136,6 +138,11 @@ orderSchema.methods.updateOrderStatus = function(status) {
 			return response;
 		});
 	});
+}
+
+orderSchema.methods.updateDueDate = function() {
+	this.dueDate = getDueDate(this.orderDate, this);
+	return this.save();
 }
 
 orderSchema.methods.updateOrder = function(order) {
@@ -555,6 +562,41 @@ function get3DCartOptions(url, method, canadian) {
     json: true
   }
   return options;
+}
+
+function getDueDate(date, order) {
+	var orderDate = moment(date);
+	if (order.canadian) {
+		if (orderDate.day() == 3) { // Wednesday
+			orderDate.day(8); // Next Monday
+		} else if (orderDate.day() == 4) { // Thursday
+			orderDate.day(9); // Next Tuesday
+		} else if (orderDate.day() == 5) { // Friday
+			orderDate.day(10); // Next Wednesday
+		} else if (orderDate.day() == 6) { // Saturday
+			orderDate.day(10); // Next Wednesday
+		} else {
+			orderDate.add(3, 'days');
+		}
+		return orderDate;
+	} else {
+		if (orderDate.day() == 0) { // Sunday
+			orderDate.day(3); // Wednesday
+		} else if (orderDate.day() == 1) { // Monday
+			orderDate.day(3); // Wednesday
+		} else if (orderDate.day() == 2) { // Tuesday
+			orderDate.day(4); // Thursday
+		} else if (orderDate.day() == 3) { // Wednesday
+			orderDate.day(4); // Thursday
+		} else if (orderDate.day() == 4) { // Thursday
+			orderDate.day(5); // Friday
+		} else if (orderDate.day() == 5) { // Friday
+			orderDate.day(8); // Next Monday
+		} else if (orderDate.day() == 6) { // Saturday
+			orderDate.day(9); // Next Tuesday
+		}
+		return orderDate;
+	}
 }
 
 module.exports = mongoose.model('Order', orderSchema);

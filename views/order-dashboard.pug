@@ -13,7 +13,14 @@ mixin summaryCard(name, id, colour, textColour)
 				tbody(id=id+"SummaryTable")
 		.card-footer(id=id+"CardFooter")
 
-mixin processingCard(name, id, colour, textColour)
+mixin orderRow(order)
+	tr(class=moment().isAfter(order.dueDate) ? 'overdue' : '', class=moment().isSame(order.dueDate, 'day') ? 'due' : '', onclick="window.location='/order?id="+order._id+"'")
+		td=order.orderId
+		td=order.name
+		td=moment(order.orderDate).format('MMM Do')
+		td=moment(order.dueDate).format('MMM Do')
+
+mixin processingCard(name, id, colour, textColour, orders)
 	.card
 			.card-header(class=colour + ' ' + textColour)
 				h5.mb-0=name
@@ -25,16 +32,17 @@ mixin processingCard(name, id, colour, textColour)
 							th Name
 							th Order Date
 							th Due Date
-							th Items
 					tbody(id=id+"SummaryTable")
-			.card-footer(id=id+"CardFooter")
+						each order in orders
+							+orderRow(order)
+			.card-footer(id=id+"CardFooter")= orders.length + ' orders.'
 
 doctype html
 include mixins
 html
 	include includes/head
 		script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js")
-		script(src="js/order-dashboard.js")
+		//script(src="js/order-dashboard.js")
 		title Order Dashboard
 	body
 		#wrapper
@@ -47,30 +55,20 @@ html
 						h1 Order Dashboard
 						p.lead The current state of the orders for US and Canada.
 				.container-fluid.px-5
-					.progress
-						.progress-bar.progress-bar-striped.progress-bar-animated#summaryProgress
 					.row.mt-3
 						.col-12
-							.alert.alert-danger#overdueOrders
-							.alert.alert-info#dueOrders
+							.alert.alert-danger#overdueOrders=orders.filter(o => moment(o.dueDate) < moment()).length + ' orders are overdue.'
+							.alert.alert-info#dueOrders=orders.filter(o => moment(o.dueDate).isSame(new Date(), 'day')).length + ' orders are due today. ' + orders.filter(o => o.batch != null || o.batch != undefined).length + ' orders are currently being picked.'
 					.row.mt-3
 						.col-6
-							+processingCard("US Orders", "us-processing", "bg-primary", "text-white")
+							- usOrders = orders.filter(o => !o.canadian && !o.amazon)
+							+processingCard("US Orders", "us-processing", "bg-primary", "text-white", usOrders)
 						.col-6
-							+processingCard("Canadian Orders", "ca-processing", "bg-primary", "text-white")
+							- canOrders = orders.filter(o => o.canadian)
+							+processingCard("Canadian Orders", "ca-processing", "bg-primary", "text-white", canOrders)
 					.row.mt-3
-						.col-12
-							.card
-								.card-header
-									h5.mb-0 Customers with Multiple Orders
-								.card-body.summary-card#multipleOrderSummary
-								.card-footer#multipleOrderFooter
-					.card-deck.mt-3
-						+summaryCard("New", "new", "bg-light")
-						+summaryCard("Back Order", "backorder", "bg-warning")
-					.card-deck.mt-3
-						+summaryCard("Preorder", "preorder", "bg-info", "text-white")
-						+summaryCard("Processing Payment", "payment", "bg-success", "text-white")
-						+summaryCard("Awaiting Shipment", "shipment", "bg-dark", "text-white")
+						.col-6
+							- amazonOrders = orders.filter(o => o.amazon)
+							+processingCard("Amazon Orders", "az-processing", "bg-primary", "text-white", amazonOrders)
 
 		+footer
