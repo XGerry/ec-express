@@ -19,7 +19,8 @@ mongoose.connect(uriString, {
     var promises = [];
     Order.find({}).then(orders => {
       orders.forEach(order => {
-        promises.push(order.updateDueDate());
+        order.shippingCost = order.cartOrder.ShipmentList[0].ShipmentCost;
+        promises.push(order.save());
       });
     });
     Promise.all(promises).then(() => {

@@ -711,6 +711,21 @@
  			});
  		});
 
+ 		socket.on('saveBatch', (batch, cb) => {
+ 			console.log(batch.orders[0].items);
+ 			Batch.findOne({_id: batch._id}).populate('orders').then(dbBatch => {
+ 				var promises = [];
+ 				delete batch.__v;
+ 				dbBatch.set(batch);
+ 				dbBatch.orders.forEach(o => {
+					o.isNew = false;
+ 					promises.push(o.save());
+ 				});
+ 				promises.push(dbBatch.save());
+ 				Promise.all(promises).then(() => cb());
+ 			});
+ 		});
+
  		socket.on('updateOrder', (order, cb) => {
  			Order.findOne({_id: order._id}).populate('items.item').then(dbOrder => {
  				dbOrder.updateOrder(order).then(response => {

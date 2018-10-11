@@ -146,10 +146,13 @@ batchSchema.methods.recalculate = function() {
 
 batchSchema.methods.delete = function() {
 	return this.populate('orders').execPopulate().then(() => {
+		var promises = [];
 		this.orders.forEach(o => {
-			o.removeBatch();
+			promises.push(o.removeBatch());
 		});
-		return this.remove({_id: this._id});
+		return Promise.all(promises).then(() => {
+			return this.remove({_id: this._id});
+		});
 	});
 }
 

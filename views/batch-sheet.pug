@@ -12,10 +12,11 @@ mixin pickTableRow(item, quantity)
 		td.text-center= item.secondLocation
 
 mixin orderSummaryTableRow(order)
-	tr
+	tr(onclick="window.open('/order?id="+order._id+"', '_blank')")
 		td=order.orderId
 		td=order.name
 		td=order.cartOrder.BillingCompany
+		td=moment(order.orderDate).format('MMM Do')
 		td=order.items.length
 		td=order.items.reduce((total, item) => total + item.quantity, 0)
 
@@ -51,12 +52,13 @@ html
 							svg#barcode(jsbarcode-value=batch._id, jsbarcode-displayvalue="true", jsbarcode-width=1)
 					.row.pt-2
 						.col-12
-							table.table-sm.table
+							table.table-sm.table.table-hover
 								thead
 									tr
 										th Order ID
 										th Customer
 										th Company
+										th Date
 										th Number of Items
 										th Number of SKUs
 								tbody

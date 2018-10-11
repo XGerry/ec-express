@@ -116,6 +116,19 @@ shtml
 											});
 										td= '$' + pickedValue.toFixed(2)
 										td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
+					.row.pt-2
+						.col
+							.form-group
+								label(for="orderTrackingNumber") Tracking Number
+								input.form-control(type="text", value=order.trackingNumber)#orderTrackingNumber
+						.col
+							.form-group
+								label(for="orderShippingCost") Shipping Cost
+								.input-group
+									.input-group-prepend
+											.input-group-text
+												i.far.fa-dollar-sign
+									input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
 
 					if (order.cartOrder.CustomerComments)
 						.row
@@ -173,6 +186,7 @@ shtml
 			var theItem;
 			var addingItem = false;
 			console.log(theOrder);
+
 			$(document).ready(e => {
 				$('#addItemButton').click(e => {
 					addingItem = true;
@@ -238,6 +252,7 @@ shtml
 				});
 
 				$('#saveOrderButton').click(e => {
+					theOrder.shippingCost = $('#orderShippingCost').val();
 					recalculateTotal();
 					socket.emit('updateOrder', theOrder, response => {
 						console.log(response);
@@ -249,6 +264,7 @@ shtml
 				});
 
 				$('#updateQuickbooks').click(e => {
+					theOrder.shippingCost = $('#orderShippingCost').val();
 					socket.emit('updateOrderQB', theOrder._id, message => {
 						$('#orderInfo').text(message);
 						setTimeout(() => {
@@ -258,6 +274,7 @@ shtml
 				});
 
 				$('#invoiceOrder').click(e => {
+					theOrder.shippingCost = $('#orderShippingCost').val();
 					socket.emit('invoiceOrder', theOrder._id, message => {
 						$('#orderInfo').text(message[0].message + ' - Run the web connector.');
 						setTimeout(() => {

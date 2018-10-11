@@ -40,6 +40,8 @@ var orderSchema = new mongoose.Schema({
 	canadian: Boolean, // the order is canadian
 	amazon: Boolean,
 	imported : Boolean, // the order has been imported as a sales order in quickbooks
+	trackingNumber: String,
+	shippingCost: Number,
 	completed: { // status (pretty sure this is deprecated)
 		type: Boolean,
 		default: false
@@ -76,6 +78,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   this.orderValue = cartOrder.OrderAmount;
   this.email = cartOrder.BillingEmail;
   this.dueDate = getDueDate(cartOrder.OrderDate, this);
+  this.shippingCost = cartOrder.ShipmentList[0].ShipmentCost;
 
   var promises = [];
   this.items = [];
@@ -152,6 +155,8 @@ orderSchema.methods.updateOrder = function(order) {
 	var oldOrder = {};
 	// replace the items
 	oldOrder.OrderItemList = [];
+	oldOrder.ShipmentList = order.cartOrder.ShipmentList;
+	oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
 
 	this.items.forEach(item => {
 		var orderItem = {
@@ -298,7 +303,7 @@ orderSchema.methods.addSalesOrderRq = function() {
     ItemRef : {
       FullName : "Shipping & Handling"
     },
-    Rate : this.cartOrder.ShipmentList[0].ShipmentCost
+    Rate : this.shippingCost
   });
 
   // we need to add a surcharge if they are a Canadian customer (only when coming from the US website)
@@ -445,7 +450,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
     quantityPickedMap[i.item.sku] = i.pickedQuantity;
   });
 
-  qbSalesOrder.SalesOrderLineRet.forEach(item => {
+  qbSalesOrder.SalesOrderLineRet.forEach(item => { // shipping cost
     if (item.ItemRef.FullName == 'Shipping & Handling') {
       invoiceItems.push({
       	SalesTaxCodeRef: item.SalesTaxCodeRef,
@@ -453,10 +458,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
       		TxnID: qbSalesOrder.TxnID,
       		TxnLineID: item.TxnLineID
       	}
-        // ItemRef: {
-        //   FullName: 'Shipping & Handling',
-        //   //Rate: this.cartOrder.ShipmentList[0].ShipmentCost // TODO make shipment cost more accessible
-        // }
       });
     } else {
       invoiceItems.push({

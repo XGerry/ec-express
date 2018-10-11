@@ -31,14 +31,34 @@ html
 		title Sort Batch
 	body
 		#wrapper
-			+sidebarNav("batch-sheet")
-
+			+sidebarNav("sort-batch")
 			#page-content
-				+menuToggle
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2=batch._id
+					//form.form-inline
+						select.form-control#orderStatus
+							option(value=1) New
+							option(value=2) Processing
+							option(value=3) Backorder
+							option(value=6) Pre-order
+							option(value=9) Awaiting Payment
+							option(value=13) Awaiting Shipment
+							option(value=4) Shipped
+					span.navbar-text#orderInfo.ml-2
+					ul.navbar-nav.ml-auto
+						//li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
+								.dropdown-divider
+								a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
+								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+						button.btn-outline-success.btn.mr-2(type="button")#saveButton Save
+						button.btn.btn-success(type="button")#finishedSortingButton Finished Sorting
+				
 				.container.pt-3
-					.row
-						.col-12.text-center
-							h2 Sort Batch
 					.row.pt-2
 						.col-12
 							table.table-sm.table
@@ -95,10 +115,6 @@ html
 								each item in allItems
 									if (item.pickedQuantity < item.quantity)
 										+itemRow(item)
-
-					.row.pt-5
-						.col-12.text-center
-							button.btn.btn-success.btn-lg#finishedSortingButton Finished Sorting
 		+footer
 
 		.modal(role="dialog" tabindex="-1").fade#sortModal
@@ -178,6 +194,13 @@ html
 					}
 				});
 
+				$('#saveButton').click(e => {
+					console.log(batch);
+					socket.emit('saveBatch', batch, cb => {
+						location.reload();
+					});
+				});
+
 				$('#item-barcode').on('keypress', e => {
 					var key = e.which || e.keyCode;
 					if (key == 13) { // enter key
@@ -231,6 +254,7 @@ html
 					$('#sortModal').modal('hide');
 					theItem.pickedQuantity += pickedQuantity;
 					refreshPickedQuantities();
+					// remove the row if the quantity has been fulfilled
 					$('#'+theItem._id+'-row').remove();
 					$('#item-barcode').select();
 				}
@@ -286,7 +310,7 @@ html
 					$(obj).addClass('bg-primary text-white');
 				});
 				$('#modalImage').prop('src', 'https://www.ecstasycrafts.com/'+match.item.item.imageURL);
-				$('#sortModalQuantity').val(match.item.quantity);
+				$('#sortModalQuantity').val(match.item.quantity - match.item.pickedQuantity);
 			}
 
 			function openOrder(id) {
