@@ -510,6 +510,14 @@ module.exports = function(app, passport) {
     res.render('transfer');
   });
 
+  app.get('/batch-shipping', (req, res) => {
+    loadBatch(req.query.id).then(batch => {
+      res.render('batch-shipping', {
+        batch: batch
+      });
+    });
+  });
+
   function loadBatch(id) {
     return Batch.findOne({_id: id}).populate({
       path: 'orders',

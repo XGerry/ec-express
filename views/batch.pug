@@ -27,6 +27,7 @@ shtml
 							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
 								a(href="#").dropdown-item#finishBatchButton Finish
+								a(href="/batch-shipping?id="+batch._id).dropdown-item Shipping Info
 								.dropdown-divider
 								a#deleteBatchButton(href="#").dropdown-item.bg-danger.text-white Delete
 						a.btn-outline-primary.btn.mr-2(href="/batch-sheet?id="+batch._id) Pick Sheet

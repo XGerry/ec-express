@@ -28,6 +28,9 @@ html
 						.col
 							= order.cartOrder.ShipmentList[0].ShipmentFirstName + ' ' + order.cartOrder.ShipmentList[0].ShipmentLastName
 							br
+							if order.cartOrder.ShipmentList[0].ShipmentCompany
+								= order.cartOrder.ShipmentList[0].ShipmentCompany
+								br
 							= order.cartOrder.ShipmentList[0].ShipmentAddress
 							br
 							if order.cartOrder.ShipmentList[0].ShipmentAddress2
@@ -36,4 +39,7 @@ html
 							= order.cartOrder.ShipmentList[0].ShipmentCity + ', ' + order.cartOrder.ShipmentList[0].ShipmentState
 							br
 							= order.cartOrder.ShipmentList[0].ShipmentZipCode + ', ' + order.cartOrder.ShipmentList[0].ShipmentCountry
-
+		script.
+			$(document).ready(e => {
+				window.print();
+			});

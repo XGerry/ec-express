@@ -157,6 +157,8 @@ orderSchema.methods.updateOrder = function(order) {
 	oldOrder.OrderItemList = [];
 	oldOrder.ShipmentList = order.cartOrder.ShipmentList;
 	oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
+  if (this.trackingNumber)
+    oldOrder.ShipmentList[0].ShipmentTrackingCode = this.trackingNumber;
 
 	this.items.forEach(item => {
 		var orderItem = {

@@ -1,0 +1,84 @@
+mixin orderCard(order)
+	.row
+		.col
+			.card
+				.card-header
+					h4.mb-0.d-inline-block=order.orderId
+					.btn-group.float-right
+						a.btn.btn-outline-primary(href="/shipping-label?id="+order._id, target="_blank") White Label
+				.card-body
+					.row
+						.col
+							h5 Shipping Address
+							+shippingAddress(order)
+						.col
+							h5 Tracking Number
+							input.form-control.form-control-lg(type="text" id="trackingNumber-"+order._id)
+						.col
+							h5
+								label(for="orderShippingCost").mb-0 Shipping Cost
+							.input-group
+								.input-group-prepend
+										.input-group-text
+											i.far.fa-dollar-sign
+								input.form-control.form-control-lg(type="number", value=order.shippingCost.toFixed(2), id="shippingCost-"+order._id)
+
+mixin shippingAddress(order)
+	= order.cartOrder.ShipmentList[0].ShipmentFirstName + ' ' + order.cartOrder.ShipmentList[0].ShipmentLastName
+	br
+	if order.cartOrder.ShipmentList[0].ShipmentCompany
+		= order.cartOrder.ShipmentList[0].ShipmentCompany
+		br
+	= order.cartOrder.ShipmentList[0].ShipmentAddress
+	br
+	if order.cartOrder.ShipmentList[0].ShipmentAddress2
+		= order.cartOrder.ShipmentList[0].ShipmentAddress2
+		br
+	= order.cartOrder.ShipmentList[0].ShipmentCity + ', ' + order.cartOrder.ShipmentList[0].ShipmentState
+	br
+	= order.cartOrder.ShipmentList[0].ShipmentZipCode + ', ' + order.cartOrder.ShipmentList[0].ShipmentCountry
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Shipping
+	body
+		#wrapper
+			+sidebarNav("invoice-home")
+			
+			#page-content
+				+menuToggle
+				.container
+					.starter-template
+						h1 Shipping Details
+						button.btn.btn-success.btn-lg(type="button" onclick="saveBatch()")#saveButton Save
+
+				.container.pt-3
+					each order in batch.orders
+						+orderCard(order)
+
+		+footer
+		script.
+			var socket = io();
+			var theBatch = !{JSON.stringify(batch)};
+			$(document).ready(() => {
+
+			});
+
+			function saveBatch() {
+				theBatch.orders.forEach(order => {
+					var orderId = order._id;
+					var trackingNumber = $('#trackingNumber-'+orderId).val();
+					var shippingCost = $('#shippingCost-'+orderId).val();
+				
+					if (trackingNumber)
+						order.trackingNumber = trackingNumber;
+					order.shippingCost = shippingCost;
+				});
+
+				socket.emit('saveBatch', theBatch, cb => {
+					console.log('saved!')
+					location.reload();
+				});
+			}
