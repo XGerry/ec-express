@@ -206,7 +206,8 @@ itemSchema.methods.setStock = function(stock) {
   if (stock < 0 || stock == NaN) {
     stock = 0;
   }
-  var updated = this.stock != stock;
+  var updated = (this.usStock != theStock) || (this.canStock != theStock);
+  updated = updated || (this.inactive != itemIsInactive);
   if (updated) {
     this.stock = stock;
     this.usStock = stock;
