@@ -206,6 +206,13 @@ itemSchema.methods.setStock = function(stock) {
   if (stock < 0 || stock == NaN) {
     stock = 0;
   }
+
+  var itemIsInactive = false;
+  if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
+    itemIsInactive = true;
+    stock = 0;
+  }
+
   var updated = (this.usStock != stock) || (this.canStock != stock);
   updated = updated || (this.inactive != itemIsInactive);
   if (updated) {
