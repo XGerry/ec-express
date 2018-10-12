@@ -156,6 +156,8 @@ orderSchema.methods.updateOrder = function(order) {
 	// replace the items
 	oldOrder.OrderItemList = [];
 	oldOrder.ShipmentList = order.cartOrder.ShipmentList;
+  delete oldOrder.ShipmentList[0].ShipmentOrderStatus;
+  delete oldOrder.ShipmentList[0].ShipmentTrackingCode;
 	oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
   if (this.trackingNumber)
     oldOrder.ShipmentList[0].ShipmentTrackingCode = this.trackingNumber;
