@@ -76,6 +76,8 @@ html
 					if (trackingNumber)
 						order.trackingNumber = trackingNumber;
 					order.shippingCost = shippingCost;
-					socket.emit('updateOrder', order);
+					socket.emit('updateOrder', order, cb => {
+						console.log('done.');
+					});
 				});
 			}
