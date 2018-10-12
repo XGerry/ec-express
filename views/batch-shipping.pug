@@ -1,11 +1,12 @@
 mixin orderCard(order)
-	.row
+	.row.pt-2
 		.col
 			.card
 				.card-header
 					h4.mb-0.d-inline-block=order.orderId
 					.btn-group.float-right
 						a.btn.btn-outline-primary(href="/shipping-label?id="+order._id, target="_blank") White Label
+						a.btn.btn-outline-primary(href="/order?id="+order._id, target="_blank") View Order
 				.card-body
 					.row
 						.col
