@@ -1,0 +1,39 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title=order.orderId + ' Label'
+		style.
+			.label {
+				font-size: 18pt;
+			}
+
+	body
+		#wrapper
+			+sidebarNav
+			#page-content
+				+menuToggle
+				.container.label
+					.row
+						.col
+							strong Ecstasy Crafts
+							br
+							strong 630 Shannonville Rd.
+							br
+							strong Shannonville, ON
+							br
+							strong K0K 3A0, CA
+					hr
+					.row
+						.col
+							= order.cartOrder.ShipmentList[0].ShipmentFirstName + ' ' + order.cartOrder.ShipmentList[0].ShipmentLastName
+							br
+							= order.cartOrder.ShipmentList[0].ShipmentAddress
+							br
+							if order.cartOrder.ShipmentList[0].ShipmentAddress2
+								= order.cartOrder.ShipmentList[0].ShipmentAddress2
+								br
+							= order.cartOrder.ShipmentList[0].ShipmentCity + ', ' + order.cartOrder.ShipmentList[0].ShipmentState
+							br
+							= order.cartOrder.ShipmentList[0].ShipmentZipCode + ', ' + order.cartOrder.ShipmentList[0].ShipmentCountry
+

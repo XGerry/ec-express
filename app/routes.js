@@ -498,6 +498,14 @@ module.exports = function(app, passport) {
     });
   });
 
+  app.get('/shipping-label', (req, res) => {
+    Order.findOne({_id: req.query.id}).then(order => {
+      res.render('shipping-label', {
+        order: order
+      });
+    });
+  });
+
   app.get('/transfer', (req, res) => {
     res.render('transfer');
   });
