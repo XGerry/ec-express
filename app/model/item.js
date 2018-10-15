@@ -208,7 +208,7 @@ itemSchema.methods.setStock = function(stock) {
   }
 
   var itemIsInactive = false;
-  if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
+  if (this.IsActive == false || this.IsActive == 'false') {
     itemIsInactive = true;
     stock = 0;
   }
