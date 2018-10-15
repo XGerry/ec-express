@@ -334,7 +334,8 @@ html
 				$('#addItemModal').modal();
 				$('#itemSKU').val(item.item.sku);
 				$('#itemQuantity').val(item.quantity);
-				$('#itemPrice').val(item.price.toFixed(2));
+				if (item.price)
+					$('#itemPrice').val(item.price.toFixed(2));
 				$('#itemPickedQuantity').val(item.pickedQuantity);
 			}
 
