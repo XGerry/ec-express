@@ -96,22 +96,22 @@ html
 										if (aLocation.length == 5 && bLocation.length == 5) {
 											if (aLocation[0] < bLocation[0]) {
 												return -1;
-											} else if (parseInt(aLocation[1]) < parseInt(bLocation[1])) {
-												return -1;
-											} else if (parseInt(aLocation[2]) < parseInt(bLocation[2])) {
-												return -1;
-											} else if (parseInt(aLocation[3]) < parseInt(bLocation[3])) {
-												return -1;
-											} else if (parseInt(aLocation[4]) < parseInt(bLocation[4])) {
-												return -1;
 											} else if (aLocation[0] > bLocation[0]) {
 												return 1;
+											} else if (parseInt(aLocation[1]) < parseInt(bLocation[1])) {
+												return -1;
 											} else if (parseInt(aLocation[1]) > parseInt(bLocation[1])) {
 												return 1;
+											} else if (parseInt(aLocation[2]) < parseInt(bLocation[2])) {
+												return -1;
 											} else if (parseInt(aLocation[2]) > parseInt(bLocation[2])) {
 												return 1;
+											} else if (parseInt(aLocation[3]) < parseInt(bLocation[3])) {
+												return -1;
 											} else if (parseInt(aLocation[3]) > parseInt(bLocation[3])) {
 												return 1;
+											} else if (parseInt(aLocation[4]) < parseInt(bLocation[4])) {
+												return -1;
 											} else if (parseInt(aLocation[4]) > parseInt(bLocation[4])) {
 												return 1;
 											}
