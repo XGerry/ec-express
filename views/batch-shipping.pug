@@ -13,11 +13,12 @@ mixin orderCard(order)
 							h5 Shipping Address
 							+shippingAddress(order)
 						.col
-							h5 Tracking Number
-							input.form-control.form-control-lg(type="text" id="trackingNumber-"+order._id)
+							h5 
+								label(for=-"trackingNumber-"+order._id) Tracking Number
+							input.form-control.form-control-lg(type="text" id="trackingNumber-"+order._id, value=order.trackingNumber)
 						.col
 							h5
-								label(for="orderShippingCost").mb-0 Shipping Cost
+								label(for="shippingCost-"+order._id).mb-0 Shipping Cost
 							.input-group
 								.input-group-prepend
 										.input-group-text
