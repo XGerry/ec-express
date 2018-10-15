@@ -28,23 +28,6 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	var newBatch = new this();
 	newBatch.startTime = new Date();
 
-	async function addOrderToBatch(order) {
-		var numberOfSkus = parseInt(order.items.length);
-		var numberOfItems = order.items.reduce((totalItems, item) => {
-			return totalItems + parseInt(item.quantity);
-		}, 0);
-
-		var possibleTotalSkus = newBatch.numberOfSkus + numberOfSkus;
-		var possibleTotalItems = newBatch.numberOfItems + numberOfItems;
-
-		if (possibleTotalSkus < maxNumberOfSkus && possibleTotalItems < maxNumberOfItems) {
-			newBatch.orders.push(order._id);
-			order.batch = newBatch._id;
-			order.updateOrderStatus(2); // Processing
-			return newBatch.recalculate();
-		}
-	}
-
 	var query = {picked: false, batch: null};
 
 	if (batchType == 'ca') {
@@ -58,43 +41,61 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 
 	// first add any orders that need to be rushed
 	query.rush = true;
-
 	return Order.find(query).sort('orderDate').then(rushedOrders => {
 		console.log('Found ' + rushedOrders.length + ' rush orders');
-		var promises = [];
 		if (rushedOrders.length > 0) {
-			// add the first order
-			var firstRushedOrder = rushedOrders.shift();
-			newBatch.orders.push(firstRushedOrder._id);
-			firstRushedOrder.batch = newBatch._id;
-			firstRushedOrder.updateOrderStatus(2);
-			promises.push(newBatch.recalculate());
+			newBatch = getBatch(0, rushedOrders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
 		}
-		return Promise.all(promises).then(async () => {
-			for (order of rushedOrders) {
-				await addOrderToBatch(order);
-			}
-			// now the non-rushed orders
-			delete query.rush;
-			return Order.find(query).sort('orderDate').then(orders => {
-				console.log('Found ' + orders.length + ' unpicked orders');
-				if (orders.length > 0) {
-					if (newBatch.orders.length == 0) {
-						var firstOrder = orders.shift();
-						newBatch.orders.push(firstOrder._id);
-						firstOrder.batch = newBatch._id;
-						firstOrder.updateOrderStatus(2);
-					}
-					return newBatch.recalculate().then(async () => {
-						for (order of orders) {
-							await addOrderToBatch(order);
-						}
-						return newBatch.save();
-					});
-				}	
-			});
+
+		// now the non-rushed orders
+		query.rush = false;
+		return Order.find(query).sort('orderDate').then(orders => {
+			console.log('Found ' + orders.length + ' unpicked orders');
+			return getBatch(0, orders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
 		});
 	});
+}
+
+async function getBatch(index, orders, batch, maxItems, maxSKUs, maxOrders) {
+	if (index >= orders.length || 
+		batch.orders.length >= maxOrders || 
+		batch.numberOfItems >= maxItems || 
+		batch.maxSKUs >= maxSKUs) {
+		return batch.recalculate();
+	}
+
+	var order = orders[index];
+	var numberOfSkus = parseInt(order.items.length);
+	var numberOfItems = order.items.reduce((totalItems, item) => {
+		return totalItems + parseInt(item.quantity);
+	}, 0);
+
+	var possibleTotalSkus = batch.numberOfSkus + numberOfSkus;
+	var possibleTotalItems = batch.numberOfItems + numberOfItems;
+
+	console.log('order: ' + order.email);
+	console.log('possible items: ' + possibleTotalItems);
+	console.log('possible skus: ' + possibleTotalSkus);
+
+	if (possibleTotalItems <= maxItems && possibleTotalSkus <= maxSKUs) {
+		// add the order
+		batch.orders.push(order);
+		order.batch = batch._id;
+		order.updateOrderStatus(2);
+
+		// now see if there are any other orders from that customer
+		for (var j = 0; j < orders.length; j++) {
+			if (j != index && order.email == orders[j].email) {
+				// another order, automatically add it
+				batch.orders.push(orders[j]);
+				orders[j].batch = batch._id;
+				orders[j].updateOrderStatus(2);
+			}
+		}
+		await batch.recalculate();
+	}
+	console.log('going again: ' + index++);
+	return getBatch(index, orders, batch, maxItems, maxSKUs, maxOrders);
 }
 
 batchSchema.statics.createCustomBatch = function(orderIds) {
@@ -130,7 +131,7 @@ batchSchema.methods.removeOrder = function(orderId) {
 	return this.recalculate();
 }
 
-batchSchema.methods.recalculate = function() {
+batchSchema.methods.recalculate = async function() {
 	return this.populate('orders').execPopulate().then(() => {
 		this.numberOfItems = 0;
 		this.numberOfSkus = 0;

@@ -19,7 +19,7 @@ mongoose.connect(uriString, {
     var promises = [];
     Order.find({}).then(orders => {
       orders.forEach(order => {
-        order.shippingCost = order.cartOrder.ShipmentList[0].ShipmentCost;
+        order.rush = false;
         promises.push(order.save());
       });
     });
