@@ -4,7 +4,7 @@ mixin itemRow(item, order)
 		td=item.item.name
 		td=item.quantity
 		td=item.pickedQuantity
-		td='$' + item.price ? item.price.toFixed(2) : '0.00';
+		td='$' + (item.price ? item.price.toFixed(2) : '0.00');
 		td='$' + (item.price * item.quantity).toFixed(2)
 
 doctype html
