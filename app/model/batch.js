@@ -26,6 +26,7 @@ var batchSchema = new mongoose.Schema({
 
 batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus, batchType) {
 	var newBatch = new this();
+	newBatch.orders = [];
 	newBatch.startTime = new Date();
 
 	var query = {picked: false, batch: null};
@@ -73,9 +74,10 @@ async function getBatch(index, orders, batch, maxItems, maxSKUs, maxOrders) {
 	var possibleTotalSkus = batch.numberOfSkus + numberOfSkus;
 	var possibleTotalItems = batch.numberOfItems + numberOfItems;
 
-	console.log('order: ' + order.email);
-	console.log('possible items: ' + possibleTotalItems);
-	console.log('possible skus: ' + possibleTotalSkus);
+	if (index == 0) { // have to add the first one no matter what
+		possibleTotalItems = 0;
+		possibleTotalSkus = 0;
+	}
 
 	if (possibleTotalItems <= maxItems && possibleTotalSkus <= maxSKUs) {
 		// add the order
