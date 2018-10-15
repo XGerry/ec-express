@@ -187,6 +187,10 @@ html
 					$('#sortModalQuantity').select();
 				});
 
+				$('#sortModal').on('hidden.bs.modal', e => {
+					refreshPickedQuantities();
+				});
+
 				$('#sortModalQuantity').on('keypress', e => {
 					var key = e.which || e.keyCode;
 					if (key == 13) { // enter key
@@ -212,6 +216,7 @@ html
 								showSortModal(match);
 							} catch (e) {
 								alert(e);
+								$('#item-barcode').select();
 							}
 						}
 					}
