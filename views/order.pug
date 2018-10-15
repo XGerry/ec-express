@@ -186,6 +186,7 @@ html
 								input.form-control(type="number")#itemPickedQuantity
 					.modal-footer
 						button.btn-primary.btn(type="button")#saveItemButton Save
+						button.btn-outline-danger.btn(type="button")#deleteItemButton Delete
 						button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
 
 		+footer
@@ -218,6 +219,13 @@ html
 						theOrder.items.push(theItem);
 					}
 					recalculateTotal();
+					socket.emit('updateOrder', theOrder, response => {
+						location.reload();
+					});
+				});
+
+				$('#deleteItemButton').click(e => {
+					theOrder.items.splice(theOrder.items.indexOf(theItem), 1);
 					socket.emit('updateOrder', theOrder, response => {
 						location.reload();
 					});
