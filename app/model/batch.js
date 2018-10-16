@@ -45,27 +45,27 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	return Order.find(query).sort('orderDate').then(rushedOrders => {
 		console.log('Found ' + rushedOrders.length + ' rush orders');
 		if (rushedOrders.length > 0) {
-			newBatch = getBatch(0, rushedOrders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
+			newBatch = getBatch(rushedOrders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
 		}
 
 		// now the non-rushed orders
 		query.rush = false;
 		return Order.find(query).sort('orderDate').then(orders => {
 			console.log('Found ' + orders.length + ' unpicked orders');
-			return getBatch(0, orders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
+			return getBatch(orders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
 		});
 	});
 }
 
-async function getBatch(index, orders, batch, maxItems, maxSKUs, maxOrders) {
-	if (index >= orders.length || 
+async function getBatch(orders, batch, maxItems, maxSKUs, maxOrders) {
+	if (orders.length == 0 || 
 		batch.orders.length >= maxOrders || 
 		batch.numberOfItems >= maxItems || 
 		batch.maxSKUs >= maxSKUs) {
 		return batch.recalculate();
 	}
 
-	var order = orders[index];
+	var order = orders.shift();
 	var numberOfSkus = parseInt(order.items.length);
 	var numberOfItems = order.items.reduce((totalItems, item) => {
 		return totalItems + parseInt(item.quantity);
@@ -74,7 +74,7 @@ async function getBatch(index, orders, batch, maxItems, maxSKUs, maxOrders) {
 	var possibleTotalSkus = batch.numberOfSkus + numberOfSkus;
 	var possibleTotalItems = batch.numberOfItems + numberOfItems;
 
-	if (index == 0) { // have to add the first one no matter what
+	if (batch.orders.length == 0) { // have to add the first one no matter what
 		possibleTotalItems = 0;
 		possibleTotalSkus = 0;
 	}
@@ -87,17 +87,18 @@ async function getBatch(index, orders, batch, maxItems, maxSKUs, maxOrders) {
 
 		// now see if there are any other orders from that customer
 		for (var j = 0; j < orders.length; j++) {
-			if (j != index && order.email == orders[j].email) {
+			if (order.email == orders[j].email) {
 				// another order, automatically add it
-				batch.orders.push(orders[j]);
-				orders[j].batch = batch._id;
-				orders[j].updateOrderStatus(2);
+				var [dupOrder] = orders.splice(j, 1);
+				batch.orders.push(dupOrder);
+				dupOrder.batch = batch._id;
+				dupOrder.updateOrderStatus(2);
+				j--;
 			}
 		}
 		await batch.recalculate();
 	}
-	console.log('going again: ' + index++);
-	return getBatch(index, orders, batch, maxItems, maxSKUs, maxOrders);
+	return getBatch(orders, batch, maxItems, maxSKUs, maxOrders);
 }
 
 batchSchema.statics.createCustomBatch = function(orderIds) {
