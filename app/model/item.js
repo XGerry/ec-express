@@ -104,8 +104,7 @@ itemSchema.methods.updateFromSKUInfo = function(skuInfo, canadian) {
   return this.save();
 }
 
-itemSchema.methods.updateFrom3DCart = function(cartItem, canadian) {
-	var promises = [];
+itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
   // common attributes
   this.onSale = cartItem.SKUInfo.OnSale;
   this.description = cartItem.Description;
@@ -154,18 +153,18 @@ itemSchema.methods.updateFrom3DCart = function(cartItem, canadian) {
     for (optionItem of cartItem.AdvancedOptionList) {
       var optionSKU = optionItem.AdvancedOptionSufix.trim();
       var origItem = this;
-      var saveOption = this.model('Item').findOne({sku: optionSKU}).exec().then(function(advancedOption) {
+      await this.model('Item').findOne({sku: optionSKU}).exec().then(async function(advancedOption) {
         if (advancedOption) {
           origItem.children.push(advancedOption._id);
-        	return advancedOption.updateAdvancedOptionFields(origItem, cartItem, optionItem, canadian);
+        	await advancedOption.updateAdvancedOptionFields(origItem, cartItem, optionItem, canadian);
         } else if (optionItem.AdvancedOptionSufix != '') {
           var newOption = new origItem.constructor(); 
+          newOption.isNew = true;
           newOption.sku = optionSKU;
           origItem.children.push(newOption._id);
-          return newOption.updateAdvancedOptionFields(origItem, cartItem, optionItem, canadian);
+          await newOption.updateAdvancedOptionFields(origItem, cartItem, optionItem, canadian);
         }
       });
-      promises.push(saveOption);
     }
   } else {
     this.hasOptions = false;
@@ -179,8 +178,7 @@ itemSchema.methods.updateFrom3DCart = function(cartItem, canadian) {
     this.length = cartItem.Height;
   }
 
-  promises.push(this.save());
-  return Promise.all(promises);
+  return this.save();
 }
 
 itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, canadian) {
@@ -208,7 +206,6 @@ itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, o
   this.isOption = true;
 
   this.parent = dbParent._id;
-
   return this.save();
 }
 

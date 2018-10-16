@@ -18,26 +18,12 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    await cleanUp();
-    var tests = [];
-    tests.push(testCreateItem());
 
-    Promise.all(tests).then(() => {
-      console.log(chalk.greenBright('All tests passed!'));
-      cleanUp().then(() => {
-        process.exit();
-      });
-    }).catch(e => {
-      console.log(chalk.redBright('There are failing tests!'));
-      cleanUp().then(() => {
-        process.exit(1);
-      });
-    });
   }
 });
 
 function testCreateItem() {
-  console.log('Testing item from 3D Cart');
+  console.log('Testing add item from 3D Cart');
 
   var testItem = {
     SKUInfo: {

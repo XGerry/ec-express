@@ -4,7 +4,7 @@
   "description": "Nodejs Express API App for connecting services",
   "main": "index.js",
   "scripts": {
-    "test": "test.js",
+    "test": "node test.js",
     "start": "node index.js"
   },
   "author": "Matt Oskamp",
