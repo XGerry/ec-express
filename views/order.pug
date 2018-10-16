@@ -69,6 +69,7 @@ html
 										th.text-center Invoiced
 										th.text-center Paid
 										th.text-center Rush
+										th.text-center Hold
 										th Batch
 								tbody#customerTableBody
 									tr
@@ -83,6 +84,8 @@ html
 											input(type="checkbox" checked=order.paid style="transform: scale(2);")#paidCheckbox
 										td.text-center
 											input(type="checkbox" checked=order.rush style="transform: scale(2);")#rushCheckbox
+										td.text-center
+											input(type="checkbox" checked=order.hold style="transform: scale(2);")#holdCheckbox
 										td
 											if (order.batch)
 												a(href="batch?id="+order.batch) View
@@ -266,6 +269,10 @@ html
 
 				$('#rushCheckbox').on('change', e => {
 					theOrder.rush = $('#rushCheckbox').is(':checked');
+				});
+
+				$('#holdCheckbox').on('change', e => {
+					theOrder.hold = $('#holdCheckbox').is(':checked');
 				});
 
 				$('#saveOrderButton').click(e => {

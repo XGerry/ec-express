@@ -29,7 +29,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	newBatch.orders = [];
 	newBatch.startTime = new Date();
 
-	var query = {picked: false, batch: null};
+	var query = {picked: false, batch: null, hold: false};
 
 	if (batchType == 'ca') {
 		query.canadian = true;

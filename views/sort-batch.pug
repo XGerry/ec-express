@@ -120,10 +120,12 @@ html
 		.modal(role="dialog" tabindex="-1").fade#sortModal
 			.modal-dialog(role="document")
 				.modal-content
-					.modal-header
-						h5.modal-title#modalItemSku
-						button.close(type="button", data-dismiss="modal", aria-label="Close")
-							span(aria-hidden="true") &times;
+					.modal-header.d-block
+						.d-flex
+							h5#modalItemSku
+							button.close(type="button", data-dismiss="modal", aria-label="Close")
+								span(aria-hidden="true") &times;
+						h6#modalItemName
 					.modal-body
 						.row
 							.col-12.text-center
@@ -311,6 +313,7 @@ html
 			function showSortModal(match) {
 				$('#sortModal').modal();
 				$('#modalItemSku').text(match.item.item.sku);
+				$('#modalItemName').text(match.item.item.name);
 				$('.'+match._id+'-row').each((i, obj) => {
 					$(obj).addClass('bg-primary text-white');
 				});

@@ -15,6 +15,7 @@
     "body-parser": "^1.17.1",
     "bootstrap": "^3.3.7",
     "bootstrap4": "0.0.1-security",
+    "chalk": "^2.4.1",
     "connect-flash": "^0.1.1",
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",

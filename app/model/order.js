@@ -65,7 +65,11 @@ var orderSchema = new mongoose.Schema({
 	rush: {
 		type: Boolean,
 		default: false
-	}
+	},
+  hold: {
+    type: Boolean,
+    default: false
+  }
 });
 
 orderSchema.methods.updateFrom3DCart = function(cartOrder) {

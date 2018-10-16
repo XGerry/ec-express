@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var request = require('request');
 var rp = require('request-promise-native');
-
+var ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = global.Promise;
 
 var itemSchema = new mongoose.Schema({
@@ -71,7 +71,15 @@ var itemSchema = new mongoose.Schema({
 		default: 0
 	},
 	cost: Number,
-	isBundle: Boolean
+	isBundle: Boolean,
+  parentItem: {
+    type: ObjectId,
+    ref: 'Item'
+  },
+  children: [{
+    type: ObjectId,
+    ref: 'Item'
+  }]
 }, {
 	usePushEach: true
 });
@@ -106,7 +114,7 @@ itemSchema.methods.updateFrom3DCart = function(cartItem, canadian) {
   this.weight = cartItem.Weight;
   this.manufacturerName = cartItem.ManufacturerName;
   this.hidden = cartItem.Hide;
-
+  
   var categories = [];
   cartItem.CategoryList.forEach(function(category) {
     categories.push(category.CategoryName);
@@ -140,20 +148,25 @@ itemSchema.methods.updateFrom3DCart = function(cartItem, canadian) {
 
   if (cartItem.AdvancedOptionList.length > 0) {
     this.hasOptions = true;
+    this.children = [];
+
     // save the options
-    cartItem.AdvancedOptionList.forEach(optionItem => {
+    for (optionItem of cartItem.AdvancedOptionList) {
       var optionSKU = optionItem.AdvancedOptionSufix.trim();
-      var saveOption = this.model('Item').findOne({sku: optionSKU}).then(advancedOption => {
+      var origItem = this;
+      var saveOption = this.model('Item').findOne({sku: optionSKU}).exec().then(function(advancedOption) {
         if (advancedOption) {
-        	return advancedOption.updateAdvancedOptionFields(cartItem, optionItem, canadian);
+          origItem.children.push(advancedOption._id);
+        	return advancedOption.updateAdvancedOptionFields(origItem, cartItem, optionItem, canadian);
         } else if (optionItem.AdvancedOptionSufix != '') {
-          var newOption = new this();
+          var newOption = new origItem.constructor(); 
           newOption.sku = optionSKU;
-          return newOption.updateAdvancedOptionFields(cartItem, optionItem, canadian);
+          origItem.children.push(newOption._id);
+          return newOption.updateAdvancedOptionFields(origItem, cartItem, optionItem, canadian);
         }
       });
       promises.push(saveOption);
-    });
+    }
   } else {
     this.hasOptions = false;
   }
@@ -170,8 +183,8 @@ itemSchema.methods.updateFrom3DCart = function(cartItem, canadian) {
   return Promise.all(promises);
 }
 
-itemSchema.methods.updateAdvancedOptionFields = function(parentItem, optionItem, canadian) {
-	this.name = parentItem.SKUInfo.Name + ' - ' + optionItem.AdvancedOptionName;
+itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, canadian) {
+	this.name = optionItem.AdvancedOptionName;
   if (canadian) {
     this.optionIdCan = optionItem.AdvancedOptionCode;
     this.catalogIdCan = parentItem.SKUInfo.CatalogID; // Parent Item
@@ -193,6 +206,9 @@ itemSchema.methods.updateAdvancedOptionFields = function(parentItem, optionItem,
   this.manufacturerName = parentItem.ManufacturerName;
   this.weight = parentItem.Weight;
   this.isOption = true;
+
+  this.parent = dbParent._id;
+
   return this.save();
 }
 
