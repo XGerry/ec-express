@@ -585,7 +585,7 @@ async function getItemsFull(query, progressCallback, canadian) {
 
 function bulkUpdateCartItems(cartItems, canadian) {
   var promises = [];
-  cartItems.forEach(item => {
+  cartItems.forEach(async item => {
     var sku = item.SKUInfo.SKU.trim();
     var saveItem = Item.findOne({sku: sku}).then(dbItem => {
       if (dbItem) {
@@ -596,7 +596,7 @@ function bulkUpdateCartItems(cartItems, canadian) {
         return newItem.updateFrom3DCart(item, canadian);
       }
     });
-    promises.push(saveItem);
+    await saveItem;
   });
   return Promise.all(promises);
 }
