@@ -7,10 +7,10 @@ mixin pickTableRow(item, quantity)
 		td.text-center= quantity
 		td.text-center
 			input(type="checkbox", style="transform: scale(2);margin: 0;")
-		//- if (item.isOption)
-		//- 	td= item.parent.name + item.name
-		//- else
-		td= item.name
+		if (item.isOption)
+			td= item.parent.name + ' - ' + item.name
+		else
+			td= item.name
 		td= item.usStock
 		td.text-center= item.secondLocation
 

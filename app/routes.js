@@ -441,7 +441,14 @@ module.exports = function(app, passport) {
   });
 
   app.get('/order', (req, res) => {
-    Order.findOne({_id: req.query.id}).populate('items.item').then(order => {
+    Order.findOne({_id: req.query.id}).populate({
+      path: 'items.item',
+      model: 'Item',
+      populate: {
+        path: 'parent',
+        model: 'Item'
+      }
+    }).then(order => {
       if (order) {
         getCustomerType(order).then(() => {
           res.render('order', {
@@ -522,7 +529,11 @@ module.exports = function(app, passport) {
       model: 'Order',
       populate: {
         path: 'items.item',
-        model: 'Item'
+        model: 'Item',
+        populate: {
+          path: 'parent',
+          model: 'Item'
+        }
       }
     });
   }

@@ -496,6 +496,7 @@ function buildItemTable(items) {
 			$('#salePercentage').val(0);
 			$('#viewOnUSWebsite').attr('href', item.usLink);
 			$('#viewOnCanWebsite').attr('href', item.canLink);
+			$('#advancedItemLink').attr('href', '/item?id='+item._id);
 			$('#itemModal').modal();
 
 			if (item.hidden === true) {

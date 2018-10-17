@@ -18,7 +18,7 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    Item.findOne({sku: '7001'}).then(item => {
+    Item.findOne({sku: '254000'}).then(item => {
       item.refreshFrom3DCart();
     });
   }
