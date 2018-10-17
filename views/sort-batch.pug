@@ -21,7 +21,10 @@ mixin itemRow(item)
 	tr(onclick="noBarcodeSort(event, '"+item.item._id+"')", id=item._id+"-row")
 		td=item.item.sku
 		td
-			img(src="https://www.ecstasycrafts.com/"+item.item.imageURL, width="100px", height="auto")
+			if (item.item.imageURL && item.item.imageURL.startsWith('http'))
+				img(src=item.item.imageURL, width="100px", height="auto")
+			else
+				img(src="https://www.ecstasycrafts.com/"+item.item.imageURL, width="100px", height="auto")
 		td=item.quantity
 
 doctype html
