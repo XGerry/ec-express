@@ -337,6 +337,10 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
   return cartItem;
 }
 
+itemSchema.methods.findOrders = function() {
+  return this.model('Order').find({'items.item': this._id});
+}
+
 itemSchema.methods.refreshFrom3DCart = async function() {
   var canOptions = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+this.catalogIdCan,
     'GET', true);

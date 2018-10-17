@@ -534,6 +534,21 @@ module.exports = function(app, passport) {
     });
   });
 
+  app.get('/item', (req, res) => {
+    Item.findOne({_id: req.query.id}).then(item => {
+      if (item) {
+        item.findOrders().then(orders => {
+          res.render('item', {
+            item: item,
+            orders: orders
+          });
+        });
+      } else {
+        res.redirect('database');
+      }
+    });
+  });
+
   function loadBatch(id) {
     return Batch.findOne({_id: id}).populate({
       path: 'orders',

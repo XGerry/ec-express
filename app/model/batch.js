@@ -161,18 +161,16 @@ batchSchema.methods.delete = function() {
 	});
 }
 
-batchSchema.methods.finish = function(batch) {
+batchSchema.methods.finish = async function(batch) {
 	this.set(batch);
 	this.endTime = new Date();
 	this.completed = true;
 
-	this.orders.forEach(order => {
+	for (order of this.orders) {
 		order.picked = true;
 		order.isNew = false;
-		order.save().then(o => {
-			o.updateOrderStatus(9); // Processing Payment
-		});
-	});
+		await order.save();
+	}
 
 	return this.save();
 }

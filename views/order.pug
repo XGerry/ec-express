@@ -194,6 +194,7 @@ html
 						button.btn-primary.btn(type="button")#saveItemButton Save
 						button.btn-outline-danger.btn(type="button")#deleteItemButton Delete
 						button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
+						a.btn-outline-secondary.btn(target="_blank")#viewItem View Item
 
 		+footer
 		script.
@@ -355,6 +356,7 @@ html
 				if (item.price)
 					$('#itemPrice').val(item.price.toFixed(2));
 				$('#itemPickedQuantity').val(item.pickedQuantity);
+				$('#viewItem').prop('href', '/item?id='+item.item._id);
 			}
 
 			function editItem(id) {
