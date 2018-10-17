@@ -400,7 +400,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/order-dashboard', (req, res) => {
-    Order.find({picked: false}).then(orders => {
+    Order.find({picked: false, hold: false}).then(orders => {
       res.render('order-dashboard', {
         orders: orders
       });
@@ -436,6 +436,17 @@ module.exports = function(app, passport) {
     Order.find({}).then(orders => {
       res.render('orders', {
         orders: orders
+      });
+    });
+  });
+
+  app.get('/held-orders', (req, res) => {
+    Order.find({hold: true, canadian: true}).then(canOrders => {
+      Order.find({hold: true, canadian: false}).then(usOrders => {
+        res.render('held-orders', {
+          usOrders: usOrders,
+          canOrders: canOrders
+        });
       });
     });
   });
