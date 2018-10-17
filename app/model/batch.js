@@ -42,10 +42,11 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 
 	// first add any orders that need to be rushed
 	query.rush = true;
-	return Order.find(query).sort('orderDate').then(rushedOrders => {
+	return Order.find(query).sort('orderDate').then(async rushedOrders => {
 		console.log('Found ' + rushedOrders.length + ' rush orders');
 		if (rushedOrders.length > 0) {
-			newBatch = getBatch(rushedOrders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
+			console.log('adding the rushed order');
+			newBatch = await getBatch(rushedOrders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
 		}
 
 		// now the non-rushed orders
