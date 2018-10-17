@@ -182,6 +182,7 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
 }
 
 itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, canadian) {
+  console.log(optionItem);
 	this.name = optionItem.AdvancedOptionName;
   if (canadian) {
     this.optionIdCan = optionItem.AdvancedOptionCode;
@@ -333,6 +334,27 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
   }
 
   return cartItem;
+}
+
+itemSchema.methods.refreshFrom3DCart = function() {
+  var canOptions = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+this.catalogIdCan,
+    'GET', true);
+
+}
+
+// helpers
+function get3DCartOptions(url, method, canadian) {
+  var options = {
+    url: url,
+    method: method,
+    headers: {
+      SecureUrl: 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com'),
+      PrivateKey: process.env.CART_PRIVATE_KEY,
+      Token: canadian ? process.env.CART_TOKEN_CANADA : process.env.CART_TOKEN 
+    },
+    json: true
+  }
+  return options;
 }
 
 module.exports = mongoose.model('Item', itemSchema);
