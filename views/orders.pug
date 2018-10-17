@@ -7,10 +7,9 @@ mixin orderRow(order)
 		td=order.cartOrder.BillingCompany
 		td='$' + order.orderValue.toFixed(2)
 		td=order.picked ? 'yes' : 'no'
-		td
-			if (order.batch)
-				a(href="/batch-sheet?id="+order.batch target="_blank") View
 		td=order.invoiced ? 'yes' : 'no'
+		td=order.paid ? 'yes' : 'no'
+		td=order.hold ? 'yes' : 'no'
 
 doctype html
 include mixins
@@ -40,8 +39,9 @@ html
 										th Company
 										th Value
 										th Picked
-										th Batch
 										th Invoiced
+										th Paid
+										th Held
 								tbody
 									each order in orders
 										+orderRow(order)
