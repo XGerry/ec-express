@@ -255,6 +255,7 @@ html
 
 			function confirmSorting() {
 				var pickedQuantity = parseInt($('#sortModalQuantity').val());
+				console.log(pickedQuantity);
 				if (pickedQuantity > theItem.quantity || pickedQuantity == NaN) {
 					alert('Invalid item quantity! Fix the quantity and try again.');
 				} else {
@@ -317,7 +318,11 @@ html
 				$('.'+match._id+'-row').each((i, obj) => {
 					$(obj).addClass('bg-primary text-white');
 				});
-				$('#modalImage').prop('src', 'https://www.ecstasycrafts.com/'+match.item.item.imageURL);
+				if (match.item.item.imageURL && match.item.item.imageURL.startsWith('http')) {
+					$('#modalImage').prop('src', match.item.item.imageURL);
+				} else {
+					$('#modalImage').prop('src', 'https://www.ecstasycrafts.com/'+match.item.item.imageURL);
+				}
 				$('#sortModalQuantity').val(match.item.quantity - match.item.pickedQuantity);
 			}
 

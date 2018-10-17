@@ -712,7 +712,6 @@
  		});
 
  		socket.on('saveBatch', (batch, cb) => {
- 			console.log(batch.orders[0].items);
  			Batch.findOne({_id: batch._id}).populate('orders').then(dbBatch => {
  				var promises = [];
  				delete batch.__v;

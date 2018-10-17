@@ -87,7 +87,6 @@ function createItemInDB(name, numberOfOptions) {
 
 function testCreateItem() {
   console.log(chalk.cyan('Testing add item from 3D Cart'));
-
   try {
     return createItemInDB('TEST_ITEM', 10).then(item => {
       console.log(chalk.green('PASSED'));
@@ -120,4 +119,8 @@ function testUpdateItem() {
 			}
 		});
 	});
+}
+
+function testBatchCreation() {
+	
 }

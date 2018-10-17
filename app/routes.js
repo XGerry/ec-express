@@ -138,7 +138,6 @@ module.exports = function(app, passport) {
 
     reporting.getOrderReport(yesterday, today, [1, 2, 3, 6, 9, 13, 4])
     .then(responses => {
-      console.log(responses);
       var total = 0;
       responses.forEach(x => total += x.TotalCount);
       cart3d.loadItems({
@@ -323,7 +322,6 @@ module.exports = function(app, passport) {
     if (orderId) {
       var findOrders = ShowOrder.findOne({_id: orderId});
       findOrders.then((showOrder) => {
-        console.log(showOrder);
         res.render('show-order', {
           order: showOrder
         });
