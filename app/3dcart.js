@@ -583,9 +583,8 @@ async function getItemsFull(query, progressCallback, canadian) {
   });
 }
 
-function bulkUpdateCartItems(cartItems, canadian) {
-  var promises = [];
-  cartItems.forEach(async item => {
+async function bulkUpdateCartItems(cartItems, canadian) {
+  for (item of cartItems) {
     var sku = item.SKUInfo.SKU.trim();
     var saveItem = Item.findOne({sku: sku}).then(dbItem => {
       if (dbItem) {
@@ -597,8 +596,7 @@ function bulkUpdateCartItems(cartItems, canadian) {
       }
     });
     await saveItem;
-  });
-  return Promise.all(promises);
+  }
 }
 
 function updateItemsFromDB(progressCallback, finalCallback) {

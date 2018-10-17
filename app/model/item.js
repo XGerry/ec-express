@@ -72,7 +72,7 @@ var itemSchema = new mongoose.Schema({
 	},
 	cost: Number,
 	isBundle: Boolean,
-  parentItem: {
+  parent: {
     type: ObjectId,
     ref: 'Item'
   },
@@ -156,6 +156,7 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
       if (optionSKU != '') { // a lot of the options are dummy ones
         await this.model('Item').findOne({sku: optionSKU}).exec().then(async function(advancedOption) {
           if (advancedOption) {
+            console.log('existing option');
             parentItem.children.push(advancedOption._id);
           	await advancedOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, canadian);
           } else if (optionItem.AdvancedOptionSufix != '') {
@@ -184,7 +185,6 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
 }
 
 itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, canadian) {
-  console.log(optionItem);
 	this.name = optionItem.AdvancedOptionName;
   if (canadian) {
     this.optionIdCan = optionItem.AdvancedOptionCode;

@@ -89,6 +89,16 @@ function testCreateItem() {
   console.log(chalk.cyan('Testing add item from 3D Cart'));
   try {
     return createItemInDB('TEST_ITEM', 10).then(item => {
+    	return Item.find({_id: { $in: item.children }}).then(children => {
+    		children.forEach(c => {
+    			if (!c.parent.equals(item._id)) {
+    				return Promise.reject('Wrong parent _id');
+    			}
+    		});
+    		if (children.length != 10) {
+    			return Promise.reject('Not enough children!');
+    		}
+    	});
       console.log(chalk.green('PASSED'));
       return Promise.resolve();
     }).catch(err => {
@@ -122,5 +132,5 @@ function testUpdateItem() {
 }
 
 function testBatchCreation() {
-	
+
 }
