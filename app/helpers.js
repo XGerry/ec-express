@@ -203,7 +203,7 @@ function getItemSiteInventory(items) {
         }
       },
       ActiveStatus: 'All',
-      IncludeRetElement: ['QuantityOnHand', 'QuantityOnSalesOrder']
+      IncludeRetElement: ['Cost', 'IsActive']
     }
   };
 
