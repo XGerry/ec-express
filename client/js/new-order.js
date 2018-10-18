@@ -422,6 +422,10 @@ function emptyItemLine() {
 }
 
 function copyBillingToShipping() {
+	$('#shipmentFirstName').val($('#customerFirstName').val());
+	$('#shipmentLastName').val($('#customerLastName').val());
+	$('#shipmentCompany').val($('#customerCompany').val());
+	$('#shipmentPhone').val($('#customerPhone').val());
 	$('#shippingAddress').val($('#billingAddress').val());
 	$('#shippingAddress2').val($('#billingAddress2').val());
 	$('#shippingCity').val($('#billingCity').val());
