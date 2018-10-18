@@ -799,7 +799,7 @@ function checkUnpaidOrders(qbws) {
     Order.findUnpaidOrders(false).then(usOrders => {
       var rq = queryInvoiceRq(canOrders.concat(usOrders));
       console.log(rq);
-      qbws.addRequest(rq, xmlResponse => {
+      qbws.addRequest(rq, async xmlResponse => {
         return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
           var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
           var invoices = invoiceRs.InvoiceRet;
@@ -807,12 +807,19 @@ function checkUnpaidOrders(qbws) {
             invoices = [invoices];
           }
 
-          invoices.forEach(invoice => {
+          for (invoice of invoices) {
             console.log(invoice.IsPaid);
             if (invoice.IsPaid == 'true') {
-              console.log(invoice.RefNumber + ' is paid');
+              await Order.findOne({orderId: invoice.RefNumber}).then(order => {
+                order.paid = true;
+                return order.save();
+              });
             } else {
               console.log(invoice.RefNumber + ' is not paid');
+              await Order.findOne({orderId: invoice.RefNumber}).then(order => {
+                order.paid = false;
+                return order.save();
+              });
             }
           });
         });
