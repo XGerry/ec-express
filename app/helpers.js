@@ -794,6 +794,31 @@ function transferInventory(inventoryTransfer, qbws) {
   });
 }
 
+function checkUnpaidOrders(qbws) {
+  Order.findUnpaidOrders(true).then(canOrders => {
+    Order.findUnpaidOrders(false).then(usOrders => {
+      var rq = queryInvoiceRq(canOrders.concat(usOrders));
+      qbws.addRequest(rq, xmlResponse => {
+        return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+          var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
+          var invoices = invoiceRs.InvoiceRet;
+          if (!Array.isArray(invoices)) {
+            invoices = [invoices];
+          }
+
+          invoices.forEach(invoice => {
+            if (!invoice.IsPaid) {
+              console.log(invoice.RefNumber + ' is not paid');
+            } else {
+              console.log(invoice.RefNumber + ' is paid');
+            }
+          });
+        });
+      });
+    });
+  });
+}
+
 function createInvoicesFromSalesOrders(qbws, orders) {
   qbws.addRequest(getSalesOrdersRq(orders, true), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
@@ -1803,5 +1828,6 @@ module.exports = {
   closeSalesOrders: closeSalesOrders,
   updateSalesOrder: updateSalesOrder,
   transferInventory: transferInventory,
-  runInventory: runInventory
+  runInventory: runInventory,
+  checkUnpaidOrders: checkUnpaidOrders
 }

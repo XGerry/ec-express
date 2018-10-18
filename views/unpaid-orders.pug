@@ -25,6 +25,10 @@ html
 				.starter-template
 					h1 Unpaid Orders
 					p.lead Orders that haven't been paid, but have been picked and invoiced.
+				.container
+					.row
+						.col.text-center
+							button.btn.btn-primary(type="button")#crossCheckButton Cross Check in QB
 
 				.container-fluid
 					.row
@@ -69,6 +73,7 @@ html
 
 		+footer
 		script.
+			socket = io();
 			$('#usOrderTable').DataTable({
 				bDestroy: true,
 				pageLength: 20,
@@ -86,3 +91,11 @@ html
 					window.location="/order?id="+id;
 				}
 			}
+
+			$(document).ready(e => {
+				$('#crossCheckButton').click(e => {
+					socket.emit('crossCheckUnpaidOrders', response => {
+						console.log(response);
+					});
+				});
+			});

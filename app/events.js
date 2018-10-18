@@ -801,6 +801,11 @@
  			});
  		});
 
+ 		socket.on('crossCheckUnpaidOrders', cb => {
+ 			console.log('cross checking');
+ 			helpers.checkUnpaidOrders(qbws);
+ 		});
+
  		socket.on('transferInventory', (inventoryTransfer, cb) => {
  			helpers.transferInventory(inventoryTransfer, qbws);
  			cb('Run the web connector!');
