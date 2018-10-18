@@ -809,7 +809,7 @@ function checkUnpaidOrders(qbws) {
 
           invoices.forEach(invoice => {
             console.log(invoice.IsPaid);
-            if (invoice.IsPaid) {
+            if (invoice.IsPaid == 'true') {
               console.log(invoice.RefNumber + ' is paid');
             } else {
               console.log(invoice.RefNumber + ' is not paid');
