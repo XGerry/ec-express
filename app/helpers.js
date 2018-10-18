@@ -808,10 +808,11 @@ function checkUnpaidOrders(qbws) {
           }
 
           invoices.forEach(invoice => {
-            if (!invoice.IsPaid) {
-              console.log(invoice.RefNumber + ' is not paid');
-            } else {
+            console.log(invoice.IsPaid);
+            if (invoice.IsPaid) {
               console.log(invoice.RefNumber + ' is paid');
+            } else {
+              console.log(invoice.RefNumber + ' is not paid');
             }
           });
         });
