@@ -165,15 +165,14 @@ batchSchema.methods.finish = async function(batch) {
 	this.set(batch);
 	this.endTime = new Date();
 	this.completed = true;
-
+	await this.save();
 	for (order of this.orders) {
 		order.picked = true;
 		order.isNew = false;
 		delete order.__v;
 		await order.save();
 	}
-
-	return this.save();
+	return this;
 }
 
 module.exports = mongoose.model('Batch', batchSchema);
