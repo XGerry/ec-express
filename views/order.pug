@@ -131,7 +131,62 @@ html
 											});
 										td= '$' + pickedValue.toFixed(2)
 										td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
-					.row.pt-2
+					.row
+						.col
+							h5 Billing Info
+							.form-group
+								label Address 1
+								input.form-control(type="text" readonly value=order.cartOrder.BillingAddress)
+							if (order.cartOrder.BillingAddress2)
+								.form-group
+									label Address 2
+									input.form-control(type="text" readonly value=order.cartOrder.BillingAddress2)
+							.row
+								.col
+									.form-group
+										label City
+										input.form-control(type="text" readonly value=order.cartOrder.BillingCity)
+								.col
+									.form-group
+										label State
+										input.form-control(type="text" readonly value=order.cartOrder.BillingState)
+							.row
+								.col
+									.form-group
+										label Zip Code
+										input.form-control(type="text" readonly value=order.cartOrder.BillingZipCode)
+								.col
+									.form-group
+										label Country
+										input.form-control(type="text" readonly value=order.cartOrder.BillingCountry)
+						.col
+							h5 Shipping Info
+							.form-group
+								label Address 1
+								input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress)#shipmentAddress
+							if (order.cartOrder.ShipmentList[0].ShipmentAddress2)
+								.form-group
+									label Address 2
+									input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress2)#shipmentAddress2
+							.row
+								.col
+									.form-group
+										label City
+										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCity)#shipmentCity
+								.col
+									.form-group
+										label State
+										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentState)#shipmentState
+							.row
+								.col
+									.form-group
+										label Zip Code
+										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentZipCode)#shipmentZipCode
+								.col
+									.form-group
+										label Country
+										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCountry)#shipmentCountry
+					.row
 						.col
 							.form-group
 								label(for="orderTrackingNumber") Tracking Number
@@ -148,11 +203,11 @@ html
 					if (order.cartOrder.CustomerComments)
 						.row
 							.col
-								h5 Comments
+								h5 Customer Comments
 								p=order.cartOrder.CustomerComments
 					.row.pt-2
 						.col
-							h4 Order
+							h4 Items
 							table.table.table-striped.table-hover#orderTable
 								thead
 									tr
@@ -165,6 +220,10 @@ html
 								tbody#orderTableBody
 									each item in order.items
 										+itemRow(item, order.cartOrder)
+					.row
+						.col
+							h5 Internal Comments
+							textarea.form-control(rows=4)#orderComments= order.comments
 		
 		#addItemModal.modal(tabindex="-1" role="dialog").fade
 			.modal-dialog.modal-lg(role="document")
@@ -280,7 +339,7 @@ html
 				});
 
 				$('#saveOrderButton').click(e => {
-					theOrder.shippingCost = $('#orderShippingCost').val();
+					saveOrderProperties();
 					recalculateTotal();
 					socket.emit('updateOrder', theOrder, response => {
 						console.log(response);
@@ -292,7 +351,7 @@ html
 				});
 
 				$('#updateQuickbooks').click(e => {
-					theOrder.shippingCost = $('#orderShippingCost').val();
+					saveOrderProperties();
 					socket.emit('updateOrderQB', theOrder._id, message => {
 						$('#orderInfo').text(message);
 						setTimeout(() => {
@@ -302,7 +361,7 @@ html
 				});
 
 				$('#invoiceOrder').click(e => {
-					theOrder.shippingCost = $('#orderShippingCost').val();
+					saveOrderProperties();
 					socket.emit('invoiceOrder', theOrder._id, message => {
 						$('#orderInfo').text(message[0].message + ' - Run the web connector.');
 						setTimeout(() => {
@@ -371,5 +430,15 @@ html
 				theOrder.items.forEach(item => {
 					theOrder.orderValue += (item.quantity * item.price);
 				});
+			}
+
+			function saveOrderProperties() {
+				theOrder.shippingCost = $('#orderShippingCost').val();
+				theOrder.comments = $('#orderComments').val();
+				theOrder.cartOrder.ShipmentList[0].ShipmentAddress = $('#shipmentAddress').val();
+				theOrder.cartOrder.ShipmentList[0].ShipmentAddress2 = $('#shipmentAddress2').val();
+				theOrder.cartOrder.ShipmentList[0].ShipmentCity = $('#shipmentCity').val();
+				theOrder.cartOrder.ShipmentList[0].ShipmentZipCode = $('#shipmentZipCode').val();
+				theOrder.cartOrder.ShipmentList[0].ShipmentCountry = $('#shipmentCountry').val();
 			}
 

@@ -30,6 +30,7 @@ var orderSchema = new mongoose.Schema({
 	email: String,
 	orderId : String,
 	requestId : Number,
+  comments: String,
 	message : String,
 	timecode: Number,
 	orderValue: Number,
@@ -72,6 +73,10 @@ var orderSchema = new mongoose.Schema({
   }
 });
 
+orderSchema.statics.findUnpaidOrders = function(canadian) {
+  return this.find({paid: false, invoiced: true, picked: true, canadian: canadian});
+}
+
 orderSchema.methods.updateFrom3DCart = function(cartOrder) {
 	this.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
   this.cartOrder = cartOrder;
@@ -83,6 +88,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   this.email = cartOrder.BillingEmail;
   this.dueDate = getDueDate(cartOrder.OrderDate, this);
   this.shippingCost = cartOrder.ShipmentList[0].ShipmentCost;
+  this.comments = cartOrder.InternalComments;
 
   var promises = [];
   this.items = [];
@@ -154,6 +160,8 @@ orderSchema.methods.updateDueDate = function() {
 orderSchema.methods.updateOrder = function(order) {
 	delete order.__v;
 	this.set(order);
+  // update the shipping address
+  this.markModified('cartOrder');
 	this.save();
 	var oldOrder = {};
 	// replace the items
@@ -164,6 +172,8 @@ orderSchema.methods.updateOrder = function(order) {
 	oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
   if (this.trackingNumber)
     oldOrder.ShipmentList[0].ShipmentTrackingCode = this.trackingNumber;
+  if (this.comments)
+    oldOrder.InternalComments = this.comments;
 
 	this.items.forEach(item => {
 		var orderItem = {

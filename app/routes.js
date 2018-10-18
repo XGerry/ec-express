@@ -408,7 +408,14 @@ module.exports = function(app, passport) {
   });
 
   app.get('/unpaid-orders', (req, res) => {
-    res.render('unpaid-orders');
+    Order.findUnpaidOrders(false).then(canOrders => {
+      Order.findUnpaidOrders(true).then(usOrders => {
+        res.render('unpaid-orders', {
+          canOrders: canOrders,
+          usOrders: usOrders
+        });
+      });
+    });
   });
 
   app.get('/batch-sheet', (req, res) => { 
