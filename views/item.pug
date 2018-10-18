@@ -86,15 +86,20 @@ html
 									h5 Pricing
 									table.table-sm.table
 										thead
+											th US Cost
 											th US Price
 											th US Wholesale
 											th CA Price
 											th CA Wholesale
 										tbody
+											td='$'+item.cost.toFixed(2)
 											td='$'+item.usPrice.toFixed(2)
 											td='$'+item.usWholesalePrice.toFixed(2)
 											td='$'+item.canPrice.toFixed(2)
 											td='$'+item.canWholesalePrice.toFixed(2)
+							.row
+								.col
+
 							.row
 								.col
 									.form-group

@@ -1268,8 +1268,12 @@ function updateItemSites(response) {
           var theStock;
           if (site.QuantityOnSalesOrders) {
             theStock = parseInt(site.QuantityOnHand) - parseInt(site.QuantityOnSalesOrders);
+            dbItem.onSalesOrders = parseInt(site.QuantityOnSalesOrders);
           } else {
             theStock = parseInt(site.QuantityOnHand);
+          }
+          if (site.QuantityOnPurchaseOrders) {
+            dbItem.onPurchaseOrders = parseInt(site.QuantityOnPurchaseOrders);
           }
           if (theStock < 0 || theStock == NaN) {
             theStock = 0;
