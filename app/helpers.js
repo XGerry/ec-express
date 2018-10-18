@@ -1256,7 +1256,6 @@ function updateItemSites(response) {
     }
     var promises = [];
     sitesRet.forEach(site => {
-      console.log(site);
       var sku = ''; 
       if (site.ItemInventoryRef) {
         sku = site.ItemInventoryRef.FullName;

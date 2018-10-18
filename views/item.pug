@@ -80,7 +80,10 @@ html
 											td=item.stock
 											td=item.usStock
 											td=item.onSalesOrders
-											td=item.onPurchaseOrders
+											if (item.onPurchaseOrders)
+												td=item.onPurchaseOrders
+											else
+												td N/A
 							.row
 								.col
 									h5 Pricing
@@ -92,7 +95,10 @@ html
 											th CA Price
 											th CA Wholesale
 										tbody
-											td='$'+item.cost.toFixed(2)
+											if (item.cost)
+												td='$'+item.cost.toFixed(2)
+											else
+												td N/A
 											td='$'+item.usPrice.toFixed(2)
 											td='$'+item.usWholesalePrice.toFixed(2)
 											td='$'+item.canPrice.toFixed(2)
