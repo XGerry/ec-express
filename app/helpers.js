@@ -821,7 +821,7 @@ function checkUnpaidOrders(qbws) {
                 return order.save();
               });
             }
-          });
+          };
         });
       });
     });
