@@ -1256,6 +1256,7 @@ function updateItemSites(response) {
     }
     var promises = [];
     sitesRet.forEach(site => {
+      console.log(site);
       var sku = ''; 
       if (site.ItemInventoryRef) {
         sku = site.ItemInventoryRef.FullName;
@@ -1470,7 +1471,7 @@ function queryAllItems(qbws) {
 }
 
 function runInventory(qbws) {
-  return Item.find({}).then(items => {
+  return Item.find({}).limit(2).then(items => {
     var siteRq = getItemSiteInventory(items);
     qbws.addRequest(siteRq, updateItemSites, true);
     return Item.update({}, {$set: {updated: false}});
