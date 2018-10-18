@@ -799,8 +799,8 @@ function checkUnpaidOrders(qbws) {
     Order.findUnpaidOrders(false).then(usOrders => {
       var rq = queryInvoiceRq(canOrders.concat(usOrders));
       console.log(rq);
-      qbws.addRequest(rq, async xmlResponse => {
-        return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+      qbws.addRequest(rq, xmlResponse => {
+        return xml2js(xmlResponse, {explicitArray: false}).then(async responseObject => {
           var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
           var invoices = invoiceRs.InvoiceRet;
           if (!Array.isArray(invoices)) {
