@@ -1211,6 +1211,10 @@ function updateInventoryPart(response) {
 
 function updateItemSites(response) {
   return xml2js(response, {explicitArray: false}).then(result => {
+    if (!result) {
+      console.log('No response');
+      return Promise.resolve();
+    }
     var itemSitesRs = result.QBXML.QBXMLMsgsRs.ItemSitesQueryRs;
     sitesRet = itemSitesRs.ItemSitesRet;
     if (!Array.isArray(sitesRet)) {
