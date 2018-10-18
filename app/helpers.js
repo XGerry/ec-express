@@ -486,7 +486,7 @@ function modifyCustomField(fieldName, value, listId) {
 function queryInvoiceRq(orders) {
   var orderNumbers = [];
   orders.forEach(function(order) {
-    orderNumbers.push(order.InvoiceNumberPrefix + order.InvoiceNumber);
+    orderNumbers.push(order.orderId);
   });
 
   var invoiceQuery = {
@@ -798,6 +798,7 @@ function checkUnpaidOrders(qbws) {
   Order.findUnpaidOrders(true).then(canOrders => {
     Order.findUnpaidOrders(false).then(usOrders => {
       var rq = queryInvoiceRq(canOrders.concat(usOrders));
+      console.log(rq);
       qbws.addRequest(rq, xmlResponse => {
         return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
           var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
