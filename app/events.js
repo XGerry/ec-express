@@ -746,7 +746,7 @@
 
  		socket.on('invoiceBatch', (id, cb) => {
  			loadBatch(id).then(batch => {
- 				var ordersToInvoice = batch.order.filter(o => !o.hold);
+ 				var ordersToInvoice = batch.orders.filter(o => !o.hold);
  				helpers.createInvoicesFromSalesOrders(qbws, ordersToInvoice);
  				ordersToInvoice.forEach(order => {
  					order.invoiceTo3DCart();

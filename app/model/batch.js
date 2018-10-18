@@ -169,6 +169,7 @@ batchSchema.methods.finish = async function(batch) {
 	for (order of this.orders) {
 		order.picked = true;
 		order.isNew = false;
+		delete order.__v;
 		await order.save();
 	}
 
