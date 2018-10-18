@@ -811,6 +811,14 @@
  			cb('Run the web connector!');
  		});
 
+ 		socket.on('refreshItem', (item, cb) => {
+ 			Item.findOne({_id: item._id}).then(dbItem => {
+ 				dbItem.refreshFrom3DCart().then(item => {
+ 					cb();
+ 				});
+ 			});
+ 		});
+
  		socket.on('runInventory', () => {
  			helpers.runInventory(qbws);
  		});
