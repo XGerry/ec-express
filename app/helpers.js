@@ -1471,7 +1471,7 @@ function queryAllItems(qbws) {
 }
 
 function runInventory(qbws) {
-  return Item.find({}).limit(2).then(items => {
+  return Item.find({}).then(items => {
     var siteRq = getItemSiteInventory(items);
     qbws.addRequest(siteRq, updateItemSites, true);
     return Item.update({}, {$set: {updated: false}});

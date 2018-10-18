@@ -16,7 +16,8 @@ module.exports = function(qbws) {
       console.log('Finished refreshing the items');
     });
     amazon.updateAllInventory().then(response => console.log(response));
-    walmart.updateAllInventory().then(response => console.log(response));
+    walmart.updateAllInventory().then(response => console.log(response));.
+    helpers.queryAllItems(qbws); // update from quickbooks
   });
 }
 
