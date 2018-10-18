@@ -408,8 +408,8 @@ module.exports = function(app, passport) {
   });
 
   app.get('/unpaid-orders', (req, res) => {
-    Order.findUnpaidOrders(false).then(canOrders => {
-      Order.findUnpaidOrders(true).then(usOrders => {
+    Order.findUnpaidOrders(true).then(canOrders => {
+      Order.findUnpaidOrders(false).then(usOrders => {
         res.render('unpaid-orders', {
           canOrders: canOrders,
           usOrders: usOrders
