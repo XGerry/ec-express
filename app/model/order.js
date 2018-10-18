@@ -35,6 +35,7 @@ var orderSchema = new mongoose.Schema({
 	timecode: Number,
 	orderValue: Number,
 	orderDate: Date,
+  shipDate: Date,
 	dueDate: Date,
 	manual: Boolean,
 	retry: Boolean, // the order is being imported again

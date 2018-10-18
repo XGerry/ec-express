@@ -199,6 +199,10 @@ html
 											.input-group-text
 												i.far.fa-dollar-sign
 									input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
+						.col
+							.form-group
+								label(for="orderShipDate") Ship Date
+								input.form-control(type="date")
 
 					if (order.cartOrder.CustomerComments)
 						.row
@@ -440,5 +444,6 @@ html
 				theOrder.cartOrder.ShipmentList[0].ShipmentCity = $('#shipmentCity').val();
 				theOrder.cartOrder.ShipmentList[0].ShipmentZipCode = $('#shipmentZipCode').val();
 				theOrder.cartOrder.ShipmentList[0].ShipmentCountry = $('#shipmentCountry').val();
+				theOrder.shipDate = $('#orderShipDate').val();
 			}
 
