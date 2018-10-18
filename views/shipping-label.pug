@@ -4,8 +4,11 @@ html
 	include includes/head
 		title=order.orderId + ' Label'
 		style.
-			.label {
-				font-size: 18pt;
+			@page {
+				size: 4in 6in;
+			}
+			body {
+				font-size: 20pt;
 			}
 
 	body
@@ -13,11 +16,12 @@ html
 			+sidebarNav
 			#page-content
 				+menuToggle
-				.container.label
+				.container.label(style="max-width: 4in;")
 					.row
 						.col
-							strong Ecstasy Crafts
-							br
+							img.img-fluid(width="300px;" src="https://www.ecstasycrafts.com/assets/images/3dcart/logo.png")
+					.row
+						.col
 							strong 630 Shannonville Rd.
 							br
 							strong Shannonville, ON
