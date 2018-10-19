@@ -1,0 +1,47 @@
+mixin customerRow(customer)
+	tr(onclick="")
+		td=customer.name
+		td=customer.companyName
+		td=customer.email
+		td=customer.phone
+		td=customer.orders.length
+		td=customer.customerType
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Customers
+	body
+		#wrapper
+			+sidebarNav("orders")
+
+			#page-content
+				+menuToggle
+				.starter-template
+					h1 Customers
+					p.lead View the customers in the database.
+
+				.container-fluid
+					.row
+						.col
+							table.table.table-striped.table-hover#customerTable
+								thead
+									tr
+										th Name
+										th Company
+										th Email
+										th Phone
+										th Number of Orders
+										th Type
+								tbody
+									each customer in customers
+										+customerRow(customer)
+
+		+footer
+		script.
+			$('#customerTable').DataTable({
+				bDestroy: true,
+				pageLength: 100,
+				order: [[2, 'desc']]
+			});

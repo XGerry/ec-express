@@ -1,24 +1,10 @@
-mixin summaryCard(name, id, colour, textColour)
-	.card
-		.card-header(class=colour + ' ' + textColour)
-			h5.mb-0=name
-		.card-body.summary-card
-			table.table.table-sm.table-hover
-				thead
-					tr
-						th ID
-						th Name
-						//th Value
-						th Date
-				tbody(id=id+"SummaryTable")
-		.card-footer(id=id+"CardFooter")
-
 mixin orderRow(order)
 	tr(class=moment().isAfter(order.dueDate) ? 'overdue' : '', class=moment().isSame(order.dueDate, 'day') ? 'due' : '', onclick="window.location='/order?id="+order._id+"'")
 		td=order.orderId
-		td=order.name
+		td=order.customer.name
 		td=moment(order.orderDate).format('MMM Do')
 		td=moment(order.dueDate).format('MMM Do')
+		td=order.items.length
 
 mixin processingCard(name, id, colour, textColour, orders)
 	.card
@@ -32,6 +18,7 @@ mixin processingCard(name, id, colour, textColour, orders)
 							th Name
 							th Order Date
 							th Due Date
+							th Number of SKUs
 					tbody(id=id+"SummaryTable")
 						each order in orders
 							+orderRow(order)

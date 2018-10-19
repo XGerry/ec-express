@@ -4,6 +4,7 @@ var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
 var Order = require('./model/order');
 var Batch = require('./model/batch');
+var Customer = require('./model/customer');
 var CustomOrder = require('./model/customOrder');
 var PurchaseOrder = require('./model/purchaseOrder');
 var Item = require('./model/item');
@@ -400,7 +401,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/order-dashboard', (req, res) => {
-    Order.find({picked: false, hold: false}).then(orders => {
+    Order.find({picked: false, hold: false}).populate('customer').then(orders => {
       res.render('order-dashboard', {
         orders: orders
       });
@@ -553,6 +554,14 @@ module.exports = function(app, passport) {
       } else {
         res.redirect('database');
       }
+    });
+  });
+
+  app.get('/customers', (req, res) => {
+    Customer.find({}).then(customers => {
+      res.render('customers', {
+        customers: customers
+      });
     });
   });
 
