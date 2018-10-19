@@ -9,6 +9,7 @@ var Order = require('./model/order');
 var Settings = require('./model/settings');
 var Manifest = require('./model/manifest');
 var Customer = require('./model/customer');
+var webhooks = require('./webhooks');
 var Item = require('./model/item');
 var Address = require('./model/address');
 var PO = require('./model/purchaseOrder');
@@ -16,7 +17,7 @@ var Delivery = require('./model/delivery');
 var async = require('async');
 var xmlParser = require('xml2js').parseString; 
 var xml2js = require('xml2js-es6-promise');
-var pixl = require('pixl-xml')
+var pixl = require('pixl-xml');
 
 var timecode = + new Date();
 
@@ -845,11 +846,18 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             if (so.RefNumber == dbOrder.orderId) {
               qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                 console.log(response); 
-                // assume that it worked
-                // TODO: check for error
-                Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
-                  invoicedOrder.invoiced = true;
-                  invoicedOrder.updateOrderStatus(9); // Awaiting Payment
+                xml2js(response, {explicitArray: false}).then(obj => {
+                  var errorCode = obj.QBXML.QBXMLMsgsRs.invoiceQueryRs.$.statusCode;
+                  if (errorCode == '3210') {
+                    webhooks.orderBot({
+                      text: "Error creating invoice!" + dbOrder.orderId + " has already been invoiced"
+                    });
+                  } else {
+                    Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
+                      invoicedOrder.invoiced = true;
+                      invoicedOrder.updateOrderStatus(9); // Awaiting Payment
+                    });
+                  }
                 });
               });
             }

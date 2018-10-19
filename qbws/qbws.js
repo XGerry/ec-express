@@ -204,9 +204,9 @@ function addFinalCallback(fnc) {
 function generateOrderRequest() {
   var promises = [];
   var requestNumber = 1;
-  return Order.find({imported: false}).populate('items.item').then(orders => {
+  return Order.find({imported: false}).populate('customer').populate('items.item').then(orders => {
     orders.forEach(order => {
-      addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
+      addRequest(order.customer.addCustomerRq());
       var invoiceRqId = order.orderId;
       var xmlInvoiceRequest = order.addSalesOrderRq();
       addRequest(xmlInvoiceRequest, checkError, true); // make sure this only happens once

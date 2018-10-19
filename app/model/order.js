@@ -240,82 +240,7 @@ orderSchema.methods.invoiceTo3DCart = function() {
 }
 
 orderSchema.methods.customerRq = function() {
-	console.log('Creating customer ' + this.cartOrder.BillingFirstName + ' ' + order.BillingLastName);
-
-  // figure out what tax code they will get based on their billing address
-  var shippingAddress = createShippingAddress(order);
-  var taxCode = 'NON';
-  if (shippingAddress.Country == 'CA') {
-    if (shippingAddress.State == 'ON' || 
-      shippingAddress.State == 'NL' || 
-      shippingAddress.State == 'NB') {
-      taxCode = 'H';
-    } else if (shippingAddress.State == 'AB' ||
-      shippingAddress.State == 'SK' ||
-      shippingAddress.State == 'QC' ||
-      shippingAddress.State == 'BC' ||
-      shippingAddress.State == 'YT' ||
-      shippingAddress.State == 'NU' ||
-      shippingAddress.State == 'NT' ||
-      shippingAddress.State == 'MB') {
-      taxCode = 'G';
-    } else if (shippingAddress.State == 'NS') {
-      taxCode = 'NS';
-    } else if (shippingAddress.State == 'PE') {
-      taxCode = 'PEI';
-    }
-  }
-
-  var customerType = 'US '; // default
-  if (order.BillingCountry == 'CA') {
-    customerType = 'Canada ';
-  }
-
-  if (order.BillingCompany && order.BillingCompany != '') {
-    customerType += 'Wholesale';
-  } else {
-    customerType += 'Retail';
-  }
-
-  // var customerName = order.BillingLastName + ' ' + order.BillingFirstName;
-  // if (order.BillingCompany && order.BillingCompany != '') {
-  //   customerName = order.BillingCompany;
-  // }
-
-  var obj = {
-    CustomerAddRq : {
-      '@requestID' : requestID,
-      CustomerAdd : {
-        Name : order.BillingLastName + ' ' + order.BillingFirstName,
-        CompanyName : order.BillingCompany,
-        FirstName : order.BillingFirstName,
-        LastName : order.BillingLastName,
-        BillAddress : {
-          Addr1 : order.BillingLastName + ' ' + order.BillingFirstName,
-          Addr2 : order.BillingCompany,
-          Addr3 : order.BillingAddress,
-          Addr4 : order.BillingAddress2,
-          City : order.BillingCity,
-          State : order.BillingState,
-          PostalCode : order.BillingZipCode,
-          Country : order.BillingCountry
-        },
-        ShipAddress : shippingAddress,
-        Phone : order.BillingPhoneNumber,
-        Email : order.BillingEmail,
-        CustomerTypeRef: {
-          FullName: customerType
-        },
-        SalesTaxCodeRef : {
-          FullName : taxCode
-        }
-      }
-    }
-  }
-
-  var xmlDoc = getXMLRequest(obj);
-  var str = xmlDoc.end({'pretty' : true});
-  return str;
+	return this.customer.addCustomerRq();
 }
 
 orderSchema.methods.addSalesOrderRq = function() {
@@ -419,8 +344,8 @@ orderSchema.methods.addSalesOrderRq = function() {
         },
         TxnDate : moment(this.orderDate).format('YYYY-MM-DD'),
         RefNumber : this.orderId,
-        BillAddress: createBillingAddress(this.cartOrder),
-        ShipAddress : createShippingAddress(this.cartOrder),
+        BillAddress: this.customer.createBillingAddress(),
+        ShipAddress : this.createShippingAddress(),
         PONumber: po,
         TermsRef : {
           FullName : paymentMethod
@@ -563,33 +488,20 @@ function setItemFieldsForAmazon(order) {
   });
 }
 
-// helpers
-
-function createShippingAddress(order) {
+orderSchema.methods.createShippingAddress = function() {
   var shippingAddress = {};
-  shippingAddress.Addr1 = order.ShipmentList[0].ShipmentFirstName + " " + order.ShipmentList[0].ShipmentLastName;
-  shippingAddress.Addr2 = order.ShipmentList[0].ShipmentCompany;
-  shippingAddress.Addr3 = order.ShipmentList[0].ShipmentAddress;
-  shippingAddress.Addr4 = order.ShipmentList[0].ShipmentAddress2;
-  shippingAddress.City = order.ShipmentList[0].ShipmentCity;
-  shippingAddress.State = order.ShipmentList[0].ShipmentState;
-  shippingAddress.PostalCode = order.ShipmentList[0].ShipmentZipCode;
-  shippingAddress.Country = order.ShipmentList[0].ShipmentCountry;
+  shippingAddress.Addr1 = this.cartOrder.ShipmentList[0].ShipmentFirstName + " " + this.cartOrder.ShipmentList[0].ShipmentLastName;
+  shippingAddress.Addr2 = this.cartOrder.ShipmentList[0].ShipmentCompany;
+  shippingAddress.Addr3 = this.cartOrder.ShipmentList[0].ShipmentAddress;
+  shippingAddress.Addr4 = this.cartOrder.ShipmentList[0].ShipmentAddress2;
+  shippingAddress.City = this.cartOrder.ShipmentList[0].ShipmentCity;
+  shippingAddress.State = this.cartOrder.ShipmentList[0].ShipmentState;
+  shippingAddress.PostalCode = this.cartOrder.ShipmentList[0].ShipmentZipCode;
+  shippingAddress.Country = this.cartOrder.ShipmentList[0].ShipmentCountry;
   return shippingAddress;
 }
 
-function createBillingAddress(order) {
-  var billingAddress = {};
-  billingAddress.Addr1 = order.BillingFirstName + " " + order.BillingLastName;
-  billingAddress.Addr2 = order.BillingCompany;
-  billingAddress.Addr3 = order.BillingAddress;
-  billingAddress.Addr4 = order.BillingAddress2;
-  billingAddress.City = order.BillingCity;
-  billingAddress.State = order.BillingState;
-  billingAddress.PostalCode = order.BillingZipCode;
-  billingAddress.Country = order.BillingCountry;
-  return billingAddress;
-}
+// helpers
 
 function getXMLRequest(request) {
   var xmlDoc = builder.create('QBXML', { version: '1.0', encoding: 'ISO-8859-1'})
