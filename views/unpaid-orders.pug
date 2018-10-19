@@ -1,10 +1,10 @@
 mixin orderRow(order)
 	tr(onclick="orderSelected('"+order._id+"', event)")
 		td=order.orderId
-		td=order.name
+		td=order.customer.name
 		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
 		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
-		td=order.cartOrder.BillingCompany
+		td=order.customer.companyName
 		td='$' + order.orderValue.toFixed(2)
 		td=order.picked ? 'yes' : 'no'
 		td=order.invoiced ? 'yes' : 'no'

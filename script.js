@@ -1,6 +1,7 @@
 require('dotenv').config();
 var mongoose = require('mongoose');
 var Order = require('./app/model/order');
+var Customer = require('./app/model/customer');
 var Item = require('./app/model/item');
 const chalk = require('chalk');
 
@@ -18,8 +19,15 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    Item.findOne({sku: '254000'}).then(item => {
-      item.refreshFrom3DCart();
+    Order.find({}).then(async orders => {
+      var promises = [];
+      for (order of orders) {
+        try {
+          await order.updateCustomer();
+        } catch (err) {
+          console.log(err);
+        }
+      }
     });
   }
 });

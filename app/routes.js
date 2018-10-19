@@ -408,8 +408,8 @@ module.exports = function(app, passport) {
   });
 
   app.get('/unpaid-orders', (req, res) => {
-    Order.findUnpaidOrders(true).then(canOrders => {
-      Order.findUnpaidOrders(false).then(usOrders => {
+    Order.findUnpaidOrders(true).populate('customer').then(canOrders => {
+      Order.findUnpaidOrders(false).populate('customer').then(usOrders => {
         res.render('unpaid-orders', {
           canOrders: canOrders,
           usOrders: usOrders
@@ -440,7 +440,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/orders', (req, res) => {
-    Order.find({}).then(orders => {
+    Order.find({}).populate('customer').then(orders => {
       res.render('orders', {
         orders: orders
       });
@@ -448,8 +448,8 @@ module.exports = function(app, passport) {
   });
 
   app.get('/held-orders', (req, res) => {
-    Order.find({hold: true, canadian: true}).then(canOrders => {
-      Order.find({hold: true, canadian: false}).then(usOrders => {
+    Order.find({hold: true, canadian: true}).populate('customer').then(canOrders => {
+      Order.find({hold: true, canadian: false}).populate('customer').then(usOrders => {
         res.render('held-orders', {
           usOrders: usOrders,
           canOrders: canOrders
@@ -459,7 +459,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/order', (req, res) => {
-    Order.findOne({_id: req.query.id}).populate({
+    Order.findOne({_id: req.query.id}).populate('customer').populate({
       path: 'items.item',
       model: 'Item',
       populate: {
@@ -572,22 +572,8 @@ module.exports = function(app, passport) {
   }
 
   function getCustomerType(order) {
-    if (order.customerType == undefined || order.customerType == null) { 
-      if (order.cartOrder.CustomerID == 0) {
-        order.customerType = 0;
-        return order.save();
-      } else {
-        var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+order.cartOrder.CustomerID, 'GET', order.canadian);
-        return rp(options).then(response => {
-          if (Array.isArray(response)) {
-            response = response[0];
-          }
-          order.customerType = response.CustomerGroupID;
-          return order.save();
-        });
-      }
-    } else { // already has the customer type
-      return Promise.resolve();
-    }
+    return order.populate('customer').execPopulate(() => {
+      return order.customer.getCustomerType();
+    });
   }
 }

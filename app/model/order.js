@@ -25,9 +25,10 @@ var orderSchema = new mongoose.Schema({
 		},
 		price: Number
 	}],
-	customerType: Number,
-	name: String,
-	email: String,
+  customer: {
+    type: ObjectId,
+    ref: 'Customer'
+  },
 	orderId : String,
 	requestId : Number,
   comments: String,
@@ -72,26 +73,66 @@ var orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   }
+}, {
+  toObject: {
+    virtuals: true
+  },
+  toJSON: {
+    virtuals: true
+  },
+  usePushEach: true
 });
 
 orderSchema.statics.findUnpaidOrders = function(canadian) {
   return this.find({paid: false, invoiced: true, picked: true, canadian: canadian});
 }
 
+orderSchema.methods.updateCustomer = function() {
+  var order = this;
+  return mongoose.model('Customer').findOne({email: this.cartOrder.BillingEmail}).then(function(customer) {
+    if (customer) {
+      customer.updateFrom3DCart(order.cartOrder);
+      order.customer = customer._id;
+      customer.orders.push(order._id);
+      customer.save();
+      return order.save();
+    } else {
+      return mongoose.model('Customer').createCustomer(order.cartOrder).then(function(newCustomer) {
+        order.customer = newCustomer._id;
+        newCustomer.orders.push(order._id);
+        newCustomer.save();
+        return order.save();
+      });
+    }
+  });
+}
+
 orderSchema.methods.updateFrom3DCart = function(cartOrder) {
-	this.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
+  var promises = [];
+  var addCustomer = mongoose.model('Customer').findOne({email: cartOrder.BillingEmail}).then(function(customer) {
+    if (customer) {
+      this.customer = customer._id;
+      customer.orders.push(this._id);
+      return customer.updateFrom3DCart(cartOrder);
+    } else {
+      return mongoose.model('Customer').createCustomer(cartOrder).then(function(customer) {
+        this.customer = customer._id;
+        customer.orders.push(this._id);
+        return customer.save();
+      });
+    }
+  });
+
   this.cartOrder = cartOrder;
   this.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   this.amazon = cartOrder.InvoiceNumberPrefix == 'AZ-';
   this.orderDate = new Date(cartOrder.OrderDate);
   this.markModified('cartOrder');
   this.orderValue = cartOrder.OrderAmount;
-  this.email = cartOrder.BillingEmail;
   this.dueDate = getDueDate(cartOrder.OrderDate, this);
   this.shippingCost = cartOrder.ShipmentList[0].ShipmentCost;
   this.comments = cartOrder.InternalComments;
 
-  var promises = [];
   this.items = [];
   cartOrder.OrderItemList.forEach(item => {
   	var sku = item.ItemID.trim();
@@ -121,7 +162,6 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
 orderSchema.methods.removeBatch = function() {
 	if (this.batch) {
 		return this.populate('batch').execPopulate().then(() => {
-			console.log(this.batch);
 			if (this.batch) {
 				return this.batch.removeOrder(this._id).then(() => {
 					this.batch = null;
