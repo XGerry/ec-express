@@ -850,7 +850,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                   var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
                   if (errorCode == '3210') {
                     webhooks.orderBot({
-                      text: "Error creating invoice!" + dbOrder.orderId + " has already been invoiced"
+                      text: "Error creating invoice! " + dbOrder.orderId + " has already been invoiced. Check the invoice in Quickbooks."
                     });
                   } else {
                     Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
