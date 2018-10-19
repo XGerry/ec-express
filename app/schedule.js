@@ -42,7 +42,6 @@ function syncOrdersAndInventory(qbws) {
       helpers.runInventory(qbws).then(() => {
         qbws.addFinalCallback(() => {
           saveInventory().then((responses) => {
-            console.log(responses);
             console.log('Finished saving');
           });
           return Promise.resolve('Finished');
