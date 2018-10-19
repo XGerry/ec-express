@@ -847,7 +847,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
               qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                 console.log(response); 
                 xml2js(response, {explicitArray: false}).then(obj => {
-                  var errorCode = obj.QBXML.QBXMLMsgsRs.invoiceQueryRs.$.statusCode;
+                  var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
                   if (errorCode == '3210') {
                     webhooks.orderBot({
                       text: "Error creating invoice!" + dbOrder.orderId + " has already been invoiced"
