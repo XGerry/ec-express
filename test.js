@@ -1,6 +1,7 @@
 require('dotenv').config();
 var mongoose = require('mongoose');
 var Order = require('./app/model/order');
+var Customer = require('./app/model/customer');
 var Item = require('./app/model/item');
 var Batch = require('./app/model/batch');
 const chalk = require('chalk');
@@ -77,6 +78,7 @@ function fail(e) {
 async function cleanUp() {
   await Item.remove({});
   await Order.remove({});
+  await Customer.remove({});
 }
 
 function getTestCartItem(name, numberOfOptions) {
@@ -237,13 +239,14 @@ async function testImportOrder() {
 		if (e.statusCode == 404)
 			console.log('Expected the 404 error');
 		else {
+      console.log(e);
 			return Promise.reject('Error creating the order');
 		}
 	}
 
 	// verify the order exists
-	return Order.findOne({orderId: orderId}).then(order => {
-		if (order.email != 'test@123.com') {
+	return Order.findOne({orderId: orderId}).populate('customer').then(order => {
+		if (order.customer.email != 'test@123.com') {
 			return Promise.reject('Order not imported properly.');
 		}
 	});
@@ -269,6 +272,7 @@ async function testBatchCreation() {
 			if (e.statusCode == 404)
 				console.log('Expected the 404 error');
 			else {
+        console.log(e);
 				return Promise.reject('Error creating the order');
 			}
 		}

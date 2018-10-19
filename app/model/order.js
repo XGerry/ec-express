@@ -109,21 +109,11 @@ orderSchema.methods.updateCustomer = function() {
 
 orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   var promises = [];
-  var addCustomer = mongoose.model('Customer').findOne({email: cartOrder.BillingEmail}).then(function(customer) {
-    if (customer) {
-      this.customer = customer._id;
-      customer.orders.push(this._id);
-      return customer.updateFrom3DCart(cartOrder);
-    } else {
-      return mongoose.model('Customer').createCustomer(cartOrder).then(function(customer) {
-        this.customer = customer._id;
-        customer.orders.push(this._id);
-        return customer.save();
-      });
-    }
-  });
-
   this.cartOrder = cartOrder;
+  
+  var addCustomer = this.updateCustomer(cartOrder);
+  promises.push(addCustomer);
+
   this.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   this.amazon = cartOrder.InvoiceNumberPrefix == 'AZ-';
   this.orderDate = new Date(cartOrder.OrderDate);
