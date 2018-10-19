@@ -569,14 +569,17 @@ module.exports = function(app, passport) {
     return Batch.findOne({_id: id}).populate({
       path: 'orders',
       model: 'Order',
-      populate: {
+      populate: [{
         path: 'items.item',
         model: 'Item',
         populate: {
           path: 'parent',
           model: 'Item'
         }
-      }
+      }, {
+        path: 'customer',
+        model: 'Customer'
+      }]
     });
   }
 

@@ -1,7 +1,7 @@
 mixin orderRow(order)
 	tr(onclick="window.location='/order?id="+order._id+"'")
 		td=order.orderId
-		td=order.name
+		td=order.customer.name
 		td=order.items.length
 		td=order.items.reduce((total, item) => total + parseInt(item.quantity), 0)
 		td=order.items.reduce((total, item) => total + parseInt(item.pickedQuantity), 0)
