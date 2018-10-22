@@ -280,6 +280,9 @@ async function testBatchCreation() {
 	
 	return Batch.createAutoBatch(250, 35, 'ca').then(batch => {
 		console.log(batch.orders.length);
+    if (batch.orders.length != 5) {
+      return Promise.reject('Wrong amount of orders in batch');
+    }
 		console.log(batch.numberOfItems);
 		console.log(batch.numberOfSkus);
 	});

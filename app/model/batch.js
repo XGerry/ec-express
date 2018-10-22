@@ -28,7 +28,6 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 	var newBatch = new this();
 	newBatch.orders = [];
 	newBatch.startTime = new Date();
-
 	var query = {picked: false, batch: null, hold: false};
 
 	if (batchType == 'ca') {
@@ -42,7 +41,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 
 	// first add any orders that need to be rushed
 	query.rush = true;
-	return Order.find(query).sort('orderDate').then(async rushedOrders => {
+	return Order.find(query).populate('customer').sort('orderDate').then(async rushedOrders => {
 		console.log('Found ' + rushedOrders.length + ' rush orders');
 		if (rushedOrders.length > 0) {
 			console.log('adding the rushed order');
@@ -51,7 +50,7 @@ batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus
 
 		// now the non-rushed orders
 		query.rush = false;
-		return Order.find(query).sort('orderDate').then(orders => {
+		return Order.find(query).populate('customer').sort('orderDate').then(orders => {
 			console.log('Found ' + orders.length + ' unpicked orders');
 			return getBatch(orders, newBatch, maxNumberOfItems, maxNumberOfSkus, 5);
 		});
@@ -88,7 +87,7 @@ async function getBatch(orders, batch, maxItems, maxSKUs, maxOrders) {
 
 		// now see if there are any other orders from that customer
 		for (var j = 0; j < orders.length; j++) {
-			if (order.email == orders[j].email) {
+			if (order.customer.email == orders[j].customer.email) {
 				// another order, automatically add it
 				var [dupOrder] = orders.splice(j, 1);
 				batch.orders.push(dupOrder);

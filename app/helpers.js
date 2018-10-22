@@ -856,6 +856,9 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
                       invoicedOrder.invoiced = true;
                       invoicedOrder.updateOrderStatus(9); // Awaiting Payment
+                       webhooks.orderBot({
+                        text: 'Successfully created invoice for ' + invoicedOrder.orderid + ' in Quickbooks.'
+                      });
                     });
                   }
                 });
