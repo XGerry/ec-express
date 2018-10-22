@@ -749,7 +749,12 @@
  				var ordersToInvoice = batch.orders.filter(o => !o.hold);
  				helpers.createInvoicesFromSalesOrders(qbws, ordersToInvoice);
  				ordersToInvoice.forEach(order => {
- 					order.invoiceTo3DCart();
+ 					try {
+ 						order.invoiceTo3DCart();
+ 					} catch (err) {
+ 						console.log('Error trying to invoice order: ' + order.orderId);
+ 						console.log(err);
+ 					}
  				});
  				cb('Invoice request generated!');
  			});
