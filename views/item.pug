@@ -1,7 +1,7 @@
 mixin orderTableRow(order)
 	tr(onclick="window.location='/order?id="+order._id+"';")
 		td=order.orderId
-		td=order.name
+		td=order.customer.name
 		td=order.picked ? 'yes' : 'no'
 		td=order.invoiced ? 'yes' : 'no'
 		td=order.paid ? 'yes' : 'no'

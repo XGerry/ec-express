@@ -340,7 +340,7 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
 }
 
 itemSchema.methods.findOrders = function() {
-  return this.model('Order').find({'items.item': this._id});
+  return this.model('Order').find({'items.item': this._id}).populate('customer');
 }
 
 itemSchema.methods.refreshFrom3DCart = async function() {
