@@ -249,6 +249,15 @@ async function testImportOrder() {
 		if (order.customer.email != 'test@123.com') {
 			return Promise.reject('Order not imported properly.');
 		}
+    console.log(order.items.length);
+    if (order.items.length != 2) {
+      return Promise.reject('Order does not have the proper number of items.');
+    }
+    var numberOfItems = order.items.reduce((totalItems, item) => totalItems += item.quantity, 0);
+    console.log(numberOfItems);
+    if (numberOfItems != 20) {
+      return Promise.reject('Order does not have the proper number of quantity.');
+    }
 	});
 }
 
@@ -278,12 +287,20 @@ async function testBatchCreation() {
 		}
 	}
 	
-	return Batch.createAutoBatch(250, 35, 'ca').then(batch => {
+	return Batch.createAutoBatch(250, 20, 'ca').then(batch => {
 		console.log(batch.orders.length);
     if (batch.orders.length != 5) {
       return Promise.reject('Wrong amount of orders in batch');
     }
+
 		console.log(batch.numberOfItems);
+    if (batch.numberOfItems != 100) {
+      return Promise.reject('Wrong amount of items in batch');
+    }
+
 		console.log(batch.numberOfSkus);
+    if (batch.numberOfSkus != 10) {
+      return Promise.reject('Wrong amount of skus in batch');
+    }
 	});
 }

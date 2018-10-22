@@ -479,33 +479,31 @@ function doOrderRequest(options) {
   });
 }
 
-function getOrders(query, qbws) {
+async function getOrders(query, qbws) {
   var getAllOrders = getOrdersQuick(query);
   return getAllOrders.then(responses => {
     console.log('Successfully received the orders');
     var merged = [].concat.apply([], responses);
     var promises = [];
-    merged.forEach(order => {
-      promises.push(createOrderInDB(order));
-    });
+    for (order of merged) {
+      await createOrderInDB(order);
+    }
 
-    return Promise.all(promises).then(newOrders => {
-      helpers.createSalesOrdersRequests(qbws);
-      qbws.addFinalCallback(() => {
-        console.log('Generating Report');
-        var findSettings = Settings.findOne({});
-        return findSettings.then(settings => {
-          var orderReport = helpers.getOrderReport(settings);
-          return orderReport.then((report) => {
-            webhooks.orderBot(helpers.getSlackOrderReport(report));
-            settings.lastImports = [];
-            return settings.save();
-          });
+    helpers.createSalesOrdersRequests(qbws);
+
+    qbws.addFinalCallback(() => {
+      console.log('Generating Report');
+      var findSettings = Settings.findOne({});
+      return findSettings.then(settings => {
+        var orderReport = helpers.getOrderReport(settings);
+        return orderReport.then((report) => {
+          webhooks.orderBot(helpers.getSlackOrderReport(report));
+          settings.lastImports = [];
+          return settings.save();
         });
       });
-
-      return newOrders.length;
     });
+    return merged.length;
   }).catch(err => {
     console.log(err);
     return 0;

@@ -111,8 +111,7 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   var promises = [];
   this.cartOrder = cartOrder;
   
-  var addCustomer = this.updateCustomer(cartOrder);
-  promises.push(addCustomer);
+  await this.updateCustomer(cartOrder);
 
   this.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
   this.amazon = cartOrder.InvoiceNumberPrefix == 'AZ-';
@@ -124,11 +123,13 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   this.comments = cartOrder.InternalComments;
 
   this.items = [];
-  cartOrder.OrderItemList.forEach(item => {
+  var theOrder = this;
+  for (item of cartOrder.OrderItemList) {
   	var sku = item.ItemID.trim();
-  	await Item.findOne({sku: sku}).then(dbItem => {
+  	await Item.findOne({sku: sku}).then(function(dbItem) {
   		if (dbItem) {
-		  	this.items.push({
+        console.log('adding item to order: ' + theOrder.orderId);
+		  	theOrder.items.push({
 		  		item: dbItem._id,
 		  		quantity: item.ItemQuantity,
 		  		pickedQuantity: 0,
@@ -138,15 +139,12 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   			console.log('item not found: ' + sku);
   		}
   	});
-  	promises.push(findItem);
-  });
+  }
 
-  return Promise.all(promises).then(() => {
-  	// after the order is created, move it to the queue
-  	return this.save().then(savedOrder => {
-  		return savedOrder.updateOrderStatus(8); // Queued
-  	});
-  });
+	// after the order is created, move it to the queue
+	return this.save().then(savedOrder => {
+		return savedOrder.updateOrderStatus(8); // Queued
+	});
 }
 
 orderSchema.methods.removeBatch = function() {
