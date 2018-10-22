@@ -1513,7 +1513,7 @@ function cleanDatabase(callback) {
 
 function getOrderReport(settings) {
   var successOrders = Order.find({imported: true, timecode: {$in: settings.lastImports}});
-  var failedOrders = Order.find({imported: false, timecode: {$in: settings.lastImports}});
+  var failedOrders = Order.find({imported: false});
 
   return successOrders.then((successes) => {
     return failedOrders.then((failures) => {
