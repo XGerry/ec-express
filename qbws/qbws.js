@@ -211,10 +211,11 @@ function generateOrderRequest() {
         addRequest(createCustomerRq);
       } else {
         console.log('fallback!');
-        addRequest(helpers.addCustomerRq(order.cartOrder), requestNumber++);
+        addRequest(helpers.addCustomerRq(order.cartOrder, requestNumber++));
       }
       addRequest(order.addSalesOrderRq(), checkError, true);
     }
+    console.log(req.length + ' number of requests to get through');
     return Promise.resolve();
   });
 }
