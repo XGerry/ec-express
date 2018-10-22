@@ -207,7 +207,7 @@ function generateOrderRequest() {
   return Order.find({imported: false}).populate('customer').populate('items.item').then(orders => {
     orders.forEach(order => {
       if (order.customer) {
-        addRequest(order.customer.addCustomerRq(order.cartOrder));
+        addRequest(order.customer.addCustomerRq(order));
       } else {
         console.log('Fallback:');
         console.log(order.orderId);

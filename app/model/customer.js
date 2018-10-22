@@ -125,42 +125,42 @@ customerSchema.methods.addCustomerRq = function(order) {
   }
 
   var customerType = 'US '; // default
-  if (order.BillingCountry == 'CA') {
+  if (order.cartOrder.BillingCountry == 'CA') {
     customerType = 'Canada ';
   }
 
-  if (order.BillingCompany && order.BillingCompany != '') {
+  if (order.cartOrder.BillingCompany && order.cartOrder.BillingCompany != '') {
     customerType += 'Wholesale';
   } else {
     customerType += 'Retail';
   }
 
-  // var customerName = order.BillingLastName + ' ' + order.BillingFirstName;
-  // if (order.BillingCompany && order.BillingCompany != '') {
-  //   customerName = order.BillingCompany;
+  // var customerName = order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName;
+  // if (order.cartOrder.BillingCompany && order.cartOrder.BillingCompany != '') {
+  //   customerName = order.cartOrder.BillingCompany;
   // }
 
   var obj = {
     CustomerAddRq : {
       '@requestID' : this.email,
       CustomerAdd : {
-        Name : order.BillingLastName + ' ' + order.BillingFirstName,
-        CompanyName : order.BillingCompany,
-        FirstName : order.BillingFirstName,
-        LastName : order.BillingLastName,
+        Name : order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName,
+        CompanyName : order.cartOrder.BillingCompany,
+        FirstName : order.cartOrder.BillingFirstName,
+        LastName : order.cartOrder.BillingLastName,
         BillAddress : {
-          Addr1 : order.BillingLastName + ' ' + order.BillingFirstName,
-          Addr2 : order.BillingCompany,
-          Addr3 : order.BillingAddress,
-          Addr4 : order.BillingAddress2,
-          City : order.BillingCity,
-          State : order.BillingState,
-          PostalCode : order.BillingZipCode,
-          Country : order.BillingCountry
+          Addr1 : order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName,
+          Addr2 : order.cartOrder.BillingCompany,
+          Addr3 : order.cartOrder.BillingAddress,
+          Addr4 : order.cartOrder.BillingAddress2,
+          City : order.cartOrder.BillingCity,
+          State : order.cartOrder.BillingState,
+          PostalCode : order.cartOrder.BillingZipCode,
+          Country : order.cartOrder.BillingCountry
         },
         ShipAddress : shippingAddress,
-        Phone : order.BillingPhoneNumber,
-        Email : order.BillingEmail,
+        Phone : order.cartOrder.BillingPhoneNumber,
+        Email : order.cartOrder.BillingEmail,
         CustomerTypeRef: {
           FullName: customerType
         },
