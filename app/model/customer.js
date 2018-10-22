@@ -97,7 +97,7 @@ customerSchema.methods.getCustomerType = function() {
   }
 }
 
-customerSchema.methods.addCustomerRq = function(order) {
+customerSchema.methods.addCustomerRq = async function(order) {
 	console.log('Creating customer ' + this.name);
 
   // figure out what tax code they will get based on their billing address
@@ -135,10 +135,7 @@ customerSchema.methods.addCustomerRq = function(order) {
     customerType += 'Retail';
   }
 
-  // var customerName = order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName;
-  // if (order.cartOrder.BillingCompany && order.cartOrder.BillingCompany != '') {
-  //   customerName = order.cartOrder.BillingCompany;
-  // }
+  await this.updateFrom3DCart(order.cartOrder);
 
   var obj = {
     CustomerAddRq : {
@@ -148,16 +145,7 @@ customerSchema.methods.addCustomerRq = function(order) {
         CompanyName : order.cartOrder.BillingCompany,
         FirstName : order.cartOrder.BillingFirstName,
         LastName : order.cartOrder.BillingLastName,
-        BillAddress : {
-          Addr1 : order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName,
-          Addr2 : order.cartOrder.BillingCompany.substring(0, 40),
-          Addr3 : order.cartOrder.BillingAddress.substring(0, 40),
-          Addr4 : order.cartOrder.BillingAddress2.substring(0, 40),
-          City : order.cartOrder.BillingCity.substring(0, 40),
-          State : order.cartOrder.BillingState.substring(0, 40),
-          PostalCode : order.cartOrder.BillingZipCode.substring(0, 40),
-          Country : order.cartOrder.BillingCountry.substring(0, 40)
-        },
+        BillAddress : this.createBillingAddress(),
         ShipAddress : shippingAddress,
         Phone : order.cartOrder.BillingPhoneNumber,
         Email : order.cartOrder.BillingEmail,
@@ -179,9 +167,17 @@ customerSchema.methods.addCustomerRq = function(order) {
 customerSchema.methods.createBillingAddress = function() {
 	var billingAddress = {};
   billingAddress.Addr1 = this.name.substring(0, 40);
-  billingAddress.Addr2 = this.companyName.substring(0, 40);
-  billingAddress.Addr3 = this.billingAddress.substring(0, 40);
-  billingAddress.Addr4 = this.billingAddress2.substring(0, 40);
+  if (this.companyName) {
+  	billingAddress.Addr2 = this.companyName.substring(0, 40);
+  	billingAddress.Addr3 = this.billingAddress.substring(0, 40);
+  	if (this.billingAddress2)
+  		billingAddress.Addr4 = this.billingAddress2.substring(0, 40);
+  } else {
+  	billingAddress.Addr2 = this.billingAddress.substring(0, 40);
+  	if (this.billingAddress2)
+  		billingAddress.Addr3 = this.billingAddress2.substring(0, 40);
+  }
+
   billingAddress.City = this.billingCity.substring(0, 40);
   billingAddress.State = this.billingState.substring(0, 40);
   billingAddress.PostalCode = this.billingZipCode.substring(0, 40);

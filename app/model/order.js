@@ -495,9 +495,17 @@ function setItemFieldsForAmazon(order) {
 orderSchema.methods.createShippingAddress = function() {
   var shippingAddress = {};
   shippingAddress.Addr1 = this.cartOrder.ShipmentList[0].ShipmentFirstName + " " + this.cartOrder.ShipmentList[0].ShipmentLastName;
-  shippingAddress.Addr2 = this.cartOrder.ShipmentList[0].ShipmentCompany.substring(0, 40);
-  shippingAddress.Addr3 = this.cartOrder.ShipmentList[0].ShipmentAddress.substring(0, 40);
-  shippingAddress.Addr4 = this.cartOrder.ShipmentList[0].ShipmentAddress2.substring(0, 40);
+  if (this.cartOrder.ShipmentList[0].ShipmentCompany) {
+    shippingAddress.Addr2 = this.cartOrder.ShipmentList[0].ShipmentCompany.substring(0, 40);
+    shippingAddress.Addr3 = this.cartOrder.ShipmentList[0].ShipmentAddress.substring(0, 40);
+    if (this.cartOrder.ShipmentList[0].ShipmentAddress2)
+      shippingAddress.Addr4 = this.cartOrder.ShipmentList[0].ShipmentAddress2.substring(0, 40);
+  } else {
+    shippingAddress.Addr2 = this.cartOrder.ShipmentList[0].ShipmentAddress.substring(0, 40);
+    if (this.cartOrder.ShipmentList[0].ShipmentAddress2)
+      shippingAddress.Addr3 = this.cartOrder.ShipmentList[0].ShipmentAddress2.substring(0, 40);
+  }
+  
   shippingAddress.City = this.cartOrder.ShipmentList[0].ShipmentCity.substring(0, 40);
   shippingAddress.State = this.cartOrder.ShipmentList[0].ShipmentState.substring(0, 40);
   shippingAddress.PostalCode = this.cartOrder.ShipmentList[0].ShipmentZipCode.substring(0, 40);
