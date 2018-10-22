@@ -98,7 +98,7 @@ customerSchema.methods.getCustomerType = function() {
 }
 
 customerSchema.methods.addCustomerRq = function(order) {
-	console.log('Creating customer ' + order.name);
+	console.log('Creating customer ' + this.name);
 
   // figure out what tax code they will get based on their billing address
   var shippingAddress = order.createShippingAddress();
