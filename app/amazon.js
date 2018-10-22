@@ -1,4 +1,3 @@
-var helpers = require('./helpers');
 var Item = require('./model/item');
 var crypto = require('crypto');
 var queryString = require('query-string');
@@ -226,7 +225,7 @@ function doAmazonRequest(itemPromise, feedType, itemType, httpMethod, documentBu
 		});
 		
 		xmlDoc.AmazonEnvelope.Message = messages;
-		var body = helpers.getXMLDoc(xmlDoc);
+		var body = getXMLDoc(xmlDoc);
 		var options = getOptions(feedType, httpMethod, body);
 		return rp(options);
 	});
@@ -404,6 +403,11 @@ function getSellerHeader() {
 	headers += 'package_weight_unit_of_measure\t'; 	// GR, KG, OZ, LB
 	headers += 'package_length_unit_of_measure\t'; 	// CM, MM, IN
 	return headers;
+}
+
+function getXMLDoc(doc) {
+  var xmlDoc = builder.create(doc, {encoding: 'utf-8'});
+  return xmlDoc.end({pretty: true});
 }
 
 module.exports = {
