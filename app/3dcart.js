@@ -479,9 +479,9 @@ function doOrderRequest(options) {
   });
 }
 
-async function getOrders(query, qbws) {
+function getOrders(query, qbws) {
   var getAllOrders = getOrdersQuick(query);
-  return getAllOrders.then(responses => {
+  return getAllOrders.then(async responses => {
     console.log('Successfully received the orders');
     var merged = [].concat.apply([], responses);
     var promises = [];
