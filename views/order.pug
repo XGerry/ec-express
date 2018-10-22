@@ -48,6 +48,7 @@ html
 								a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email Customer
 								a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
 								a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
+								a(href="#").dropdown-item#refreshFromOriginal Reload from Original
 								.dropdown-divider
 								a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
 								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
@@ -391,6 +392,16 @@ html
 					if (yes) {
 						socket.emit('deleteOrder', theOrder._id, cb => {
 							window.location = '/orders';
+						});
+					}
+				});
+
+				$('#refreshFromOriginal').click(e => {
+					e.preventDefault();
+					var yes = confirm('This will revert the order to it\'s original state. Are you sure you want to continue?');
+					if (yes) {
+						socket.emit('refreshOrder', theOrder._id, cb => {
+							location.reload();
 						});
 					}
 				});

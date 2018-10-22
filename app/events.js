@@ -819,6 +819,14 @@
  			});
  		});
 
+ 		socket.on('refreshOrder', (id, cb) => {
+ 			Order.findOne({_id: id}).then(order => {
+ 				order.updateFrom3DCart(order.cartOrder).then(() => {
+ 					cb();
+ 				});
+ 			}); 
+ 		});
+
  		socket.on('runInventory', () => {
  			helpers.runInventory(qbws);
  		});

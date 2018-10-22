@@ -107,7 +107,7 @@ orderSchema.methods.updateCustomer = function() {
   });
 }
 
-orderSchema.methods.updateFrom3DCart = function(cartOrder) {
+orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   var promises = [];
   this.cartOrder = cartOrder;
   
@@ -126,7 +126,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
   this.items = [];
   cartOrder.OrderItemList.forEach(item => {
   	var sku = item.ItemID.trim();
-  	var findItem = Item.findOne({sku: sku}).then(dbItem => {
+  	await Item.findOne({sku: sku}).then(dbItem => {
   		if (dbItem) {
 		  	this.items.push({
 		  		item: dbItem._id,
@@ -135,7 +135,7 @@ orderSchema.methods.updateFrom3DCart = function(cartOrder) {
 		  		price: item.ItemUnitPrice
 		  	});
   		} else {
-  			console.log('item not found');
+  			console.log('item not found: ' + sku);
   		}
   	});
   	promises.push(findItem);
