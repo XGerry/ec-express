@@ -161,6 +161,7 @@ customerSchema.methods.addCustomerRq = async function(order) {
 
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({'pretty' : true});
+  console.log(str);
   return str;
 }
 
