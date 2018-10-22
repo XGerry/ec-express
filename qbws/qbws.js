@@ -204,23 +204,17 @@ function addFinalCallback(fnc) {
 function generateOrderRequest() {
   var promises = [];
   var requestNumber = 1;
-  return Order.find({imported: false}).populate('customer').populate('items.item').then(orders => {
-    orders.forEach(order => {
+  return Order.find({imported: false}).populate('customer').populate('items.item').then(async orders => {
+    for (order of orders) {
       if (order.customer) {
-        addRequest(order.customer.addCustomerRq(order, requestNumber++));
+        await addRequest(order.customer.addCustomerRq(order, requestNumber++));
       } else {
-        console.log('Fallback:');
-        console.log(order.orderId);
+        console.log('fallback!');
         addRequest(helpers.addCustomerRq(order.cartOrder), requestNumber++);
       }
-      var invoiceRqId = order.orderId;
-      var xmlInvoiceRequest = order.addSalesOrderRq();
-      console.log('adding request!');
-      addRequest(xmlInvoiceRequest, checkError, true); // make sure this only happens once
-      order.requestID = invoiceRqId;
-      promises.push(order.save());
-    });
-    return Promise.all(promises);
+      addRequest(order.addSalesOrderRq(), checkError, true);
+    }
+    return Promise.resolve();
   });
 }
 
