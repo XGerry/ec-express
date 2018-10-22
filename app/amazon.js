@@ -4,6 +4,7 @@ var queryString = require('query-string');
 var request = require('request');
 var rp = require('request-promise-native');
 var fs = require('fs');
+var builder = require('xmlbuilder');
 
 function addProducts(sku) {
 	var itemPromise = Item.find({sku: sku});
