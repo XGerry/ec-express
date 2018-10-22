@@ -499,6 +499,7 @@ function getOrders(query, qbws) {
         return orderReport.then((report) => {
           webhooks.orderBot(helpers.getSlackOrderReport(report));
           settings.lastImports = [];
+          delete settings.__v;
           return settings.save();
         });
       });

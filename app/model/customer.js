@@ -142,7 +142,7 @@ customerSchema.methods.addCustomerRq = async function(order) {
       '@requestID' : this.email,
       CustomerAdd : {
         Name : order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName,
-        CompanyName : order.cartOrder.BillingCompany,
+        CompanyName : order.cartOrder.BillingCompany.substring(0,40),
         FirstName : order.cartOrder.BillingFirstName,
         LastName : order.cartOrder.BillingLastName,
         BillAddress : this.createBillingAddress(),

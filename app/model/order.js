@@ -326,7 +326,7 @@ orderSchema.methods.addSalesOrderRq = function() {
   commentArray.forEach(comment => {
     var code = comment.substring(0, 4);
     if (code == 'PO: ') {
-      po = comment.substring(4, 16); // max 12 characters
+      po = comment.substring(4, 24); // max 20 characters
     } else {
       comments += comment;
     }
@@ -505,7 +505,7 @@ orderSchema.methods.createShippingAddress = function() {
     if (this.cartOrder.ShipmentList[0].ShipmentAddress2)
       shippingAddress.Addr3 = this.cartOrder.ShipmentList[0].ShipmentAddress2.substring(0, 40);
   }
-  
+
   shippingAddress.City = this.cartOrder.ShipmentList[0].ShipmentCity.substring(0, 40);
   shippingAddress.State = this.cartOrder.ShipmentList[0].ShipmentState.substring(0, 40);
   shippingAddress.PostalCode = this.cartOrder.ShipmentList[0].ShipmentZipCode.substring(0, 40);
