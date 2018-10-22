@@ -128,7 +128,6 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   	var sku = item.ItemID.trim();
   	await Item.findOne({sku: sku}).then(function(dbItem) {
   		if (dbItem) {
-        console.log('adding item to order: ' + theOrder.orderId);
 		  	theOrder.items.push({
 		  		item: dbItem._id,
 		  		quantity: item.ItemQuantity,
@@ -195,6 +194,11 @@ orderSchema.methods.updateOrder = function(order) {
 	var oldOrder = {};
 	// replace the items
 	oldOrder.OrderItemList = [];
+  oldOrder.BillingAddress = order.cartOrder.BillingAddress;
+  oldOrder.BillingAddress2 = order.cartOrder.BillingAddress2;
+  oldOrder.BillingState = order.cartOrder.BillingState;
+  oldOrder.BillingZipCode = order.cartOrder.BillingZipCode;
+  oldOrder.BillingCountry = order.cartOrder.BillingCountry;
 	oldOrder.ShipmentList = order.cartOrder.ShipmentList;
   delete oldOrder.ShipmentList[0].ShipmentOrderStatus;
   delete oldOrder.ShipmentList[0].ShipmentTrackingCode;
@@ -213,6 +217,8 @@ orderSchema.methods.updateOrder = function(order) {
 	  };
 	  oldOrder.OrderItemList.push(orderItem);
 	});
+
+  this.updateCustomer();
 
 	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = oldOrder;

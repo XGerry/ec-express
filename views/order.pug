@@ -138,29 +138,29 @@ html
 							h5 Billing Info
 							.form-group
 								label Address 1
-								input.form-control(type="text" readonly value=order.cartOrder.BillingAddress)
+								input.form-control(type="text" value=order.cartOrder.BillingAddress)#billingAddress
 							if (order.cartOrder.BillingAddress2)
 								.form-group
 									label Address 2
-									input.form-control(type="text" readonly value=order.cartOrder.BillingAddress2)
+									input.form-control(type="text" value=order.cartOrder.BillingAddress2)#billingAddress2
 							.row
 								.col
 									.form-group
 										label City
-										input.form-control(type="text" readonly value=order.cartOrder.BillingCity)
+										input.form-control(type="text" value=order.cartOrder.BillingCity)#billingCity
 								.col
 									.form-group
 										label State
-										input.form-control(type="text" readonly value=order.cartOrder.BillingState)
+										input.form-control(type="text" value=order.cartOrder.BillingState)#billingState
 							.row
 								.col
 									.form-group
 										label Zip Code
-										input.form-control(type="text" readonly value=order.cartOrder.BillingZipCode)
+										input.form-control(type="text" value=order.cartOrder.BillingZipCode)#billingZipCode
 								.col
 									.form-group
 										label Country
-										input.form-control(type="text" readonly value=order.cartOrder.BillingCountry)
+										input.form-control(type="text" value=order.cartOrder.BillingCountry)#billingCountry
 						.col
 							h5 Shipping Info
 							.form-group
@@ -456,6 +456,12 @@ html
 				theOrder.cartOrder.ShipmentList[0].ShipmentCity = $('#shipmentCity').val();
 				theOrder.cartOrder.ShipmentList[0].ShipmentZipCode = $('#shipmentZipCode').val();
 				theOrder.cartOrder.ShipmentList[0].ShipmentCountry = $('#shipmentCountry').val();
+				theOrder.cartOrder.BillingAddress = $('#billingAddress').val();
+				theOrder.cartOrder.BillingAddress2 = $('#billingAddress2').val();
+				theOrder.cartOrder.BillingCity = $('#billingCity').val();
+				theOrder.cartOrder.BillingState = $('#billingState').val();
+				theOrder.cartOrder.BillingZipCode = $('#billingZipCode').val();
+				theOrder.cartOrder.BillingCountry = $('#billingCountry').val();
 				theOrder.shipDate = $('#orderShipDate').val();
 			}
 
