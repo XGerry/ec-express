@@ -68,19 +68,31 @@ html
 								thead
 									tr
 										th Name
+										th Company Name
 										th Email
 										th Phone
+								tbody#customerTableBody
+									tr
+										td=order.customer.name
+										td=order.customer.companyName
+										td=order.customer.email
+										td=order.customer.phone
+					.row
+						.col
+							table.table.table-sm
+								thead
+									tr
+										th.text-center Imported
 										th.text-center Picked
 										th.text-center Invoiced
 										th.text-center Paid
 										th.text-center Rush
 										th.text-center Hold
 										th Batch
-								tbody#customerTableBody
+								tbody
 									tr
-										td=order.customer.name
-										td=order.customer.email
-										td=order.customer.phone
+										td.text-center
+											input(type="checkbox" checked=order.imported style="transform: scale(2);")
 										td.text-center
 											input(type="checkbox" checked=order.picked style="transform: scale(2);")#pickedCheckbox
 										td.text-center
