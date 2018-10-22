@@ -326,7 +326,7 @@ orderSchema.methods.addSalesOrderRq = function() {
   commentArray.forEach(comment => {
     var code = comment.substring(0, 4);
     if (code == 'PO: ') {
-      po = comment.substring(4);
+      po = comment.substring(4, 16); // max 12 characters
     } else {
       comments += comment;
     }
@@ -495,13 +495,13 @@ function setItemFieldsForAmazon(order) {
 orderSchema.methods.createShippingAddress = function() {
   var shippingAddress = {};
   shippingAddress.Addr1 = this.cartOrder.ShipmentList[0].ShipmentFirstName + " " + this.cartOrder.ShipmentList[0].ShipmentLastName;
-  shippingAddress.Addr2 = this.cartOrder.ShipmentList[0].ShipmentCompany;
-  shippingAddress.Addr3 = this.cartOrder.ShipmentList[0].ShipmentAddress;
-  shippingAddress.Addr4 = this.cartOrder.ShipmentList[0].ShipmentAddress2;
-  shippingAddress.City = this.cartOrder.ShipmentList[0].ShipmentCity;
-  shippingAddress.State = this.cartOrder.ShipmentList[0].ShipmentState;
-  shippingAddress.PostalCode = this.cartOrder.ShipmentList[0].ShipmentZipCode;
-  shippingAddress.Country = this.cartOrder.ShipmentList[0].ShipmentCountry;
+  shippingAddress.Addr2 = this.cartOrder.ShipmentList[0].ShipmentCompany.substring(0, 40);
+  shippingAddress.Addr3 = this.cartOrder.ShipmentList[0].ShipmentAddress.substring(0, 40);
+  shippingAddress.Addr4 = this.cartOrder.ShipmentList[0].ShipmentAddress2.substring(0, 40);
+  shippingAddress.City = this.cartOrder.ShipmentList[0].ShipmentCity.substring(0, 40);
+  shippingAddress.State = this.cartOrder.ShipmentList[0].ShipmentState.substring(0, 40);
+  shippingAddress.PostalCode = this.cartOrder.ShipmentList[0].ShipmentZipCode.substring(0, 40);
+  shippingAddress.Country = this.cartOrder.ShipmentList[0].ShipmentCountry.substring(0, 40);
   return shippingAddress;
 }
 

@@ -150,13 +150,13 @@ customerSchema.methods.addCustomerRq = function(order) {
         LastName : order.cartOrder.BillingLastName,
         BillAddress : {
           Addr1 : order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName,
-          Addr2 : order.cartOrder.BillingCompany,
-          Addr3 : order.cartOrder.BillingAddress,
-          Addr4 : order.cartOrder.BillingAddress2,
-          City : order.cartOrder.BillingCity,
-          State : order.cartOrder.BillingState,
-          PostalCode : order.cartOrder.BillingZipCode,
-          Country : order.cartOrder.BillingCountry
+          Addr2 : order.cartOrder.BillingCompany.substring(0, 40),
+          Addr3 : order.cartOrder.BillingAddress.substring(0, 40),
+          Addr4 : order.cartOrder.BillingAddress2.substring(0, 40),
+          City : order.cartOrder.BillingCity.substring(0, 40),
+          State : order.cartOrder.BillingState.substring(0, 40),
+          PostalCode : order.cartOrder.BillingZipCode.substring(0, 40),
+          Country : order.cartOrder.BillingCountry.substring(0, 40)
         },
         ShipAddress : shippingAddress,
         Phone : order.cartOrder.BillingPhoneNumber,
@@ -178,14 +178,14 @@ customerSchema.methods.addCustomerRq = function(order) {
 
 customerSchema.methods.createBillingAddress = function() {
 	var billingAddress = {};
-  billingAddress.Addr1 = this.name;
-  billingAddress.Addr2 = this.companyName;
-  billingAddress.Addr3 = this.billingAddress;
-  billingAddress.Addr4 = this.billingAddress2;
-  billingAddress.City = this.billingCity;
-  billingAddress.State = this.billingState;
-  billingAddress.PostalCode = this.billingZipCode;
-  billingAddress.Country = this.billingCountry;
+  billingAddress.Addr1 = this.name.substring(0, 40);
+  billingAddress.Addr2 = this.companyName.substring(0, 40);
+  billingAddress.Addr3 = this.billingAddress.substring(0, 40);
+  billingAddress.Addr4 = this.billingAddress2.substring(0, 40);
+  billingAddress.City = this.billingCity.substring(0, 40);
+  billingAddress.State = this.billingState.substring(0, 40);
+  billingAddress.PostalCode = this.billingZipCode.substring(0, 40);
+  billingAddress.Country = this.billingCountry.substring(0, 40);
   return billingAddress;
 }
 
