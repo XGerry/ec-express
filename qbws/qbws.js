@@ -207,7 +207,8 @@ function generateOrderRequest() {
   return Order.find({imported: false}).populate('customer').populate('items.item').then(async orders => {
     for (order of orders) {
       if (order.customer) {
-        await addRequest(order.customer.addCustomerRq(order, requestNumber++));
+        var createCustomerRq = await order.customer.addCustomerRq(order, requestNumber++);
+        addRequest(createCustomerRq);
       } else {
         console.log('fallback!');
         addRequest(helpers.addCustomerRq(order.cartOrder), requestNumber++);
