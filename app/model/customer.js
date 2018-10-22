@@ -142,7 +142,7 @@ customerSchema.methods.addCustomerRq = function(order) {
 
   var obj = {
     CustomerAddRq : {
-      '@requestID' : requestID,
+      '@requestID' : this.email,
       CustomerAdd : {
         Name : order.BillingLastName + ' ' + order.BillingFirstName,
         CompanyName : order.BillingCompany,
