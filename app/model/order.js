@@ -365,7 +365,6 @@ orderSchema.methods.addSalesOrderRq = function() {
   };
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({'pretty' : true});
-  console.log(str);
   return str;
 }
 
