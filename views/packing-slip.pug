@@ -1,19 +1,19 @@
-mixin billingAddress(order)
+mixin billingAddress(customer)
 	address
 		h3 Billing
-		strong=order.BillingFirstName + " " + order.BillingLastName
+		strong=customer.name
 		br
-		if (order.BillingCompany)
-			strong=order.BillingCompany
+		if (customer.companyName)
+			strong=customer.companyName
 			br 
-		=order.BillingAddress
+		=customer.billingAddress
 		br
-		if (order.BillingAddress2)
-			=order.BillingAddress2
+		if (customer.billingAddress2)
+			=customer.billingAddress2
 			br
-		=order.BillingCity + ", " + order.BillingState
+		=customer.billingCity + ", " + customer.billingState
 		br
-		=order.BillingCountry + ", " + order.BillingZipCode
+		=customer.billingCountry + ", " + customer.billingZipCode
 
 mixin shippingAddress(shippingInfo)
 	address
@@ -56,17 +56,17 @@ mixin customerInfoPanel(order)
 						td.email= order.cartOrder.BillingEmail
 						td= moment(new Date(order.orderDate)).format('dddd MMM Do, h:mm:ss a')
 						td
-							if (order.CustomerGroupID == '2' || order.CustomerGroupID == '14')
+							if (order.customer.customerType == '2' || order.customer.customerType == '14')
 								| Wholesale
-							if (order.CustomerGroupID == '3') 
+							if (order.customer.customerType == '3') 
 								| Teacher 
-							if (order.CustomerGroupID == '4')
+							if (order.customer.customerType == '4')
 								| Preferred Customer
 							else 
 								| Retail
 	.row
 		.col-lg-2.col-sm-2
-			+billingAddress(order.cartOrder)
+			+billingAddress(order.customer)
 		.col-lg-2.col-sm-2
 			+shippingAddress(order.cartOrder.ShipmentList[0])
 		.col-8
