@@ -97,7 +97,7 @@ customerSchema.methods.getCustomerType = function() {
   }
 }
 
-customerSchema.methods.addCustomerRq = async function(order) {
+customerSchema.methods.addCustomerRq = async function(order, requestID) {
 	console.log('Creating customer ' + this.name);
 
   // figure out what tax code they will get based on their billing address
@@ -139,7 +139,7 @@ customerSchema.methods.addCustomerRq = async function(order) {
 
   var obj = {
     CustomerAddRq : {
-      '@requestID' : this.email,
+      '@requestID': requestID ? requestID : this.email,
       CustomerAdd : {
         Name : order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName,
         CompanyName : order.cartOrder.BillingCompany.substring(0,40),
