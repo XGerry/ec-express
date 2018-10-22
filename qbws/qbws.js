@@ -215,6 +215,7 @@ function generateOrderRequest() {
       }
       var invoiceRqId = order.orderId;
       var xmlInvoiceRequest = order.addSalesOrderRq();
+      console.log('adding request!');
       addRequest(xmlInvoiceRequest, checkError, true); // make sure this only happens once
       order.requestID = invoiceRqId;
       promises.push(order.save());
