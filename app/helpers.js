@@ -857,7 +857,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                       invoicedOrder.invoiced = true;
                       invoicedOrder.updateOrderStatus(9); // Awaiting Payment
                        webhooks.orderBot({
-                        text: 'Successfully created invoice for ' + invoicedOrder.orderid + ' in Quickbooks.'
+                        text: 'Successfully created invoice for ' + invoicedOrder.orderId + ' in Quickbooks.'
                       });
                     });
                   }
