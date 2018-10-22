@@ -675,9 +675,6 @@ function (args) {
     serviceLog('    Return values:');
     serviceLog('        string retVal = ' + retVal);
 
-    // if we get to here, clear requests...
-    req = [];
-
     return {
         getLastErrorResult:  { string: retVal }
     };
