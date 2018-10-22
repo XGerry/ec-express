@@ -139,10 +139,9 @@ html
 							.form-group
 								label Address 1
 								input.form-control(type="text" value=order.cartOrder.BillingAddress)#billingAddress
-							if (order.cartOrder.BillingAddress2)
-								.form-group
-									label Address 2
-									input.form-control(type="text" value=order.cartOrder.BillingAddress2)#billingAddress2
+							.form-group
+								label Address 2
+								input.form-control(type="text" value=order.cartOrder.BillingAddress2)#billingAddress2
 							.row
 								.col
 									.form-group
@@ -166,10 +165,9 @@ html
 							.form-group
 								label Address 1
 								input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress)#shipmentAddress
-							if (order.cartOrder.ShipmentList[0].ShipmentAddress2)
-								.form-group
-									label Address 2
-									input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress2)#shipmentAddress2
+							.form-group
+								label Address 2
+								input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress2)#shipmentAddress2
 							.row
 								.col
 									.form-group
