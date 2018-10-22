@@ -206,7 +206,13 @@ function generateOrderRequest() {
   var requestNumber = 1;
   return Order.find({imported: false}).populate('customer').populate('items.item').then(orders => {
     orders.forEach(order => {
-      addRequest(order.customer.addCustomerRq());
+      if (order.customer) {
+        addRequest(order.customer.addCustomerRq());
+      } else {
+        console.log('Fallback:');
+        console.log(order.orderId);
+        addRequest(helpers.addCustomerRq(order.cartOrder), requestNumber++);
+      }
       var invoiceRqId = order.orderId;
       var xmlInvoiceRequest = order.addSalesOrderRq();
       addRequest(xmlInvoiceRequest, checkError, true); // make sure this only happens once
