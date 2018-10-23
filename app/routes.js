@@ -570,8 +570,10 @@ module.exports = function(app, passport) {
   app.get('/customer', (req, res) => {
     Customer.findOne({_id: req.query.id}).populate('orders').then(customer => {
       if (customer) {
-        res.render('customer', {
-          customer: customer
+        customer.getCustomerType().then(customer => {
+          res.render('customer', {
+            customer: customer
+          });
         });
       } else {
         res.redirect('/customers');

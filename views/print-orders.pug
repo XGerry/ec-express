@@ -4,8 +4,8 @@ mixin tableRow(order)
 			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check
 		td=order.orderId
 		td=moment(order.orderDate).format('YYYY-MM-DD HH:mm')
-		td=order.name
-		td=order.cartOrder.BillingCompany
+		td=order.customer.name
+		td=order.customer.companyName
 		td=order.items.length
 		td=order.items.reduce((total, item) => total + parseInt(item.quantity), 0)
 		td='$' + order.orderValue.toFixed(2)

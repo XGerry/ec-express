@@ -33,7 +33,7 @@ var customerSchema = new mongoose.Schema({
 	shippingCountry: String,
 	shippingZipCode: String,
 	customerType: Number,
-	customerID: Number, // 3D Cart customer id
+	customerId: Number, // 3D Cart customer id
 	comments: String
 }, {
 	toObject: {
@@ -83,8 +83,9 @@ customerSchema.methods.updateFrom3DCart = function(cartOrder) {
 customerSchema.methods.getCustomerType = function() {
 	if (this.customerType == undefined || this.customerType == null) {
 		if (this.customerId) {
-	    var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
+	    var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
       return rp(options).then(response => {
+      	console.log(response);
         if (Array.isArray(response)) {
           response = response[0];
         }
@@ -96,7 +97,7 @@ customerSchema.methods.getCustomerType = function() {
     	return this.save();
     }
   } else {
-  	return this;
+  	return Promise.resolve(this);
   }
 }
 
@@ -196,6 +197,20 @@ function getXMLRequest(request) {
   .ele('QBXMLMsgsRq', { 'onError': 'continueOnError' });
   xmlDoc.ele(request);
   return xmlDoc;
+}
+
+function get3DCartOptions(url, method, canadian) {
+  var options = {
+    url: url,
+    method: method,
+    headers: {
+      SecureUrl: 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com'),
+      PrivateKey: process.env.CART_PRIVATE_KEY,
+      Token: canadian ? process.env.CART_TOKEN_CANADA : process.env.CART_TOKEN 
+    },
+    json: true
+  }
+  return options;
 }
 
 module.exports = mongoose.model('Customer', customerSchema);
