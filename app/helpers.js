@@ -837,10 +837,7 @@ function checkUninvoicedOrders(qbws) {
         return xml2js(xmlResponse, {explicitArray: false}).then(async responseObject => {
           var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
           var invoices = invoiceRs.InvoiceRet;
-
-          if (invoiceRs.$.statusCode == '500') {
-            console.log('All orders have not been invoiced');
-          } else {
+          if (invoices) {
             if (!Array.isArray(invoices)) {
               invoices = [invoices];
             }
