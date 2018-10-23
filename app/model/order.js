@@ -93,21 +93,21 @@ orderSchema.statics.findOrdersToBeInvoiced = function(canadian) {
 
 orderSchema.methods.updateCustomer = function() {
   var order = this;
-  return mongoose.model('Customer').findOne({email: this.cartOrder.BillingEmail}).then(function(customer) {
+  return mongoose.model('Customer').findOne({email: this.cartOrder.BillingEmail}).then(async function(customer) {
     if (customer) {
       customer.updateFrom3DCart(order.cartOrder);
       order.customer = customer._id;
       if (customer.orders.indexOf(order._id) === -1) { // only unique orders
         customer.orders.push(order._id);
-        customer.save();
+        await customer.save();
       }
       return order.save();
     } else {
-      return mongoose.model('Customer').createCustomer(order.cartOrder).then(function(newCustomer) {
+      return mongoose.model('Customer').createCustomer(order.cartOrder).then(async function(newCustomer) {
         order.customer = newCustomer._id;
         if (newCustomer.orders.indexOf(order._id) === -1) {
           newCustomer.orders.push(order._id);
-          newCustomer.save();
+          await newCustomer.save();
         }
         return order.save();
       });

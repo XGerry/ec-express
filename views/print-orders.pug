@@ -1,9 +1,10 @@
 mixin tableRow(order)
 	tr(onclick="openOrder('"+order._id+"', event)" class=order.canadian ? 'can-row' : 'us-row' class=order.rush ? 'rush text-white' : '')
 		td
-			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check
+			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check.ml-2
 		td=order.orderId
-		td=moment(order.orderDate).format('YYYY-MM-DD HH:mm')
+		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do - h:mm a')
+		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
 		td=order.customer.name
 		td=order.customer.companyName
 		td=order.items.length
@@ -47,6 +48,7 @@ html
 										th
 										th Order Number
 										th Order Date
+										th Due Date
 										th Customer Name
 										th Company Name
 										th Number of SKUs

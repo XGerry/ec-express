@@ -101,6 +101,10 @@ customerSchema.methods.getCustomerType = function() {
   }
 }
 
+customerSchema.methods.addOrder = function(orderId) {
+	
+}
+
 customerSchema.methods.addCustomerRq = async function(order, requestID) {
 	console.log('Creating customer ' + this.name);
 
