@@ -27,9 +27,9 @@ mongoose.connect(uriString, {
       }
     });
 
-    await Order.find({}).then(async orders => {
-      var promises = [];
+    await Order.find({orderId: {$in: ['CA-36592', 'CA-36570']}}).then(async orders => {
       for (order of orders) {
+        console.log(order.orderId);
         try {
           await order.updateCustomer();
         } catch (err) {

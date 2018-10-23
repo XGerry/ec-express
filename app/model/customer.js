@@ -85,7 +85,6 @@ customerSchema.methods.getCustomerType = function() {
 		if (this.customerId) {
 	    var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
       return rp(options).then(response => {
-      	console.log(response);
         if (Array.isArray(response)) {
           response = response[0];
         }
@@ -102,7 +101,7 @@ customerSchema.methods.getCustomerType = function() {
 }
 
 customerSchema.methods.addOrder = function(orderId) {
-	
+	return mongoose.model('Customer').update({_id: this._id}, {$addToSet: {orders: orderId}});
 }
 
 customerSchema.methods.addCustomerRq = async function(order, requestID) {

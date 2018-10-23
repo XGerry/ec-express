@@ -166,7 +166,6 @@ module.exports = function(app, passport) {
 
   app.get('/new-order', function(req, res) {
     var customId = req.query.id;
-    console.log(customId);
     if (customId) {
       CustomOrder.findOne({_id: customId}).then(cOrder => {
         res.render('new-order', {
