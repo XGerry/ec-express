@@ -81,7 +81,7 @@ customerSchema.methods.updateFrom3DCart = function(cartOrder) {
 customerSchema.methods.getCustomerType = function() {
 	if (this.customerType == undefined || this.customerType == null) {
 		if (this.customerId) {
-	    var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+order.cartOrder.CustomerID, 'GET', order.canadian);
+	    var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
       return rp(options).then(response => {
         if (Array.isArray(response)) {
           response = response[0];
@@ -90,7 +90,8 @@ customerSchema.methods.getCustomerType = function() {
         return this.save();
       });
     } else {
-    	return this;
+    	this.customerType = 0;
+    	return this.save();
     }
   } else {
   	return this;

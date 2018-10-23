@@ -121,7 +121,7 @@ html
 								tbody
 									tr
 										td= order.cartOrder.BillingPaymentMethod
-										td= order.customerType == 0 ? 'Retail' : 'Wholesale'
+										td= order.customer.customerType == 0 ? 'Retail' : 'Wholesale'
 										td='$'+order.orderValue.toFixed(2)
 										-
 											var pickedValue = 0;

@@ -470,6 +470,8 @@ module.exports = function(app, passport) {
     }).then(order => {
       if (order) {
         getCustomerType(order).then(() => {
+          console.log('got the customer type');
+          console.log(order.customer.customerType);
           res.render('order', {
             order: order
           });
@@ -595,7 +597,7 @@ module.exports = function(app, passport) {
   }
 
   function getCustomerType(order) {
-    return order.populate('customer').execPopulate(() => {
+    return order.populate('customer').execPopulate().then(() => {
       return order.customer.getCustomerType();
     });
   }
