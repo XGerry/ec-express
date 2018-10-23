@@ -844,8 +844,8 @@ function checkUninvoicedOrders(qbws) {
           for (invoice of invoices) {
             console.log(invoice.RefNumber + ' has been invoiced');
             await Order.findOne({orderId: invoice.RefNumber}).then(order => {
-              //order.invoiced = true;
-              // return order.save();
+              order.invoiced = true;
+              return order.save();
             });
           }
         });
