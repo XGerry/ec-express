@@ -25,6 +25,10 @@ html
 				.starter-template
 					h1 Orders to be invoiced
 					p.lead Orders that have been picked and not invoiced.
+				.container
+					.row
+						.col.text-center
+							button.btn.btn-primary(type="button")#crossCheckButton Cross Check in QB
 
 				.container-fluid
 					.row
@@ -69,6 +73,7 @@ html
 
 		+footer
 		script.
+			var socket = io();
 			$('#usOrderTable').DataTable({
 				bDestroy: true,
 				pageLength: 100,
@@ -79,6 +84,12 @@ html
 				bDestroy: true,
 				pageLength: 100,
 				order: [[2, 'desc']]
+			});
+
+			$('#crossCheckButton').click(e => {
+				socket.emit('crossCheckUninvoicedOrders', cb => {
+					alert('Run the web connector!');
+				});
 			});
 
 			function orderSelected(id, e) {

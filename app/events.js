@@ -803,8 +803,13 @@
  		});
 
  		socket.on('crossCheckUnpaidOrders', cb => {
- 			console.log('cross checking');
  			helpers.checkUnpaidOrders(qbws);
+ 			cb();
+ 		});
+
+ 		socket.on('crossCheckUninvoicedOrders', cb => {
+ 			helpers.checkUninvoicedOrders(qbws);
+ 			cb();
  		});
 
  		socket.on('transferInventory', (inventoryTransfer, cb) => {

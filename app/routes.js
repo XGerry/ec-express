@@ -566,8 +566,8 @@ module.exports = function(app, passport) {
   });
 
   app.get('/needs-invoicing', (req, res) => {
-    Order.find({hold: false, canadian: true, picked: true, invoiced: false}).populate('customer').then(canOrders => {
-      Order.find({hold: false, canadian: false, picked: true, invoiced: false}).populate('customer').then(usOrders => {
+    Order.findOrdersToBeInvoiced(true).populate('customer').then(canOrders => {
+      Order.findOrdersToBeInvoiced(false).populate('customer').then(usOrders => {
         res.render('needs-invoicing', {
           usOrders: usOrders,
           canOrders: canOrders

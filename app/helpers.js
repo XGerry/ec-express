@@ -829,6 +829,31 @@ function checkUnpaidOrders(qbws) {
   });
 }
 
+function checkUninvoicedOrders(qbws) {
+  Order.findOrdersToBeInvoiced(true).then(canOrders => {
+    Order.findOrdersToBeInvoiced(false).then(usOrders => {
+      var rq = queryInvoiceRq(canOrders.concat(usOrders));
+      qbws.addRequest(rq, xmlResponse => {
+        return xml2js(xmlResponse, {explicitArray: false}).then(async responseObject => {
+          var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
+          var invoices = invoiceRs.InvoiceRet;
+          if (!Array.isArray(invoices)) {
+            invoices = [invoices];
+          }
+
+          for (invoice of invoices) {
+            console.log(invoice.RefNumber + ' has been invoiced');
+            await Order.findOne({orderId: invoice.RefNumber}).then(order => {
+              //order.invoiced = true;
+              // return order.save();
+            });
+          }
+        });
+      });
+    });
+  });
+}
+
 function createInvoicesFromSalesOrders(qbws, orders) {
   qbws.addRequest(getSalesOrdersRq(orders, true), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
@@ -1853,5 +1878,6 @@ module.exports = {
   updateSalesOrder: updateSalesOrder,
   transferInventory: transferInventory,
   runInventory: runInventory,
-  checkUnpaidOrders: checkUnpaidOrders
+  checkUnpaidOrders: checkUnpaidOrders,
+  checkUninvoicedOrders: checkUninvoicedOrders
 }

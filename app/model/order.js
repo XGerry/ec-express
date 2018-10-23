@@ -87,6 +87,10 @@ orderSchema.statics.findUnpaidOrders = function(canadian) {
   return this.find({paid: false, invoiced: true, picked: true, canadian: canadian});
 }
 
+orderSchema.statics.findOrdersToBeInvoiced = function(canadian) {
+  return this.find({invoiced: false, picked: true, hold: false, canadian: canadian});
+}
+
 orderSchema.methods.updateCustomer = function() {
   var order = this;
   return mongoose.model('Customer').findOne({email: this.cartOrder.BillingEmail}).then(function(customer) {
