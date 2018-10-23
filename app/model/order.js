@@ -435,7 +435,12 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
     quantityPickedMap[i.item.sku] = i.pickedQuantity;
   });
 
-  qbSalesOrder.SalesOrderLineRet.forEach(item => { // shipping cost
+  var lineItems = qbSalesOrder.SalesOrderLineRet;
+  if (!Array.isArray(lineItems)) {
+    lineItems = [lineItems];
+  }
+
+  lineItems.forEach(item => { // shipping cost
     if (item.ItemRef.FullName == 'Shipping & Handling') {
       invoiceItems.push({
       	SalesTaxCodeRef: item.SalesTaxCodeRef,
