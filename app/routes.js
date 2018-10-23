@@ -467,7 +467,6 @@ module.exports = function(app, passport) {
     }).then(order => {
       if (order) {
         getCustomerType(order).then(() => {
-          console.log('got the customer type');
           res.render('order', {
             order: order
           });
