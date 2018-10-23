@@ -19,6 +19,14 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
+    await Customer.remove({});
+    await Customer.find({}).then(async customers => {
+      for (customer of customers) {
+        customer.orders = [];
+        await customer.save();
+      }
+    });
+
     Order.find({}).then(async orders => {
       var promises = [];
       for (order of orders) {

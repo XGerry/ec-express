@@ -33,7 +33,8 @@ var customerSchema = new mongoose.Schema({
 	shippingCountry: String,
 	shippingZipCode: String,
 	customerType: Number,
-	customerID: Number // 3D Cart customer id
+	customerID: Number, // 3D Cart customer id
+	comments: String
 }, {
 	toObject: {
 		virtuals: true
@@ -73,6 +74,7 @@ customerSchema.methods.updateFrom3DCart = function(cartOrder) {
 	this.shippingAddress2 = cartOrder.ShipmentList[0].ShipmentAddress2;
 	this.shippingCity = cartOrder.ShipmentList[0].ShipmentCity;
 	this.shippingState = cartOrder.ShipmentList[0].ShipmentState;
+	this.shippingZipCode = cartOrder.ShipmentList[0].ShipmentZipCode;
 	this.shippingCountry = cartOrder.ShipmentList[0].ShipmentCountry;
 	this.customerId = cartOrder.CustomerID;
 	return this.save();

@@ -1,0 +1,145 @@
+mixin orderTableRow(order, customer)
+	tr(onclick="window.location='/order?id="+order._id+"';")
+		td=order.orderId
+		td=customer.name
+		td=order.picked ? 'yes' : 'no'
+		td=order.invoiced ? 'yes' : 'no'
+		td=order.paid ? 'yes' : 'no'
+		td='$' + order.orderValue.toFixed(2)
+
+doctype html
+include mixins
+html
+	include includes/head
+		title=customer.name
+	body
+		#wrapper
+			+sidebarNav("orders")
+			#page-content
+				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
+					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
+						i.far.fa-bars.fa-fw
+					span.navbar-brand.mb-0.h1.pl-2=customer.name
+					span.navbar-text#orderInfo.ml-2
+					ul.navbar-nav.ml-auto
+						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="mailto:"+customer.email target="_blank").dropdown-item Send Email
+								//a(href=item.canLink, target="_blank").dropdown-item Canadian Site
+								//a#refreshFrom3DCart(href="#").dropdown-item Refresh from 3D Cart
+								//.dropdown-divider
+								//a#deleteItem(href="#").dropdown-item.bg-danger.text-white Delete Item
+						//button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
+						//button.btn.btn-success(type="button")#saveButton Save
+
+				.container.pt-3
+					.row
+						.col
+							.form-group
+								label First Name
+								input.form-control(type="text" value=customer.firstname)
+						.col
+							.form-group
+								label Last Name
+								input.form-control(type="text" value=customer.lastname)
+						.col
+							.form-group
+								label Company
+								input.form-control(type="text" value=customer.companyName)
+					.row
+						.col
+							.form-group
+								label Type
+								select.form-control
+									option(value="0") Retail
+									option(value="1") Wholesale
+						.col
+							.form-group
+								label Email
+								input.form-control(type="text" value=customer.email)
+						.col
+							.form-group
+								label Phone
+								input.form-control(type="text" value=customer.phone)
+					.row
+						.col
+							h5 Default Billing Info
+							.form-group
+								label Address 1
+								input.form-control(type="text" value=customer.billingAddress)#billingAddress
+							.form-group
+								label Address 2
+								input.form-control(type="text" value=customer.billingAddress2)#billingAddress2
+							.row
+								.col
+									.form-group
+										label City
+										input.form-control(type="text" value=customer.billingCity)#billingCity
+								.col
+									.form-group
+										label State
+										input.form-control(type="text" value=customer.billingState)#billingState
+							.row
+								.col
+									.form-group
+										label Zip Code
+										input.form-control(type="text" value=customer.billingZipCode)#billingZipCode
+								.col
+									.form-group
+										label Country
+										input.form-control(type="text" value=customer.billingCountry)#billingCountry
+						.col
+							h5 Default Shipping Info
+							.form-group
+								label Address 1
+								input.form-control(type="text" value=customer.shippingAddress)#shippingAddress
+							.form-group
+								label Address 2
+								input.form-control(type="text" value=customer.shippingAddress2)#shippingAddress2
+							.row
+								.col
+									.form-group
+										label City
+										input.form-control(type="text" value=customer.shippingCity)#shippingCity
+								.col
+									.form-group
+										label State
+										input.form-control(type="text" value=customer.shippingState)#shippingState
+							.row
+								.col
+									.form-group
+										label Zip Code
+										input.form-control(type="text" value=customer.shippingZipCode)#shippingZipCode
+								.col
+									.form-group
+										label Country
+										input.form-control(type="text" value=customer.shippingCountry)#shippingCountry
+					.row
+						.col
+							.form-group
+								label Comments
+								textarea.form-control(rows='4')
+
+					if (customer.orders)
+						.row.pt-2
+							h2 Orders
+							table.table-hover.table.table-striped
+								thead
+									th Order ID
+									th Name
+									th Picked
+									th Invoiced
+									th Paid
+									th Amount
+								tbody
+									each order in customer.orders
+										+orderTableRow(order, customer)
+		+footer
+		script.
+			var socket = io();
+			var theCustomer = !{JSON.stringify(customer)};
+			console.log(theCustomer);
+			$(document).ready(e => {
+				
+			});

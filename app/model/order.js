@@ -97,14 +97,18 @@ orderSchema.methods.updateCustomer = function() {
     if (customer) {
       customer.updateFrom3DCart(order.cartOrder);
       order.customer = customer._id;
-      customer.orders.push(order._id);
-      customer.save();
+      if (customer.orders.indexOf(order._id) === -1) { // only unique orders
+        customer.orders.push(order._id);
+        customer.save();
+      }
       return order.save();
     } else {
       return mongoose.model('Customer').createCustomer(order.cartOrder).then(function(newCustomer) {
         order.customer = newCustomer._id;
-        newCustomer.orders.push(order._id);
-        newCustomer.save();
+        if (newCustomer.orders.indexOf(order._id) === -1) {
+          newCustomer.orders.push(order._id);
+          newCustomer.save();
+        }
         return order.save();
       });
     }

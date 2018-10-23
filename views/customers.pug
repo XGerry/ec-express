@@ -1,5 +1,5 @@
 mixin customerRow(customer)
-	tr(onclick="")
+	tr(onclick="window.location='/customer?id="+customer._id+"'")
 		td=customer.name
 		td=customer.companyName
 		td=customer.email
