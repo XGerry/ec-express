@@ -27,7 +27,7 @@ mongoose.connect(uriString, {
       }
     });
 
-    await Order.find({orderId: {$in: ['CA-36592', 'CA-36570']}}).then(async orders => {
+    await Order.find({}).then(async orders => {
       for (order of orders) {
         console.log(order.orderId);
         try {
