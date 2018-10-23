@@ -27,7 +27,7 @@ mongoose.connect(uriString, {
       }
     });
 
-    Order.find({}).then(async orders => {
+    await Order.find({}).then(async orders => {
       var promises = [];
       for (order of orders) {
         try {
@@ -37,5 +37,7 @@ mongoose.connect(uriString, {
         }
       }
     });
+
+    console.log('Done');
   }
 });
