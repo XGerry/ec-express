@@ -610,7 +610,8 @@ module.exports = function(app, passport) {
 
   function getCustomerType(order) {
     return order.populate('customer').execPopulate().then(() => {
-      return order.customer.getCustomerType();
+      if (order.customer)
+        return order.customer.getCustomerType();
     });
   }
 }
