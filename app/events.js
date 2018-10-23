@@ -774,10 +774,6 @@
  				order.removeBatch().then(o => {
  					cb('done');
  				});
- 				// order.batch = null;
- 				// order.save().then(o => {
- 				// 	cb();
- 				// });
  			});
  		});
 

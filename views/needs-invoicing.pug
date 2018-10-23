@@ -1,0 +1,88 @@
+mixin orderRow(order)
+	tr(onclick="orderSelected('"+order._id+"', event)")
+		td=order.orderId
+		td=order.customer.name
+		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
+		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
+		td=order.customer.companyName
+		td='$' + order.orderValue.toFixed(2)
+		td=order.picked ? 'yes' : 'no'
+		td=order.invoiced ? 'yes' : 'no'
+		td=order.paid ? 'yes' : 'no'
+		td=order.hold ? 'yes' : 'no'
+
+doctype html
+include mixins
+html
+	include includes/head
+		title Orders on Hold
+	body
+		#wrapper
+			+sidebarNav("orders")
+
+			#page-content
+				+menuToggle
+				.starter-template
+					h1 Orders to be invoiced
+					p.lead Orders that have been picked and not invoiced.
+
+				.container-fluid
+					.row
+						.col
+							h2 US Orders
+							table.table.table-striped.table-hover#usOrderTable
+								thead
+									tr
+										th Order ID
+										th Name
+										th Date
+										th Due Date
+										th Company
+										th Value
+										th Picked
+										th Invoiced
+										th Paid
+										th Held
+								tbody
+									each order in usOrders
+										+orderRow(order)
+
+					.row.pt-2
+						.col
+							h2 Canadian Orders
+							table.table.table-striped.table-hover#canOrderTable
+								thead
+									tr
+										th Order ID
+										th Name
+										th Date
+										th Due Date
+										th Company
+										th Value
+										th Picked
+										th Invoiced
+										th Paid
+										th Held
+								tbody
+									each order in canOrders
+										+orderRow(order)
+
+		+footer
+		script.
+			$('#usOrderTable').DataTable({
+				bDestroy: true,
+				pageLength: 100,
+				order: [[2, 'desc']]
+			});
+
+			$('#canOrderTable').DataTable({
+				bDestroy: true,
+				pageLength: 100,
+				order: [[2, 'desc']]
+			});
+
+			function orderSelected(id, e) {
+				if (e.target.localName != 'a') {
+					window.location="/order?id="+id;
+				}
+			}
