@@ -125,6 +125,7 @@ html
 		script.
 			var socket = io();
 			var theItem = !{JSON.stringify(item)};
+			console.log(theItem);
 			$(document).ready(e => {
 				$('#refreshFrom3DCart').click(e => {
 					e.preventDefault();
