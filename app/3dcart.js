@@ -150,8 +150,6 @@ function saveItems(query, progressCallback) {
  */
 
 async function doSaveOptionItems(canadian, items, progressCallback) {
-  var allOptions = [];
-
   for (var i = 0; i < items.length; i++) {
     var options = helpers.get3DCartOptions('',
     'PUT',
@@ -177,8 +175,9 @@ async function doSaveOptionItems(canadian, items, progressCallback) {
       await rp(options);
     } catch (e) {
       console.log('Error saving the option item! ' + items[i].sku);
+      console.log(e);
     }
-    progressCallback(i+1, allOptions.length);
+    progressCallback(i+1, items.length);
   }
 
   return Promise.resolve('Done');
