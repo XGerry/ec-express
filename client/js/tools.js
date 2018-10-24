@@ -68,6 +68,10 @@ $(document).ready(function() {
 	$('#runInventoryButton').click(e => {
 		socket.emit('runInventory');
 	});
+
+	$('#saveInventoryButton').click(e => {
+		socket.emit('saveItems');
+	});
 });
 
 function loadFromTemplate(data) {
