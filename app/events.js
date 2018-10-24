@@ -722,15 +722,13 @@
  					console.log('saving batch error: ');
  					console.log(err);
  				}
- 				dbBatch.orders.forEach(o => {
- 					o.isNew = false;
- 					delete o.__v;
- 					promises.push(o.save());
- 				});
- 				Promise.all(promises).then(() => cb()).catch(err => {
- 					console.log('Error saving the batch');
- 					console.log(err);
- 				});
+ 				for (order of dbBatch.orders) {
+ 					try {
+ 						await order.save();
+ 					} catch (err) {
+ 						console.log('cant save the order');
+ 					}
+ 				}
  			});
  		});
 
