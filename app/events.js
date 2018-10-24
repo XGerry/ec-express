@@ -711,6 +711,14 @@
  			});
  		});
 
+ 		socket.on('resetBatch', (batchId, cb) => {
+ 			Batch.findOne({_id: batchId}).then(batch => {
+ 				batch.reset().then(() => {
+ 					cb();
+ 				});
+ 			});
+ 		});
+
  		socket.on('saveBatch', (batch, cb) => {
  			Batch.findOne({_id: batch._id}).populate('orders').then(async dbBatch => {
  				delete batch.__v;

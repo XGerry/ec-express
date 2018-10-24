@@ -126,6 +126,19 @@ batchSchema.statics.createCustomBatch = function(orderIds) {
 	});
 }
 
+batchSchema.methods.reset = function() {
+	return this.populate('orders').execPopulate().then(() => {
+		var promises = [];
+		for (order of this.orders) {
+			order.items.forEach(item => {
+				item.pickedQuantity = 0;
+			});
+			promises.push(order.save());
+		}
+		return Promise.all(promises);
+	});
+}
+
 batchSchema.methods.removeOrder = function(orderId) {
 	var index = this.orders.indexOf(orderId);
 	if (index >= 0) {

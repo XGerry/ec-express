@@ -51,13 +51,10 @@ html
 							option(value=4) Shipped
 					span.navbar-text#orderInfo.ml-2
 					ul.navbar-nav.ml-auto
-						//li.dropdown.nav-item
+						li.dropdown.nav-item
 							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
-								a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
-								.dropdown-divider
-								a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
-								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+								a#resetBatch(href="#").dropdown-item.bg-danger.text-white Reset Batch
 						button.btn-outline-success.btn.mr-2(type="button")#saveButton Save
 						button.btn.btn-success(type="button")#finishedSortingButton Finished Sorting
 				
@@ -167,6 +164,15 @@ html
 
 				$('#confirmSortingButton').click(e => {
 					confirmSorting();
+				});
+
+				$('#resetBatch').click(e => {
+					var yes = confirm('This will revert all picked quantities to 0 for all orders on the batch. Are you sure you want to continue?');
+					if (yes) {
+						socket.emit('resetBatch', batch._id, cb => {
+							location.reload();
+						});
+					}
 				});
 
 				$('#cancelSortingButton').click(e => {
