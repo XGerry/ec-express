@@ -723,6 +723,7 @@
  					console.log(err);
  				}
  				for (order of dbBatch.orders) {
+ 					order.isNew = false;
  					try {
  						await order.save();
  					} catch (err) {
