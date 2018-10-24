@@ -718,10 +718,14 @@
  				dbBatch.set(batch);
  				dbBatch.orders.forEach(o => {
 					o.isNew = false;
+					delete o.__v;
  					promises.push(o.save());
  				});
  				promises.push(dbBatch.save());
- 				Promise.all(promises).then(() => cb());
+ 				Promise.all(promises).then(() => cb()).catch(err => {
+ 					console.log('Error saving the batch');
+ 					console.log(err);
+ 				});
  			});
  		});
 
