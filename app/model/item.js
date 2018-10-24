@@ -349,9 +349,7 @@ itemSchema.methods.refreshFrom3DCart = async function() {
   var usOptions = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+this.catalogId,
     'GET', false);
   var response = await rp(canOptions);
-  console.log(response);
   var usResponse = await rp(usOptions);
-  console.log(usResponse);
   await this.updateFrom3DCart(response[0], true);
   return this.updateFrom3DCart(usResponse[0], false);
 }

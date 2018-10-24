@@ -40,6 +40,9 @@ mixin itemRow(item)
 		td=item.item.name
 
 mixin customerInfoPanel(order)
+	.row
+		.col
+			p.lead Thank you for shopping at Ecstasy Crafts!
 	h2= order.orderId
 	.row
 		.col-12
@@ -100,7 +103,7 @@ mixin orderItemPanel(order)
 				tr
 					th SKU
 					th Ordered
-					th Picked
+					th Shipped
 					th Description
 			tbody
 				each item in order.items

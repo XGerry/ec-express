@@ -151,7 +151,8 @@ function saveItems(query, progressCallback) {
 
 async function doSaveOptionItems(canadian, items, progressCallback) {
   var allOptions = [];
-  items.forEach((item, index) => {
+
+  for (var i = 0; i < items.length; i++) {
     var options = helpers.get3DCartOptions('',
     'PUT',
     canadian);
@@ -167,21 +168,19 @@ async function doSaveOptionItems(canadian, items, progressCallback) {
       options.body.AdvancedOptionStock = item.usStock;
     }
     options.url = url;
-    allOptions.push(options);
-  });
-
-  for (var i = 0; i < allOptions.length; i++) {
-    if (i > 30) // can send bursts of up to 30 requests
+    
+    if (i > 30) {
       await delay(500);
+    }
     try {
-      var response = await rp(allOptions[i]);
-    } catch (err) {
-      console.log('Error saving the option item');
+      await rp(options);
+    } catch (e) {
+      console.log('Error saving the option item! ' + items[i].sku);
     }
     progressCallback(i+1, allOptions.length);
   }
 
-  return 'Done';
+  return Promise.resolve('Done');
 }
 
 function delay(ms) {
@@ -206,24 +205,8 @@ function saveOptionItems(progressCallback) {
 }
 
 function doSaveAdvancedOptions(canadian, cartItems, finalCallback) {
-	var options = {
-    url: '',
-    method: 'PUT',
-    headers : {
-      SecureUrl : 'https://www.ecstasycrafts.com',
-      PrivateKey : process.env.CART_PRIVATE_KEY,
-      Token : process.env.CART_TOKEN
-    },
-    json: true
-  };
-
-  if (canadian) {
-    options.headers.SecureUrl = 'https://ecstasycrafts-ca.3dcartstores.com';
-    options.headers.Token = process.env.CART_TOKEN_CANADA;
-  }
-
+  var options = helpers.get3DCartOptions('', 'PUT', canadian);
   var requests = [];
-  console.log('saving options');
 
   cartItems.forEach(function(item) {
   	options.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.SKUInfo.CatalogID+'/AdvancedOptions/'
