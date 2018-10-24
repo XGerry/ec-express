@@ -727,8 +727,10 @@
  						await order.save();
  					} catch (err) {
  						console.log('cant save the order');
+ 						console.log(err);
  					}
  				}
+ 				cb();
  			});
  		});
 
