@@ -155,16 +155,16 @@ async function doSaveOptionItems(canadian, items, progressCallback) {
     'PUT',
     canadian);
     options.body = {
-      AdvancedOptionSufix: item.sku,
-      AdvancedOptionName: item.name
+      AdvancedOptionSufix: items[i].sku,
+      AdvancedOptionName: items[i].name
     };
     var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/';
     if (canadian) {
-      url += item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;   
-      options.body.AdvancedOptionStock = item.canStock;
+      url += items[i].catalogIdCan+'/AdvancedOptions/'+items[i].optionIdCan;   
+      options.body.AdvancedOptionStock = items[i].canStock;
     } else {
-      url += item.catalogId+'/AdvancedOptions/'+item.optionId;
-      options.body.AdvancedOptionStock = item.usStock;
+      url += items[i].catalogId+'/AdvancedOptions/'+items[i].optionId;
+      options.body.AdvancedOptionStock = items[i].usStock;
     }
     options.url = url;
     
