@@ -2,7 +2,7 @@ mixin orderSummaryTableRow(order, index)
 	tr(class=order._id + '-row' onclick="openOrder('"+order._id+"')").sortTableRow
 		td=index+1
 		td=order.orderId
-		td=order.name
+		td=order.customer.name
 		td=order.items.length
 		td=order.items.reduce((total, item) => total + item.quantity, 0)
 		td(class=order._id + '-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
