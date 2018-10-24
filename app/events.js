@@ -713,15 +713,20 @@
 
  		socket.on('saveBatch', (batch, cb) => {
  			Batch.findOne({_id: batch._id}).populate('orders').then(dbBatch => {
- 				var promises = [];
  				delete batch.__v;
+ 				var promises = [];
  				dbBatch.set(batch);
+ 				try {
+ 					await dbBatch.save();
+ 				} catch (err) {
+ 					console.log('saving batch error: ');
+ 					console.log(err);
+ 				}
  				dbBatch.orders.forEach(o => {
-					o.isNew = false;
-					delete o.__v;
+ 					o.isNew = false;
+ 					delete o.__v;
  					promises.push(o.save());
  				});
- 				promises.push(dbBatch.save());
  				Promise.all(promises).then(() => cb()).catch(err => {
  					console.log('Error saving the batch');
  					console.log(err);
