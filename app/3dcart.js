@@ -157,7 +157,8 @@ async function doSaveOptionItems(canadian, items, progressCallback) {
     'PUT',
     canadian);
     options.body = {
-      AdvancedOptionSufix: item.sku
+      AdvancedOptionSufix: item.sku,
+      AdvancedOptionName: item.name
     };
     var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/';
     if (canadian) {
