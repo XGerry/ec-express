@@ -779,11 +779,12 @@
  		});
 
  		socket.on('invoiceOrder', (id, cb) => {
- 			Order.findOne({_id: id}).populate('items.item').then(order => {
- 				order.invoiceTo3DCart().then(response => {
- 					cb(response);
- 				});
+ 			Order.findOne({_id: id}).populate('items.item').populate('parent').then(order => {
+ 				if (order.isCartOrder) {
+ 					order.invoiceTo3DCart();
+ 				}
  				helpers.createInvoicesFromSalesOrders(qbws, [order]);
+ 				cb();
  			});
  		});
 

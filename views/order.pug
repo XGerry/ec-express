@@ -43,17 +43,23 @@ html
 					span.navbar-text#orderInfo.ml-2
 					ul.navbar-nav.ml-auto
 						li.dropdown.nav-item
+							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Customer
+							ul.dropdown-menu.dropdown-menu-right
+								a(href="/customer?id="+order.customer._id).dropdown-item View
+								a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
+								
+						li.dropdown.nav-item
 							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
 								if (order.invoiced)
 									a(href="#").dropdown-item#createBackorderButton Create Backorder
-								a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email Customer
 								if (order.isCartOrder)
 									a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
 								a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
 								a(href="#").dropdown-item#refreshFromOriginal Reload from Original
 								.dropdown-divider
-								a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
+								if (order.batch)
+									a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
 								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
 						button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
 						.btn-group

@@ -201,12 +201,9 @@ orderSchema.methods.updateOrderStatus = function(status) {
 	options.body = {
 		OrderStatusID: status
 	};
-
-	return this.save().then(o => {
-		return rp(options).then(response => {
-			return response;
-		});
-	});
+	
+  if (this.isCartOrder)	
+    return rp(options);
 }
 
 orderSchema.methods.updateDueDate = function() {
@@ -273,10 +270,13 @@ orderSchema.methods.createBackorder = async function() {
 
   var backOrder = new this.constructor();
   backOrder.customer = this.customer;
+  await this.populate('customer').execPopulate();
+  this.customer.orders.push(backOrder._id);
   backOrder.cartOrder = this.cartOrder; // TODO: change to use dedicated shipping address
   backOrder.canadian = this.canadian;
   backOrder.orderId = this.orderId + '-BO';
   backOrder.isBackorder = true;
+  backOrder.invoiced = true; // Make sure this doesn't get sent to quickbooks as a sales order
 
   // add the items
   var backorderItems = [];
@@ -304,6 +304,7 @@ orderSchema.methods.createBackorder = async function() {
   backOrder.hold = true; // on hold by default
   this.backorders.push(backOrder._id);
   await backOrder.save();
+  await this.customer.save();
   return this.save();
 }
 
@@ -322,7 +323,8 @@ orderSchema.methods.invoiceTo3DCart = function() {
 
 	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = cartOrder;
-	return rp(options);
+	if (this.isCartOrder)
+    return rp(options);
 }
 
 orderSchema.methods.customerRq = function() {

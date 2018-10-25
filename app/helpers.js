@@ -570,7 +570,13 @@ function getSalesOrdersRq(orders, includeLineItems) {
       orderId: 'AB-12345'
     });
   }
-  var orderIds = orders.map(o => o.orderId);
+  var orderIds = orders.map(o => {
+    if (o.isBackorder) {
+      return o.parent.orderId;
+    } else {
+      return o.orderId
+    }
+  });
   var orderQuery = {
     SalesOrderQueryRq: {
       '@requestID': 'salesOrderCheck',
@@ -870,7 +876,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
 
         salesOrders.forEach(so => {
           orders.forEach(dbOrder => {
-            if (so.RefNumber == dbOrder.orderId) {
+            if ((dbOrder.isBackorder && dbOrder.parent.orderId == so.RefNumber) ||
+              (so.RefNumber == dbOrder.orderId)) {
               qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                 console.log(response); 
                 xml2js(response, {explicitArray: false}).then(obj => {
@@ -899,65 +906,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
 }
 
 function createInvoiceFromSalesOrder(qbws, order) {
-  var orderId = order.InvoiceNumberPrefix+order.InvoiceNumber;
-  console.log('adding sales order request');
-  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], true), xmlResponse => {
-    return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
-      var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
-      if (salesOrderRs == undefined) {
-        console.log('Sales order not created yet!');
-      } else if (salesOrderRs.SalesOrderRet) {
-        var salesOrder = salesOrderRs.SalesOrderRet;
-        var invoiceAdds = [];
-        var quantityPickedMap = {};
-        order.OrderItemList.forEach(i => {
-          quantityPickedMap[i.ItemID] = i.quantityPicked;
-        });
-
-        salesOrder.SalesOrderLineRet.forEach(item => {
-          if (item.ItemRef.FullName == 'Shipping & Handling') {
-            invoiceAdds.push({
-              ItemRef: {
-                FullName: 'Shipping & Handling',
-                Rate: order.ShipmentList[0].ShipmentCost
-              }
-            });
-          } else {
-            invoiceAdds.push({
-              Quantity: quantityPickedMap[item.ItemRef.FullName],
-              SalesTaxCodeRef: item.SalesTaxCodeRef,
-              LinkToTxn: {
-                TxnID: salesOrder.TxnID,
-                TxnLineID: item.TxnLineID
-              }
-            });
-          }
-        });
-
-        var addInvoiceRq = {
-          InvoiceAddRq: {
-            '@requestID': orderId,
-            InvoiceAdd: {
-              CustomerRef: {
-                ListID: salesOrder.CustomerRef.ListID
-              },
-              RefNumber: salesOrder.RefNumber,
-              //LinkToTxnID: salesOrder.TxnID,
-              InvoiceLineAdd: invoiceAdds
-            }
-          }
-        };
-
-        var xmlDoc = getXMLRequest(addInvoiceRq);
-        var str = xmlDoc.end({pretty: true});
-        console.log(str);
-        qbws.addRequest(str);
-        return 'Done';
-      } else {
-        console.log('Error check the sales order');
-      }
-    });
-  });
+  console.log('Deprecated.');
 }
 
 function buildAmazonXML(orders) {
