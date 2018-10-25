@@ -83,6 +83,18 @@ var orderSchema = new mongoose.Schema({
   usePushEach: true
 });
 
+orderSchema.virtual('incomplete').get(function() {
+  return this.numberOfItemsPicked < this.numberOfItems;
+});
+
+orderSchema.virtual('numberOfItems').get(function() {
+  return this.items.reduce((total, item) => total += item.quantity, 0);
+});
+
+orderSchema.virtual('numberOfItemsPicked').get(function() {
+  return this.items.reduce((total, item) => total += item.pickedQuantity, 0);
+});
+
 orderSchema.statics.findUnpaidOrders = function(canadian) {
   return this.find({paid: false, invoiced: true, picked: true, canadian: canadian});
 }
