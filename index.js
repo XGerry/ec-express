@@ -44,7 +44,6 @@ app.use(cors({
   optionsSuccessStatus : 200
 }));
 
-app.use('/', express.static(__dirname + '/client'));
 //app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/js', express.static(__dirname + '/node_modules/papaparse')); // redirect Papaparse
@@ -65,5 +64,6 @@ facebook.route(app);
 events(io, qbws);
 routes(app, passport);
 webhooks.route(app, qbws);
+app.use('/', express.static(__dirname + '/client'));
 require('./config/passport')(passport);
 require('./app/schedule')(qbws);

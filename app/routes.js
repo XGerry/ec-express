@@ -133,6 +133,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/', function(req, res) {
+    console.log('Home page of EC-Express');
     var today = moment();
     var yesterday = today.clone(); //.subtract(24, 'hours');
     yesterday.subtract(1, 'days');
@@ -582,6 +583,36 @@ module.exports = function(app, passport) {
         res.render('needs-invoicing', {
           usOrders: usOrders,
           canOrders: canOrders
+        });
+      });
+    });
+  });
+
+  app.get('/order-report', (req, res) => {
+    var query = {};
+    if (req.params.imported != 'any') {
+      query.imported = req.params.imported;
+    }
+    if (req.params.invoiced != 'any') {
+      query.invoiced = req.params.invoiced;
+    }
+    if (req.params.paid != 'any') {
+      query.paid = req.params.paid;
+    }
+    if (req.params.picked != 'any') {
+      query.picked = req.params.picked;
+    }
+    if (req.params.hold != 'any') {
+      query.hold = req.params.hold;
+    }
+    query.imported = true;
+    query.canadian = true;
+    Order.find(query).populate('customer').then(canOrders => {
+      query.canadian = false;
+      Order.find(query).populate('customer').then(usOrders => {
+        res.render('order-report', {
+          canOrders: canOrders,
+          usOrders: usOrders
         });
       });
     });

@@ -1,0 +1,185 @@
+mixin orderRow(order)
+	tr(onclick="orderSelected('"+order._id+"', event)")
+		td=order.orderId
+		td=order.customer.name
+		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
+		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
+		td=order.customer.companyName
+		td='$' + order.orderValue.toFixed(2)
+		td=order.picked ? 'yes' : 'no'
+		td=order.invoiced ? 'yes' : 'no'
+		td=order.paid ? 'yes' : 'no'
+		td=order.hold ? 'yes' : 'no'
+
+doctype html
+include mixins
+html
+	include includes/head
+		title General Order Report
+	body
+		#wrapper
+			+sidebarNav("orders")
+
+			#page-content
+				+menuToggle
+				.starter-template
+					h1 Orders
+					p.lead Orders that match the following flags
+				.container
+					.row
+						.col
+							h5 Imported
+							.btn-group.btn-group-toggle(data-toggle="buttons")
+								label.btn.btn-primary#imported-false-label
+									input(type="radio" name="imported" value="false")#imported-false
+									| False
+								label.btn.btn-primary#imported-any-label
+									input(type="radio" name="imported" value="any")#imported-any
+									| Any
+								label.btn.btn-primary#imported-true-label
+									input(type="radio" name="imported" value="true")#imported-true
+									| True
+						.col
+							h5 Picked
+							.btn-group.btn-group-toggle(data-toggle="buttons")
+								label.btn.btn-primary#picked-false-label
+									input(type="radio" name="picked" value="false")#picked-false
+									| False
+								label.btn.btn-primary#picked-any-label
+									input(type="radio" name="picked" value="any")#picked-any
+									| Any
+								label.btn.btn-primary#picked-true-label
+									input(type="radio" name="picked" value="true")#picked-true
+									| True
+						.col
+							h5 Invoiced
+							.btn-group.btn-group-toggle(data-toggle="buttons")
+								label.btn.btn-primary#invoiced-false-label
+									input(type="radio" name="invoiced" value="false")#invoiced-false
+									| False
+								label.btn.btn-primary#invoiced-any-label
+									input(type="radio" name="invoiced" value="any")#invoiced-any
+									| Any
+								label.btn.btn-primary#invoiced-true-label
+									input(type="radio" name="invoiced" value="true")#invoiced-true
+									| True
+						.col
+							h5 Paid
+							.btn-group.btn-group-toggle(data-toggle="buttons")
+								label.btn.btn-primary#paid-false-label
+									input(type="radio" name="paid" value="false")#paid-false
+									| False
+								label.btn.btn-primary#paid-any-label
+									input(type="radio" name="paid" value="any")#paid-any
+									| Any
+								label.btn.btn-primary#paid-true-label
+									input(type="radio" name="paid" value="true")#paid-true
+									| True
+						.col
+							h5 Held
+							.btn-group.btn-group-toggle(data-toggle="buttons")
+								label.btn.btn-primary#hold-false-label
+									input(type="radio" name="hold" value="false")#hold-false
+									| False
+								label.btn.btn-primary#hold-any-label
+									input(type="radio" name="hold" value="any")#hold-any
+									| Any
+								label.btn.btn-primary#hold-true-label
+									input(type="radio" name="hold" value="true")#hold-true
+									| True
+						.col.text-center
+							button.btn.btn-success.btn-lg.mt-3(type="button")#queryButton Go!
+
+				.container-fluid
+					.row
+						.col
+							h2 US Orders
+							table.table.table-striped.table-hover#usOrderTable
+								thead
+									tr
+										th Order ID
+										th Name
+										th Date
+										th Due Date
+										th Company
+										th Value
+										th Picked
+										th Invoiced
+										th Paid
+										th Held
+								tbody
+									each order in usOrders
+										+orderRow(order)
+
+					.row.pt-2
+						.col
+							h2 Canadian Orders
+							table.table.table-striped.table-hover#canOrderTable
+								thead
+									tr
+										th Order ID
+										th Name
+										th Date
+										th Due Date
+										th Company
+										th Value
+										th Picked
+										th Invoiced
+										th Paid
+										th Held
+								tbody
+									each order in canOrders
+										+orderRow(order)
+
+		+footer
+		script.
+			var socket = io();
+			$('#usOrderTable').DataTable({
+				bDestroy: true,
+				pageLength: 100,
+				order: [[2, 'desc']]
+			});
+
+			$('#canOrderTable').DataTable({
+				bDestroy: true,
+				pageLength: 100,
+				order: [[2, 'desc']]
+			});
+
+			$('#queryButton').click(e => {
+				var query = {
+					imported: $('input[name="imported"]:checked').val(),
+					picked: $('input[name="picked"]:checked').val(),
+					invoiced: $('input[name="invoiced"]:checked').val(),
+					paid: $('input[name="paid"]:checked').val(),
+					hold: $('input[name="hold"]:checked').val()
+				};
+
+				var params = $.param(query);
+				window.location = "/order-report?"+params;
+			});
+
+			$(document).ready(e => {
+				let urlParams = new URLSearchParams(window.location.search);
+
+				$('#imported-'+urlParams.get('imported')).prop('checked', true);
+				$('#imported-'+urlParams.get('imported')+'-label').addClass('active');
+
+				$('#picked-'+urlParams.get('picked')).prop('checked', true);
+				$('#picked-'+urlParams.get('picked')+'-label').addClass('active');
+
+				$('#invoiced-'+urlParams.get('invoiced')).prop('checked', true);
+				$('#invoiced-'+urlParams.get('invoiced')+'-label').addClass('active');
+
+				$('#paid-'+urlParams.get('paid')).prop('checked', true);
+				$('#paid-'+urlParams.get('paid')+'-label').addClass('active');
+
+				$('#hold-'+urlParams.get('hold')).prop('checked', true);
+				$('#hold-'+urlParams.get('hold')+'-label').addClass('active');
+			});
+
+			function orderSelected(id, e) {
+				if (e.target.localName != 'a') {
+					window.open("/order?id="+id, '_blank');
+				}
+			}
