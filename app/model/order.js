@@ -203,9 +203,11 @@ orderSchema.methods.updateOrderStatus = function(status) {
 	};
 	
   if (this.isCartOrder)	{
-    return rp(options);
+    return this.save().then(() => {
+      return rp(options);
+    });
   } else {
-    return Promise.resolve('Not a 3D Cart Order.');
+    return this.save();
   }
 }
 

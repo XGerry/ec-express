@@ -67,10 +67,8 @@ async function getBatch(orders, batch, maxItems, maxSKUs, maxOrders) {
 
 	var order = orders.shift();
 	var numberOfSkus = parseInt(order.items.length);
-	var numberOfItems = order.items.reduce((totalItems, item) => {
-		return totalItems + parseInt(item.quantity);
-	}, 0);
-
+	var numberOfItems = order.numberOfItems;
+	
 	var possibleTotalSkus = batch.numberOfSkus + numberOfSkus;
 	var possibleTotalItems = batch.numberOfItems + numberOfItems;
 

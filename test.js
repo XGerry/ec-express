@@ -287,7 +287,7 @@ async function testBatchCreation() {
 		}
 	}
 	
-	return Batch.createAutoBatch(250, 20, 'ca').then(batch => {
+	return Batch.createAutoBatch(250, 20, 'ca').then(async batch => {
 		console.log(batch.orders.length);
     if (batch.orders.length != 5) {
       return Promise.reject('Wrong amount of orders in batch');
@@ -301,6 +301,15 @@ async function testBatchCreation() {
 		console.log(batch.numberOfSkus);
     if (batch.numberOfSkus != 10) {
       return Promise.reject('Wrong amount of skus in batch');
+    }
+
+    await batch.populate('orders').execPopulate();
+    for (order of batch.orders) {
+      if (!order.batch.equals(batch._id)) {
+        console.log(order.batch);
+        console.log(batch._id);
+        return Promise.reject('Order has the wrong batch');
+      }
     }
 	});
 }
