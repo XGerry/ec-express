@@ -48,7 +48,8 @@ html
 								if (order.invoiced)
 									a(href="#").dropdown-item#createBackorderButton Create Backorder
 								a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email Customer
-								a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
+								if (order.isCartOrder)
+									a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
 								a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
 								a(href="#").dropdown-item#refreshFromOriginal Reload from Original
 								.dropdown-divider
