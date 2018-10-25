@@ -458,7 +458,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/order', (req, res) => {
-    Order.findOne({_id: req.query.id}).populate('customer').populate({
+    Order.findOne({_id: req.query.id}).populate('customer').populate('backorders').populate({
       path: 'items.item',
       model: 'Item',
       populate: {
@@ -605,8 +605,20 @@ module.exports = function(app, passport) {
     if (req.query.hold && req.query.hold != 'any') {
       query.hold = req.query.hold;
     }
+    if (req.query.isBackorder && req.query.isBackorder != 'any') {
+      query.isBackorder = req.query.isBackorder;
+    }
+    if (req.query.from && req.query.to) {
+      query.orderDate = {
+        '$gte': new Date(req.query.from),
+        '$lte': new Date(req.query.to)
+      };
+    } else if (req.query.from) {
+      query.orderDate = {
+        '$gte': new Date(req.query.from)
+      };
+    }
     query.canadian = true;
-    console.log(query);
     Order.find(query).populate('customer').then(canOrders => {
       query.canadian = false;
       Order.find(query).populate('customer').then(usOrders => {

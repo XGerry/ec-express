@@ -63,6 +63,10 @@ html
 									input(type="radio" name="invoiced" value="true")#invoiced-true
 									| True
 						.col
+							h5 From
+							input.form-control(type="date")#fromDate
+					.row.pt-3
+						.col
 							h5 Paid
 							.btn-group.btn-group-toggle(data-toggle="buttons")
 								label.btn.btn-primary#paid-false-label
@@ -86,6 +90,22 @@ html
 								label.btn.btn-primary#hold-true-label
 									input(type="radio" name="hold" value="true")#hold-true
 									| True
+						.col
+							h5 Is Backorder
+							.btn-group.btn-group-toggle(data-toggle="buttons")
+								label.btn.btn-primary#isBackorder-false-label
+									input(type="radio" name="isBackorder" value="false")#isBackorder-false
+									| False
+								label.btn.btn-primary#isBackorder-any-label
+									input(type="radio" name="isBackorder" value="any")#isBackorder-any
+									| Any
+								label.btn.btn-primary#isBackorder-true-label
+									input(type="radio" name="isBackorder" value="true")#isBackorder-true
+									| True
+						.col
+							h5 To
+							input.form-control(type="date")#toDate
+					.row
 						.col.text-center
 							button.btn.btn-success.btn-lg.mt-3(type="button")#queryButton Go!
 
@@ -104,7 +124,7 @@ html
 										th Value
 										th Items Ordered
 										th Items Picked
-										th Incomplete
+										th Open
 								tbody
 									each order in usOrders
 										+orderRow(order)
@@ -123,7 +143,7 @@ html
 										th Value
 										th Items Ordered
 										th Items Picked
-										th Incomplete
+										th Open
 
 								tbody
 									each order in canOrders
@@ -150,7 +170,10 @@ html
 					picked: $('input[name="picked"]:checked').val(),
 					invoiced: $('input[name="invoiced"]:checked').val(),
 					paid: $('input[name="paid"]:checked').val(),
-					hold: $('input[name="hold"]:checked').val()
+					hold: $('input[name="hold"]:checked').val(),
+					isBackorder: $('input[name="isBackorder"]:checked').val(),
+					from: $('#fromDate').val(),
+					to: $('#toDate').val()
 				};
 
 				var params = $.param(query);
@@ -174,6 +197,12 @@ html
 
 				$('#hold-'+urlParams.get('hold')).prop('checked', true);
 				$('#hold-'+urlParams.get('hold')+'-label').addClass('active');
+
+				$('#isBackorder-'+urlParams.get('isBackorder')).prop('checked', true);
+				$('#isBackorder-'+urlParams.get('isBackorder')+'-label').addClass('active');
+
+				$('#fromDate').val(urlParams.get('from'));
+				$('#toDate').val(urlParams.get('to'));
 			});
 
 			function orderSelected(id, e) {

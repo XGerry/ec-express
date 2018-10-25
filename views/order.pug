@@ -45,6 +45,8 @@ html
 						li.dropdown.nav-item
 							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
+								if (order.invoiced)
+									a(href="#").dropdown-item#createBackorderButton Create Backorder
 								a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email Customer
 								a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
 								a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
@@ -88,7 +90,10 @@ html
 										th.text-center Paid
 										th.text-center Rush
 										th.text-center Hold
+										th.text-center Backorder
 										th Batch
+										if (order.isBackorder)
+											th Parent
 								tbody
 									tr
 										td.text-center
@@ -103,11 +108,16 @@ html
 											input(type="checkbox" checked=order.rush style="transform: scale(2);")#rushCheckbox
 										td.text-center
 											input(type="checkbox" checked=order.hold style="transform: scale(2);")#holdCheckbox
+										td.text-center
+											input(type="checkbox" checked=order.isBackorder style="transform: scale(2);" disabled)
 										td
 											if (order.batch)
 												a(href="batch?id="+order.batch) View
 											else
 												| None
+										if (order.isBackorder)
+											td
+												a(href="/order?id="+order.parent) View
 					.row
 						.col
 							table.table.table-sm
@@ -118,6 +128,8 @@ html
 										th Original Value
 										th Picked Value
 										th Order Date
+										th Ordered
+										th Picked
 								tbody
 									tr
 										td= order.cartOrder.BillingPaymentMethod
@@ -145,6 +157,8 @@ html
 											});
 										td= '$' + pickedValue.toFixed(2)
 										td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
+										td= order.numberOfItems
+										td= order.numberOfItemsPicked
 					.row
 						.col
 							h5 Billing Info
@@ -236,6 +250,22 @@ html
 								tbody#orderTableBody
 									each item in order.items
 										+itemRow(item, order.cartOrder)
+					if (order.backorders.length > 0)
+						.row.pt-2
+							.col
+								h5 Back Orders
+								table.table.table-striped.table-hover#backOrderTable
+									thead
+										tr
+											th Order ID
+											th Items Ordered
+											th Items Picked
+									tbody
+										for backorder in order.backorders
+											tr(onclick="location='/order?id="+backorder._id+"'")
+												td=backorder.orderId
+												td=backorder.numberOfItems
+												td=backorder.numberOfItemsPicked
 					.row
 						.col
 							h5 Internal Comments
@@ -411,6 +441,16 @@ html
 					var yes = confirm('This will revert the order to it\'s original state. Are you sure you want to continue?');
 					if (yes) {
 						socket.emit('refreshOrder', theOrder._id, cb => {
+							location.reload();
+						});
+					}
+				});
+
+				$('#createBackorderButton').click(e => {
+					e.preventDefault();
+					var yes = confirm('This will create a back order for this order with all unpicked items on it. Do you want to continue?');
+					if (yes) {
+						socket.emit('createBackorder', theOrder._id, cb => {
 							location.reload();
 						});
 					}

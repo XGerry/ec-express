@@ -855,6 +855,14 @@
  			helpers.runInventory(qbws);
  		});
 
+ 		socket.on('createBackorder', (orderId, cb) => {
+ 			Order.findOne({_id: orderId}).then(order => {
+ 				order.createBackorder().then(o => {
+ 					cb();
+ 				});
+ 			});
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',

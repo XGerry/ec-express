@@ -38,9 +38,16 @@ var orderSchema = new mongoose.Schema({
 	orderDate: Date,
   shipDate: Date,
 	dueDate: Date,
-	manual: Boolean,
 	retry: Boolean, // the order is being imported again
 	canadian: Boolean, // the order is canadian
+  isCartOrder: {
+    type: Boolean,
+    default: false
+  },
+  isBackorder: {
+    type: Boolean,
+    default: false
+  },
 	amazon: Boolean,
 	imported : Boolean, // the order has been imported as a sales order in quickbooks
 	trackingNumber: String,
@@ -72,6 +79,14 @@ var orderSchema = new mongoose.Schema({
   hold: {
     type: Boolean,
     default: false
+  },
+  backorders: [{
+    type: ObjectId,
+    ref: 'Order'
+  }],
+  parent: {
+    type: ObjectId,
+    ref: 'Order'
   }
 }, {
   toObject: {
@@ -84,7 +99,7 @@ var orderSchema = new mongoose.Schema({
 });
 
 orderSchema.virtual('incomplete').get(function() {
-  return this.numberOfItemsPicked < this.numberOfItems;
+  return (this.numberOfItemsPicked < this.numberOfItems) && (this.backorders.length == 0);
 });
 
 orderSchema.virtual('numberOfItems').get(function() {
@@ -131,6 +146,7 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   this.orderDate = new Date(cartOrder.OrderDate);
   this.markModified('cartOrder');
   this.orderValue = cartOrder.OrderAmount;
+  this.isCartOrder = true; 
   this.dueDate = getDueDate(cartOrder.OrderDate, this);
   this.shippingCost = cartOrder.ShipmentList[0].ShipmentCost;
   this.comments = cartOrder.InternalComments;
@@ -198,44 +214,97 @@ orderSchema.methods.updateDueDate = function() {
 	return this.save();
 }
 
-orderSchema.methods.updateOrder = function(order) {
+orderSchema.methods.updateOrder = async function(order) {
 	delete order.__v;
 	this.set(order);
   // update the shipping address
   this.markModified('cartOrder');
-	this.save();
-	var oldOrder = {};
-	// replace the items
-	oldOrder.OrderItemList = [];
+	await this.save();
+	if (this.isCartOrder) {
+    return this.updateOrderIn3DCart(order);
+  } else {
+    return Promise.resolve(this);
+  }
+}
+
+orderSchema.methods.updateOrderIn3DCart = function(order) {
+  var oldOrder = {};
+  // replace the items
+  oldOrder.OrderItemList = [];
   oldOrder.BillingAddress = order.cartOrder.BillingAddress;
   oldOrder.BillingAddress2 = order.cartOrder.BillingAddress2;
   oldOrder.BillingState = order.cartOrder.BillingState;
   oldOrder.BillingZipCode = order.cartOrder.BillingZipCode;
   oldOrder.BillingCountry = order.cartOrder.BillingCountry;
-	oldOrder.ShipmentList = order.cartOrder.ShipmentList;
+  oldOrder.ShipmentList = order.cartOrder.ShipmentList;
   delete oldOrder.ShipmentList[0].ShipmentOrderStatus;
   delete oldOrder.ShipmentList[0].ShipmentTrackingCode;
-	oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
+  oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
   if (this.trackingNumber)
     oldOrder.ShipmentList[0].ShipmentTrackingCode = this.trackingNumber;
   if (this.comments)
     oldOrder.InternalComments = this.comments;
 
-	this.items.forEach(item => {
-		var orderItem = {
-	    ItemID: item.item.sku,
-	    ItemQuantity: item.quantity,
-	    ItemUnitPrice: item.price,
-	    ItemDescription: item.item.name
-	  };
-	  oldOrder.OrderItemList.push(orderItem);
-	});
+  this.items.forEach(item => {
+    var orderItem = {
+      ItemID: item.item.sku,
+      ItemQuantity: item.quantity,
+      ItemUnitPrice: item.price,
+      ItemDescription: item.item.name
+    };
+    oldOrder.OrderItemList.push(orderItem);
+  });
 
   this.updateCustomer();
 
-	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
-	options.body = oldOrder;
-	return rp(options);
+  var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
+  options.body = oldOrder;
+  return rp(options);
+}
+
+orderSchema.methods.createBackorder = async function() {
+  // find the items that have not been picked and move them to a new order
+  // the back order should not be added to Quickbooks as a sales order
+  // it should also not be imported to 3D Cart
+  if (this.numberOfItemsPicked >= this.numberOfItems) {
+    console.log('No need for backorder');
+    return Promise.reject('Back order not allowed for a completed order');
+  }
+
+  var backOrder = new this.constructor();
+  backOrder.customer = this.customer;
+  backOrder.cartOrder = this.cartOrder; // TODO: change to use dedicated shipping address
+  backOrder.canadian = this.canadian;
+  backOrder.orderId = this.orderId + '-BO';
+  backOrder.isBackorder = true;
+
+  // add the items
+  var backorderItems = [];
+  var orderValue = 0;
+  for (item of this.items) {
+    if (item.pickedQuantity < item.quantity) {
+      var bItem = {
+        item: item.item,
+        quantity: item.quantity - item.pickedQuantity,
+        pickedQuantity: 0,
+        price: item.price
+      }
+      backorderItems.push(bItem);
+      orderValue += bItem.quantity * bItem.price;
+    }
+  }
+
+  backOrder.items = backorderItems;
+  backOrder.orderValue = orderValue;
+  backOrder.shippingCost = 0;
+  backOrder.orderDate = new Date();
+  backOrder.dueDate = getDueDate(backOrder.orderDate, backOrder);
+  backOrder.comments = "This is a back order";
+  backOrder.parent = this._id;
+  backOrder.hold = true; // on hold by default
+  this.backorders.push(backOrder._id);
+  await backOrder.save();
+  return this.save();
 }
 
 orderSchema.methods.invoiceTo3DCart = function() {
