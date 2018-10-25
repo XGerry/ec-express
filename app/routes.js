@@ -590,23 +590,23 @@ module.exports = function(app, passport) {
 
   app.get('/order-report', (req, res) => {
     var query = {};
-    if (req.params.imported != 'any') {
-      query.imported = req.params.imported;
+    if (req.query.imported && req.query.imported != 'any') {
+      query.imported = req.query.imported;
     }
-    if (req.params.invoiced != 'any') {
-      query.invoiced = req.params.invoiced;
+    if (req.query.invoiced && req.query.invoiced != 'any') {
+      query.invoiced = req.query.invoiced;
     }
-    if (req.params.paid != 'any') {
-      query.paid = req.params.paid;
+    if (req.query.paid && req.query.paid != 'any') {
+      query.paid = req.query.paid;
     }
-    if (req.params.picked != 'any') {
-      query.picked = req.params.picked;
+    if (req.query.picked && req.query.picked != 'any') {
+      query.picked = req.query.picked;
     }
-    if (req.params.hold != 'any') {
-      query.hold = req.params.hold;
+    if (req.query.hold && req.query.hold != 'any') {
+      query.hold = req.query.hold;
     }
-    query.imported = true;
     query.canadian = true;
+    console.log(query);
     Order.find(query).populate('customer').then(canOrders => {
       query.canadian = false;
       Order.find(query).populate('customer').then(usOrders => {
