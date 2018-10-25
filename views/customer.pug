@@ -2,6 +2,7 @@ mixin orderTableRow(order, customer)
 	tr(onclick="window.location='/order?id="+order._id+"';")
 		td=order.orderId
 		td=customer.name
+		td=moment(order.orderDate).format('MMM Do YYYY')
 		td=order.picked ? 'yes' : 'no'
 		td=order.invoiced ? 'yes' : 'no'
 		td=order.paid ? 'yes' : 'no'
@@ -127,6 +128,7 @@ html
 							table.table-hover.table.table-striped
 								thead
 									th Order ID
+									th Date
 									th Name
 									th Picked
 									th Invoiced

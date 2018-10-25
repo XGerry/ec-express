@@ -202,8 +202,11 @@ orderSchema.methods.updateOrderStatus = function(status) {
 		OrderStatusID: status
 	};
 	
-  if (this.isCartOrder)	
+  if (this.isCartOrder)	{
     return rp(options);
+  } else {
+    return Promise.resolve('Not a 3D Cart Order.');
+  }
 }
 
 orderSchema.methods.updateDueDate = function() {

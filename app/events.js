@@ -804,8 +804,13 @@
  		});
 
  		socket.on('deleteOrder', (id, cb) => {
- 			Order.remove({_id: id}).then(res => {
- 				cb(res);
+ 			Order.findOne({_id: id}).then(async order => {
+ 				if (order.isCartOrder) {
+ 					await order.updateOrderStatus(5);
+ 				}
+	 			Order.remove({_id: id}).then(res => {
+	 				cb(res);
+	 			});
  			});
  		});
 
