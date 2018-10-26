@@ -511,29 +511,44 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
 
 orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
 	var invoiceItems = [];
-  var quantityPickedMap = {};
-  this.items.forEach(i => {
-    quantityPickedMap[i.item.sku] = i.pickedQuantity;
-  });
 
   var lineItems = qbSalesOrder.SalesOrderLineRet;
   if (!Array.isArray(lineItems)) {
     lineItems = [lineItems];
   }
 
-  lineItems.forEach(item => { // shipping cost
-    if (item.ItemRef.FullName == 'Shipping & Handling') {
+  this.items.forEach(item => {
+    var newItem = true;
+    lineItems.forEach(lineItem => {
+      if (lineItem.ItemRef.FullName == item.item.sku) {
+        newItem = false;
+        invoiceItems.push({
+          Quantity: item.pickedQuantity,
+          SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
+          LinkToTxn: {
+            TxnID: qbSalesOrder.TxnID,
+            TxnLineID: lineItem.TxnLineID
+          }
+        });
+      }
+    });
+
+    if (newItem) {
       invoiceItems.push({
-      	SalesTaxCodeRef: item.SalesTaxCodeRef,
-      	LinkToTxn: {
-      		TxnID: qbSalesOrder.TxnID,
-      		TxnLineID: item.TxnLineID
-      	}
+        ItemRef: {
+          FullName: item.item.sku
+        },
+        Quantity: item.pickedQuantity,
+        Rate: item.price
       });
-    } else {
+    }
+  });
+
+  lineItems.forEach(lineItem => {
+    if (lineItem.ItemRef.FullName == 'Shipping & Handling') {
       invoiceItems.push({
-        Quantity: quantityPickedMap[item.ItemRef.FullName],
         SalesTaxCodeRef: item.SalesTaxCodeRef,
+        Rate: this.shippingCost, // update the shipping cost
         LinkToTxn: {
           TxnID: qbSalesOrder.TxnID,
           TxnLineID: item.TxnLineID
