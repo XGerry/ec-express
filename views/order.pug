@@ -135,7 +135,7 @@ html
 										th Payment method
 										th Customer Type
 										th Original Value
-										th Picked Value
+										th Total Cost
 										th Order Date
 										th Ordered
 										th Picked
@@ -146,24 +146,9 @@ html
 										td='$'+order.orderValue.toFixed(2)
 										-
 											var pickedValue = 0;
-											order.items.forEach(item => {
-												var itemPrice = 0;
-												if (order.canadian) {
-													if (order.customerType == 0) {
-														itemPrice = item.item.canPrice;
-													} else {
-														itemPrice = item.item.canWholesalePrice;
-													}
-												} else {
-													if (order.customerType == 0) {
-														itemPrice = item.item.usPrice;
-													} else {
-														itemPrice = item.item.usWholesalePrice;
-													}
-												}
-												var lineValue = itemPrice * item.pickedQuantity;
-												pickedValue += lineValue;
-											});
+											pickedValue =	order.items.reduce((total, item) => total += item.pickedQuantity * item.price, 0);
+											pickedValue += order.shippingCost;
+
 										td= '$' + pickedValue.toFixed(2)
 										td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
 										td= order.numberOfItems
