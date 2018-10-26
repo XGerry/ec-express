@@ -759,6 +759,27 @@ function closeSalesOrders(qbws, orderId) {
   });
 }
 
+function closeSalesOrder(orderId) {
+  qbws.addRequest(getSalesOrdersRq([orderId], false), xmlResponse => {
+    return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+      var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
+      if (salesOrderRs == undefined) {
+        console.log('Sales order not created yet!');
+      } else if (salesOrderRs.SalesOrderRet) {
+        var salesOrder = salesOrderRs.SalesOrderRet;
+        if (Array.isArray(salesOrder)) {
+          salesOrder.forEach(so => {
+            if (so.IsFullyInvoiced == 'false')
+              qbws.addRequest(modifySalesOrder(so));
+          });
+        } else {
+          qbws.addRequest(modifySalesOrder(salesOrder));
+        }
+      }
+    });
+  });
+}
+
 function getInventoryTransferRq(transfer) {
   var itemList = [];
   transfer.items.forEach(item => {
@@ -1830,5 +1851,6 @@ module.exports = {
   transferInventory: transferInventory,
   runInventory: runInventory,
   checkUnpaidOrders: checkUnpaidOrders,
-  checkUninvoicedOrders: checkUninvoicedOrders
+  checkUninvoicedOrders: checkUninvoicedOrders,
+  closeSalesOrder: closeSalesOrder
 }

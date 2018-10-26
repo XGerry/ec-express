@@ -152,9 +152,9 @@
  			});
  		});
 
- 		socket.on('closeSalesOrder', orderId => {
- 			console.log(orderId);
- 			helpers.closeSalesOrders(qbws, orderId);
+ 		socket.on('closeSalesOrder', (orderId, cb) => {
+ 			helpers.closeSalesOrder(qbws, orderId);
+ 			cb('Run the web connector');
  		});
 
  		/**

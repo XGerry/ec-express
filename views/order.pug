@@ -55,6 +55,8 @@ html
 									a(href="#").dropdown-item#createBackorderButton Create Backorder
 								if (order.isCartOrder)
 									a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
+								if (order.imported)
+									a(href="#").dropdown-item#closeSalesOrderButton Close Sales Order
 								a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
 								a(href="#").dropdown-item#refreshFromOriginal Reload from Original
 								.dropdown-divider
@@ -459,6 +461,19 @@ html
 					if (yes) {
 						socket.emit('createBackorder', theOrder._id, cb => {
 							location.reload();
+						});
+					}
+				});
+
+				$('#createBackorderButton').click(e => {
+					e.preventDefault();
+					var yes = confirm('This will manually close the original sales order in Quickbooks. Do you want to continue?');
+					if (yes) {
+						socket.emit('closeSalesOrder', theOrder.orderId, cb => {
+							$('#orderInfo').text(cb);
+							setTimeout(() => {
+								$('#orderInfo').text('');
+							}, 2000);
 						});
 					}
 				});
