@@ -547,11 +547,11 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
   lineItems.forEach(lineItem => {
     if (lineItem.ItemRef.FullName == 'Shipping & Handling') {
       invoiceItems.push({
-        SalesTaxCodeRef: item.SalesTaxCodeRef,
+        SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
         Rate: this.shippingCost, // update the shipping cost
         LinkToTxn: {
           TxnID: qbSalesOrder.TxnID,
-          TxnLineID: item.TxnLineID
+          TxnLineID: lineItem.TxnLineID
         }
       });
     }
