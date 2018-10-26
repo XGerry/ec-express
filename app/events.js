@@ -784,7 +784,7 @@
  					order.invoiceTo3DCart();
  				}
  				helpers.createInvoicesFromSalesOrders(qbws, [order]);
- 				cb();
+ 				cb('Run the web connector!');
  			});
  		});
 
