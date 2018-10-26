@@ -539,7 +539,10 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
           FullName: item.item.sku
         },
         Quantity: item.pickedQuantity,
-        Rate: item.price
+        Rate: item.price,
+        InventorySiteRef: {
+          FullName: 'Warehouse'
+        }
       });
     }
   });
