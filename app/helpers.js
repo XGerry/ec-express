@@ -759,7 +759,7 @@ function closeSalesOrders(qbws, orderId) {
   });
 }
 
-function closeSalesOrder(orderId) {
+function closeSalesOrder(qbws, orderId) {
   qbws.addRequest(getSalesOrdersRq([orderId], false), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
       var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
