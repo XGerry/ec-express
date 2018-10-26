@@ -587,6 +587,7 @@ function getSalesOrdersRq(orders, includeLineItems) {
 
   var xmlDoc = getXMLRequest(orderQuery);
   var str = xmlDoc.end({'pretty': true});
+  console.log(str);
   return str;
 }
 
@@ -760,7 +761,7 @@ function closeSalesOrders(qbws, orderId) {
 }
 
 function closeSalesOrder(qbws, orderId) {
-  qbws.addRequest(getSalesOrdersRq([orderId], false), xmlResponse => {
+  qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], false), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
       var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
       if (salesOrderRs == undefined) {
