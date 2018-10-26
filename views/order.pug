@@ -403,7 +403,7 @@ html
 				$('#invoiceOrder').click(e => {
 					saveOrderProperties();
 					socket.emit('invoiceOrder', theOrder._id, message => {
-						$('#orderInfo').text(message[0].message + ' - Run the web connector.');
+						$('#orderInfo').text(message);
 						setTimeout(() => {
 							$('#orderInfo').text('');
 						}, 2000);
