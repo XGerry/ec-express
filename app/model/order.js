@@ -281,7 +281,7 @@ orderSchema.methods.createBackorder = async function() {
   backOrder.canadian = this.canadian;
   backOrder.orderId = this.orderId + '-BO';
   backOrder.isBackorder = true;
-  backOrder.invoiced = true; // Make sure this doesn't get sent to quickbooks as a sales order
+  backOrder.imported = true; // Make sure this doesn't get sent to quickbooks as a sales order
 
   // add the items
   var backorderItems = [];
