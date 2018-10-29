@@ -531,6 +531,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
             TxnLineID: lineItem.TxnLineID
           }
         });
+        lineItems.splice(lineItems.indexOf(lineItem), 1); // remove from line items
       }
     });
 
