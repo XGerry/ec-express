@@ -521,6 +521,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
     var newItem = true;
     lineItems.forEach(lineItem => {
       if (lineItem.ItemRef.FullName == item.item.sku) {
+        console.log(lineItem.TxnLineID + ' - ' + item.item.sku);
         newItem = false;
         invoiceItems.push({
           Quantity: item.pickedQuantity,
