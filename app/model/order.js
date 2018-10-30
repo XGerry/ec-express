@@ -519,21 +519,23 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
 
   this.items.forEach(item => {
     var newItem = true;
-    lineItems.forEach(lineItem => {
-      if (lineItem.ItemRef.FullName == item.item.sku) {
-        console.log(lineItem.TxnLineID + ' - ' + item.item.sku);
+    for (let i = 0; i < lineItems.length; i++) {
+      if (lineItems[i].ItemRef.FullName == item.item.sku) {
+        console.log(lineItems[i].TxnLineID + ' - ' + item.item.sku);
         newItem = false;
         invoiceItems.push({
           Quantity: item.pickedQuantity,
-          SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
+          SalesTaxCodeRef: lineItems[i].SalesTaxCodeRef,
           LinkToTxn: {
             TxnID: qbSalesOrder.TxnID,
-            TxnLineID: lineItem.TxnLineID
+            TxnLineID: lineItems[i].TxnLineID
           }
         });
-        lineItems.splice(lineItems.indexOf(lineItem), 1); // remove from line items
+
+        lineItems.splice(lineItems.indexOf(lineItems[i]), 1); // remove from line items
+        i--;
       }
-    });
+    }
 
     if (newItem) {
       invoiceItems.push({
