@@ -922,9 +922,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             // now proceed as normal
             salesOrders.forEach(so => {
               orders.forEach(dbOrder => {
-                if (((dbOrder.isBackorder == true && dbOrder.parent.orderId == so.RefNumber) ||
-                  (so.RefNumber == dbOrder.orderId)) && 
-                  dbOrder.invoiced = false) {
+                if ((dbOrder.isBackorder == true && dbOrder.parent.orderId == so.RefNumber) ||
+                  (so.RefNumber == dbOrder.orderId)) {
                   qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                     console.log(response); 
                     xml2js(response, {explicitArray: false}).then(obj => {
