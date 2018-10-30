@@ -895,31 +895,52 @@ function createInvoicesFromSalesOrders(qbws, orders) {
         if (!Array.isArray(salesOrders)) {
           salesOrders = [salesOrders];
         }
+        qbws.addRequest(getInvoiceRq(orders), xmlResponseInvoices => {
+          return xml2js(xmlResponse, {explicitArray: false}).then(async responseObjectInvoices => {
+            var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
+            if (invoiceRs == undefined) {
+              console.log('No invoices found - this is normal.');
+            } else if (invoiceRs.InvoiceRet) {
+              var invoices = invoiceRs.InvoiceRet;
+              if (!Array.isArray(salesOrders)) {
+                invoices = [invoices];
+              }
 
-        salesOrders.forEach(so => {
-          orders.forEach(dbOrder => {
-            if ((dbOrder.isBackorder && dbOrder.parent.orderId == so.RefNumber) ||
-              (so.RefNumber == dbOrder.orderId)) {
-              qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
-                console.log(response); 
-                xml2js(response, {explicitArray: false}).then(obj => {
-                  var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
-                  if (errorCode == '3210') {
+              console.log(invoices.length + ' invoices were found that have already been invoiced');
+              for (invoice of invoices) {
+                for (dbOrder of orders) {
+                  if (dbOrder.orderId == invoice.RefNumber) {
                     webhooks.orderBot({
-                      text: "Error creating invoice! " + dbOrder.orderId + " has already been invoiced. Check the invoice in Quickbooks."
+                      text: "Error creating invoice! " + dbOrder.orderId + " has already been invoiced."
                     });
-                  } else {
-                    Order.findOne({_id: dbOrder._id}).then(invoicedOrder => {
-                      invoicedOrder.invoiced = true;
-                      invoicedOrder.updateOrderStatus(9); // Awaiting Payment
-                       webhooks.orderBot({
-                        text: 'Successfully created invoice for ' + invoicedOrder.orderId + ' in Quickbooks.'
-                      });
-                    });
+                    await Order.update({_id: dbOrder._id}, {$set: {invoiced: true}});
                   }
-                });
-              });
+                }
+              }
             }
+
+            // now proceed as normal
+            salesOrders.forEach(so => {
+              orders.forEach(dbOrder => {
+                if ((dbOrder.isBackorder && dbOrder.parent.orderId == so.RefNumber) ||
+                  (so.RefNumber == dbOrder.orderId)) {
+                  qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
+                    console.log(response); 
+                    xml2js(response, {explicitArray: false}).then(obj => {
+                      var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
+                      if (errorCode == '3210') {
+                        webhooks.orderBot({
+                          text: "Error creating invoice! " + dbOrder.orderId + " Please check the invoice in QB."
+                        });
+                      } else {
+                        dbOrder.invoiced = true;
+                        dbOrder.updateOrderStatus(9); // awaiting payment
+                      }
+                    });
+                  });
+                }
+              });
+            });
           });
         });
       }
