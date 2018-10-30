@@ -532,7 +532,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
           }
         });
 
-        lineItems.splice(lineItems.indexOf(lineItems[i]), 1); // remove from line items
+        lineItems.splice(i, 1); // remove from line items
         i--;
       }
     }
