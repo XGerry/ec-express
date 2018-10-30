@@ -68,7 +68,7 @@ async function getBatch(orders, batch, maxItems, maxSKUs, maxOrders) {
 	var order = orders.shift();
 	var numberOfSkus = parseInt(order.items.length);
 	var numberOfItems = order.numberOfItems;
-	
+
 	var possibleTotalSkus = batch.numberOfSkus + numberOfSkus;
 	var possibleTotalItems = batch.numberOfItems + numberOfItems;
 
@@ -176,6 +176,7 @@ batchSchema.methods.finish = async function(batch) {
 	this.endTime = new Date();
 	this.completed = true;
 	await this.save();
+	await this.populate('orders').execPopulate();
 	for (order of this.orders) {
 		order.picked = true;
 		order.isNew = false;
