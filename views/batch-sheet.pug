@@ -39,7 +39,7 @@ html
 						.col-12.text-center
 							h2 Batch Picking Sheet
 					.row.pt-2
-						.col-9
+						.col-8
 							table.table-sm.table
 								thead 
 									tr 
@@ -51,8 +51,8 @@ html
 										td=batch.numberOfSkus
 										td=batch.numberOfItems
 										td=batch.orders.length
-						.col-3
-							svg#barcode(jsbarcode-value=batch._id, jsbarcode-displayvalue="true", jsbarcode-width=1)
+						.col-4
+							svg#barcode(jsbarcode-value=batch._id, jsbarcode-displayvalue="true", jsbarcode-width=1.2)
 					.row.pt-2
 						.col-12
 							table.table-sm.table.table-hover
