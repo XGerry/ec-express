@@ -518,6 +518,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
   }
 
   this.items.forEach(item => {
+
     var newItem = true;
     for (let i = 0; i < lineItems.length; i++) {
       if (lineItems[i].ItemRef.FullName == item.item.sku) {
@@ -534,6 +535,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
 
         lineItems.splice(i, 1); // remove from line items
         i--;
+        break; // we found a match, no need to continue
       }
     }
 
