@@ -935,6 +935,9 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                       } else {
                         dbOrder.invoiced = true;
                         dbOrder.updateOrderStatus(9); // awaiting payment
+                        webhooks.orderBot({
+                          text: "Successfully created invoice " + dbOrder.orderId + "."
+                        });
                       }
                     });
                   });
