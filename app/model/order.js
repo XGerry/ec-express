@@ -522,7 +522,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
     lineItems.forEach(lineItem => {
       if (lineItem.ItemRef.FullName == item.item.sku) {
         newItem = false;
-        console.log(lineItem.TxnLineID + ': ' + item.item.sku);
         invoiceItems.push({
           Quantity: item.pickedQuantity,
           SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
@@ -571,7 +570,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
 
   var xmlDoc = getXMLRequest(addInvoiceRq);
   var str = xmlDoc.end({pretty: true});
-  console.log(str);
   return str;
 }
 

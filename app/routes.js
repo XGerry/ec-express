@@ -353,7 +353,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/print-orders', (req, res) => {
-    Order.find({picked: false, batch: null}).populate('customer').sort('orderDate').then(orders => {
+    Order.find({picked: false, batch: null, hold: false}).populate('customer').sort('orderDate').then(orders => {
       res.render('print-orders', {
         orders: orders
       });
