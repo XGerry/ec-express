@@ -897,7 +897,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
         }
         qbws.addRequest(getInvoiceRq(orders), xmlResponseInvoices => {
           return xml2js(xmlResponse, {explicitArray: false}).then(async responseObjectInvoices => {
-            var invoiceRs = responseObject.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
+            var invoiceRs = responseObjectInvoices.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
             if (invoiceRs == undefined) {
               console.log('No invoices found - this is normal.');
             } else if (invoiceRs.InvoiceRet) {
@@ -923,7 +923,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             salesOrders.forEach(so => {
               orders.forEach(dbOrder => {
                 if ((dbOrder.isBackorder && dbOrder.parent.orderId == so.RefNumber) ||
-                  (so.RefNumber == dbOrder.orderId)) {
+                  (so.RefNumber == dbOrder.orderId) && dbOrder.invoiced = false) {
                   qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                     console.log(response); 
                     xml2js(response, {explicitArray: false}).then(obj => {
