@@ -490,7 +490,10 @@ module.exports = function(app, passport) {
     var id;
     if (shortid) {
       var batch = await Batch.findOne({shortid: shortid});
-      id = batch._id;
+      if (batch)
+        id = batch._id;
+      else 
+        res.redirect('/batches');
     } else {
       id = req.query.id;
     }
