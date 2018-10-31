@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Order = require('./order');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
+let shortid = require('shortid');
 
 var batchSchema = new mongoose.Schema({
 	orders: [{
@@ -21,6 +22,10 @@ var batchSchema = new mongoose.Schema({
 	numberOfSkus: {
 		type: Number,
 		default: 0
+	},
+	shortid: {
+		type: String,
+		default: shortid.generate
 	}
 });
 

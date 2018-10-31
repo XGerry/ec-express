@@ -417,8 +417,15 @@ module.exports = function(app, passport) {
     });
   });
 
-  app.get('/batch-sheet', (req, res) => { 
-    var id = req.query.id;
+  app.get('/batch-sheet', async (req, res) => { 
+    var shortid = req.query.shortid;
+    var id;
+    if (shortid) {
+      var batch = await Batch.findOne({shortid: shortid});
+      id = batch._id;
+    } else {
+      id = req.query.id;
+    }
     loadBatch(id).then(batch => {
       if (batch) {
         res.render('batch-sheet', {
@@ -478,8 +485,16 @@ module.exports = function(app, passport) {
     });
   });
 
-  app.get('/sort-batch', (req, res) => {
-    loadBatch(req.query.id).then(batch => {
+  app.get('/sort-batch', async (req, res) => {
+    var shortid = req.query.shortid;
+    var id;
+    if (shortid) {
+      var batch = await Batch.findOne({shortid: shortid});
+      id = batch._id;
+    } else {
+      id = req.query.id;
+    }
+    loadBatch(id).then(batch => {
       if (batch) {
         res.render('sort-batch', {
           batch: batch

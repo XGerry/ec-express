@@ -51,8 +51,8 @@ html
 										td=batch.numberOfSkus
 										td=batch.numberOfItems
 										td=batch.orders.length
-						.col-4
-							svg#barcode(jsbarcode-value=batch._id, jsbarcode-displayvalue="true", jsbarcode-width=1.2)
+						.col-4.text-center
+							svg#barcode(jsbarcode-value=batch.shortid, jsbarcode-displayvalue="true", jsbarcode-width=1.5)
 					.row.pt-2
 						.col-12
 							table.table-sm.table.table-hover
