@@ -176,7 +176,6 @@ batchSchema.methods.finish = async function(batch) {
 	this.endTime = new Date();
 	this.completed = true;
 	await this.save();
-	await this.populate('orders').execPopulate();
 	for (order of this.orders) {
 		order.picked = true;
 		order.isNew = false;
