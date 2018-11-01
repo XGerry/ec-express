@@ -4,6 +4,7 @@ var request = require('request');
 var rp = require('request-promise-native');
 var Item = require('./item');
 var moment = require('moment');
+var _ = require('lodash');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
