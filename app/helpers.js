@@ -902,7 +902,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
               console.log('No invoices found - this is normal.');
             } else if (invoiceRs.InvoiceRet) {
               var invoices = invoiceRs.InvoiceRet;
-              if (!Array.isArray(salesOrders)) {
+              if (!Array.isArray(invoices)) {
                 invoices = [invoices];
               }
 
