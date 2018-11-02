@@ -83,12 +83,17 @@ customerSchema.methods.updateFrom3DCart = function(cartOrder) {
 customerSchema.methods.getCustomerType = function() {
 	if (this.customerType == undefined || this.customerType == null) {
 		if (this.customerId) {
+      console.log('customer id: ' + this.customerId);
 	    var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
       return rp(options).then(response => {
         if (Array.isArray(response)) {
           response = response[0];
         }
         this.customerType = response.CustomerGroupID;
+        return this.save();
+      }).catch(err => {
+        console.log('Can\'t get the customer type, defaulting to retail');
+        this.customerType = 0;
         return this.save();
       });
     } else {
