@@ -1,10 +1,11 @@
-mixin orderTableRow(order)
+mixin orderTableRow(order, iteminfo)
 	tr(onclick="window.location='/order?id="+order._id+"';")
 		td=order.orderId
+		td=moment(order.orderDate).format('MMM Do, YYYY')
 		td=order.customer.name
+		td=iteminfo.quantity
+		td=iteminfo.pickedQuantity
 		td=order.picked ? 'yes' : 'no'
-		td=order.invoiced ? 'yes' : 'no'
-		td=order.paid ? 'yes' : 'no'
 
 doctype html
 include mixins
@@ -29,6 +30,7 @@ html
 						li.dropdown.nav-item
 							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
 							ul.dropdown-menu.dropdown-menu-right
+								a(href="#").dropdown-item#salesMetricsButton Calculate Sales Metrics
 								a(href=item.usLink target="_blank").dropdown-item US Site
 								a(href=item.canLink, target="_blank").dropdown-item Canadian Site
 								a#refreshFrom3DCart(href="#").dropdown-item Refresh from 3D Cart
@@ -87,8 +89,14 @@ html
 												td='$'+item.cost.toFixed(2)
 											else
 												td N/A
-											td='$'+item.usPrice.toFixed(2)
-											td='$'+item.usWholesalePrice.toFixed(2)
+											if (item.usPrice)
+												td='$'+item.usPrice.toFixed(2)
+											else
+												td N/A
+											if (item.usWholesalePrice)
+												td='$'+item.usWholesalePrice.toFixed(2)
+											else
+												td N/A
 											td='$'+item.canPrice.toFixed(2)
 											td='$'+item.canWholesalePrice.toFixed(2)
 							.row
@@ -113,14 +121,39 @@ html
 						h2 Orders
 						table.table-hover.table.table-striped
 							thead
-								th Order ID
-								th Name
-								th Picked
-								th Invoiced
-								th Paid
+								tr
+									th Order ID
+									th Date
+									th Name
+									th Ordered
+									th Sent
+									th Picked
 							tbody
+								- let totalOrdered = 0;
+								- let totalSent = 0
 								each order in orders
-									+orderTableRow(order)
+									-
+										var iteminfo = order.items.filter(i => {
+											if (i.item.equals(item._id)) {
+												totalOrdered += parseInt(i.quantity);
+												totalSent += parseInt(i.pickedQuantity);
+												return item;
+											}
+										});
+									+orderTableRow(order, iteminfo[0])
+							tfoot
+								tr
+									th
+									th
+									th Total
+									th= totalOrdered
+									th= totalSent
+						.row.pt-2
+							h2 Sales
+						.row.pt-2
+							if (item.profitOverTwoWeeks)
+								p= "Profit for the past 2 weeks: $" + item.profitOverTwoWeeks.toFixed(2)
+
 		+footer
 		script.
 			var socket = io();
@@ -140,6 +173,14 @@ html
 						location.reload();
 					});
 				});
+
+				$('#salesMetricsButton').click(e => {
+					e.preventDefault();
+					console.log('here we go');
+					socket.emit('calculateSalesMetrics', theItem, cb => {
+						location.reload();
+					});
+				});	
 			});
 			
 			function updateItemProperties() {

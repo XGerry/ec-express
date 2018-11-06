@@ -869,6 +869,14 @@
  			});
  		});
 
+ 		socket.on('calculateSalesMetrics', (theItem, cb) => {
+ 			Item.findOne({_id: theItem._id}).then(item => {
+ 				item.calculateSalesMetrics().then(item => {
+ 					cb(item);
+ 				});
+ 			});
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',

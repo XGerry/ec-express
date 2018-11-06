@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var request = require('request');
 var rp = require('request-promise-native');
+var moment = require('moment');
 var ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = global.Promise;
 
@@ -81,7 +82,11 @@ var itemSchema = new mongoose.Schema({
   children: [{
     type: ObjectId,
     ref: 'Item'
-  }]
+  }],
+  profitOverTwoWeeks: {
+    type: Number,
+    default: 0
+  }
 }, {
 	usePushEach: true
 });
@@ -341,6 +346,31 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
 
 itemSchema.methods.findOrders = function() {
   return this.model('Order').find({'items.item': this._id}).populate('customer');
+}
+
+itemSchema.methods.calculateSalesMetrics = function() {
+  let twoWeeksAgo = moment().subtract(2, 'weeks');
+  var theItem = this;
+  return this.model('Order').find({'items.item': this._id, orderDate: { $gte: twoWeeksAgo}}).then(function (orders) {
+    var totalSales = 0;
+    var totalCost = 0;
+    for (order of orders) {
+      for (item of order.items) {
+        if (item.item.equals(theItem._id)) {
+          var sales = item.price * item.pickedQuantity;
+          if (order.canadian) {
+            totalCost += (theItem.cost * 1.2) * item.pickedQuantity; // calculate exchange
+          } else {
+            totalCost += theItem.cost * item.pickedQuantity;
+          }
+          totalSales += sales;
+        }
+      }
+    }
+
+    theItem.profitOverTwoWeeks = totalSales - totalCost;
+    return theItem.save();
+  });
 }
 
 itemSchema.methods.refreshFrom3DCart = async function() {
