@@ -21,22 +21,14 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    Item.find({}).then(async items => {
-      var index = 0;
-      for (item of items) {
-        try {
-          item = await item.calculateSalesMetrics();
-          if (item.sku == undefined) {
-            console.log(item);
-          }
-
-          console.log(((index / items.length) * 100).toFixed(2));
-        } catch (err) {
-          console.log('error calculating metrics for ' + item.sku)
-        }
-        index++;
-      }
-      console.log('Done');
+    Item.find({}).then(items => {
+      var promises = [];
+      items.forEach(item => {
+        promises.push(item.calculateSalesMetrics());
+      });
+      Promise.all(promises).then(() => {
+        console.log('Done');
+      })
     });
   }
 });
