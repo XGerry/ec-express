@@ -25,7 +25,7 @@ mongoose.connect(uriString, {
       for (item of items) {
         await item.calculateSalesMetrics();
       }
+      console.log('Done');
     });
-    console.log('Done');
   }
 });
