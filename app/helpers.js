@@ -310,6 +310,7 @@ function getMultipleItemsRq(items, id, retElements) {
       'IsActive',
       'QuantityOnHand',
       'QuantityOnSalesOrder',
+      'PurchaseCost',
       'DataExtRet'
     ];
   }
