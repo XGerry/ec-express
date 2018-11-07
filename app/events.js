@@ -35,6 +35,12 @@
  			});
  		});
 
+ 		socket.on('updateFromQB', () => {
+ 			helpers.queryAllItems(qbws).then(() => {
+ 				console.log('run the web connector');
+ 			});
+ 		});
+
  		socket.on('syncInventoryAndOrders', () => {
  			qbws.addStartingCallback(() => {
  				socket.emit('webConnectorStarted');
