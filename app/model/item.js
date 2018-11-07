@@ -106,7 +106,8 @@ itemSchema.methods.updateFromSKUInfo = function(skuInfo, canadian) {
     this.usPrice = skuInfo.Price;
     this.usStock = skuInfo.Stock;
     this.usSalePrice = skuInfo.SalePrice;
-    this.cost = skuInfo.Cost;
+    if (skuInfo.Cost > 0)
+      this.cost = skuInfo.Cost;
   }
   return this.save();
 }
