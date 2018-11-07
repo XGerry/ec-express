@@ -345,7 +345,7 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
 }
 
 itemSchema.methods.findOrders = function() {
-  return this.model('Order').find({'items.item': this._id}).populate('customer');
+  return this.model('Order').find({'items.item': this._id}).populate('customer').sort('orderDate');
 }
 
 itemSchema.methods.calculateSalesMetrics = function() {

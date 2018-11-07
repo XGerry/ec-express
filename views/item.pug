@@ -118,46 +118,66 @@ html
 
 
 					.row.pt-2
-						h2 Orders
-						table.table-hover.table.table-striped
-							thead
-								tr
-									th Order ID
-									th Date
-									th Name
-									th Ordered
-									th Sent
-									th Picked
-							tbody
-								- let totalOrdered = 0;
-								- let totalSent = 0
-								each order in orders
-									-
-										var iteminfo = order.items.filter(i => {
-											if (i.item.equals(item._id)) {
-												totalOrdered += parseInt(i.quantity);
-												totalSent += parseInt(i.pickedQuantity);
-												return item;
-											}
-										});
-									+orderTableRow(order, iteminfo[0])
-							tfoot
-								tr
-									th
-									th
-									th Total
-									th= totalOrdered
-									th= totalSent
-						.row.pt-2
+						.col
+							h2 Orders
+					.row.pt-2
+						.col
+							table.table-hover.table.table-striped
+								thead
+									tr
+										th Order ID
+										th Date
+										th Name
+										th Ordered
+										th Sent
+										th Picked
+								tbody
+									- let totalOrdered = 0;
+									- let totalSent = 0;
+									- let labels = [];
+									- let data = [];
+									each order in orders
+										-
+											let itemsOrdered = 0;
+											var iteminfo = order.items.filter(i => {
+												if (i.item.equals(item._id)) {
+													itemsOrdered = parseInt(i.quantity);
+													totalOrdered += itemsOrdered;
+													totalSent += parseInt(i.pickedQuantity);
+													return item;
+												}
+											});
+											labels.push(order.orderDate);
+											data.push({
+												t: new Date(order.orderDate),
+												y: itemsOrdered,
+												label: order.orderId
+											});
+										+orderTableRow(order, iteminfo[0])
+								tfoot
+									tr
+										th
+										th
+										th Total
+										th= totalOrdered
+										th= totalSent
+					.row.pt-2
+						.col
 							h2 Sales
-						.row.pt-2
+					.row.pt-2
+						.col
 							if (item.profitOverTwoWeeks)
 								p= "Profit for the past 2 weeks: $" + item.profitOverTwoWeeks.toFixed(2)
+					.row
+						canvas#salesChart
 
 		+footer
 		script.
 			var socket = io();
 			var theItem = !{JSON.stringify(item)};
+			var theOrders = !{JSON.stringify(orders)};
+			var labels = !{JSON.stringify(labels)};
+			var data = !{JSON.stringify(data)};
 			console.log(theItem);
 			$(document).ready(e => {
 				$('#refreshFrom3DCart').click(e => {
@@ -180,7 +200,44 @@ html
 					socket.emit('calculateSalesMetrics', theItem, cb => {
 						location.reload();
 					});
-				});	
+				});
+
+				console.log(data);
+
+				var lineGraph = new Chart($('#salesChart'), {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Items Ordered',
+							data: data,
+							fill: false
+						}]
+					},
+					options: {
+						scales: {
+							xAxes: [{
+								type: 'time',
+								time: {
+									unit: 'day'
+								}
+							}],
+							yAxes: [{
+								ticks: {
+									min: 0
+								}
+							}]
+						},
+						tooltips: {
+							callbacks: {
+								title: function(items, data) {
+									var label = data.datasets[items[0].datasetIndex].data[items[0].index].label;
+									return label;
+								}
+							}
+						}
+					}
+				});
 			});
 			
 			function updateItemProperties() {
