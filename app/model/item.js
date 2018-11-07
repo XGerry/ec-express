@@ -86,6 +86,10 @@ var itemSchema = new mongoose.Schema({
   profitOverTwoWeeks: {
     type: Number,
     default: 0
+  },
+  profitOverOneMonth: {
+    type: Number,
+    default: 0
   }
 }, {
 	usePushEach: true
@@ -351,9 +355,9 @@ itemSchema.methods.findOrders = function() {
 }
 
 itemSchema.methods.calculateSalesMetrics = function() {
-  let twoWeeksAgo = moment().subtract(2, 'weeks');
+  let oneMonthAgo = moment().subtract(1, 'month');
   var theItem = this;
-  return this.model('Order').find({'items.item': this._id, orderDate: { $gte: twoWeeksAgo}}).then(function (orders) {
+  return this.model('Order').find({'items.item': this._id, orderDate: { $gte: oneMonthAgo}}).then(function (orders) {
     var totalSales = 0;
     var totalCost = 0;
     for (order of orders) {
@@ -375,7 +379,7 @@ itemSchema.methods.calculateSalesMetrics = function() {
       profit = 0;
     }
 
-    theItem.profitOverTwoWeeks = profit;
+    theItem.profitOverOneMonth = profit;
     return theItem.save();
   });
 }

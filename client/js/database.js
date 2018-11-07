@@ -427,7 +427,7 @@ function buildItemTable(items) {
 		var location = $('<td></td>').text(item.location);
 		var barcodeCol = $('<td></td>').text(item.barcode);
 		var hidden = $('<td></td>').text(item.hidden === true);
-		var profit = $('<td></td>').text('$'+item.profitOverTwoWeeks.toFixed());
+		var profit = $('<td></td>').text('$'+item.profitOverOneMonth.toFixed());
 
 		row.append(checkboxCol);
 		row.append(sku);
