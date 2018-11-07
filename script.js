@@ -21,10 +21,9 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    Batch.find({}).then(async batches => {
-      for (batch of batches) {
-        batch.shortid = shortid.generate();
-        await batch.save();
+    Item.find({}).then(async items => {
+      for (item of items) {
+        await item.calculateSalesMetrics();
       }
     });
     console.log('Done');
