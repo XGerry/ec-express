@@ -69,6 +69,10 @@ $(document).ready(function() {
 		socket.emit('runInventory');
 	});
 
+	$('#updateFromQB').click(e => {
+		socket.emit('updateFromQB');
+	});
+
 	$('#saveInventoryButton').click(e => {
 		socket.emit('saveItems');
 	});
