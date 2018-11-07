@@ -134,8 +134,6 @@ html
 								tbody
 									- let totalOrdered = 0;
 									- let totalSent = 0;
-									- let labels = [];
-									- let data = [];
 									- let itemsOnOrders = [];
 									each order in orders
 										-
@@ -160,13 +158,6 @@ html
 											totalItems.order = order.orderId;
 											totalItems.date = order.orderDate;
 											itemsOnOrders.push(totalItems);
-
-											labels.push(order.orderDate);
-											data.push({
-												t: new Date(order.orderDate),
-												y: itemsOrdered,
-												label: order.orderId
-											});
 										+orderTableRow(order, totalItems)
 								tfoot
 									tr
@@ -190,8 +181,6 @@ html
 			var socket = io();
 			var theItem = !{JSON.stringify(item)};
 			var theOrders = !{JSON.stringify(orders)};
-			var labels = !{JSON.stringify(labels)};
-			var data = !{JSON.stringify(data)};
 			var itemsOnOrders = !{JSON.stringify(itemsOnOrders)};
 			console.log(theItem);
 			$(document).ready(e => {
@@ -219,13 +208,15 @@ html
 				var orderedData = [];
 				var today = moment();
 				var firstDay = moment(itemsOnOrders[0].date);
+				firstDay.startOf('day');
 				var labels = [];
 
 				var daysApart = today.diff(firstDay, 'days');
 				for (var i = 0; i < daysApart; i++) {
 					var dataPoint = {
-						t: firstDay.add(1, 'day').format(),
-						y: 0
+						t: firstDay.format(),
+						y: 0,
+						label: firstDay.format('MMM Do')
 					};
 					labels.push(firstDay.format());
 					itemsOnOrders.forEach(item => {
@@ -234,6 +225,7 @@ html
 						}
 					});
 					orderedData.push(dataPoint);
+					firstDay.add(1, 'day');
 				}
 
 				console.log(labels);
