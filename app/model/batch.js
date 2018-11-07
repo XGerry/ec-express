@@ -90,7 +90,7 @@ async function getBatch(orders, batch, maxItems, maxSKUs, maxOrders) {
 
 		// now see if there are any other orders from that customer
 		for (var j = 0; j < orders.length; j++) {
-			if (order.customer.email == orders[j].customer.email) {
+			if (order.customer.email.toUpperCase() == orders[j].customer.email.toUpperCase()) {
 				// another order, automatically add it
 				var [dupOrder] = orders.splice(j, 1);
 				batch.orders.push(dupOrder);

@@ -166,7 +166,7 @@ html
 							h2 Sales
 					.row.pt-2
 						.col
-							if (item.profitOverTwoWeeks)
+							if (item.profitOverTwoWeeks != undefined)
 								p= "Profit for the past 2 weeks: $" + item.profitOverTwoWeeks.toFixed(2)
 					.row
 						canvas#salesChart
@@ -196,13 +196,10 @@ html
 
 				$('#salesMetricsButton').click(e => {
 					e.preventDefault();
-					console.log('here we go');
 					socket.emit('calculateSalesMetrics', theItem, cb => {
 						location.reload();
 					});
 				});
-
-				console.log(data);
 
 				var lineGraph = new Chart($('#salesChart'), {
 					type: 'line',
