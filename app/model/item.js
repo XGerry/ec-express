@@ -369,7 +369,12 @@ itemSchema.methods.calculateSalesMetrics = function() {
       }
     }
 
-    theItem.profitOverTwoWeeks = totalSales - totalCost;
+    var profit = totalSales - totalCost;
+    if (isNaN(profit)) {
+      profit = 0;
+    }
+
+    theItem.profitOverTwoWeeks = profit;
     return theItem.save();
   });
 }
