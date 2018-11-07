@@ -25,7 +25,7 @@ mongoose.connect(uriString, {
       var index = 0;
       for (item of items) {
         try {
-          await item.calculateSalesMetrics();
+          item = await item.calculateSalesMetrics();
           if (item.sku == undefined) {
             console.log(item);
           }
