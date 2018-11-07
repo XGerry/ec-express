@@ -22,8 +22,16 @@ mongoose.connect(uriString, {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
     Item.find({}).then(async items => {
+      var index = 0;
       for (item of items) {
-        await item.calculateSalesMetrics();
+        try {
+          await item.calculateSalesMetrics();
+          console.log('calulated metrics for ' + item.sku);
+          console.log(((index / items.length) * 100).toFixed(2));
+        } catch (err) {
+          console.log('error calculating metrics for ' + item.sku)
+        }
+        index++;
       }
       console.log('Done');
     });

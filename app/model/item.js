@@ -358,12 +358,12 @@ itemSchema.methods.calculateSalesMetrics = function() {
       for (item of order.items) {
         if (item.item.equals(theItem._id)) {
           var sales = item.price * item.pickedQuantity;
+          totalSales += sales;
           if (order.canadian) {
             totalCost += (theItem.cost * 1.2) * item.pickedQuantity; // calculate exchange
           } else {
             totalCost += theItem.cost * item.pickedQuantity;
           }
-          totalSales += sales;
         }
       }
     }
