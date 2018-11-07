@@ -26,7 +26,10 @@ mongoose.connect(uriString, {
       for (item of items) {
         try {
           await item.calculateSalesMetrics();
-          console.log('calulated metrics for ' + item.sku);
+          if (item.sku == undefined) {
+            console.log(item);
+          }
+
           console.log(((index / items.length) * 100).toFixed(2));
         } catch (err) {
           console.log('error calculating metrics for ' + item.sku)
