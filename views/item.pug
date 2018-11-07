@@ -3,8 +3,8 @@ mixin orderTableRow(order, iteminfo)
 		td=order.orderId
 		td=moment(order.orderDate).format('MMM Do, YYYY')
 		td=order.customer.name
-		td=iteminfo.quantity
-		td=iteminfo.pickedQuantity
+		td=iteminfo.ordered
+		td=iteminfo.sent
 		td=order.picked ? 'yes' : 'no'
 
 doctype html
@@ -136,6 +136,7 @@ html
 									- let totalSent = 0;
 									- let labels = [];
 									- let data = [];
+									- let itemsOnOrders = [];
 									each order in orders
 										-
 											let itemsOrdered = 0;
@@ -147,13 +148,26 @@ html
 													return item;
 												}
 											});
+
+											let totalItems = {
+												ordered: 0,
+												sent: 0
+											};
+											iteminfo.forEach(item => {
+												totalItems.ordered += item.quantity;
+												totalItems.sent += item.pickedQuantity;
+											});
+											totalItems.order = order.orderId;
+											totalItems.date = order.orderDate;
+											itemsOnOrders.push(totalItems);
+
 											labels.push(order.orderDate);
 											data.push({
 												t: new Date(order.orderDate),
 												y: itemsOrdered,
 												label: order.orderId
 											});
-										+orderTableRow(order, iteminfo[0])
+										+orderTableRow(order, totalItems)
 								tfoot
 									tr
 										th
@@ -178,6 +192,7 @@ html
 			var theOrders = !{JSON.stringify(orders)};
 			var labels = !{JSON.stringify(labels)};
 			var data = !{JSON.stringify(data)};
+			var itemsOnOrders = !{JSON.stringify(itemsOnOrders)};
 			console.log(theItem);
 			$(document).ready(e => {
 				$('#refreshFrom3DCart').click(e => {
@@ -201,13 +216,36 @@ html
 					});
 				});
 
+				var orderedData = [];
+				var today = moment();
+				var firstDay = moment(itemsOnOrders[0].date);
+				var labels = [];
+
+				var daysApart = today.diff(firstDay, 'days');
+				for (var i = 0; i < daysApart; i++) {
+					var dataPoint = {
+						t: firstDay.add(1, 'day').format(),
+						y: 0
+					};
+					labels.push(firstDay.format());
+					itemsOnOrders.forEach(item => {
+						if (firstDay.isSame(item.date, 'day')) {
+							dataPoint.y += item.ordered;
+						}
+					});
+					orderedData.push(dataPoint);
+				}
+
+				console.log(labels);
+				console.log(orderedData);
+
 				var lineGraph = new Chart($('#salesChart'), {
 					type: 'line',
 					data: {
 						labels: labels,
 						datasets: [{
 							label: 'Items Ordered',
-							data: data,
+							data: orderedData,
 							fill: false
 						}]
 					},
