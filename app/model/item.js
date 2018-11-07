@@ -300,6 +300,7 @@ itemSchema.methods.updateFromQuickbooks = function(qbItem) {
   this.amazonStock = theStock;
   this.walmartStock = theStock;
   this.inactive = itemIsInactive;
+  this.cost = qbItem.PurchaseCost;
 
   if (qbItem.DataExtRet) {
     if (qbItem.DataExtRet instanceof Array) {
