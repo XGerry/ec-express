@@ -21,14 +21,11 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    Item.find({}).then(items => {
-      var promises = [];
-      items.forEach(item => {
-        promises.push(item.calculateSalesMetrics());
-      });
-      Promise.all(promises).then(() => {
-        console.log('Done');
-      })
+    Order.find({invoiced: true}).then(async orders => {
+      for (order of orders) {
+        await order.calculateProfit();
+      }
+      console.log('Done.');
     });
   }
 });
