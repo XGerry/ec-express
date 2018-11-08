@@ -453,6 +453,16 @@ module.exports = function(app, passport) {
     });
   });
 
+  app.get('/orders/on/:day', (req, res) => {
+    var dayStart = moment(req.params.day).startOf('day');
+    var dayEnd = moment(req.params.day).endOf('day');
+    Order.find({orderDate: {$gte: dayStart, $lte: dayEnd}}).populate('customer').then(orders => {
+      res.render('orders', {
+        orders: orders
+      });
+    });
+  });
+
   app.get('/held-orders', (req, res) => {
     Order.find({hold: true, canadian: true}).populate('customer').then(canOrders => {
       Order.find({hold: true, canadian: false}).populate('customer').then(usOrders => {

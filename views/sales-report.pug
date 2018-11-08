@@ -38,11 +38,13 @@ html
 				labels.push(firstDay.format());
 				var retailDataPoint = {
 					t: firstDay.format(),
-					y: 0
+					y: 0,
+					label: firstDay.format('MMM Do')
 				};
 				var wholesaleDataPoint = {
 					t: firstDay.format(),
-					y: 0
+					y: 0,
+					label: firstDay.format('MMM Do')
 				};
 				for (var j = 0; j < retailOrders.length; j++) {
 					if (firstDay.isSame(retailOrders[j].orderDate, 'day')) {
@@ -95,12 +97,31 @@ html
 						}]
 					},
 					tooltips: {
-						//- callbacks: {
-						//- 	title: function(items, data) {
-						//- 		var label = data.datasets[items[0].datasetIndex].data[items[0].index].label;
-						//- 		return label;
-						//- 	}
-						//- }
+						callbacks: {
+							title: function(items, data) {
+								var label = data.datasets[items[0].datasetIndex].data[items[0].index].label;
+								return label;
+							},
+							label: function(item, data) {
+								var label = data.datasets[item.datasetIndex].label;
+								label += ': $';
+								label += item.yLabel.toFixed(2);
+								return label;
+							}
+						}
 					}
 				}
+			});
+
+			$('#salesChart').click(e => {
+				var activePoint = lineGraph.getElementAtEvent(e);
+				// make sure click was on an actual point
+			  if (activePoint.length > 0) {
+			    var clickedDatasetIndex = activePoint[0]._datasetIndex;
+			    var clickedElementindex = activePoint[0]._index;
+			    var label = lineGraph.data.labels[clickedElementindex];
+			    var value = lineGraph.data.datasets[clickedDatasetIndex].data[clickedElementindex];
+
+			    window.open('/orders/on/'+value.t, '_blank');
+			  }
 			});
