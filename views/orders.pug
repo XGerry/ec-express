@@ -12,10 +12,9 @@ mixin orderRow(order)
 		else
 			td No company
 		td='$' + order.orderValue.toFixed(2)
+		td='$' + order.orderProfit.toFixed(2)
 		td=order.picked ? 'yes' : 'no'
 		td=order.invoiced ? 'yes' : 'no'
-		td=order.paid ? 'yes' : 'no'
-		td=order.hold ? 'yes' : 'no'
 
 doctype html
 include mixins
@@ -44,10 +43,9 @@ html
 										th Due Date
 										th Company
 										th Value
+										th Profit
 										th Picked
 										th Invoiced
-										th Paid
-										th Held
 								tbody
 									each order in orders
 										+orderRow(order)
