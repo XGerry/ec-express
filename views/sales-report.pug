@@ -44,16 +44,21 @@ html
 					t: firstDay.format(),
 					y: 0
 				};
-				retailOrders.forEach(order => {
-					if (firstDay.isSame(order.orderDate, 'day')) {
-						retailDataPoint.y += order.orderValue;
+				for (var j = 0; j < retailOrders.length; j++) {
+					if (firstDay.isSame(retailOrders[j].orderDate, 'day')) {
+						retailDataPoint.y += retailOrders[j].orderValue;
+						// now remove the order
+						retailOrders.splice(j, 1);
+						j--;
+					}	
+				}
+				for (var k = 0; k < wholesaleOrders.length; k++) {
+					if (firstDay.isSame(wholesaleOrders[k].orderDate, 'day')) {
+						wholesaleDataPoint.y += wholesaleOrders[k].orderValue;
+						wholesaleOrders.splice(k, 1);
+						k--;
 					}
-				});
-				wholesaleOrders.forEach(order => {
-					if (firstDay.isSame(order.orderDate, 'day')) {
-						wholesaleDataPoint.y += order.orderValue;
-					}
-				});
+				}
 				retailData.push(retailDataPoint);
 				wholesaleData.push(wholesaleDataPoint);
 				firstDay.add(1, 'day');
