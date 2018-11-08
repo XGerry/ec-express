@@ -46,7 +46,7 @@ html
 				};
 				for (var j = 0; j < retailOrders.length; j++) {
 					if (firstDay.isSame(retailOrders[j].orderDate, 'day')) {
-						retailDataPoint.y += retailOrders[j].orderValue;
+						retailDataPoint.y += retailOrders[j].orderProfit;
 						// now remove the order
 						retailOrders.splice(j, 1);
 						j--;
@@ -54,7 +54,7 @@ html
 				}
 				for (var k = 0; k < wholesaleOrders.length; k++) {
 					if (firstDay.isSame(wholesaleOrders[k].orderDate, 'day')) {
-						wholesaleDataPoint.y += wholesaleOrders[k].orderValue;
+						wholesaleDataPoint.y += wholesaleOrders[k].orderProfit;
 						wholesaleOrders.splice(k, 1);
 						k--;
 					}
@@ -71,11 +71,13 @@ html
 					datasets: [{
 						label: 'Retail Sales',
 						data: retailData,
-						fill: false
+						fill: false,
+						borderColor: '#0074D9'
 					}, {
 						label: 'Wholesale Sales',
 						data: wholesaleData,
-						fill: false
+						fill: false,
+						borderColor: '#FF4136'
 					}]
 				},
 				options: {
