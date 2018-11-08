@@ -61,9 +61,9 @@ mixin customerInfoPanel(order)
 						td
 							if (order.customer.customerType == '2' || order.customer.customerType == '14')
 								| Wholesale
-							if (order.customer.customerType == '3') 
+							else if (order.customer.customerType == '3') 
 								| Teacher 
-							if (order.customer.customerType == '4')
+							else if (order.customer.customerType == '4')
 								| Preferred Customer
 							else 
 								| Retail

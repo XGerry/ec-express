@@ -648,6 +648,18 @@ module.exports = function(app, passport) {
     });
   });
 
+  app.get('/sales-report', (req, res) => {
+    var aMonthAgo = moment().subtract(1, 'month');
+    Order.find({orderDate: {$gte: aMonthAgo}}).populate('customer').sort('orderDate').then(orders => {
+      var retailOrders = orders.filter(order => order.customer.customerType == 0);
+      var wholesaleOrders = orders.filter(order => order.customer.customerType != 0);
+      res.render('sales-report', {
+        retailOrders: retailOrders,
+        wholesaleOrders: wholesaleOrders
+      });
+    });
+  });
+
   function loadBatch(id) {
     return Batch.findOne({_id: id}).populate({
       path: 'orders',

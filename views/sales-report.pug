@@ -1,0 +1,99 @@
+doctype html
+include mixins
+html
+	include includes/head
+		title Sales Report
+	body
+		#wrapper
+			+sidebarNav("orders")
+
+			#page-content
+				+menuToggle
+				.starter-template
+					h1 Sales
+					p.lead Sales report over the past month
+
+				.container
+					.row
+						.col
+							p= retailOrders.length + ' retail orders since one month ago.'
+							p= wholesaleOrders.length + ' wholesale orders since one month ago.'
+					.row
+						.col
+							canvas#salesChart
+
+		script.
+			var retailOrders = !{JSON.stringify(retailOrders)};
+			var wholesaleOrders = !{JSON.stringify(wholesaleOrders)};
+
+			var today = moment();
+			var firstDay = moment().subtract(1, 'month');
+			firstDay.startOf('day');
+			var daysApart = today.diff(firstDay, 'days');
+
+			var labels = [];
+			var retailData = [];
+			var wholesaleData = [];
+			for (var i = 0; i < daysApart; i++) {
+				labels.push(firstDay.format());
+				var retailDataPoint = {
+					t: firstDay.format(),
+					y: 0
+				};
+				var wholesaleDataPoint = {
+					t: firstDay.format(),
+					y: 0
+				};
+				retailOrders.forEach(order => {
+					if (firstDay.isSame(order.orderDate, 'day')) {
+						retailDataPoint.y += order.orderValue;
+					}
+				});
+				wholesaleOrders.forEach(order => {
+					if (firstDay.isSame(order.orderDate, 'day')) {
+						wholesaleDataPoint.y += order.orderValue;
+					}
+				});
+				retailData.push(retailDataPoint);
+				wholesaleData.push(wholesaleDataPoint);
+				firstDay.add(1, 'day');
+			}
+
+			var lineGraph = new Chart($('#salesChart'), {
+				type: 'line',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Retail Sales',
+						data: retailData,
+						fill: false
+					}, {
+						label: 'Wholesale Sales',
+						data: wholesaleData,
+						fill: false
+					}]
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							type: 'time',
+							time: {
+								unit: 'day'
+							}
+						}],
+						yAxes: [{
+							ticks: {
+								min: 0
+							}
+						}]
+					},
+					tooltips: {
+						//- callbacks: {
+						//- 	title: function(items, data) {
+						//- 		var label = data.datasets[items[0].datasetIndex].data[items[0].index].label;
+						//- 		return label;
+						//- 	}
+						//- }
+					}
+				}
+			});
