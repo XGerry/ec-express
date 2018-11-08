@@ -883,6 +883,18 @@
  			});
  		});
 
+ 		socket.on('calculateProfit', (orderId, cb) => {
+ 			Order.findOne({_id: orderId}).then(order => {
+ 				if (order) {
+	 				order.calculateProfit().then((order) => {
+	 					cb(order);
+	 				}).catch(err => {
+	 					console.log('Problem calculating profit')
+	 				});
+ 				}
+ 			});
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',

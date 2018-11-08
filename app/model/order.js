@@ -36,6 +36,10 @@ var orderSchema = new mongoose.Schema({
 	message : String,
 	timecode: Number,
 	orderValue: Number,
+  orderProfit: {
+    type: Number,
+    default: 0
+  },
 	orderDate: Date,
   shipDate: Date,
 	dueDate: Date,
@@ -263,6 +267,34 @@ orderSchema.methods.updateOrderIn3DCart = function(order) {
   var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
   options.body = oldOrder;
   return rp(options);
+}
+
+orderSchema.methods.calculateProfit = async function() {
+  // iterate over the picked items and tally up the sales (only include items sent)
+  var totalSales = 0;
+  var totalCost = 0;
+  await this.populate('items.item').execPopulate();
+  _.each(this.items, item => {
+    var itemCost = item.item.cost;
+    if (itemCost == undefined) {
+      itemCost = 0;
+    }
+    if (this.canadian) {
+      totalCost += (itemCost * 1.2) * item.pickedQuantity;
+    } else {
+      totalCost += itemCost * item.pickedQuantity;
+    }
+    totalSales += item.price * item.pickedQuantity;
+  });
+
+  if (isNaN(totalCost)) {
+    totalCost = 0;
+  }
+  if (isNaN(totalSales)) {
+    totalSales = 0;
+  }
+  this.orderProfit = totalSales - totalCost;
+  return this.save();
 }
 
 orderSchema.methods.createBackorder = async function() {
@@ -574,44 +606,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
       }
     });
   });
-
-  // add the shipping
-
-
-  // this.items.forEach(item => {
-  //   var newItem = true;
-  //   for (let i = 0; i < lineItems.length; i++) {
-  //     if (lineItems[i].ItemRef.FullName == item.item.sku) {
-  //       console.log(lineItems[i].TxnLineID + ' - ' + item.item.sku);
-  //       newItem = false;
-  //       invoiceItems.push({
-  //         Quantity: item.pickedQuantity,
-  //         SalesTaxCodeRef: lineItems[i].SalesTaxCodeRef,
-  //         LinkToTxn: {
-  //           TxnID: qbSalesOrder.TxnID,
-  //           TxnLineID: lineItems[i].TxnLineID
-  //         }
-  //       });
-
-  //       lineItems.splice(i, 1); // remove from line items
-  //       i--;
-  //       break; // we found a match, no need to continue
-  //     }
-  //   }
-
-  //   if (newItem) {
-  //     invoiceItems.push({
-  //       ItemRef: {
-  //         FullName: item.item.sku
-  //       },
-  //       Quantity: item.pickedQuantity,
-  //       Rate: item.price,
-  //       InventorySiteRef: {
-  //         FullName: 'Warehouse'
-  //       }
-  //     });
-  //   }
-  // });
 
   var addInvoiceRq = {
     InvoiceAddRq: {
