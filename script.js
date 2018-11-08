@@ -23,7 +23,13 @@ mongoose.connect(uriString, {
   } else {
     Order.find({invoiced: true}).then(async orders => {
       for (order of orders) {
-        await order.calculateProfit();
+        try {
+          await order.calculateProfit();
+        } catch (err) {
+          console.log(err);
+          console.log(order.orderId);
+          console.log('moving on...');
+        }
       }
       console.log('Done.');
     });
