@@ -228,7 +228,7 @@ html
 						.col
 							.form-group
 								label(for="orderShipDate") Ship Date
-								input.form-control(type="date")
+								input.form-control(type="date", value=moment(order.shipDate).utc().format('YYYY-MM-DD'))#orderShipDate
 
 					if (order.cartOrder.CustomerComments)
 						.row

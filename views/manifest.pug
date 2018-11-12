@@ -1,0 +1,22 @@
+doctype html
+include mixins
+html
+	include includes/head
+	title Manifest
+	
+	body
+		#wrapper
+			+sidebarNav("list-manifests")
+
+			#page-content
+				+menuToggle
+				.container
+					.row
+						.col
+							p= "There are " + manifest.orders.length + " orders on the manifest"
+					
+		+footer
+
+		script.
+			var manifest = !{JSON.stringify(manifest)};
+			console.log(manifest);

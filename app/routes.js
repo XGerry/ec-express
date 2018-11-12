@@ -348,6 +348,24 @@ module.exports = function(app, passport) {
     });
   });
 
+  app.get('/manifest/:shipDate', (req, res) => {
+    Manifest.findManifest(req.params.shipDate).then(manifest => {
+      if (manifest) {
+        console.log('existing manifest');
+        res.render('manifest', {
+          manifest: manifest
+        });
+      } else {
+        console.log('new manifest');
+        Manifest.createManifest(req.params.shipDate).then(manifest => {
+          res.render('manifest', {
+            manifest: manifest
+          });
+        });
+      }
+    });
+  });
+
   app.get('/product-upload', (req, res) => {
     res.render('product-upload');
   });
