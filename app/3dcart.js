@@ -20,17 +20,15 @@ var rp = require('request-promise-native');
 /**
  * Refreshes the inventory in our DB so we know what to use in quickbooks
  */
-function refreshFrom3DCart() {
+async function refreshFrom3DCart() {
   // get all the items from the US store
-  var getUSItems = getItemsFull({}, (progress, total) => {
+  await getItemsFull({}, (progress, total) => {
     process.stdout.write('US: ' + ((progress/total)*100).toFixed(2) + '%\r');
   }, false);
 
-  var getCanadianItems = getItemsFull({}, (progress, total) => {
+  await getItemsFull({}, (progress, total) => {
     process.stdout.write('CA: ' + ((progress/total)*100).toFixed(2) + '%\r');
   }, true);
-
-  return Promise.all([getUSItems, getCanadianItems]);
 }
 
 /**
@@ -549,7 +547,6 @@ async function getItemsFull(query, progressCallback, canadian) {
   var options = helpers.get3DCartOptions(url, 'GET', canadian);
   options.qs = query;
   await rp(options).then(async response => {
-    var promises = [];
     var totalItems = response.TotalCount;
     var numOfRequests = Math.ceil(totalItems / 200); // max 200 per request
     options.qs.countonly = 0;
@@ -562,6 +559,7 @@ async function getItemsFull(query, progressCallback, canadian) {
       progressCallback(i + 1, numOfRequests, cartItems);
       var responses = await bulkUpdateCartItems(cartItems, canadian);
     }
+    return Promise.resolve('Done');
   });
 }
 

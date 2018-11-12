@@ -134,6 +134,8 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
 
   if (cartItem.ExtraField8 != '' && cartItem.ExtraField8 != undefined) {
     this.barcode = cartItem.ExtraField8;
+  } else {
+    this.barcode = '';
   }
 
   if (cartItem.GTIN) {
