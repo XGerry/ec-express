@@ -352,7 +352,7 @@ module.exports = function(app, passport) {
     var shipDate = req.params.shipDate;
     var startDate = moment(shipDate).utc().startOf('day');
     var endDate = moment(shipDate).utc().endOf('day');
-    Order.find({shipDate: {$gte: startDate.toDate(), $lt: endDate.toDate()}, canadian: false}).populate('items.item').then(orders => {
+    Order.find({shipDate: {$gte: startDate.toDate(), $lt: endDate.toDate()}, canadian: false, hold: false}).populate('items.item').then(orders => {
       console.log('found ' + orders.length + ' orders with that ship date');
       res.render('manifest', {
         orders: orders,
