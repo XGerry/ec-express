@@ -12,6 +12,7 @@ var events = require('./app/events');
 
 var app = express();
 app.locals.moment = require('moment');
+app.locals._ = require('lodash');
 app.set('view engine', 'pug');
 
 // prepare DB

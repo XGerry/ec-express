@@ -6,10 +6,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var manifestSchema = new mongoose.Schema({
 	lastModified: { type: Date, index: true},
 	shipDate: {type: Date, index: true},
-	orders: [{
-		type: ObjectId,
-		ref: 'Order'
-	}],
+	orders: Object,
 	totalWeight: Number,
 	totalValue: Number,
 	totalParcels: Number

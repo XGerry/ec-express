@@ -349,20 +349,15 @@ module.exports = function(app, passport) {
   });
 
   app.get('/manifest/:shipDate', (req, res) => {
-    Manifest.findManifest(req.params.shipDate).then(manifest => {
-      if (manifest) {
-        console.log('existing manifest');
-        res.render('manifest', {
-          manifest: manifest
-        });
-      } else {
-        console.log('new manifest');
-        Manifest.createManifest(req.params.shipDate).then(manifest => {
-          res.render('manifest', {
-            manifest: manifest
-          });
-        });
-      }
+    var shipDate = req.params.shipDate;
+    var startDate = moment(shipDate).utc().startOf('day');
+    var endDate = moment(shipDate).utc().endOf('day');
+    Order.find({shipDate: {$gte: startDate.toDate(), $lt: endDate.toDate()}, canadian: false}).populate('items.item').then(orders => {
+      console.log('found ' + orders.length + ' orders with that ship date');
+      res.render('manifest', {
+        orders: orders,
+        shipDate: shipDate
+      });
     });
   });
 

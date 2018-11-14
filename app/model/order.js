@@ -42,6 +42,7 @@ var orderSchema = new mongoose.Schema({
   },
 	orderDate: Date,
   shipDate: Date,
+  shipWeight: Number,
 	dueDate: Date,
 	retry: Boolean, // the order is being imported again
 	canadian: Boolean, // the order is canadian
