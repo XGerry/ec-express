@@ -98,10 +98,10 @@ function quickSaveItems(query, progressCallback, canadian) {
 
   return Item.find(query).then(async items => {
     var body = [];
-    items.forEach(item => {
+    for (item of items) {
       var cartItem = item.getCartItem(canadian);
       body.push(cartItem);
-    });
+    }
 
     var numOfRequests = Math.ceil(items.length / 100); // can only update 100 items at a time
     console.log('We need to send ' + numOfRequests + ' requests.');
@@ -115,11 +115,11 @@ function quickSaveItems(query, progressCallback, canadian) {
         console.log(options);
       }
     }
-    return 'Done';
+    return Promise.resolve('Done');
   });
 }
 
-function saveItems(query, progressCallback) {
+async function saveItems(query, progressCallback) {
   if (query == null || query == undefined) {
     query = {
       isOption: false,
@@ -139,7 +139,9 @@ function saveItems(query, progressCallback) {
     progressCallback(canProgress + usProgress, total * 2);
   }, true);
 
-  return Promise.all([usSaveItems, canSaveItems]);
+  await usSaveItems;
+  await canSaveItems;
+  return Promise.resolve('Saved all items');
 }
 
 /**
