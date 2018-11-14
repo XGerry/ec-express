@@ -53,6 +53,12 @@ mongoose.connect(uriString, {
     } catch (e) {
     	fail(e);
     }
+    try {
+      await testBatchFinish();
+      pass();
+    } catch (e) {
+      fail(e);
+    }
 
     console.log(chalk.greenBright('All tests complete.'));
     var percentagePassing = ((passingTests / numberOfTests) * 100).toFixed(0);
@@ -79,6 +85,7 @@ async function cleanUp() {
   await Item.remove({});
   await Order.remove({});
   await Customer.remove({});
+  await Batch.remove({});
 }
 
 function getTestCartItem(name, numberOfOptions) {
@@ -262,43 +269,43 @@ async function testImportOrder() {
 }
 
 async function testBatchCreation() {
-	console.log(chalk.cyan('Testing batch creation'));
-	await createItemInDB('Test_1', 0);
-	await createItemInDB('Test_2', 0);
-	await createItemInDB('Test_3', 0);
+  console.log(chalk.cyan('Testing batch creation'));
+  await createItemInDB('Test_1', 0);
+  await createItemInDB('Test_2', 0);
+  await createItemInDB('Test_3', 0);
 
-	for (var i = 0; i < 10; i++) {
-		var testOrder = getTestCartOrder(i+'-email', i, true, ['Test_1', 'Test_2']);
-		var newOrder = new Order();
-		newOrder.orderId = testOrder.InvoiceNumberPrefix + testOrder.InvoiceNumber;
-		if (i == 9) {
-			// rush the last order
-			newOrder.rush = true;
-		}
-		try {
-			await newOrder.updateFrom3DCart(testOrder);
-		} catch (e) {
-			if (e.statusCode == 404)
-				console.log('Expected the 404 error');
-			else {
+  for (var i = 0; i < 10; i++) {
+    var testOrder = getTestCartOrder(i+'-email', i, true, ['Test_1', 'Test_2']);
+    var newOrder = new Order();
+    newOrder.orderId = testOrder.InvoiceNumberPrefix + testOrder.InvoiceNumber;
+    if (i == 9) {
+      // rush the last order
+      newOrder.rush = true;
+    }
+    try {
+      await newOrder.updateFrom3DCart(testOrder);
+    } catch (e) {
+      if (e.statusCode == 404)
+        console.log('Expected the 404 error');
+      else {
         console.log(e);
-				return Promise.reject('Error creating the order');
-			}
-		}
-	}
-	
-	return Batch.createAutoBatch(250, 20, 'ca').then(async batch => {
-		console.log(batch.orders.length);
+        return Promise.reject('Error creating the order');
+      }
+    }
+  }
+  
+  return Batch.createAutoBatch(250, 20, 'ca').then(async batch => {
+    console.log(batch.orders.length);
     if (batch.orders.length != 5) {
       return Promise.reject('Wrong amount of orders in batch');
     }
 
-		console.log(batch.numberOfItems);
+    console.log(batch.numberOfItems);
     if (batch.numberOfItems != 100) {
       return Promise.reject('Wrong amount of items in batch');
     }
 
-		console.log(batch.numberOfSkus);
+    console.log(batch.numberOfSkus);
     if (batch.numberOfSkus != 10) {
       return Promise.reject('Wrong amount of skus in batch');
     }
@@ -311,5 +318,24 @@ async function testBatchCreation() {
         return Promise.reject('Order has the wrong batch');
       }
     }
-	});
+  });
+}
+
+async function testBatchFinish() {
+	console.log(chalk.cyan('Testing batch finishing'));
+  // I assume that a batch exists from the test batch creation test
+  return Batch.findOne({}).populate('orders').then(async batch => {
+    console.log(batch.orders.length);
+    batch.orders.forEach(order => {
+      order.items.forEach(item => {
+        item.pickedQuantity = 1;
+      });
+    });
+    finishedBatch = await batch.finish(batch);
+    console.log('batch is now finished');
+    finishedBatch.orders.forEach(order => {
+      console.log(order.shipDate);
+    });
+    return Promise.resolve('Complete');
+  });
 }

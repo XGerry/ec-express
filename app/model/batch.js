@@ -3,6 +3,7 @@ var Order = require('./order');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
 let shortid = require('shortid');
+var moment = require('moment');
 
 var batchSchema = new mongoose.Schema({
 	orders: [{
@@ -182,6 +183,27 @@ batchSchema.methods.finish = async function(batch) {
 	this.completed = true;
 	await this.save();
 	for (order of this.orders) {
+		// set the order ship dates automatically
+		var now = moment();
+		var weekday = now.weekday();
+		var hour = now.hour();
+		if (weekday == 1 || weekday == 2) { // monday or tuesday
+			if (hour < 11) { // ships the same day
+				order.shipDate = now;
+			} else {
+				order.shipDate = moment().add(1, 'day');
+			}
+		} else if (weekday == 3) { // wednesday
+			order.shipDate = moment().day(4); // thursday
+		} else if (weekday == 4) {
+			if (hour < 11) {
+				order.shipDate = now;
+			} else {
+				order.shipDate = moment().day(1); // this monday
+			}
+		} else {
+			order.shipDate = moment().day(1); // this monday
+		}
 		order.picked = true;
 		order.isNew = false;
 		delete order.__v;

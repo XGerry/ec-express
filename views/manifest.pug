@@ -58,8 +58,11 @@ html
                     quantity: 0,
                     value: 0,
                     weight: 0,
-                    description: 'Craft Dies'
+                    description: 'Craft & Hobby Supplies'
                   };
+                }
+                if (item.htcCode == '4901 99 00 93') {
+                  htcObj[item.countryOfOrigin].description = 'Books & Paper Materials';
                 }
                 htcMap[item.htcCode][item.countryOfOrigin].quantity += orderItem.pickedQuantity;
                 if (totalValue >= 800) {
