@@ -178,7 +178,7 @@ batchSchema.methods.delete = function() {
 }
 
 batchSchema.methods.finish = async function(batch) {
-	this.set(batch);
+	await this.updatePickedQuantities(batch);
 	this.endTime = new Date();
 	this.completed = true;
 	await this.save();
@@ -210,6 +210,24 @@ batchSchema.methods.finish = async function(batch) {
 		await order.save();
 	}
 	return this;
+}
+
+batchSchema.methods.updatePickedQuantities = async function(batch) {
+	for (order of this.orders) {
+		for (newOrder of batch.orders) {
+			if (order._id.equals(newOrder._id)) {
+				for (item of order.items) {
+					for (newItem of newOrder.items) {
+						if (item._id.equals(newItem._id)) {
+							item.pickedQuantity = newItem.pickedQuantity;
+						}
+					}
+				}
+			}
+		}
+		await order.save();
+	}
+	return Promise.resolve('Finished saving the batch');
 }
 
 module.exports = mongoose.model('Batch', batchSchema);

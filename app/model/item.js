@@ -205,6 +205,9 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
 
 itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, canadian) {
   this.name = optionItem.AdvancedOptionName;
+  console.log('canadian? ' + canadian);
+  console.log(this.sku);
+  console.log(this.name);
   if (canadian) {
     this.optionIdCan = optionItem.AdvancedOptionCode;
     this.catalogIdCan = parentItem.SKUInfo.CatalogID; // Parent Item

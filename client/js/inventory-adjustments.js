@@ -199,6 +199,8 @@ function loadFromFile(data) {
 					counts[item.sku] = 1;
 				}
 			}
+		} else {
+			console.log('can\'t find the sku!');
 		}
 	});
 

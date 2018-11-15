@@ -59,6 +59,12 @@ mongoose.connect(uriString, {
     } catch (e) {
       fail(e);
     }
+    try {
+      await testBatchSave();
+      pass();
+    } catch (e) {
+      fail(e);
+    }
 
     console.log(chalk.greenBright('All tests complete.'));
     var percentagePassing = ((passingTests / numberOfTests) * 100).toFixed(0);
@@ -337,5 +343,36 @@ async function testBatchFinish() {
       console.log(order.shipDate);
     });
     return Promise.resolve('Complete');
+  });
+}
+
+async function testBatchSave() {
+  return Batch.findOne({}).populate('orders').then(async batch => {
+    batch.orders.forEach(order => {
+      order.items.forEach(item => {
+        item.pickedQuantity = 3;
+      });
+    });
+
+    var batchJSON = JSON.parse(JSON.stringify(batch));
+
+    batch = await Batch.findOne({}).populate('orders');
+    batch.orders.forEach(order => {
+      order.items.forEach(item => {
+        if (item.pickedQuantity == 3) {
+          return Promise.reject('Batch was already saved');
+        }
+      });
+    });
+    await batch.updatePickedQuantities(batchJSON);
+    var newBatch = await Batch.findOne({}).populate('orders');
+    batch.orders.forEach(order => {
+      order.items.forEach(item => {
+        console.log(item.pickedQuantity);
+        if (item.pickedQuantity != 3) {
+          return Promise.reject('Item has wrong picked quantity');
+        }
+      });
+    });
   });
 }

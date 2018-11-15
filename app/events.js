@@ -727,24 +727,7 @@
 
  		socket.on('saveBatch', (batch, cb) => {
  			Batch.findOne({_id: batch._id}).populate('orders').then(async dbBatch => {
- 				delete batch.__v;
- 				var promises = [];
- 				dbBatch.set(batch);
- 				try {
- 					await dbBatch.save();
- 				} catch (err) {
- 					console.log('saving batch error: ');
- 					console.log(err);
- 				}
- 				for (order of dbBatch.orders) {
- 					order.isNew = false;
- 					try {
- 						await order.save();
- 					} catch (err) {
- 						console.log('cant save the order');
- 						console.log(err);
- 					}
- 				}
+ 				await dbBatch.updatePickedQuantities(batch);
  				cb();
  			});
  		});

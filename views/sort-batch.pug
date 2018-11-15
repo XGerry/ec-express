@@ -264,8 +264,8 @@ html
 
 			function confirmSorting() {
 				var pickedQuantity = parseInt($('#sortModalQuantity').val());
-				console.log(pickedQuantity);
-				if (pickedQuantity > theItem.quantity || pickedQuantity == NaN) {
+
+				if ((pickedQuantity + theItem.pickedQuantity) > theItem.quantity || pickedQuantity == NaN) {
 					alert('Invalid item quantity! Fix the quantity and try again.');
 				} else {
 					$('#sortModal').modal('hide');
