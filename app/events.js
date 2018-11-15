@@ -887,6 +887,12 @@
  			cb();
  		});
 
+ 		socket.on('createPO', (data, site, cb) => {
+ 			var req = helpers.createPORq(data, site);
+ 			console.log(req);
+ 			qbws.addRequest(req);
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',

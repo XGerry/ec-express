@@ -86,6 +86,33 @@ function importCustomerRq(customer) {
   return str;
 }
 
+function createPORq(items, siteRef) {
+  var lineAdds = [];
+  items.forEach(item => {
+    lineAdds.push({
+      ItemRef: {
+        FullName: item.sku,
+      },
+      Quantity: item.quantity
+    });
+  });
+
+  var obj = {
+    PurchaseOrderAddRq: {
+      PurchaseOrderAdd: {
+        InventorySiteRef: {
+          FullName: siteRef
+        },
+        PurchaseOrderLineAdds: lineAdds
+      }
+    }
+  };
+
+  var xmlDoc = getXMLRequest(obj);
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
 function addCustomerRq(order, requestID) {
   console.log('Creating customer ' + order.BillingFirstName + ' ' + order.BillingLastName);
 
@@ -1900,5 +1927,6 @@ module.exports = {
   checkUnpaidOrders: checkUnpaidOrders,
   checkUninvoicedOrders: checkUninvoicedOrders,
   closeSalesOrder: closeSalesOrder,
-  importCustomerRq: importCustomerRq
+  importCustomerRq: importCustomerRq,
+  createPORq: createPORq
 }

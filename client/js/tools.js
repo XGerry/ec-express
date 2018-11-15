@@ -35,6 +35,22 @@ $(document).ready(function() {
 		});
 	});
 
+	$('#poFile').on('change', e => {
+		console.log('file change');
+
+		$('#poFile').parse({
+			config: {
+				complete: function(results, file) {
+					loadItemsForPO(results.data);
+				},
+				header: true
+			},
+			complete: function() {
+				console.log('all files done');
+			}
+		});
+	});
+
 	$('#unhideProductsButton').click(() => {
 		existingItems.forEach((item) => {
 			item.hidden = false;
@@ -127,6 +143,12 @@ function loadFromTemplate(data) {
 function loadCustomers(data) {
 	console.log(data);
 	socket.emit('importCustomers', data, cb => {
+		alert('Run the web connector!');
+	});
+}
+
+function loadItemsForPO(data) {
+	socket.emit('createPO', data, 'Store', cb => {
 		alert('Run the web connector!');
 	});
 }
