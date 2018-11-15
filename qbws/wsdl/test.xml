@@ -2,42 +2,14 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <InvoiceAddRq requestID="CA-36773-BO">
-      <InvoiceAdd>
-        <CustomerRef>
-          <ListID>80002A4E-1410626467</ListID>
-        </CustomerRef>
-        <RefNumber>CA-36773-BO</RefNumber>
-        <InvoiceLineAdd>
-          <Quantity>1</Quantity>
-          <SalesTaxCodeRef>
-            <ListID>80000001-1410624661</ListID>
-            <FullName>G</FullName>
-          </SalesTaxCodeRef>
-          <LinkToTxn>
-            <TxnID>3B4AB0-1539538571</TxnID>
-            <TxnLineID>3B4AB2-1539538571</TxnLineID>
-          </LinkToTxn>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <ItemRef>
-            <FullName>CED3041</FullName>
-          </ItemRef>
-          <Quantity>1</Quantity>
-          <Rate>10.71</Rate>
-        </InvoiceLineAdd>
-        <InvoiceLineAdd>
-          <SalesTaxCodeRef>
-            <ListID>80000001-1410624661</ListID>
-            <FullName>G</FullName>
-          </SalesTaxCodeRef>
-          <Rate>0</Rate>
-          <LinkToTxn>
-            <TxnID>3B4AB0-1539538571</TxnID>
-            <TxnLineID>3B4AB6-1539538571</TxnLineID>
-          </LinkToTxn>
-        </InvoiceLineAdd>
-      </InvoiceAdd>
-    </InvoiceAddRq>
+    <CustomerAddRq>
+      <CustomerAdd>
+        <Name>Van Dyk Wilma</Name>
+        <FirstName>Wilma</FirstName>
+        <LastName>Van Dyk</LastName>
+        <Phone>905-372-4912</Phone>
+        <OpenBalance>-8.03</OpenBalance>
+      </CustomerAdd>
+    </CustomerAddRq>
   </QBXMLMsgsRq>
 </QBXML>

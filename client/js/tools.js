@@ -19,6 +19,22 @@ $(document).ready(function() {
 		});
 	});
 
+	$('#customerFile').on('change', e => {
+		console.log('file change');
+
+		$('#customerFile').parse({
+			config: {
+				complete: function(results, file) {
+					loadCustomers(results.data);
+				},
+				header: true
+			},
+			complete: function() {
+				console.log('all files done');
+			}
+		});
+	});
+
 	$('#unhideProductsButton').click(() => {
 		existingItems.forEach((item) => {
 			item.hidden = false;
@@ -105,5 +121,12 @@ function loadFromTemplate(data) {
 		if (nonExistingItems.length > 0)
 			$('#getItemsFromQB').removeClass('disabled');
 		console.log(nonExistingItems);
+	});
+}
+
+function loadCustomers(data) {
+	console.log(data);
+	socket.emit('importCustomers', data, cb => {
+		alert('Run the web connector!');
 	});
 }

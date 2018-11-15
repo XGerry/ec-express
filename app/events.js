@@ -878,6 +878,15 @@
  			});
  		});
 
+ 		socket.on('importCustomers', (data, cb) => {
+ 			data.forEach(customer => {
+ 				var req = helpers.importCustomerRq(customer);
+ 				console.log(req);
+ 				qbws.addRequest(req);
+ 			});
+ 			cb();
+ 		});
+
  		function loadBatch(id) {
 	    return Batch.findOne({_id: id}).populate({
 	      path: 'orders',

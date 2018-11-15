@@ -68,6 +68,24 @@ function createBillingAddress(order) {
   return billingAddress;
 }
 
+function importCustomerRq(customer) {
+  var obj = {
+    CustomerAddRq: {
+      CustomerAdd: {
+        Name: customer.lastname + ' ' + customer.firstname,
+        FirstName: customer.firstname,
+        LastName: customer.lastname,
+        Phone: customer.phone,
+        OpenBalance: customer.credit
+      }
+    }
+  };
+
+  var xmlDoc = getXMLRequest(obj);
+  var str = xmlDoc.end({'pretty' : true});
+  return str;
+}
+
 function addCustomerRq(order, requestID) {
   console.log('Creating customer ' + order.BillingFirstName + ' ' + order.BillingLastName);
 
@@ -1881,5 +1899,6 @@ module.exports = {
   runInventory: runInventory,
   checkUnpaidOrders: checkUnpaidOrders,
   checkUninvoicedOrders: checkUninvoicedOrders,
-  closeSalesOrder: closeSalesOrder
+  closeSalesOrder: closeSalesOrder,
+  importCustomerRq: importCustomerRq
 }
