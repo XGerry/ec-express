@@ -1310,18 +1310,17 @@ function updateDuplicateOrder(invoice) {
 }
 
 function updateInventoryPart(response) {
-  return xml2js(response, {explicitArray: false}).then(result => {
+  return xml2js(response, {explicitArray: false}).then(async result => {
     var itemInventoryRs = result.QBXML.QBXMLMsgsRs.ItemInventoryQueryRs;
     var promises = [];
     if (Array.isArray(itemInventoryRs.ItemInventoryRet)) {
-      itemInventoryRs.ItemInventoryRet.forEach(qbItem => {
-        var updateItem = findItemAndSave(qbItem);
-        promises.push(updateItem);
-      });
+      for (qbItem of itemInventoryRs.ItemInventoryRet) {
+        await findItemAndSave(qbItem);
+      }
     } else {
-      promises.push(findItemAndSave(itemInventoryRs.ItemInventoryRet));
+      await findItemAndSave(itemInventoryRs.ItemInventoryRet);
     }
-    return Promise.all(promises);
+    return Promise.resolve('Done updating the items.');
   });
 }
 
@@ -1373,18 +1372,17 @@ function updateItemSites(response) {
 }
 
 function updateInventoryAssembly(response) {
-  return xml2js(response, {explicitArray: false}).then(result => {
+  return xml2js(response, {explicitArray: false}).then(async result => {
     var itemInventoryAssemblyRs = result.QBXML.QBXMLMsgsRs.ItemInventoryAssemblyQueryRs;
     var promises = [];
     if (Array.isArray(itemInventoryAssemblyRs.ItemInventoryAssemblyRet)) {
-      itemInventoryAssemblyRs.ItemInventoryAssemblyRet.forEach(qbItem => {
-        var updateItem = findItemAndSave(qbItem);
-        promises.push(updateItem);
-      });
+      for (qbItem of itemInventoryAssemblyRs.ItemInventoryAssemblyRet) {
+        await findItemAndSave(qbItem);
+      }
     } else {
-      promises.push(findItemAndSave(itemInventoryAssemblyRs.ItemInventoryAssemblyRet));
+      await findItemAndSave(itemInventoryAssemblyRs.ItemInventoryAssemblyRet);
     }
-    return Promise.all(promises);
+    return Promise.resolve('Done the assembly items');
   });
 }
 
@@ -1393,15 +1391,14 @@ function findItemAndSave(qbItem) {
     var sku = qbItem.FullName.trim();
     return Item.findOne({sku: sku}).then(item => {
       if (!item) {
-        console.log('Unable to find item ' + qbItem.FullName);
-        return null;
+        return Promise.resolve('Unable to find item ' + qbItem.FullName);
       }
       else {
         return item.updateFromQuickbooks(qbItem);
       }
     });
   } else {  
-    return 'No item to save';
+    return Promise.resolve('No item to save');
   }
 }
 
