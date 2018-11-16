@@ -14,10 +14,10 @@ module.exports = function(qbws) {
   var refresh = schedule.scheduleJob('0 21 * * *', () => {
     cart3d.refreshFrom3DCart().then(() => {
       console.log('Finished refreshing the items');
+      amazon.updateAllInventory().then(response => console.log(response));
+      walmart.updateAllInventory().then(response => console.log(response));
+      helpers.queryAllItems(qbws); // update from quickbooks
     });
-    amazon.updateAllInventory().then(response => console.log(response));
-    walmart.updateAllInventory().then(response => console.log(response));
-    helpers.queryAllItems(qbws); // update from quickbooks
   });
 }
 
