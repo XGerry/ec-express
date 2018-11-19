@@ -1,212 +1,250 @@
 mixin orderRow(order)
-	tr(onclick="orderSelected('"+order._id+"', event)")
-		td=order.orderId
-		td=order.customer.name
-		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
-		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
-		td=order.customer.companyName
-		td='$' + order.orderValue.toFixed(2)
-		td=order.numberOfItems
-		td=order.numberOfItemsPicked
-		td=order.incomplete
+  tr(onclick="orderSelected('"+order._id+"', event)")
+    td=order.orderId
+    td=order.customer.name
+    td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
+    td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
+    td=order.customer.companyName
+    td='$' + order.orderValue.toFixed(2)
+    td=order.numberOfItems
+    td=order.numberOfItemsPicked
+    td=order.incomplete
 
 doctype html
 include mixins
 html
-	include includes/head
-		title General Order Report
-	body
-		#wrapper
-			+sidebarNav("orders")
+  include includes/head
+    title General Order Report
+  body
+    #wrapper
+      +sidebarNav("orders")
 
-			#page-content
-				+menuToggle
-				.starter-template
-					h1 Orders
-					p.lead Orders that match the following flags
-				.container
-					.row
-						.col
-							h5 Imported
-							.btn-group.btn-group-toggle(data-toggle="buttons")
-								label.btn.btn-primary#imported-false-label
-									input(type="radio" name="imported" value="false")#imported-false
-									| False
-								label.btn.btn-primary#imported-any-label
-									input(type="radio" name="imported" value="any")#imported-any
-									| Any
-								label.btn.btn-primary#imported-true-label
-									input(type="radio" name="imported" value="true")#imported-true
-									| True
-						.col
-							h5 Picked
-							.btn-group.btn-group-toggle(data-toggle="buttons")
-								label.btn.btn-primary#picked-false-label
-									input(type="radio" name="picked" value="false")#picked-false
-									| False
-								label.btn.btn-primary#picked-any-label
-									input(type="radio" name="picked" value="any")#picked-any
-									| Any
-								label.btn.btn-primary#picked-true-label
-									input(type="radio" name="picked" value="true")#picked-true
-									| True
-						.col
-							h5 Invoiced
-							.btn-group.btn-group-toggle(data-toggle="buttons")
-								label.btn.btn-primary#invoiced-false-label
-									input(type="radio" name="invoiced" value="false")#invoiced-false
-									| False
-								label.btn.btn-primary#invoiced-any-label
-									input(type="radio" name="invoiced" value="any")#invoiced-any
-									| Any
-								label.btn.btn-primary#invoiced-true-label
-									input(type="radio" name="invoiced" value="true")#invoiced-true
-									| True
-						.col
-							h5 From
-							input.form-control(type="date")#fromDate
-					.row.pt-3
-						.col
-							h5 Paid
-							.btn-group.btn-group-toggle(data-toggle="buttons")
-								label.btn.btn-primary#paid-false-label
-									input(type="radio" name="paid" value="false")#paid-false
-									| False
-								label.btn.btn-primary#paid-any-label
-									input(type="radio" name="paid" value="any")#paid-any
-									| Any
-								label.btn.btn-primary#paid-true-label
-									input(type="radio" name="paid" value="true")#paid-true
-									| True
-						.col
-							h5 Held
-							.btn-group.btn-group-toggle(data-toggle="buttons")
-								label.btn.btn-primary#hold-false-label
-									input(type="radio" name="hold" value="false")#hold-false
-									| False
-								label.btn.btn-primary#hold-any-label
-									input(type="radio" name="hold" value="any")#hold-any
-									| Any
-								label.btn.btn-primary#hold-true-label
-									input(type="radio" name="hold" value="true")#hold-true
-									| True
-						.col
-							h5 Is Backorder
-							.btn-group.btn-group-toggle(data-toggle="buttons")
-								label.btn.btn-primary#isBackorder-false-label
-									input(type="radio" name="isBackorder" value="false")#isBackorder-false
-									| False
-								label.btn.btn-primary#isBackorder-any-label
-									input(type="radio" name="isBackorder" value="any")#isBackorder-any
-									| Any
-								label.btn.btn-primary#isBackorder-true-label
-									input(type="radio" name="isBackorder" value="true")#isBackorder-true
-									| True
-						.col
-							h5 To
-							input.form-control(type="date")#toDate
-					.row
-						.col.text-center
-							button.btn.btn-success.btn-lg.mt-3(type="button")#queryButton Go!
+      #page-content
+        +menuToggle
+        .starter-template
+          h1 Orders
+          p.lead Orders that match the following flags
+          button.btn.btn-outline-primary.mr-2(type="button")#downloadUSItems Download US Items
+          button.btn.btn-outline-primary(type="button")#downloadCAItems Download CA Items
+        .container
+          .row
+            .col
+              h5 Imported
+              .btn-group.btn-group-toggle(data-toggle="buttons")
+                label.btn.btn-primary#imported-false-label
+                  input(type="radio" name="imported" value="false")#imported-false
+                  | False
+                label.btn.btn-primary#imported-any-label
+                  input(type="radio" name="imported" value="any")#imported-any
+                  | Any
+                label.btn.btn-primary#imported-true-label
+                  input(type="radio" name="imported" value="true")#imported-true
+                  | True
+            .col
+              h5 Picked
+              .btn-group.btn-group-toggle(data-toggle="buttons")
+                label.btn.btn-primary#picked-false-label
+                  input(type="radio" name="picked" value="false")#picked-false
+                  | False
+                label.btn.btn-primary#picked-any-label
+                  input(type="radio" name="picked" value="any")#picked-any
+                  | Any
+                label.btn.btn-primary#picked-true-label
+                  input(type="radio" name="picked" value="true")#picked-true
+                  | True
+            .col
+              h5 Invoiced
+              .btn-group.btn-group-toggle(data-toggle="buttons")
+                label.btn.btn-primary#invoiced-false-label
+                  input(type="radio" name="invoiced" value="false")#invoiced-false
+                  | False
+                label.btn.btn-primary#invoiced-any-label
+                  input(type="radio" name="invoiced" value="any")#invoiced-any
+                  | Any
+                label.btn.btn-primary#invoiced-true-label
+                  input(type="radio" name="invoiced" value="true")#invoiced-true
+                  | True
+            .col
+              h5 From
+              input.form-control(type="date")#fromDate
+          .row.pt-3
+            .col
+              h5 Paid
+              .btn-group.btn-group-toggle(data-toggle="buttons")
+                label.btn.btn-primary#paid-false-label
+                  input(type="radio" name="paid" value="false")#paid-false
+                  | False
+                label.btn.btn-primary#paid-any-label
+                  input(type="radio" name="paid" value="any")#paid-any
+                  | Any
+                label.btn.btn-primary#paid-true-label
+                  input(type="radio" name="paid" value="true")#paid-true
+                  | True
+            .col
+              h5 Held
+              .btn-group.btn-group-toggle(data-toggle="buttons")
+                label.btn.btn-primary#hold-false-label
+                  input(type="radio" name="hold" value="false")#hold-false
+                  | False
+                label.btn.btn-primary#hold-any-label
+                  input(type="radio" name="hold" value="any")#hold-any
+                  | Any
+                label.btn.btn-primary#hold-true-label
+                  input(type="radio" name="hold" value="true")#hold-true
+                  | True
+            .col
+              h5 Is Backorder
+              .btn-group.btn-group-toggle(data-toggle="buttons")
+                label.btn.btn-primary#isBackorder-false-label
+                  input(type="radio" name="isBackorder" value="false")#isBackorder-false
+                  | False
+                label.btn.btn-primary#isBackorder-any-label
+                  input(type="radio" name="isBackorder" value="any")#isBackorder-any
+                  | Any
+                label.btn.btn-primary#isBackorder-true-label
+                  input(type="radio" name="isBackorder" value="true")#isBackorder-true
+                  | True
+            .col
+              h5 To
+              input.form-control(type="date")#toDate
+          .row
+            .col.text-center
+              button.btn.btn-success.btn-lg.mt-3(type="button")#queryButton Go!
 
-				.container-fluid
-					.row
-						.col
-							h2 US Orders
-							table.table.table-striped.table-hover#usOrderTable
-								thead
-									tr
-										th Order ID
-										th Name
-										th Date
-										th Due Date
-										th Company
-										th Value
-										th Items Ordered
-										th Items Picked
-										th Open
-								tbody
-									each order in usOrders
-										+orderRow(order)
+        .container-fluid
+          .row
+            .col
+              h2 US Orders
+              table.table.table-striped.table-hover#usOrderTable
+                thead
+                  tr
+                    th Order ID
+                    th Name
+                    th Date
+                    th Due Date
+                    th Company
+                    th Value
+                    th Items Ordered
+                    th Items Picked
+                    th Open
+                tbody
+                  each order in usOrders
+                    +orderRow(order)
 
-					.row.pt-2
-						.col
-							h2 Canadian Orders
-							table.table.table-striped.table-hover#canOrderTable
-								thead
-									tr
-										th Order ID
-										th Name
-										th Date
-										th Due Date
-										th Company
-										th Value
-										th Items Ordered
-										th Items Picked
-										th Open
+          .row.pt-2
+            .col
+              h2 Canadian Orders
+              table.table.table-striped.table-hover#canOrderTable
+                thead
+                  tr
+                    th Order ID
+                    th Name
+                    th Date
+                    th Due Date
+                    th Company
+                    th Value
+                    th Items Ordered
+                    th Items Picked
+                    th Open
 
-								tbody
-									each order in canOrders
-										+orderRow(order)
+                tbody
+                  each order in canOrders
+                    +orderRow(order)
 
-		+footer
-		script.
-			var socket = io();
-			$('#usOrderTable').DataTable({
-				bDestroy: true,
-				pageLength: 100,
-				order: [[2, 'desc']]
-			});
+    +footer
+    script.
+      var usOrders = !{JSON.stringify(usOrders)};
+      var canOrders = !{JSON.stringify(canOrders)};
 
-			$('#canOrderTable').DataTable({
-				bDestroy: true,
-				pageLength: 100,
-				order: [[2, 'desc']]
-			});
+      var socket = io();
+      $('#usOrderTable').DataTable({
+        bDestroy: true,
+        pageLength: 100,
+        order: [[2, 'desc']]
+      });
 
-			$('#queryButton').click(e => {
-				var query = {
-					imported: $('input[name="imported"]:checked').val(),
-					picked: $('input[name="picked"]:checked').val(),
-					invoiced: $('input[name="invoiced"]:checked').val(),
-					paid: $('input[name="paid"]:checked').val(),
-					hold: $('input[name="hold"]:checked').val(),
-					isBackorder: $('input[name="isBackorder"]:checked').val(),
-					from: $('#fromDate').val(),
-					to: $('#toDate').val()
-				};
+      $('#canOrderTable').DataTable({
+        bDestroy: true,
+        pageLength: 100,
+        order: [[2, 'desc']]
+      });
 
-				var params = $.param(query);
-				window.location = "/order-report?"+params;
-			});
+      $('#queryButton').click(e => {
+        var query = {
+          imported: $('input[name="imported"]:checked').val(),
+          picked: $('input[name="picked"]:checked').val(),
+          invoiced: $('input[name="invoiced"]:checked').val(),
+          paid: $('input[name="paid"]:checked').val(),
+          hold: $('input[name="hold"]:checked').val(),
+          isBackorder: $('input[name="isBackorder"]:checked').val(),
+          from: $('#fromDate').val(),
+          to: $('#toDate').val()
+        };
 
-			$(document).ready(e => {
-				let urlParams = new URLSearchParams(window.location.search);
+        var params = $.param(query);
+        window.location = "/order-report?"+params;
+      });
 
-				$('#imported-'+urlParams.get('imported')).prop('checked', true);
-				$('#imported-'+urlParams.get('imported')+'-label').addClass('active');
+      $(document).ready(e => {
+        let urlParams = new URLSearchParams(window.location.search);
 
-				$('#picked-'+urlParams.get('picked')).prop('checked', true);
-				$('#picked-'+urlParams.get('picked')+'-label').addClass('active');
+        $('#imported-'+urlParams.get('imported')).prop('checked', true);
+        $('#imported-'+urlParams.get('imported')+'-label').addClass('active');
 
-				$('#invoiced-'+urlParams.get('invoiced')).prop('checked', true);
-				$('#invoiced-'+urlParams.get('invoiced')+'-label').addClass('active');
+        $('#picked-'+urlParams.get('picked')).prop('checked', true);
+        $('#picked-'+urlParams.get('picked')+'-label').addClass('active');
 
-				$('#paid-'+urlParams.get('paid')).prop('checked', true);
-				$('#paid-'+urlParams.get('paid')+'-label').addClass('active');
+        $('#invoiced-'+urlParams.get('invoiced')).prop('checked', true);
+        $('#invoiced-'+urlParams.get('invoiced')+'-label').addClass('active');
 
-				$('#hold-'+urlParams.get('hold')).prop('checked', true);
-				$('#hold-'+urlParams.get('hold')+'-label').addClass('active');
+        $('#paid-'+urlParams.get('paid')).prop('checked', true);
+        $('#paid-'+urlParams.get('paid')+'-label').addClass('active');
 
-				$('#isBackorder-'+urlParams.get('isBackorder')).prop('checked', true);
-				$('#isBackorder-'+urlParams.get('isBackorder')+'-label').addClass('active');
+        $('#hold-'+urlParams.get('hold')).prop('checked', true);
+        $('#hold-'+urlParams.get('hold')+'-label').addClass('active');
 
-				$('#fromDate').val(urlParams.get('from'));
-				$('#toDate').val(urlParams.get('to'));
-			});
+        $('#isBackorder-'+urlParams.get('isBackorder')).prop('checked', true);
+        $('#isBackorder-'+urlParams.get('isBackorder')+'-label').addClass('active');
 
-			function orderSelected(id, e) {
-				if (e.target.localName != 'a') {
-					window.open("/order?id="+id, '_blank');
-				}
-			}
+        $('#fromDate').val(urlParams.get('from'));
+        $('#toDate').val(urlParams.get('to'));
+
+        $('#downloadCAItems').click(e => {
+          downloadItems(canOrders, 'can-items-on-orders');
+        });
+
+        $('#downloadUSItems').click(e => {
+          downloadItems(usOrders, 'us-items-on-orders');
+        });
+      });
+
+      function orderSelected(id, e) {
+        if (e.target.localName != 'a') {
+          window.open("/order?id="+id, '_blank');
+        }
+      }
+
+      function downloadItems(orders, filename) {
+        var file = 'orderId,sku,quantity,picked,price\r\n';
+        orders.forEach(order => {
+          var line = '';
+          order.items.forEach(item => {
+            line += order.orderId + ',';
+            line += item.item.sku + ',';
+            line += item.quantity + ',';
+            line += item.picked + ',';
+            line += item.price + ',\r\n';
+          });
+          file += line;
+        });
+
+        var blob = new Blob([file], { type: 'text/csv;charset=utf-8;' });
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        var url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = filename + '.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }

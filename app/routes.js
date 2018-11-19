@@ -660,9 +660,9 @@ module.exports = function(app, passport) {
       };
     }
     query.canadian = true;
-    Order.find(query).populate('customer').then(canOrders => {
+    Order.find(query).populate('customer').populate('items.item').then(canOrders => {
       query.canadian = false;
-      Order.find(query).populate('customer').then(usOrders => {
+      Order.find(query).populate('customer').populate('items.item').then(usOrders => {
         res.render('order-report', {
           canOrders: canOrders,
           usOrders: usOrders
