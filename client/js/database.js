@@ -534,7 +534,7 @@ function saveItem(item) {
 	socket.emit('saveItem', item, false, responses => {
 		// refresh the database
 		socket.emit('searchDB', lastQuery, items => {
-			refreshTable(items);
+			//refreshTable(items); // don't refresh the table any more
 		});
 	});
 }
