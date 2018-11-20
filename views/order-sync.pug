@@ -68,8 +68,8 @@ html
 									i#quickRecalculate.fal.fa-square.fa-2x
 							.row.pt-3
 								.col-12.text-center
-									button.btn.btn-outline-success.ml-2(type="button")#getOrdersButton Get Orders
-									button.btn.btn-success.mr-2(type="button" tooltip="Sync inventory and orders")#syncInventoryAndOrders 
+									button.btn.btn-outline-success.mr-2(type="button")#getOrdersButton Get Orders
+									button.btn.btn-success(type="button" tooltip="Sync inventory and orders")#syncInventoryAndOrders 
 										i.far.fa-sync.fa-2x
 									button.btn.btn-outline-danger.ml-2(type="button")#refreshAllItems Refresh All Items
 						#step3.tab-pane.fade
@@ -86,6 +86,7 @@ html
 		script.
 			$(document).ready(e => {
 				$('#getOrdersButton').click(e => {
+					showLoadingIcon('quickGetOrders');
 					socket.emit('getOrders');
 				});
 			});
