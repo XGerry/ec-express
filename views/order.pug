@@ -1,22 +1,30 @@
 mixin itemRow(item, order)
 	tr(onclick="editItem('"+item._id+"')")
-		td=item.item.sku
-		if (item.item.isOption)
-			td=item.item.parent.name + ' - ' + item.item.name
+		if (!item.item)
+			td Error loading item
+			td -
+			td -
+			td -
+			td -
+			td -
 		else
-			td=item.item.name
-		td=item.quantity
-		td=item.pickedQuantity
-		td
-			if (item.price)
-				='$' + item.price.toFixed(2)
+			td=item.item.sku
+			if (item.item.isOption)
+				td=item.item.parent.name + ' - ' + item.item.name
 			else
-				= '$0.00'
-		td
-			if (item.price)
-				='$' + (item.price * item.quantity).toFixed(2)
-			else
-				= '$0.00'
+				td=item.item.name
+			td=item.quantity
+			td=item.pickedQuantity
+			td
+				if (item.price)
+					='$' + item.price.toFixed(2)
+				else
+					= '$0.00'
+			td
+				if (item.price)
+					='$' + (item.price * item.quantity).toFixed(2)
+				else
+					= '$0.00'
 
 doctype html
 include mixins
