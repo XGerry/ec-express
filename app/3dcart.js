@@ -410,10 +410,9 @@ function generateHTCMap(order) {
  * For importing orders into quickbooks
  */
 
-function getOrdersQuick(query) {
+async function getOrdersQuick(query) {
   helpers.setTimeCode();
-  var findSettings = Settings.findOne({});
-  findSettings.then(settings => {
+  var findSettings = Settings.findOne({}).then(settings => {
     if (settings) {
       var timecode = helpers.getTimeCode();
       settings.lastImport = timecode;
@@ -421,15 +420,22 @@ function getOrdersQuick(query) {
         settings.lastImports = [];
       }
       settings.lastImports.push(timecode);
-      settings.save();
+      return settings.save();
     } else {
       var newSettings = new Settings();
       var timecode = helpers.getTimeCode();
       newSettings.lastImport = timecode;
       newSettings.lastImports.push(timecode);
-      newSettings.save();
+      return newSettings.save();
     }
   });
+
+  try {
+    await findSettings;
+  } catch (err) {
+    console.log('Error creating or saving the settings when retrieving orders');
+    console.log(err);
+  }
 
   query.countonly = 1;
   var usOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
@@ -439,11 +445,16 @@ function getOrdersQuick(query) {
   var canOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders',
     'GET',
     true);
-  canOptions.qs = query;
+  canOptions.qs = JSON.parse(JSON.stringify(query));
 
-  return Promise.all([doOrderRequest(usOptions), doOrderRequest(canOptions)]).then(responses => {
-    return [].concat.apply([], responses);
-  });
+  try {
+    var usOrders = await doOrderRequest(usOptions);
+    var canOrders = await doOrderRequest(canOptions);
+    return usOrders.concat(canOrders);
+  } catch (err) {
+    console.log(err);
+    return Promise.reject('Error getting the orders')
+  }
 }
 
 function doOrderRequest(options) {
@@ -452,13 +463,19 @@ function doOrderRequest(options) {
     options.qs.countonly = 0;
     var promises = [];
     var numberOfOrders = body.TotalCount;
-    var numOfRequests = Math.ceil(numberOfOrders / 200); // can always get 200 records
-    console.log('We need to do ' + numOfRequests + ' requests to get all the orders');
-    for (var i = 0; i < numOfRequests; i++) {
-      options.qs.offset = i * 200;
-      promises.push(rp(options));
+    if (numberOfOrders > 0) {
+      console.log('getting orders');
+      var numOfRequests = Math.ceil(numberOfOrders / 200); // can always get 200 records
+      console.log('We need to do ' + numOfRequests + ' requests to get all the orders');
+      for (var i = 0; i < numOfRequests; i++) {
+        options.qs.offset = i * 200;
+        promises.push(rp(options));
+      }
+      return Promise.all(promises);
+    } else {
+      console.log('skipping');
+      return [];
     }
-    return Promise.all(promises);
   });
 }
 

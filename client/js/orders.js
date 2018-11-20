@@ -10,34 +10,6 @@ $(document).ready(function() {
   $('#generateOrderRequest').click(function(e) {
     socket.emit('orderRequest');
   });
-
-  $('#getOrdersButton').click(function(e) {
-    var status = $('#orderStatus').val();
-    var limit = $('#limit').val();
-    if (limit == null || limit == undefined || limit > 200 || limit == '') {
-      limit = 200;
-    }
-
-    var startDate = new Date($('#startDate').val());
-    var endDate = new Date($('#endDate').val());
-
-    var query = {
-      status: status,
-      limit: limit,
-      startDate: startDate.getMonth()+1+'/'+startDate.getDate()+'/'+startDate.getFullYear(),
-      endDate: endDate.getMonth()+1+'/'+endDate.getDate()+'/'+endDate.getFullYear()
-    };
-
-    if (startDate == '') {
-      delete query.startDate;
-    }
-    if (endDate == '') {
-      delete query.endDate;
-    }
-
-    socket.emit('getOrders', query);
-    $('#getOrdersButton').addClass('disabled');
-  });
 });
 
 socket.on('getOrdersFinished', function(numberOfOrders) {
