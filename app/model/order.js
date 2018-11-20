@@ -30,7 +30,11 @@ var orderSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'Customer'
   },
-	orderId : String,
+	orderId : {
+    type: String,
+    index: true,
+    unique: true
+  },
 	requestId : Number,
   comments: String,
 	message : String,
