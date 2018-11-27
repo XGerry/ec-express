@@ -516,7 +516,7 @@ module.exports = function(app, passport) {
       if (batch)
         id = batch._id;
       else 
-        res.redirect('/batches');
+        return res.redirect('/batches');
     } else {
       id = req.query.id;
     }

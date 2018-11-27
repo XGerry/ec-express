@@ -31,6 +31,7 @@ include mixins
 html
 	include includes/head
 		title=order.orderId
+		script(src="/js/papaparse.min.js")
 	body
 		#wrapper
 			+sidebarNav("orders")
@@ -67,6 +68,8 @@ html
 								if (order.imported)
 									a(href="#").dropdown-item#closeSalesOrderButton Close Sales Order
 								a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
+								a(href="#").dropdown-item#replacePricing Replace Pricing
+								input(type="file" style="display:none;")#fileInput
 								a(href="#").dropdown-item#refreshFromOriginal Reload from Original
 								.dropdown-divider
 								if (order.batch)
@@ -331,6 +334,30 @@ html
 					showModal(newItem);
 				});
 
+				$('#replacePricing').click(e => {
+					e.preventDefault();
+					$('#fileInput').val('');
+					$('#fileInput').click();
+				});
+
+
+				$('#fileInput').on('change', e => {
+					console.log('file change');
+					$('#fileName').text(e.target.files[0].name);
+
+					$('#fileInput').parse({
+						config: {
+							complete: function(results, file) {
+								loadFromFile(results.data);
+							},
+							header: true
+						},
+						complete: function() {
+							console.log('all files done');
+						}
+					});
+				});
+
 				$('#saveItemButton').click(e => {
 					theItem.quantity = $('#itemQuantity').val();
 					theItem.price = $('#itemPrice').val();
@@ -542,5 +569,21 @@ html
 				theOrder.cartOrder.BillingCountry = $('#billingCountry').val();
 				theOrder.shipDate = $('#orderShipDate').val();
 				theOrder.trackingNumber = $('#trackingNumber').val();
+			}
+
+			function loadFromFile(items) {
+				theOrder.items.forEach(orderItem => {
+					for (let i = 0; i < items.length; i++) {
+						if (orderItem.item.sku == items[i].sku) {
+							orderItem.price = items[i].price;
+							break;
+						}
+					}
+				});
+
+				recalculateTotal();
+				socket.emit('updateOrder', theOrder, response => {
+					location.reload();
+				});
 			}
 
