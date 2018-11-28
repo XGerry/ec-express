@@ -156,8 +156,8 @@ html
             line += 'K0K 3A0,';
             var shipmentList = order.order.cartOrder.ShipmentList[0];
             line += shipmentList.ShipmentFirstName + ' ' + shipmentList.ShipmentLastName + ',';
-            line += shipmentList.ShipmentAddress + ',';
-            line += shipmentList.ShipmentAddress2 + ',';
+            line += '"' + shipmentList.ShipmentAddress + '",';
+            line += '"' + shipmentList.ShipmentAddress2 + '",';
             line += shipmentList.ShipmentCity + ',';
             line += shipmentList.ShipmentState + ',';
             line += shipmentList.ShipmentZipCode + ',';
