@@ -37,9 +37,9 @@ html
                   if (item.item.countryOfOrigin) {
                     // standardize the country
                     let country = item.item.countryOfOrigin.toUpperCase();
-                    if (country == 'CHINA') {
+                    if (country == 'CHINA' || country == 'CN') {
                       country = 'CN';
-                    } else if (country == 'CANADA') {
+                    } else if (country == 'CANADA' || country == 'CA') {
                       country = 'CA';
                     } else if (country == 'USA' || country == 'UNITED STATES' || country == 'UNITED STATES OF AMERICA') {
                       country = 'US';
@@ -49,7 +49,10 @@ html
                       country = 'AU';
                     } else if (country == 'TAIWAN') {
                       country = 'TW';
-                    } else {
+                    } else if (country == 'UNITED KINGDOM' || country == 'ENGLAND' || country == 'UK') {
+                      country = 'GB';
+                    }
+                    else {
                       console.log('No standardized code for the country: ' + country);
                       country = 'CN'; // default to china
                     }
