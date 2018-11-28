@@ -28,14 +28,35 @@ html
               var totalItems = 0;
               var sentItems = order.items.filter(item => {
                 if (item.pickedQuantity > 0) {
-                  if (item.item.htcCode)
-                    item.item.htcCode = item.item.htcCode.replace(/\./g, ' ');
-                  else
-                    item.item.htcCode = '9503 00 00 90';
-                  if (item.item.countryOfOrigin)
-                    item.item.countryOfOrigin = item.item.countryOfOrigin.toUpperCase();
-                  else
-                    item.item.countryOfOrigin = 'CHINA';
+                  if (item.item.htcCode) {
+                    item.item.htcCode = item.item.htcCode.replace(/\./g, '');
+                    item.item.htcCode = item.item.htcCode.replace(/\ /g, '');
+                  } else {
+                    item.item.htcCode = '9503000090';
+                  }
+                  if (item.item.countryOfOrigin) {
+                    // standardize the country
+                    let country = item.item.countryOfOrigin.toUpperCase();
+                    if (country == 'CHINA') {
+                      country = 'CN';
+                    } else if (country == 'CANADA') {
+                      country = 'CA';
+                    } else if (country == 'USA' || country == 'UNITED STATES' || country == 'UNITED STATES OF AMERICA') {
+                      country = 'US';
+                    } else if (country == 'HOLLAND' || country == 'THE NETHERLANDS') {
+                      country = 'NL';
+                    } else if (country == 'AUSTRALIA') {
+                      country = 'AU';
+                    } else if (country == 'TAIWAN') {
+                      country = 'TW';
+                    } else {
+                      console.log('No standardized code for the country: ' + country);
+                      country = 'CN'; // default to china
+                    }
+                    item.item.countryOfOrigin = country;
+                  } else {
+                    item.item.countryOfOrigin = 'CN';
+                  }
                   totalValue += item.pickedQuantity * item.price;
                   totalItems += item.pickedQuantity;
                   return true;
@@ -49,30 +70,27 @@ html
               let htcMap = {};
               sentItems.forEach((orderItem) => {
                 let item = orderItem.item;
-                if (!htcMap.hasOwnProperty(item.htcCode)) {
-                  htcMap[item.htcCode] = {};
-                }
-                var htcObj = htcMap[item.htcCode];
-                if (!htcObj.hasOwnProperty(item.countryOfOrigin)) {
-                  htcObj[item.countryOfOrigin] = {
+                if (!htcMap.hasOwnProperty(item.countryOfOrigin)) {
+                  htcMap[item.countryOfOrigin] = {
                     quantity: 0,
                     value: 0,
                     weight: 0,
                     description: 'Craft & Hobby Supplies'
                   };
                 }
-                if (item.htcCode == '4901 99 00 93') {
-                  htcObj[item.countryOfOrigin].description = 'Books & Paper Materials';
-                }
-                htcMap[item.htcCode][item.countryOfOrigin].quantity += orderItem.pickedQuantity;
+                htcMap[item.countryOfOrigin].quantity += orderItem.pickedQuantity;
                 if (totalValue >= 800) {
-                  htcMap[item.htcCode][item.countryOfOrigin].value += orderItem.pickedQuantity * pricePerItem;
+                  htcMap[item.countryOfOrigin].value += orderItem.pickedQuantity * pricePerItem;
                 } else {
-                  htcMap[item.htcCode][item.countryOfOrigin].value += orderItem.pickedQuantity * orderItem.price;
+                  htcMap[item.countryOfOrigin].value += orderItem.pickedQuantity * orderItem.price;
                 }
-                htcMap[item.htcCode][item.countryOfOrigin].weight += item.weight;
-                totalValue
+                if (item.weight == undefined || item.weight <= 0) {
+                  htcMap[item.countryOfOrigin].weight += 0.1; // default
+                } else {
+                  htcMap[item.countryOfOrigin].weight += item.weight;
+                }
               });
+
               return htcMap;
             }
           each order in orders
@@ -102,21 +120,18 @@ html
                   thead
                     tr
                       th Description
-                      th Code
                       th Country of Origin
                       th Quantity
                       th Value
                       th Weight
                   tbody
-                    each code in Object.keys(htcMap)
-                      each country in Object.keys(htcMap[code])
-                        tr
-                          td=htcMap[code][country].description
-                          td=code
-                          td=country
-                          td=htcMap[code][country].quantity
-                          td="$" + htcMap[code][country].value.toFixed(2)
-                          td=htcMap[code][country].weight.toFixed(2) + ' lbs'
+                    each country in Object.keys(htcMap)
+                      tr
+                        td=htcMap[country].description
+                        td=country
+                        td=htcMap[country].quantity
+                        td="$" + htcMap[country].value.toFixed(2)
+                        td=htcMap[country].weight.toFixed(2) + ' lbs'
     +footer
 
     script.
@@ -128,34 +143,31 @@ html
         var file = 'provinceOfLoading,ShipperName,ShipperADDR1,ShipperCity,ShipperProvince,ShipperPC,ConName,ConsADDR1,ConsADDR2,ConsCity,ConsState,ConsPC,PartNum,description,quantity,packagingUnit,weight,weightUnit,harmonizedCode,value,countryOfOrigin\r\n';
         
         htcs.forEach(order => {
-          Object.keys(order.htcMap).forEach(code => {
-            Object.keys(order.htcMap[code]).forEach(country => {
-              console.log(country);
-              var line = '';
-              line += 'ON,';
-              line += 'Ecstasy Crafts,';
-              line += '630 Shannonville Rd.,';
-              line += 'Shannonville,';
-              line += 'ON,';
-              line += 'K0K 3A0,';
-              var shipmentList = order.order.cartOrder.ShipmentList[0];
-              line += shipmentList.ShipmentFirstName + ' ' + shipmentList.ShipmentLastName + ',';
-              line += shipmentList.ShipmentAddress + ',';
-              line += shipmentList.ShipmentAddress2 + ',';
-              line += shipmentList.ShipmentCity + ',';
-              line += shipmentList.ShipmentState + ',';
-              line += shipmentList.ShipmentZipCode + ',';
-              line += ',';
-              line += order.htcMap[code][country].description + ',';
-              line += order.htcMap[code][country].quantity + ',';
-              line += 'PCS,';
-              line += order.htcMap[code][country].weight.toFixed(2) + ',';
-              line += 'LBS,';
-              line += code + ',';
-              line += order.htcMap[code][country].value.toFixed(2) + ',';
-              line += country + '\r\n';
-              file += line;
-            });
+          Object.keys(order.htcMap).forEach(country => {
+            var line = '';
+            line += 'ON,';
+            line += 'Ecstasy Crafts,';
+            line += '630 Shannonville Rd.,';
+            line += 'Shannonville,';
+            line += 'ON,';
+            line += 'K0K 3A0,';
+            var shipmentList = order.order.cartOrder.ShipmentList[0];
+            line += shipmentList.ShipmentFirstName + ' ' + shipmentList.ShipmentLastName + ',';
+            line += shipmentList.ShipmentAddress + ',';
+            line += shipmentList.ShipmentAddress2 + ',';
+            line += shipmentList.ShipmentCity + ',';
+            line += shipmentList.ShipmentState + ',';
+            line += shipmentList.ShipmentZipCode + ',';
+            line += ',';
+            line += order.htcMap[country].description + ',';
+            line += order.htcMap[country].quantity + ',';
+            line += 'PCS,';
+            line += order.htcMap[country].weight.toFixed(2) + ',';
+            line += 'LBS,';
+            line += ',';
+            line += order.htcMap[country].value.toFixed(2) + ',';
+            line += country + '\r\n';
+            file += line;
           });
         });
 
