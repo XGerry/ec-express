@@ -968,7 +968,11 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             // now proceed as normal
             salesOrders.forEach(so => {
               orders.forEach(dbOrder => {
-                if ((dbOrder.isBackorder == true && dbOrder.parent.orderId == so.RefNumber) ||
+                if (dbOrder.hold) {
+                  webhooks.orderBot({
+                    text: 'Not creating invoice for ' + dbOrder.orderId + ' because it is on hold.'
+                  });
+                } else if ((dbOrder.isBackorder == true && dbOrder.parent.orderId == so.RefNumber) ||
                   (so.RefNumber == dbOrder.orderId) && dbOrder.invoiced == false) {
                   qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                     console.log(response); 

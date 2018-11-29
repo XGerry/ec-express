@@ -352,6 +352,7 @@ orderSchema.methods.createBackorder = async function() {
 }
 
 orderSchema.methods.invoiceTo3DCart = function() {
+
 	var cartOrder = {};
 	cartOrder.OrderItemList = [];
 	this.items.forEach(item => {
@@ -366,7 +367,7 @@ orderSchema.methods.invoiceTo3DCart = function() {
 
 	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = cartOrder;
-	if (this.isCartOrder)
+	if (this.isCartOrder && !this.hold)
     return rp(options);
 }
 
