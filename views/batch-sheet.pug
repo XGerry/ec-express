@@ -65,8 +65,30 @@ html
 										th Number of SKUs
 										th Number of Items
 								tbody
+									- var hasComments = false;
 									each order in batch.orders
+										-
+											if (order.cartOrder.CustomerComments) {
+												hasComments = true;
+											}
 										+orderSummaryTableRow(order)
+					if (hasComments)
+						.row
+							.col
+								h1 Comments
+						.row
+							.col.pt-2
+								table.table-sm.table
+									thead
+										tr
+											th Order ID
+											th Comments
+									tbody
+										each order in batch.orders
+											if (order.cartOrder.CustomerComments)
+												tr
+													td=order.orderId
+													td=order.cartOrder.CustomerComments
 					.row.pt-2
 						table.table.table-striped.pick-table
 							thead
