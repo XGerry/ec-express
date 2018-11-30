@@ -68,27 +68,26 @@ html
 									- var hasComments = false;
 									each order in batch.orders
 										+orderSummaryTableRow(order)
-					if (hasComments)
-						.row
-							.col
-								h1 Comments
-						.row
-							.col.pt-2
-								table.table-sm.table
-									thead
-										tr
-											th(width="10%") Order ID
-											th Customer
-											th Internal
-											th Ship Method
-									tbody
-										each order in batch.orders
-											if (order.cartOrder.CustomerComments)
-												tr
-													td=order.orderId
-													td=order.cartOrder.CustomerComments
-													td=order.comments
-													td= order.cartOrder.ShipmentList[0].ShipmentMethodName
+					.row
+						.col
+							h1 Comments
+					.row
+						.col.pt-2
+							table.table-sm.table
+								thead
+									tr
+										th(width="10%") Order ID
+										th Customer
+										th Internal
+										th Ship Method
+								tbody
+									each order in batch.orders
+										if (order.cartOrder.CustomerComments)
+											tr
+												td=order.orderId
+												td=order.cartOrder.CustomerComments
+												td=order.comments
+												td= order.cartOrder.ShipmentList[0].ShipmentMethodName
 					.row.pt-2
 						table.table.table-striped.pick-table
 							thead
