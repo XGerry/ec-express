@@ -106,6 +106,7 @@ mixin customerInfoPanel(order)
 mixin orderItemPanel(order)
 	#pickSheet
 		.row
+			- let unsentItems = false;
 			.col
 				table.table.table-striped.table-hover.pick-table
 					thead
