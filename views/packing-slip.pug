@@ -131,7 +131,7 @@ mixin orderItemPanel(order)
 					tbody
 						each item in order.items
 							if (item.pickedQuantity == 0)
-								+itemRow(item)
+								+unsentItemRow(item)
 
 
 
