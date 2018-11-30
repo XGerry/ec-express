@@ -67,10 +67,7 @@ html
 								tbody
 									- var hasComments = false;
 									each order in batch.orders
-										-
-											if (order.cartOrder.CustomerComments) {
-												hasComments = true;
-											}
+										- hasComments = order.cartOrder.CustomerComments || order.comments
 										+orderSummaryTableRow(order)
 					if (hasComments)
 						.row
@@ -82,13 +79,15 @@ html
 									thead
 										tr
 											th(width="10%") Order ID
-											th Comments
+											th Customer
+											th Internal
 									tbody
 										each order in batch.orders
 											if (order.cartOrder.CustomerComments)
 												tr
 													td=order.orderId
 													td=order.cartOrder.CustomerComments
+													td=order.comments
 					.row.pt-2
 						table.table.table-striped.pick-table
 							thead

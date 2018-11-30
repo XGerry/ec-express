@@ -64,6 +64,7 @@ var itemSchema = new mongoose.Schema({
 	canLink: String,
 	manufacturerId: Number,
 	manufacturerName: String,
+  discontinued: Boolean,
 	width: Number,
 	height: Number,
 	length: Number,

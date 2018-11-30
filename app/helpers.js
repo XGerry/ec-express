@@ -809,6 +809,7 @@ function closeSalesOrders(qbws, orderId) {
 function closeSalesOrder(qbws, orderId) {
   qbws.addRequest(getSalesOrdersRq([{orderId: orderId}], false), xmlResponse => {
     return xml2js(xmlResponse, {explicitArray: false}).then(responseObject => {
+      if (responseObject)
       var salesOrderRs = responseObject.QBXML.QBXMLMsgsRs.SalesOrderQueryRs;
       if (salesOrderRs == undefined) {
         console.log('Sales order not created yet!');

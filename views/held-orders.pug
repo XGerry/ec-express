@@ -39,10 +39,7 @@ html
 										th Due Date
 										th Company
 										th Value
-										th Picked
-										th Invoiced
-										th Paid
-										th Held
+										th Reason
 								tbody
 									each order in usOrders
 										+orderRow(order)
@@ -59,10 +56,7 @@ html
 										th Due Date
 										th Company
 										th Value
-										th Picked
-										th Invoiced
-										th Paid
-										th Held
+										th Reason
 								tbody
 									each order in canOrders
 										+orderRow(order)
@@ -83,6 +77,6 @@ html
 
 			function orderSelected(id, e) {
 				if (e.target.localName != 'a') {
-					window.location="/order?id="+id;
+					window.open("/order?id="+id, '_blank');
 				}
 			}

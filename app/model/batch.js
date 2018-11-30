@@ -199,10 +199,10 @@ batchSchema.methods.finish = async function(batch) {
 			if (hour < 11) {
 				order.shipDate = now;
 			} else {
-				order.shipDate = moment().day(1); // this monday
+				order.shipDate = moment().day(8); // next monday
 			}
 		} else {
-			order.shipDate = moment().day(1); // this monday
+			order.shipDate = moment().day(8); // next monday
 		}
 		order.picked = true;
 		order.isNew = false;

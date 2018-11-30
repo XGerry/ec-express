@@ -39,6 +39,13 @@ mixin itemRow(item)
 		td=item.pickedQuantity
 		td=item.item.name
 
+mixin unsentItemRow(item)
+	tr
+		td=item.item.sku
+		td=item.item.name
+		td=item.quantity
+		td Not in stock
+
 mixin customerInfoPanel(order)
 	.row
 		.col
@@ -98,16 +105,35 @@ mixin customerInfoPanel(order)
 
 mixin orderItemPanel(order)
 	#pickSheet
-		table.table.table-striped.table-hover.pick-table
-			thead
-				tr
-					th SKU
-					th Ordered
-					th Shipped
-					th Description
-			tbody
-				each item in order.items
-					+itemRow(item)
+		.row
+			.col
+				table.table.table-striped.table-hover.pick-table
+					thead
+						tr
+							th SKU
+							th Ordered
+							th Shipped
+							th Description
+					tbody
+						each item in order.items
+							if (item.pickedQuantity > 0)
+								+itemRow(item)
+		.row
+			.col
+				h3 Items not sent
+				table.table-table-striped.pick-table
+					thead
+						tr
+							th SKU
+							th Description
+							th Ordered
+							th Reason
+					tbody
+						each item in order.items
+							if (item.pickedQuantity == 0)
+								+itemRow(item)
+
+
 
 mixin orderSection(order)
 	.container

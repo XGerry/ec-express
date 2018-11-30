@@ -97,7 +97,8 @@ var orderSchema = new mongoose.Schema({
   parent: {
     type: ObjectId,
     ref: 'Order'
-  }
+  },
+  reasonForHold: String
 }, {
   toObject: {
     virtuals: true
