@@ -162,7 +162,7 @@ html
             line += '"' + shipmentList.ShipmentAddress2 + '",';
             line += shipmentList.ShipmentCity + ',';
             line += shipmentList.ShipmentState + ',';
-            line += shipmentList.ShipmentZipCode + ',';
+            line += '"' + shipmentList.ShipmentZipCode + '",';
             line += ',';
             line += order.htcMap[country].description + ',';
             line += order.htcMap[country].quantity + ',';
