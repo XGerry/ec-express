@@ -111,6 +111,7 @@ html
 										th.text-center Paid
 										th.text-center Rush
 										th.text-center Hold
+										th Reason
 										th.text-center Backorder
 										th Batch
 										if (order.isBackorder)
@@ -129,6 +130,8 @@ html
 											input(type="checkbox" checked=order.rush style="transform: scale(2);")#rushCheckbox
 										td.text-center
 											input(type="checkbox" checked=order.hold style="transform: scale(2);")#holdCheckbox
+										td
+											input(type="text" value=order.reasonForHold).form-control#holdReason
 										td.text-center
 											input(type="checkbox" checked=order.isBackorder style="transform: scale(2);" disabled)
 										td
@@ -560,6 +563,7 @@ html
 
 			function saveOrderProperties() {
 				theOrder.shippingCost = $('#orderShippingCost').val();
+				theOrder.reasonForHold = $('#holdReason').val();
 				theOrder.comments = $('#orderComments').val();
 				theOrder.cartOrder.ShipmentList[0].ShipmentAddress = $('#shipmentAddress').val();
 				theOrder.cartOrder.ShipmentList[0].ShipmentAddress2 = $('#shipmentAddress2').val();

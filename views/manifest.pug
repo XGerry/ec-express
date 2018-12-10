@@ -143,11 +143,13 @@ html
       console.log(htcs);
 
       $('#downloadButton').click(e => {
-        var file = 'provinceOfLoading,ShipperName,ShipperADDR1,ShipperCity,ShipperProvince,ShipperPC,ConName,ConsADDR1,ConsADDR2,ConsCity,ConsState,ConsPC,PartNum,description,quantity,packagingUnit,weight,weightUnit,harmonizedCode,value,countryOfOrigin\r\n';
+        var file = 'Carrier,SCN,provinceOfLoading,ShipperName,ShipperADDR1,ShipperCity,ShipperProvince,ShipperPC,ConName,ConsADDR1,ConsADDR2,ConsCity,ConsState,ConsPC,PartNum,description,quantity,packagingUnit,weight,weightUnit,harmonizedCode,value,countryOfOrigin\r\n';
         
         htcs.forEach(order => {
           Object.keys(order.htcMap).forEach(country => {
             var line = '';
+            line += 'DANQ,';
+            line += '31788040531,';
             line += 'ON,';
             line += 'Ecstasy Crafts,';
             line += '630 Shannonville Rd.,';

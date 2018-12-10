@@ -6,7 +6,7 @@ mixin orderRow(order)
 		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
 		td=order.customer.companyName
 		td='$' + order.orderValue.toFixed(2)
-		td Coming Soon!
+		td=order.reasonForHold
 		//- td=order.picked ? 'yes' : 'no'
 		//- td=order.invoiced ? 'yes' : 'no'
 		//- td=order.paid ? 'yes' : 'no'

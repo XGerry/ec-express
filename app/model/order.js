@@ -98,7 +98,8 @@ var orderSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'Order'
   },
-  reasonForHold: String
+  reasonForHold: String,
+  reasonForUnpaid: String
 }, {
   toObject: {
     virtuals: true
