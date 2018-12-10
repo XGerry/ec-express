@@ -6,10 +6,8 @@ mixin orderRow(order)
 		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
 		td=order.customer.companyName
 		td='$' + order.orderValue.toFixed(2)
-		td=order.picked ? 'yes' : 'no'
-		td=order.invoiced ? 'yes' : 'no'
-		td=order.paid ? 'yes' : 'no'
-		td=order.hold ? 'yes' : 'no'
+		td=order.cartOrder.BillingPaymentMethod
+		td=order.reasonForHold
 
 doctype html
 include mixins
@@ -43,10 +41,9 @@ html
 										th Due Date
 										th Company
 										th Value
-										th Picked
-										th Invoiced
-										th Paid
-										th Held
+										th Payment Method
+										th Reason for Hold
+
 								tbody
 									each order in usOrders
 										+orderRow(order)
@@ -63,10 +60,9 @@ html
 										th Due Date
 										th Company
 										th Value
-										th Picked
-										th Invoiced
-										th Paid
-										th Held
+										th Payment Method
+										th Reason for Hold
+
 								tbody
 									each order in canOrders
 										+orderRow(order)
@@ -88,7 +84,7 @@ html
 
 			function orderSelected(id, e) {
 				if (e.target.localName != 'a') {
-					window.location="/order?id="+id;
+					window.open("/order?id="+id, '_blank');
 				}
 			}
 
