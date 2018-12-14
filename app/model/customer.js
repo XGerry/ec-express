@@ -84,7 +84,7 @@ customerSchema.methods.getCustomerType = function() {
 	if (this.customerType == undefined || this.customerType == null) {
 		if (this.customerId) {
       console.log('customer id: ' + this.customerId);
-	    var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
+      var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
       return rp(options).then(response => {
         if (Array.isArray(response)) {
           response = response[0];
@@ -97,16 +97,27 @@ customerSchema.methods.getCustomerType = function() {
         return this.save();
       });
     } else {
-    	this.customerType = 0;
-    	return this.save();
+      this.customerType = 0;
+      return this.save();
     }
   } else {
-  	return Promise.resolve(this);
+    return Promise.resolve(this);
   }
 }
 
 customerSchema.methods.addOrder = function(orderId) {
-	return mongoose.model('Customer').update({_id: this._id}, {$addToSet: {orders: orderId}});
+  return mongoose.model('Customer').update({_id: this._id}, {$addToSet: {orders: orderId}});
+}
+
+customerSchema.methods.getCustomerFrom3DCart = function() {
+  if (this.customerId) {
+    var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
+    return rp(options).then(response => {
+      console.log(response);
+    });    
+  } else {
+    console.log('no customer id');
+  }
 }
 
 customerSchema.methods.addCustomerRq = async function(order, requestID) {

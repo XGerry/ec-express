@@ -607,6 +607,7 @@ module.exports = function(app, passport) {
   app.get('/customer', (req, res) => {
     Customer.findOne({_id: req.query.id}).populate('orders').then(customer => {
       if (customer) {
+        customer.getCustomerFrom3DCart();
         customer.getCustomerType().then(customer => {
           res.render('customer', {
             customer: customer
@@ -615,6 +616,15 @@ module.exports = function(app, passport) {
       } else {
         res.redirect('/customers');
       }
+    });
+  });
+
+  app.get('/customer-cart/:id', (req, res) => {
+    Customer.findOne({customerId: req.params.id}).populate('orders').then(customer => {
+      customer.getCustomerFrom3DCart();
+      res.render('customer', {
+        customer: customer
+      });
     });
   });
 
