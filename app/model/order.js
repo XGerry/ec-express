@@ -149,17 +149,17 @@ orderSchema.statics.createCustomOrder = async function(order) {
   newOrder.orderId = 'CO-' + orderNumber;
 
   var promises = [];
-  for (item of order.items) {
+  order.items.forEach(function(item) {
     let getId = Item.findOne({sku: item.sku}).then(dbItem => {
       newOrder.items.push({
         item: dbItem._id,
-        quantity: item.quantity,
+        quantity: parseInt(item.quantity),
         pickedQuantity: 0,
         price: item.salesPrice
       });
     });
     promises.push(getId);
-  }
+  });
 
   newOrder.orderValue = order.total;
   newOrder.isCartOrder = false;
