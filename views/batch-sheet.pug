@@ -82,7 +82,7 @@ html
 										th Ship Method
 								tbody
 									each order in batch.orders
-										if (order.cartOrder.CustomerComments)
+										if (order.cartOrder.CustomerComments || order.comments)
 											tr
 												td=order.orderId
 												td=order.cartOrder.CustomerComments

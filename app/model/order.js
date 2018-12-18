@@ -39,6 +39,7 @@ var orderSchema = new mongoose.Schema({
   comments: String,
 	message : String,
 	timecode: Number,
+  paymentMethod: String,
 	orderValue: Number,
   orderProfit: {
     type: Number,
@@ -130,6 +131,63 @@ orderSchema.statics.findOrdersToBeInvoiced = function(canadian) {
   return this.find({invoiced: false, picked: true, hold: false, canadian: canadian});
 }
 
+orderSchema.statics.createCustomOrder = async function(order) {
+  var newOrder = new this();
+  var customer = await mongoose.model('Customer').findOne({email: order.customer.email}).exec();
+  if (!customer) {
+    // create the customer
+    newCustomer = await mongoose.model('Customer').createCustomCustomer(order.customer);
+    newOrder.customer = newCustomer._id;
+  } else {
+    newOrder.customer = customer._id;
+  }
+
+  newOrder.comments = order.comments + '\nPO:'+ order.poNumber;
+  newOrder.orderDate = new Date();
+  newOrder.canadian = order.customer.billingCountry == 'CA';
+  let orderNumber = await mongoose.model('Settings').getNextOrderNumber();
+  newOrder.orderId = 'CO-' + orderNumber;
+
+  var promises = [];
+  for (item of order.items) {
+    let getId = Item.findOne({sku: item.sku}).then(dbItem => {
+      newOrder.items.push({
+        item: dbItem._id,
+        quantity: item.quantity,
+        pickedQuantity: 0,
+        price: item.salesPrice
+      });
+    });
+    promises.push(getId);
+  }
+
+  newOrder.orderValue = order.total;
+  newOrder.isCartOrder = false;
+  newOrder.dueDate = getDueDate(newOrder.orderDate, newOrder);
+  newOrder.shippingCost = order.shipping;
+  newOrder.paymentMethod = 'On Account';
+  newOrder.cartOrder = {};
+
+  console.log(order.customer);
+
+  newOrder.cartOrder.ShipmentList = [{
+    ShipmentAddress: order.customer.shippingAddress,
+    ShipmentAddress2: order.customer.shippingAddress2,
+    ShipmentCity: order.customer.shippingCity,
+    ShipmentState: order.customer.shippingState,
+    ShipmentZipCode: order.customer.shippingZipCode,
+    ShipmentCountry: order.customer.shippingCountry,
+    ShipmentMethodName: 'cheapest way'
+  }];
+  newOrder.markModified('cartOrder');
+
+  console.log(newOrder.cartOrder);
+
+  return Promise.all(promises).then(() => {
+    return newOrder.save();
+  });
+}
+
 orderSchema.methods.updateCustomer = function() {
   var order = this;
   return mongoose.model('Customer').findOne({email: this.cartOrder.BillingEmail}).then(async function(customer) {
@@ -162,6 +220,7 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   this.dueDate = getDueDate(cartOrder.OrderDate, this);
   this.shippingCost = cartOrder.ShipmentList[0].ShipmentCost;
   this.comments = cartOrder.InternalComments;
+  this.paymentMethod = cartOrder.BillingPaymentMethod;
 
   this.items = [];
   var theOrder = this;
@@ -434,7 +493,7 @@ orderSchema.methods.addSalesOrderRq = function() {
   var shippingMethod = this.cartOrder.ShipmentList[0].ShipmentMethodName.slice(0,15); // max 15 characters
   shippingMethod = (shippingMethod !== '') ? shippingMethod : 'cheapest way'; // default for now
 
-  var paymentMethod3DCart = this.cartOrder.BillingPaymentMethod;
+  var paymentMethod3DCart = this.paymentMethod;
   var paymentMethod = 'Online Credit Card';
   if (paymentMethod3DCart.includes('card is on file')) {
     paymentMethod = 'On Account';

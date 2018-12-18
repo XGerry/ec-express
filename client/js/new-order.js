@@ -71,6 +71,14 @@ $(document).ready(function() {
 		});
 	});
 
+	$('#createOrderButton').click(e => {
+		e.preventDefault();
+		socket.emit('createCustomOrder', generateOrder(), response => {
+			// redirect to the order
+			window.location = '/order?id='+response._id;
+		});
+	});
+
 	$('#sameAsShippingButton').click(function(e) {
 		copyBillingToShipping();
 	});
@@ -633,6 +641,7 @@ function calculateTotals() {
 }
 
 function generateOrder() {
+	calculateTotals();
 	theOrder.customer = theCustomer;
 	theOrder.items = itemsInOrder;
 	theOrder.comments = $('#notesArea').val();

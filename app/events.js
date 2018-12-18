@@ -709,6 +709,13 @@
  			});
  		});
 
+ 		socket.on('createCustomOrder', (customOrder, cb) => {
+ 			Order.createCustomOrder(customOrder).then(order => {
+ 				console.log(order);
+ 				cb(order);
+ 			});
+ 		});
+
  		socket.on('finishBatch', (batch, cb) => {
  			Batch.findOne({_id: batch._id}).populate('orders').then(dbBatch => {
 				dbBatch.finish(batch).then(savedBatch => {

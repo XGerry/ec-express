@@ -58,6 +58,12 @@ customerSchema.statics.createCustomer = function(cartOrder) {
 	return newCustomer.updateFrom3DCart(cartOrder);
 }
 
+customerSchema.statics.createCustomCustomer = function(customer) {
+  var newCustomer = new this();
+  newCustomer.set(customer);
+  return newCustomer.save(); 
+}
+
 customerSchema.methods.updateFrom3DCart = function(cartOrder) {
 	this.email = cartOrder.BillingEmail;
 	this.firstname = cartOrder.BillingFirstName;

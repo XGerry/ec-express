@@ -157,7 +157,10 @@ html
 										th Picked
 								tbody
 									tr
-										td= order.cartOrder.BillingPaymentMethod
+										if (order.paymentMethod)
+											td= order.paymentMethod
+										else
+											td= order.cartOrder.BillingPaymentMethod
 										td= order.customer.customerType == 0 ? 'Retail' : 'Wholesale'
 										td='$'+order.orderValue.toFixed(2)
 										-
@@ -178,28 +181,28 @@ html
 							h5 Billing Info
 							.form-group
 								label Address 1
-								input.form-control(type="text" value=order.cartOrder.BillingAddress)#billingAddress
+								input.form-control(type="text" value=order.customer.billingAddress)#billingAddress
 							.form-group
 								label Address 2
-								input.form-control(type="text" value=order.cartOrder.BillingAddress2)#billingAddress2
+								input.form-control(type="text" value=order.customer.billingAddress2)#billingAddress2
 							.row
 								.col
 									.form-group
 										label City
-										input.form-control(type="text" value=order.cartOrder.BillingCity)#billingCity
+										input.form-control(type="text" value=order.customer.billingCity)#billingCity
 								.col
 									.form-group
 										label State
-										input.form-control(type="text" value=order.cartOrder.BillingState)#billingState
+										input.form-control(type="text" value=order.customer.billingState)#billingState
 							.row
 								.col
 									.form-group
 										label Zip Code
-										input.form-control(type="text" value=order.cartOrder.BillingZipCode)#billingZipCode
+										input.form-control(type="text" value=order.customer.billingZipCode)#billingZipCode
 								.col
 									.form-group
 										label Country
-										input.form-control(type="text" value=order.cartOrder.BillingCountry)#billingCountry
+										input.form-control(type="text" value=order.customer.billingCountry)#billingCountry
 						.col
 							h5 Shipping Info
 							.form-group

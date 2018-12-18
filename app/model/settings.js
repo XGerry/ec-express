@@ -13,9 +13,21 @@ var settingSchema = new mongoose.Schema({
 	lastImports: {
 		type: [Number],
 		default: []
+	},
+	customOrderNumber: {
+		type: Number,
+		default: 10000
 	}
 }, {
 	usePushEach: true
 });
+
+settingSchema.statics.getNextOrderNumber = function() {
+	return this.findOne({}).then(async settings => {
+		settings.customOrderNumber++;
+		await settings.save();
+		return settings.customOrderNumber;
+	});
+}
 
 module.exports = mongoose.model('Settings', settingSchema);
