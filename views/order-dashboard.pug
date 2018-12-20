@@ -1,7 +1,7 @@
 mixin orderRow(order)
 	tr(class=moment().isAfter(order.dueDate) ? 'overdue' : '', class=moment().isSame(order.dueDate, 'day') ? 'due' : '', onclick="window.location='/order?id="+order._id+"'")
 		td=order.orderId
-		td=order.customer.name
+		td=order.customer ? order.customer.name : 'No Customer'
 		td=moment(order.orderDate).format('MMM Do')
 		td=moment(order.dueDate).format('MMM Do')
 		td=order.items.length
