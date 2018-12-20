@@ -167,7 +167,7 @@ customerSchema.methods.addCustomerRq = async function(order, requestID) {
     customerType += 'Retail';
   }
   
-  if (order.cartOrder)
+  if (order.isCartOrder)
     await this.updateFrom3DCart(order.cartOrder);
 
   var obj = {
