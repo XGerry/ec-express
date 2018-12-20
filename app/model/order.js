@@ -512,7 +512,7 @@ orderSchema.methods.addSalesOrderRq = function() {
   // var customerRef = order.BillingEmail;
 
   // find the PO number in the comments
-  var commentArray = this.cartOrder.CustomerComments.split('\n');
+  var commentArray = this.cartOrder.CustomerComments ? this.cartOrder.CustomerComments.split('\n') : [];
   var comments = '';
   var po = '';
   commentArray.forEach(comment => {
