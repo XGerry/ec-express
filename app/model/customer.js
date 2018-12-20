@@ -154,11 +154,11 @@ customerSchema.methods.addCustomerRq = async function(order, requestID) {
   }
 
   var customerType = 'US '; // default
-  if (order.cartOrder.BillingCountry == 'CA') {
+  if (this.billingCountry == 'CA') {
     customerType = 'Canada ';
   }
 
-  if (order.cartOrder.BillingCompany && order.cartOrder.BillingCompany != '') {
+  if (this.companyName != '') {
     customerType += 'Wholesale';
   } else {
     customerType += 'Retail';
@@ -171,14 +171,14 @@ customerSchema.methods.addCustomerRq = async function(order, requestID) {
     CustomerAddRq : {
       '@requestID': requestID ? requestID : this.email,
       CustomerAdd : {
-        Name : order.cartOrder.BillingLastName + ' ' + order.cartOrder.BillingFirstName,
-        CompanyName : order.cartOrder.BillingCompany.substring(0,40),
-        FirstName : order.cartOrder.BillingFirstName,
-        LastName : order.cartOrder.BillingLastName,
+        Name : this.lastname + ' ' + this.firstname,
+        CompanyName : this.companyName.substring(0, 40),
+        FirstName : this.firstname,
+        LastName : this.lastname,
         BillAddress : this.createBillingAddress(),
         ShipAddress : shippingAddress,
-        Phone : order.cartOrder.BillingPhoneNumber,
-        Email : order.cartOrder.BillingEmail,
+        Phone : this.phone,
+        Email : this.email,
         CustomerTypeRef: {
           FullName: customerType
         },
