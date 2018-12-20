@@ -197,13 +197,13 @@ orderSchema.methods.updateCustomer = function() {
   var order = this;
   return mongoose.model('Customer').findOne({email: this.cartOrder.BillingEmail}).then(async function(customer) {
     if (customer) {
-      if (this.cartOrder)
+      if (order.isCartOrder)
         customer.updateFrom3DCart(order.cartOrder);
       order.customer = customer._id;
       await customer.addOrder(order._id);
       return order.save();
     } else {
-      if (this.cartOrder) {
+      if (order.isCartOrder) {
         var newCustomer = await mongoose.model('Customer').createCustomer(order.cartOrder);
         order.customer = newCustomer._id;
         await newCustomer.addOrder(order._id);
@@ -217,6 +217,7 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   var promises = [];
   this.cartOrder = cartOrder;
   
+  this.isCartOrder = true; 
   await this.updateCustomer(cartOrder);
 
   this.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
@@ -224,7 +225,6 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   this.orderDate = new Date(cartOrder.OrderDate);
   this.markModified('cartOrder');
   this.orderValue = cartOrder.OrderAmount;
-  this.isCartOrder = true; 
   this.dueDate = getDueDate(cartOrder.OrderDate, this);
   this.shippingCost = cartOrder.ShipmentList[0].ShipmentCost;
   this.comments = cartOrder.InternalComments;
