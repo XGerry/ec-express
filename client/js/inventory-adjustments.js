@@ -241,7 +241,6 @@ function populateFromFile(data) {
 	});
 
 	var ids = Object.keys(restocks);
-	console.log('doing request');
 	console.log(ids.length);
 	// just one request to the database
 	socket.emit('searchDB', { 

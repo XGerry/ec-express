@@ -60,7 +60,10 @@ var orderSchema = new mongoose.Schema({
     default: false
   },
 	amazon: Boolean,
-	imported : Boolean, // the order has been imported as a sales order in quickbooks
+	imported : {
+    type: Boolean,
+    default: false
+  }, // the order has been imported as a sales order in quickbooks
 	trackingNumber: String,
 	shippingCost: Number,
 	completed: { // status (pretty sure this is deprecated)
