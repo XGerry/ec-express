@@ -12,6 +12,7 @@
  var Item = require('./model/item');
  var Batch = require('./model/batch');
  var Order = require('./model/order');
+ var Customer = require('./model/customer');
  const fs = require('fs');
  var path = require('path');
 
@@ -365,8 +366,13 @@
  			});
  		});
 
- 		socket.on('saveCustomer', function(customer) {
- 			helpers.saveCustomer(customer);
+ 		socket.on('saveCustomer', function(customer, cb) {
+ 			Customer.findOne({_id: customer._id}).then(dbCustomer => {
+ 				dbCustomer.set(customer);
+ 				dbCustomer.save().then(savedCustomer => {
+ 					cb(savedCustomer);
+ 				});
+ 			});
  		});
 
  		socket.on('loadFrom3DCart', function(prefix, orderNumber) {

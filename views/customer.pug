@@ -32,37 +32,37 @@ html
 								//.dropdown-divider
 								//a#deleteItem(href="#").dropdown-item.bg-danger.text-white Delete Item
 						//button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
-						//button.btn.btn-success(type="button")#saveButton Save
+						button.btn.btn-success(type="button")#saveButton Save
 
 				.container.pt-3
 					.row
 						.col
 							.form-group
 								label First Name
-								input.form-control(type="text" value=customer.firstname)
+								input.form-control(type="text" value=customer.firstname)#firstname
 						.col
 							.form-group
 								label Last Name
-								input.form-control(type="text" value=customer.lastname)
+								input.form-control(type="text" value=customer.lastname)#lastname
 						.col
 							.form-group
 								label Company
-								input.form-control(type="text" value=customer.companyName)
+								input.form-control(type="text" value=customer.companyName)#companyName
 					.row
 						.col
 							.form-group
 								label Type
-								select.form-control(value=customer.customerType)
+								select.form-control(value=customer.customerType)#customerType
 									option(value="0") Retail
 									option(value="14") Wholesale
 						.col
 							.form-group
 								label Email
-								input.form-control(type="text" value=customer.email)
+								input.form-control(type="text" value=customer.email)#email
 						.col
 							.form-group
 								label Phone
-								input.form-control(type="text" value=customer.phone)
+								input.form-control(type="text" value=customer.phone)#phone
 					.row
 						.col
 							h5 Default Billing Info
@@ -143,5 +143,13 @@ html
 			var theCustomer = !{JSON.stringify(customer)};
 			console.log(theCustomer);
 			$(document).ready(e => {
-				
+				$('#saveButton').click(e => {
+					theCustomer.firstname = $('#firstname').val();
+					theCustomer.lastname = $('#lastname').val();
+					theCustomer.phone = $('#phone').val();
+					theCustomer.email = $('#email').val();
+					socket.emit('saveCustomer', theCustomer, cb => {
+						location.reload();
+					});
+				});
 			});
