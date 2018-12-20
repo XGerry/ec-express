@@ -145,6 +145,8 @@ orderSchema.statics.createCustomOrder = async function(order) {
     newOrder.customer = customer._id;
   }
 
+  await customer.addOrder(newOrder._id);
+
   newOrder.comments = order.comments + '\nPO:'+ order.poNumber;
   newOrder.orderDate = new Date();
   newOrder.canadian = order.customer.billingCountry == 'CA';
@@ -195,15 +197,18 @@ orderSchema.methods.updateCustomer = function() {
   var order = this;
   return mongoose.model('Customer').findOne({email: this.cartOrder.BillingEmail}).then(async function(customer) {
     if (customer) {
-      customer.updateFrom3DCart(order.cartOrder);
+      if (this.cartOrder)
+        customer.updateFrom3DCart(order.cartOrder);
       order.customer = customer._id;
       await customer.addOrder(order._id);
       return order.save();
     } else {
-      var newCustomer = await mongoose.model('Customer').createCustomer(order.cartOrder);
-      order.customer = newCustomer._id;
-      await newCustomer.addOrder(order._id);
-      return order.save();
+      if (this.cartOrder) {
+        var newCustomer = await mongoose.model('Customer').createCustomer(order.cartOrder);
+        order.customer = newCustomer._id;
+        await newCustomer.addOrder(order._id);
+        return order.save();
+      }
     }
   });
 }
