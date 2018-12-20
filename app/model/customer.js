@@ -60,6 +60,9 @@ customerSchema.statics.createCustomer = function(cartOrder) {
 
 customerSchema.statics.createCustomCustomer = function(customer) {
   var newCustomer = new this();
+  newCustomer.customerType = customer.profile;
+  newCustomer.firstname = customer.firstname;
+  newCustomer.lastname = customer.lastname;
   newCustomer.set(customer);
   return newCustomer.save(); 
 }
@@ -172,7 +175,7 @@ customerSchema.methods.addCustomerRq = async function(order, requestID) {
       '@requestID': requestID ? requestID : this.email,
       CustomerAdd : {
         Name : this.lastname + ' ' + this.firstname,
-        CompanyName : this.companyName.substring(0, 40),
+        CompanyName : this.companyName ? this.companyName.substring(0, 40) : '',
         FirstName : this.firstname,
         LastName : this.lastname,
         BillAddress : this.createBillingAddress(),
