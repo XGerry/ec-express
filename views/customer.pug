@@ -148,6 +148,11 @@ html
 					theCustomer.lastname = $('#lastname').val();
 					theCustomer.phone = $('#phone').val();
 					theCustomer.email = $('#email').val();
+					theCustomer.billingAddress = $('#billingAddress').val();
+					theCustomer.billingAddress2 = $('#billingAddress2').val();
+					theCustomer.billingCity = $('#billingCity').val();
+					theCustomer.billingZipCode = $('#billingZipCode').val();
+					theCustomer.billingCountry = $('#billingCountry').val();
 					socket.emit('saveCustomer', theCustomer, cb => {
 						location.reload();
 					});
