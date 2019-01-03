@@ -42,11 +42,11 @@ var itemSchema = new mongoose.Schema({
 	barcode: String,
 	countryOfOrigin: {
     type: String,
-    default: 'CHINA'
+    default: 'CN'
   },
 	htcCode: {
     type: String,
-    default: '9503 00 00 90'
+    default: '9503000090'
   },
 	listId: String, // need this to modify the item in quickbooks
 	editSequence: String, // also need this in order to modify the item in qb

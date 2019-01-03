@@ -153,6 +153,7 @@ html
 					theCustomer.billingCity = $('#billingCity').val();
 					theCustomer.billingZipCode = $('#billingZipCode').val();
 					theCustomer.billingCountry = $('#billingCountry').val();
+					theCustomer.billingState = $('#billingState').val();
 					socket.emit('saveCustomer', theCustomer, cb => {
 						location.reload();
 					});
