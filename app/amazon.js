@@ -19,7 +19,7 @@ function bulkAddItems(skus) {
 function addProductToAmazon(itemPromise) {
 	function productMessage(item) {
 		var barcodeType = 'UPC';
-		if (item.barcode.length == 13) {
+		if (item.barcode && item.barcode.length == 13) {
 			barcodeType = 'EAN';
 		}
 
