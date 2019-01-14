@@ -244,6 +244,8 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
 		  	});
   		} else {
   			console.log('item not found: ' + sku);
+        // create the new item here
+        //let newItem = 
   		}
   	});
   }
