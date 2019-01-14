@@ -1555,7 +1555,7 @@ function queryAllItems(qbws) {
 }
 
 function runInventory(qbws) {
-  return Item.find({}).limit(10).then(items => {
+  return Item.find({sku: '60110576'}).then(items => {
     var siteRq = getItemSiteInventory(items);
     qbws.addRequest(siteRq, updateItemSites, true);
     return Item.update({}, {$set: {updated: false}});
