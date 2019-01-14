@@ -331,7 +331,7 @@ module.exports = function(app, passport) {
   });
 
   app.get('/list-orders', (req, res) => {
-    var findOrders = CustomOrder.find({}).sort({lastModified: -1});
+    var findOrders = CustomOrder.find({}).sort({lastModified: -1}).limit(100);
     findOrders.then((customOrders) => {
       res.render('list-orders', {
         orders: customOrders
