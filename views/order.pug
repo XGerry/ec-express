@@ -241,7 +241,11 @@ html
 									.input-group-prepend
 											.input-group-text
 												i.far.fa-dollar-sign
-									input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
+									if (order.shippingCost)
+										input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
+									else
+										input.form-control(type="number")#orderShippingCost
+
 						.col
 							.form-group
 								label(for="orderShipDate") Ship Date
