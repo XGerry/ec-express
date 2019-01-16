@@ -1546,7 +1546,7 @@ function saveToQuickbooks(item, qbws, adjustInventory, canadian) {
  * This is all the items and the options
  */
 function queryAllItems(qbws) {
-  return Item.find({sku: '60110576'}).then(items => {
+  return Item.find({}).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart, true);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly, true); // how do we know if it's a bundle?
     return Item.update({}, {$set: {updated: false}});
