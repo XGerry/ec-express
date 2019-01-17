@@ -259,7 +259,7 @@ function populateFromFile(data) {
 		items.forEach(item => {
 			var stockToAdd = restocks[item.barcode] || restocks[item.sku];
 			if (stockToAdd) {
-				addToInventoryList(item, stockToAdd, true);
+				addToInventoryList(item, stockToAdd, false);
 			}
 		});
 
