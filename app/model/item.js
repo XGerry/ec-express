@@ -154,7 +154,7 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
     this.catalogIdCan = cartItem.SKUInfo.CatalogID;
     this.canLink = cartItem.ProductLink;
     this.canStock = cartItem.SKUInfo.Stock;
-    this.canWholesalePrice = cartItem.PriceLevel7; // Canadian Wholesale Price
+    this.canWholesalePrice = cartItem.PriceLevel2; // Canadian Wholesale Price
   }
   else {
     this.usPrice = cartItem.SKUInfo.Price;
@@ -213,7 +213,7 @@ itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, o
     this.optionIdCan = optionItem.AdvancedOptionCode;
     this.catalogIdCan = parentItem.SKUInfo.CatalogID; // Parent Item
     this.canPrice = optionItem.AdvancedOptionPrice;
-    this.canWholesalePrice = parentItem.PriceLevel7;
+    this.canWholesalePrice = parentItem.PriceLevel2;
     this.canLink = parentItem.ProductLink;
     this.canStock = optionItem.AdvancedOptionStock;
   }

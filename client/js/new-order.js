@@ -524,6 +524,7 @@ function setCustomerModalFields(customer) {
 }
 
 function populateCustomerInfo(customer) {
+	console.log(customer);
 	$('#customerName').val(customer.BillingFirstName + customer.BillingLastName);
 	$('#companyName').val(customer.ShippingCompany);
 	$('#customerFirstName').val(customer.BillingFirstName);
@@ -535,10 +536,10 @@ function populateCustomerInfo(customer) {
 	$('#billingState').val(customer.BillingState);
 	$('#billingCountry').val(customer.BillingCountry);
 	$('#billingZip').val(customer.BillingZipCode);
-	$('#shipmentFirstName').val(customer.ShipmentFirstName);
-	$('#shipmentLastName').val(customer.ShipmentLastName);
-	$('#shipmentCompany').val(customer.ShipmentCompany);
-	$('#shipmentPhone').val(customer.ShipmentPhone);
+	$('#shipmentFirstName').val(customer.ShippingFirstName);
+	$('#shipmentLastName').val(customer.ShippingLastName);
+	$('#shipmentCompany').val(customer.ShippingCompany);
+	$('#shipmentPhone').val(customer.ShippingPhoneNumber);
 	$('#shippingAddress').val(customer.ShippingAddress1);
 	$('#shippingAddress2').val(customer.ShippingAddress2);
 	$('#shippingCity').val(customer.ShippingCity);
