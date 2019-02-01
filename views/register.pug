@@ -1,0 +1,65 @@
+extends templates/template
+append head
+	title Register
+append body
+	.container.pt-5
+		.row
+			.col.text-center
+				h1 Registration
+		.row.mt-2.justify-content-center
+			.col-6
+				.card
+					.card-body
+						p#info
+						form#registration(action="/register" method="POST")
+							.form-group
+								label(for="email") Email
+								input.form-control(type="email" name="email")#email
+							.form-group
+								label(for="username") Name
+								input.form-control(type="text" name="username")#username
+							.form-group
+								label(for="password") Password
+								input.form-control(type="password" name="password")#password
+							.row
+								.col.align-items-center.d-flex
+									p.mb-0.mr-auto Already have an account? Please #[a(href="/login") login].
+									button.btn.btn-primary(type="button")#registerButton Register
+	script.
+		$(document).ready(e => {
+			$('#registerButton').click(e => {
+				var user = register();
+				if (user) {
+					$('#registration').submit();
+				}
+			});
+			
+			$('#password').on('keydown', e => {
+				var code = e.keyCode || e.which;
+				if (code == 13) {
+					var user = register();
+					console.log(user);
+					if (user) {
+						$('#registration').submit();
+					}
+				}
+			});
+		});
+		
+		function register() {
+			var user = {
+				email: $('#email').val(),
+				password: $('#password').val()
+			}
+			if (user.email == '') {
+				$('#info').text('Please enter an email.');
+				$('#email').select();
+				return false;
+			}
+			if (user.password == '') {
+				$('#info').text('Your password must be at least 6 characters.')
+				$('#password').select();
+				return false;
+			}
+			return user;
+		}

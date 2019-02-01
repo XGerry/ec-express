@@ -6,6 +6,8 @@ var Order = require('./model/order');
 var Batch = require('./model/batch');
 var Customer = require('./model/customer');
 var CustomOrder = require('./model/customOrder');
+const User = require('./model/user');
+const Company = require('./model/company');
 var PurchaseOrder = require('./model/purchaseOrder');
 var Item = require('./model/item');
 var Manifest = require('./model/manifest');
@@ -15,86 +17,27 @@ var helpers = require('./helpers');
 var request = require('request');
 var rp = require('request-promise-native');
 var moment = require('moment');
-
-// application/x-www-form-urlencoded
 var formParser = bodyParser.urlencoded({limit : '50mb'});
 
-module.exports = function(app, passport) {
+async function verifyUser(req, res, next) {
+  if (req.session.userId == undefined || req.session.userId == null) {
+    res.render('login', {
+      error: 'Your session has expired. Please login again.'
+    });
+  } else {
+    req.session.user = await User.findOne({_id: req.session.userId}).populate('defaultCompany').exec();
+    // await req.session.user.defaultCompany.populate('marketplaces').execPopulate();
+    next();
+  }
+}
+
+module.exports = app => {
 	// for downloading the qwc file to hook up the web connector
   app.get('/connector', function(req, res) {
     res.download(path.join(__dirname, '../qbws/ec-connector.qwc'), 'ec-connector.qwc')
   });
 
-  // signup page - disabled for now
-  /*
-  app.post('/signup', formParser, function(req, res, next) {
-    passport.authenticate('local-signup', function(err, user, info) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        return res.send({
-          success : false,
-          message : 'That username already exists.'
-        });
-      } else {
-        req.login(user, function(error) {
-          if (error) {
-            return next(error);
-          }
-          console.log('Request should have logged in successfully');
-          return res.send({
-            success : true,
-            redirect : '/'
-          });
-        });
-      }
-    })(req, res, next);
-  });
-  */
-
-  app.get('/signup', function(req, res) {
-    res.sendFile(path.join(__dirname,'../client', 'signup.html'));
-  });
-
-  app.get('/login', function(req, res) {
-    res.sendFile(path.join(__dirname,'../client', 'login.html'));
-  });
-
-  app.post('/login', formParser, function(req, res, next) {
-    passport.authenticate('local-login', function(err, user, info) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        return res.send({
-          success : false,
-          message : info
-        });
-      } else {
-        req.login(user, function(error) {
-          if (error) {
-            return next(error);
-          }
-          console.log('Request should have logged in successfully');
-          // load the default settings
-          Settings.findOne({account: user}, function(err, doc) {
-            if (doc) {
-              qbws.companyFile = doc.companyFile;
-            }
-          });
-          return res.send({
-            success : true,
-            redirect : '/'
-          });
-        });
-      }
-    })(req, res, next);
-  });
-
-  app.get('/customs', function(req, res) {
+  app.get('/customs', function(req, res) { // DEPRECATED
     var id = req.query.id;
     if (id) {
       var findManifest = Manifest.findOne({_id: id});
@@ -108,32 +51,7 @@ module.exports = function(app, passport) {
     }
   });
 
-  app.get('/new-manifest', function(req, res) {
-    var loadOrders = cart3d.loadOrders({
-      orderstatus: 4,
-      limit: 1
-    });
-    loadOrders.then((orders) => {
-      res.render('new-manifest', {
-        orders: orders
-      });
-    });
-  });
-
-  app.get('/3dcart', function(req, res) {
-    res.render('3dcart');
-  });
-
-  app.get('/user', function(req, res) {
-    return res.send(req.user);
-  });
-
-  app.get('/inventory', function(req, res) {
-    res.render('inventory');
-  });
-
-  app.get('/', function(req, res) {
-    console.log('Home page of EC-Express');
+  app.get('/', verifyUser, (req, res) => {
     var today = moment();
     var yesterday = today.clone(); //.subtract(24, 'hours');
     yesterday.subtract(1, 'days');
@@ -151,6 +69,114 @@ module.exports = function(app, passport) {
         });
       });
     });
+  });
+
+  app.get('/login', (req, res) => {
+    res.render('login');
+  });
+
+  app.get('/register', (req, res) => {
+    res.render('register');
+  });
+  
+  app.post('/login', (req, res) => {
+    User.authenticate(req.body.email, req.body.password).then(result => {
+      if (result.success === true) {
+        req.session.userId = result.userId;
+        var referer = req.get('Referer');
+        console.log(referer);
+        if (referer.includes('/login') || referer.includes('/register')) {
+          res.redirect('/');
+        } else {
+          res.redirect(referer);
+        }
+      } else {
+        res.render('login', {
+          error: result.error
+        });
+      }
+    }).catch(err => {
+      console.log('Error authenticating the user');
+      console.log(err);
+      res.redirect('/');
+    });
+  });
+
+  app.post('/register', (req, res) => {
+    User.create(req.body).then(user => {
+      res.session.userId = user._id;
+      res.redirect('/home');
+    }).catch(err => {
+      res.render('login', {
+        error: 'User already exists. Please login.',
+        email: req.body.email
+      });
+    });
+  });
+
+  // ORDERS
+  app.get('/orders', verifyUser, async (req, res) => {
+    Order.find({}).limit(10).sort('-orderDate').populate('customer').then(async recentOrders => {
+      let batches = await Batch.find({completed: false}).populate('user').sort('startTime').exec();
+      let unpickedOrders = await Order.find({picked: false, hold: false}).populate('customer').exec();
+      res.render('orders', {
+        recentOrders: recentOrders,
+        user: req.session.user,
+        batches: batches,
+        unpicked: unpickedOrders
+      });
+    });
+  });
+
+  app.get('/order', verifyUser, (req, res) => {
+    let id = req.query.id;
+    if (id) {
+      res.redirect('/orders/view/'+id);
+    } else {
+      res.redirect('/orders');
+    }
+  });
+
+  app.get('/orders/view/:orderId', verifyUser, (req, res) => {
+    Order.findOne({_id: req.params.orderId}).populate('customer').populate('backorders').populate({
+      path: 'items.item',
+      model: 'Item',
+      populate: {
+        path: 'parent',
+        model: 'Item'
+      }
+    }).then(order => {
+      if (order) {
+        getCustomerType(order).then(() => {
+          res.render('order', {
+            order: order,
+            user: req.session.user
+          });
+        });
+      } else {
+        res.redirect('/orders');
+      }
+    });
+  });
+
+  app.get('/print-orders', verifyUser, (req, res) => {
+    res.redirect('/orders/pick');
+  });
+
+  app.get('/orders/pick', verifyUser, (req, res) => {
+    Order.find({picked: false, batch: null, hold: false}).populate('customer').sort('orderDate').then(orders => {
+      res.render('print-orders', {
+        orders: orders
+      });
+    });
+  });
+
+  app.get('/order-dashboard', verifyUser, (req, res) => {
+    res.redirect('/orders');
+  });
+
+  app.get('/inventory', function(req, res) {
+    res.render('inventory');
   });
 
   app.get('/order-sync', function(req, res) {
@@ -191,10 +217,11 @@ module.exports = function(app, passport) {
         });
       });
     } else {
-      res.render('print-orders');
+      res.redirect('print-orders');
     }
   });
 
+  // dep
   app.get('/invoice', (req, res) => {
     var orderId = req.query.orderId;
     if (orderId) {
@@ -365,14 +392,6 @@ module.exports = function(app, passport) {
     res.render('product-upload');
   });
 
-  app.get('/print-orders', (req, res) => {
-    Order.find({picked: false, batch: null, hold: false}).populate('customer').sort('orderDate').then(orders => {
-      res.render('print-orders', {
-        orders: orders
-      });
-    });
-  });
-
   app.get('/deliveries', (req, res) => {
     res.render('deliveries');
   });
@@ -409,14 +428,6 @@ module.exports = function(app, passport) {
 
   app.get('/tools', (req, res) => {
     res.render('tools');
-  });
-
-  app.get('/order-dashboard', (req, res) => {
-    Order.find({picked: false, hold: false}).populate('customer').then(orders => {
-      res.render('order-dashboard', {
-        orders: orders
-      });
-    });
   });
 
   app.get('/unpaid-orders', (req, res) => {
@@ -458,14 +469,6 @@ module.exports = function(app, passport) {
     });
   });
 
-  app.get('/orders', (req, res) => {
-    Order.find({}).populate('customer').then(orders => {
-      res.render('orders', {
-        orders: orders
-      });
-    });
-  });
-
   app.get('/orders/on/:day', (req, res) => {
     var dayStart = moment(req.params.day).startOf('day');
     var dayEnd = moment(req.params.day).endOf('day');
@@ -484,27 +487,6 @@ module.exports = function(app, passport) {
           canOrders: canOrders
         });
       });
-    });
-  });
-
-  app.get('/order', (req, res) => {
-    Order.findOne({_id: req.query.id}).populate('customer').populate('backorders').populate({
-      path: 'items.item',
-      model: 'Item',
-      populate: {
-        path: 'parent',
-        model: 'Item'
-      }
-    }).then(order => {
-      if (order) {
-        getCustomerType(order).then(() => {
-          res.render('order', {
-            order: order
-          });
-        });
-      } else {
-        res.redirect('/orders');
-      }
     });
   });
 

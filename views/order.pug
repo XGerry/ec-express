@@ -1,605 +1,619 @@
+extends templates/default
+
 mixin itemRow(item, order)
-	tr(onclick="editItem('"+item._id+"')")
-		if (!item.item)
-			td Error loading item
-			td -
-			td -
-			td -
-			td -
-			td -
-		else
-			td=item.item.sku
-			if (item.item.isOption)
-				td=item.item.parent.name + ' - ' + item.item.name
-			else
-				td=item.item.name
-			td=item.quantity
-			td=item.pickedQuantity
-			td
-				if (item.price)
-					='$' + item.price.toFixed(2)
-				else
-					= '$0.00'
-			td
-				if (item.price)
-					='$' + (item.price * item.quantity).toFixed(2)
-				else
-					= '$0.00'
+  tr(onclick="editItem('"+item._id+"')")
+    if (!item.item)
+      td Error loading item
+      td -
+      td -
+      td -
+      td -
+      td -
+    else
+      td=item.item.sku
+      if (item.item.isOption)
+        td=item.item.parent.name + ' - ' + item.item.name
+      else
+        td=item.item.name
+      td=item.quantity
+      td=item.pickedQuantity
+      td
+        if (item.price)
+          ='$' + item.price.toFixed(2)
+        else
+          = '$0.00'
+      td
+        if (item.price)
+          ='$' + (item.price * item.quantity).toFixed(2)
+        else
+          = '$0.00'
 
-doctype html
-include mixins
-html
-	include includes/head
-		title=order.orderId
-		script(src="/js/papaparse.min.js")
-	body
-		#wrapper
-			+sidebarNav("orders")
-			#page-content
-				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
-					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
-						i.far.fa-bars.fa-fw
-					span.navbar-brand.mb-0.h1.pl-2=order.orderId
-					//form.form-inline
-						select.form-control#orderStatus
-							option(value=1) New
-							option(value=2) Processing
-							option(value=3) Backorder
-							option(value=6) Pre-order
-							option(value=9) Awaiting Payment
-							option(value=13) Awaiting Shipment
-							option(value=4) Shipped
-					span.navbar-text#orderInfo.ml-2
-					ul.navbar-nav.ml-auto
-						li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Customer
-							ul.dropdown-menu.dropdown-menu-right
-								a(href="/customer?id="+order.customer._id).dropdown-item View
-								a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
-								
-						li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
-							ul.dropdown-menu.dropdown-menu-right
-								a(href="#").dropdown-item#calculateProfitButton Calculate Profit
-								if (order.invoiced)
-									a(href="#").dropdown-item#createBackorderButton Create Backorder
-								if (order.isCartOrder)
-									a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
-								if (order.imported)
-									a(href="#").dropdown-item#closeSalesOrderButton Close Sales Order
-								a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
-								a(href="#").dropdown-item#replacePricing Replace Pricing
-								input(type="file" style="display:none;")#fileInput
-								a(href="#").dropdown-item#refreshFromOriginal Reload from Original
-								.dropdown-divider
-								if (order.batch)
-									a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
-								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
-						button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
-						.btn-group
-							button.btn.btn-success(type="button")#saveOrderButton Save
-							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
-							.dropdown-menu.dropdown-menu-right
-								a.dropdown-item(href="#")#updateQuickbooks Update in QB
-								a.dropdown-item(href="#")#invoiceOrder Invoice Order
+append nav-items-right
+  li.dropdown.nav-item
+    a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Customer
+    ul.dropdown-menu.dropdown-menu-right
+      a(href="/customer?id="+order.customer._id).dropdown-item View
+      a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
+  li.dropdown.nav-item
+    a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+    ul.dropdown-menu.dropdown-menu-right
+      a(href="#").dropdown-item#calculateProfitButton Calculate Profit
+      if (order.invoiced)
+        a(href="#").dropdown-item#createBackorderButton Create Backorder
+      if (order.isCartOrder)
+        a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
+      if (order.imported)
+        a(href="#").dropdown-item#closeSalesOrderButton Close Sales Order
+      a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
+      a(href="#").dropdown-item#replacePricing Replace Pricing
+      input(type="file" style="display:none;")#fileInput
+      a(href="#").dropdown-item#refreshFromOriginal Reload from Original
+      .dropdown-divider
+      if (order.batch)
+        a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
+      a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+  button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
+  .btn-group
+    button.btn.btn-success(type="button")#saveOrderButton Save
+    button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
+    .dropdown-menu.dropdown-menu-right
+      a.dropdown-item(href="#")#updateQuickbooks Update in QB
+      a.dropdown-item(href="#")#invoiceOrder Invoice Order
 
-				.container.pt-3
-					.row
-						.col
-							h4 Information
-							table.table.table-sm#customerTable
-								thead
-									tr
-										th Name
-										th Company Name
-										th Email
-										th Phone
-								tbody#customerTableBody
-									tr
-										td=order.customer.name
-										td=order.customer.companyName
-										td=order.customer.email
-										td=order.customer.phone
-					.row
-						.col
-							table.table.table-sm
-								thead
-									tr
-										th.text-center Imported
-										th.text-center Picked
-										th.text-center Invoiced
-										th.text-center Paid
-										th.text-center Rush
-										th.text-center Hold
-										th Reason
-										th.text-center Backorder
-										th Batch
-										if (order.isBackorder)
-											th Parent
-								tbody
-									tr
-										td.text-center
-											input(type="checkbox" checked=order.imported style="transform: scale(2);" disabled)
-										td.text-center
-											input(type="checkbox" checked=order.picked style="transform: scale(2);")#pickedCheckbox
-										td.text-center
-											input(type="checkbox" checked=order.invoiced style="transform: scale(2);")#invoicedCheckbox
-										td.text-center
-											input(type="checkbox" checked=order.paid style="transform: scale(2);")#paidCheckbox
-										td.text-center
-											input(type="checkbox" checked=order.rush style="transform: scale(2);")#rushCheckbox
-										td.text-center
-											input(type="checkbox" checked=order.hold style="transform: scale(2);")#holdCheckbox
-										td
-											input(type="text" value=order.reasonForHold).form-control#holdReason
-										td.text-center
-											input(type="checkbox" checked=order.isBackorder style="transform: scale(2);" disabled)
-										td
-											if (order.batch)
-												a(href="batch?id="+order.batch) View
-											else
-												| None
-										if (order.isBackorder)
-											td
-												a(href="/order?id="+order.parent) View
-					.row
-						.col
-							table.table.table-sm
-								thead
-									tr
-										th Payment method
-										th Customer Type
-										th Original Value
-										th Total Cost
-										th Order Profit
-										th Order Date
-										th Ordered
-										th Picked
-								tbody
-									tr
-										if (order.paymentMethod)
-											td= order.paymentMethod
-										else
-											td= order.cartOrder.BillingPaymentMethod
-										td= order.customer.customerType == 0 ? 'Retail' : 'Wholesale'
-										td='$'+order.orderValue.toFixed(2)
-										-
-											var pickedValue = 0;
-											pickedValue =	order.items.reduce((total, item) => total += item.pickedQuantity * item.price, 0);
-											pickedValue += order.shippingCost;
+append nav-items
+  h4.pl-2.text-white=order.orderId
+  span.navbar-text#orderInfo.ml-2
 
-										td= '$' + pickedValue.toFixed(2)
-										if (order.orderProfit != undefined)
-											td= '$'+order.orderProfit.toFixed(2)
-										else
-											td N/A
-										td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
-										td= order.numberOfItems
-										td= order.numberOfItemsPicked
-					.row
-						.col
-							h5 Billing Info
-							.form-group
-								label Address 1
-								input.form-control(type="text" value=order.customer.billingAddress)#billingAddress
-							.form-group
-								label Address 2
-								input.form-control(type="text" value=order.customer.billingAddress2)#billingAddress2
-							.row
-								.col
-									.form-group
-										label City
-										input.form-control(type="text" value=order.customer.billingCity)#billingCity
-								.col
-									.form-group
-										label State
-										input.form-control(type="text" value=order.customer.billingState)#billingState
-							.row
-								.col
-									.form-group
-										label Zip Code
-										input.form-control(type="text" value=order.customer.billingZipCode)#billingZipCode
-								.col
-									.form-group
-										label Country
-										input.form-control(type="text" value=order.customer.billingCountry)#billingCountry
-						.col
-							h5 Shipping Info
-							.form-group
-								label Address 1
-								input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress)#shipmentAddress
-							.form-group
-								label Address 2
-								input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress2)#shipmentAddress2
-							.row
-								.col
-									.form-group
-										label City
-										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCity)#shipmentCity
-								.col
-									.form-group
-										label State
-										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentState)#shipmentState
-							.row
-								.col
-									.form-group
-										label Zip Code
-										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentZipCode)#shipmentZipCode
-								.col
-									.form-group
-										label Country
-										input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCountry)#shipmentCountry
-					.row
-						.col
-							.form-group
-								label(for="orderTrackingNumber") Tracking Number
-								input.form-control(type="text", value=order.trackingNumber)#orderTrackingNumber
-						.col
-							.form-group
-								label(for="orderShippingCost") Shipping Cost
-								.input-group
-									.input-group-prepend
-											.input-group-text
-												i.far.fa-dollar-sign
-									if (order.shippingCost)
-										input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
-									else
-										input.form-control(type="number")#orderShippingCost
+append head
+  title=order.orderId
+  script(src="/js/papaparse.min.js")
+  
+append body
+  .container-fluid
+    ul.nav.nav-tabs#itemDetailTabs(role="tablist")
+      li.nav-item
+        a.nav-link.active#info-tab(data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true") Info
+      li.nav-item
+        a.nav-link#details-tab(data-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="true") Details
+      li.nav-item
+        a.nav-link#customer-tab(data-toggle="tab" href="#customer" role="tab" aria-controls="customer" aria-selected="false") Customer
+      li.nav-item
+        a.nav-link#reports-tab(data-toggle="tab" href="#reports" role="tab" aria-controls="reports" aria-selected="false") Sales Reports
 
-						.col
-							.form-group
-								label(for="orderShipDate") Ship Date
-								input.form-control(type="date", value=order.shipDate ? moment(order.shipDate).utc().format('YYYY-MM-DD') : '')#orderShipDate
+    .tab-content
+      .tab-pane.fade.show.active#info(role="tabpanel" aria-labelledby="info-tab")
+        .row.pt-2
+          .col-8
+            table.table.table-sm
+              thead
+                tr
+                  th Name
+                  th Company Name
+                  th Email
+                  th Phone
+                  th Value
+                  th Date
+              tbody
+                tr
+                  td=order.customer.name
+                  td=order.customer.companyName
+                  td=order.customer.email
+                  td=order.customer.phone
+                  td=moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
+                  td='$'+order.orderValue.toFixed(2)
+          .col-4
+            .row
+              .col
+                label Picked
+                label.switch
+                  input(type="checkbox" checked=order.picked).default#pickedCheckbox
+                  span.slider
+              .col
+                label Invoiced
+                label.switch
+                  input.default(type="checkbox" checked=order.invoiced style="transform: scale(2);")#invoicedCheckbox
+                  span.slider
+              .col
+                label Paid
+                label.switch
+                  input.default(type="checkbox" checked=order.paid style="transform: scale(2);")#paidCheckbox
+                  span.slider
+              .col
+                label Rush
+                label.switch
+                  input.default(type="checkbox" checked=order.rush style="transform: scale(2);")#rushCheckbox
+                  span.slider
+              .col
+                label Hold
+                label.switch
+                  input.default(type="checkbox" checked=order.hold style="transform: scale(2);")#holdCheckbox
+                  span.slider
+        .row
+          .col
+            .form-group
+              label(for="orderTrackingNumber") Tracking Number
+              input.form-control(type="text", value=order.trackingNumber)#orderTrackingNumber
+          .col
+            .form-group
+              label(for="orderShippingCost") Shipping Cost
+              .input-group
+                .input-group-prepend
+                    .input-group-text
+                      i.far.fa-dollar-sign
+                if (order.shippingCost)
+                  input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
+                else
+                  input.form-control(type="number")#orderShippingCost
+          .col
+            .form-group
+              label(for="orderShipDate") Ship Date
+              input.form-control(type="date", value=order.shipDate ? moment(order.shipDate).utc().format('YYYY-MM-DD') : '')#orderShipDate
+      .tab-pane.fade#details(role="tabpanel" aria-labelledby="details-tab")
+        .row.pt-2
+          .col
+            table.table.table-sm
+              thead
+                tr
+                  th Payment method
+                  th Customer Type
+                  th Original Value
+                  th Total Cost
+                  th Order Profit
+                  th Order Date
+                  th Ordered
+                  th Picked
+              tbody
+                tr
+                  if (order.paymentMethod)
+                    td= order.paymentMethod
+                  else
+                    td= order.cartOrder.BillingPaymentMethod
+                  td= order.customer.customerType == 0 ? 'Retail' : 'Wholesale'
+                  td='$'+order.orderValue.toFixed(2)
+                  -
+                    var pickedValue = 0;
+                    pickedValue = order.items.reduce((total, item) => total += item.pickedQuantity * item.price, 0);
+                    pickedValue += order.shippingCost;
 
-					if (order.cartOrder.CustomerComments)
-						.row
-							.col
-								h5 Customer Comments
-								p=order.cartOrder.CustomerComments
-					.row.pt-2
-						.col
-							h4 Items
-							table.table.table-striped.table-hover#orderTable
-								thead
-									tr
-										th SKU
-										th Name
-										th Ordered
-										th Picked
-										th Price
-										th Line Total
-								tbody#orderTableBody
-									each item in order.items
-										+itemRow(item, order.cartOrder)
-					if (order.backorders.length > 0)
-						.row.pt-2
-							.col
-								h5 Back Orders
-								table.table.table-striped.table-hover#backOrderTable
-									thead
-										tr
-											th Order ID
-											th Items Ordered
-											th Items Picked
-									tbody
-										for backorder in order.backorders
-											tr(onclick="location='/order?id="+backorder._id+"'")
-												td=backorder.orderId
-												td=backorder.numberOfItems
-												td=backorder.numberOfItemsPicked
-					.row
-						.col
-							h5 Internal Comments
-							textarea.form-control(rows=4)#orderComments= order.comments
-		
-		#addItemModal.modal(tabindex="-1" role="dialog").fade
-			.modal-dialog.modal-lg(role="document")
-				.modal-content
-					.modal-header
-						h5 Add or Edit Item
-						button.close(type="button", data-dismiss="modal", aria-label="Close")
-							span(aria-hidden="true") &times;
-					.modal-body
-						.row
-							.col
-								label SKU
-								input.form-control(type="text")#itemSKU
-							.col
-								label Quantity
-								input.form-control(type="number")#itemQuantity
-							.col
-								label Price
-								.input-group
-									.input-group-prepend
-										.input-group-text $
-									input.form-control(type="number")#itemPrice
-							.col
-								label Picked
-								input.form-control(type="number")#itemPickedQuantity
-					.modal-footer
-						button.btn-primary.btn(type="button")#saveItemButton Save
-						button.btn-outline-danger.btn(type="button")#deleteItemButton Delete
-						button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
-						a.btn-outline-secondary.btn(target="_blank")#viewItem View Item
+                  td= '$' + pickedValue.toFixed(2)
+                  if (order.orderProfit != undefined)
+                    td= '$'+order.orderProfit.toFixed(2)
+                  else
+                    td N/A
+                  td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
+                  td= order.numberOfItems
+                  td= order.numberOfItemsPicked
+        .row
+          .col
+            table.table.table-sm
+              thead
+                tr
+                  th.text-center Imported
+                  th Hold Reason
+                  th.text-center Backorder
+                  th Batch
+                  if (order.isBackorder)
+                    th Parent
+              tbody
+                tr
+                  td.text-center
+                    input(type="checkbox" checked=order.imported style="transform: scale(2);" disabled)
+                  td
+                    input(type="text" value=order.reasonForHold).form-control#holdReason
+                  td.text-center
+                    input(type="checkbox" checked=order.isBackorder style="transform: scale(2);" disabled)
+                  td
+                    if (order.batch)
+                      a(href="batch?id="+order.batch) View
+                    else
+                      | None
+                  if (order.isBackorder)
+                    td
+                      a(href="/order?id="+order.parent) View
 
-		+footer
-		script.
-			var socket = io();
-			var theOrder = !{JSON.stringify(order)};
-			var theItem;
-			var addingItem = false;
-			console.log(theOrder);
+      .tab-pane.fade#customer(role="tabpanel" aria-labelledby="customer-tab")
+        .row.pt-2
+          .col
+            h5 Billing Info
+            .form-group
+              label Address 1
+              input.form-control(type="text" value=order.customer.billingAddress)#billingAddress
+            .form-group
+              label Address 2
+              input.form-control(type="text" value=order.customer.billingAddress2)#billingAddress2
+            .row
+              .col
+                .form-group
+                  label City
+                  input.form-control(type="text" value=order.customer.billingCity)#billingCity
+              .col
+                .form-group
+                  label State
+                  input.form-control(type="text" value=order.customer.billingState)#billingState
+            .row
+              .col
+                .form-group
+                  label Zip Code
+                  input.form-control(type="text" value=order.customer.billingZipCode)#billingZipCode
+              .col
+                .form-group
+                  label Country
+                  input.form-control(type="text" value=order.customer.billingCountry)#billingCountry
+          .col
+            h5 Shipping Info
+            .form-group
+              label Address 1
+              input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress)#shipmentAddress
+            .form-group
+              label Address 2
+              input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress2)#shipmentAddress2
+            .row
+              .col
+                .form-group
+                  label City
+                  input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCity)#shipmentCity
+              .col
+                .form-group
+                  label State
+                  input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentState)#shipmentState
+            .row
+              .col
+                .form-group
+                  label Zip Code
+                  input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentZipCode)#shipmentZipCode
+              .col
+                .form-group
+                  label Country
+                  input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCountry)#shipmentCountry
 
-			$(document).ready(e => {
-				$('#addItemButton').click(e => {
-					addingItem = true;
-					var newItem = {
-						item: {
-							sku: ''
-						},
-						quantity: 1,
-						price: 0,
-						pickedQuantity: 0
-					}
-					showModal(newItem);
-				});
+  if (order.cartOrder.CustomerComments)
+    .row
+      .col
+        h5 Customer Comments
+        p=order.cartOrder.CustomerComments
+  .row.pt-2
+    .col
+      h4 Items
+      table.table.table-striped.table-hover#orderTable
+        thead
+          tr
+            th SKU
+            th Name
+            th Ordered
+            th Picked
+            th Price
+            th Line Total
+        tbody#orderTableBody
+          each item in order.items
+            +itemRow(item, order.cartOrder)
+  if (order.backorders.length > 0)
+    .row.pt-2
+      .col
+        h5 Back Orders
+        table.table.table-striped.table-hover#backOrderTable
+          thead
+            tr
+              th Order ID
+              th Items Ordered
+              th Items Picked
+          tbody
+            for backorder in order.backorders
+              tr(onclick="location='/order?id="+backorder._id+"'")
+                td=backorder.orderId
+                td=backorder.numberOfItems
+                td=backorder.numberOfItemsPicked
+  .row
+    .col
+      h5 Internal Comments
+      textarea.form-control(rows=4)#orderComments= order.comments
 
-				$('#replacePricing').click(e => {
-					e.preventDefault();
-					$('#fileInput').val('');
-					$('#fileInput').click();
-				});
+  #addItemModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5 Add or Edit Item
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          .row
+            .col
+              label SKU
+              input.form-control(type="text")#itemSKU
+            .col
+              label Quantity
+              input.form-control(type="number")#itemQuantity
+            .col
+              label Price
+              .input-group
+                .input-group-prepend
+                  .input-group-text $
+                input.form-control(type="number")#itemPrice
+            .col
+              label Picked
+              input.form-control(type="number")#itemPickedQuantity
+        .modal-footer
+          button.btn-primary.btn(type="button")#saveItemButton Save
+          button.btn-outline-danger.btn(type="button")#deleteItemButton Delete
+          button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
+          a.btn-outline-secondary.btn(target="_blank")#viewItem View Item
+
+  script.
+    var socket = io();
+    var theOrder = !{JSON.stringify(order)};
+    var theItem;
+    var addingItem = false;
+    console.log(theOrder);
+
+    $(document).ready(e => {
+      $('#addItemButton').click(e => {
+        addingItem = true;
+        var newItem = {
+          item: {
+            sku: ''
+          },
+          quantity: 1,
+          price: 0,
+          pickedQuantity: 0
+        }
+        showModal(newItem);
+      });
+
+      $('#replacePricing').click(e => {
+        e.preventDefault();
+        $('#fileInput').val('');
+        $('#fileInput').click();
+      });
 
 
-				$('#fileInput').on('change', e => {
-					console.log('file change');
-					$('#fileName').text(e.target.files[0].name);
+      $('#fileInput').on('change', e => {
+        console.log('file change');
+        $('#fileName').text(e.target.files[0].name);
 
-					$('#fileInput').parse({
-						config: {
-							complete: function(results, file) {
-								loadFromFile(results.data);
-							},
-							header: true
-						},
-						complete: function() {
-							console.log('all files done');
-						}
-					});
-				});
+        $('#fileInput').parse({
+          config: {
+            complete: function(results, file) {
+              loadFromFile(results.data);
+            },
+            header: true
+          },
+          complete: function() {
+            console.log('all files done');
+          }
+        });
+      });
 
-				$('#saveItemButton').click(e => {
-					theItem.quantity = $('#itemQuantity').val();
-					theItem.price = $('#itemPrice').val();
-					theItem.pickedQuantity = $('#itemPickedQuantity').val();
-					if (addingItem) {
-						theOrder.items.push(theItem);
-					}
-					recalculateTotal();
-					socket.emit('updateOrder', theOrder, response => {
-						location.reload();
-					});
-				});
+      $('#saveItemButton').click(e => {
+        theItem.quantity = $('#itemQuantity').val();
+        theItem.price = $('#itemPrice').val();
+        theItem.pickedQuantity = $('#itemPickedQuantity').val();
+        if (addingItem) {
+          theOrder.items.push(theItem);
+        }
+        recalculateTotal();
+        socket.emit('updateOrder', theOrder, response => {
+          location.reload();
+        });
+      });
 
-				$('#deleteItemButton').click(e => {
-					theOrder.items.splice(theOrder.items.indexOf(theItem), 1);
-					socket.emit('updateOrder', theOrder, response => {
-						location.reload();
-					});
-				});
+      $('#deleteItemButton').click(e => {
+        theOrder.items.splice(theOrder.items.indexOf(theItem), 1);
+        socket.emit('updateOrder', theOrder, response => {
+          location.reload();
+        });
+      });
 
-				$('#itemSKU').change(e => {
-					socket.emit('searchSKU', $('#itemSKU').val(), items => {
-						if (items.length == 0) { // item was not found
-							alert('The SKU was not found in the database. Please try again.')
-							$('#itemSKU').select();
-							return;
-						}
-						theItem.item = items[0];
-						theItem.price = determineItemPrice(items[0]);
-						$('#itemPrice').val(theItem.price.toFixed(2));
-					});
-				});
+      $('#itemSKU').change(e => {
+        socket.emit('searchSKU', $('#itemSKU').val(), items => {
+          if (items.length == 0) { // item was not found
+            alert('The SKU was not found in the database. Please try again.')
+            $('#itemSKU').select();
+            return;
+          }
+          theItem.item = items[0];
+          theItem.price = determineItemPrice(items[0]);
+          $('#itemPrice').val(theItem.price.toFixed(2));
+        });
+      });
 
-				$('#addItemModal').on('shown.bs.modal', e => {
-					$('#itemSKU').select();
-				});
+      $('#addItemModal').on('shown.bs.modal', e => {
+        $('#itemSKU').select();
+      });
 
-				$('#addItemModal').on('hidden.bs.modal', e => {
-					addingItem = false;
-				});
+      $('#addItemModal').on('hidden.bs.modal', e => {
+        addingItem = false;
+      });
 
-				$('#pickedCheckbox').on('change', e => {
-					theOrder.picked = $('#pickedCheckbox').is(':checked');
-				});
+      $('#pickedCheckbox').on('change', e => {
+        theOrder.picked = $('#pickedCheckbox').is(':checked');
+      });
 
-				$('#invoicedCheckbox').on('change', e => {
-					theOrder.invoiced = $('#invoicedCheckbox').is(':checked');
-				});
+      $('#invoicedCheckbox').on('change', e => {
+        theOrder.invoiced = $('#invoicedCheckbox').is(':checked');
+      });
 
-				$('#paidCheckbox').on('change', e => {
-					theOrder.paid = $('#paidCheckbox').is(':checked');
-				});
+      $('#paidCheckbox').on('change', e => {
+        theOrder.paid = $('#paidCheckbox').is(':checked');
+      });
 
-				$('#rushCheckbox').on('change', e => {
-					theOrder.rush = $('#rushCheckbox').is(':checked');
-				});
+      $('#rushCheckbox').on('change', e => {
+        theOrder.rush = $('#rushCheckbox').is(':checked');
+      });
 
-				$('#holdCheckbox').on('change', e => {
-					theOrder.hold = $('#holdCheckbox').is(':checked');
-				});
+      $('#holdCheckbox').on('change', e => {
+        theOrder.hold = $('#holdCheckbox').is(':checked');
+      });
 
-				$('#saveOrderButton').click(e => {
-					saveOrderProperties();
-					recalculateTotal();
-					socket.emit('updateOrder', theOrder, response => {
-						console.log(response);
-						$('#orderInfo').text('Saved Successfully!');
-						setTimeout(() => {
-							$('#orderInfo').text('');
-						}, 2000);
-					});
-				});
+      $('#saveOrderButton').click(e => {
+        saveOrderProperties();
+        recalculateTotal();
+        socket.emit('updateOrder', theOrder, response => {
+          console.log(response);
+          $('#orderInfo').text('Saved Successfully!');
+          setTimeout(() => {
+            $('#orderInfo').text('');
+          }, 2000);
+        });
+      });
 
-				$('#updateQuickbooks').click(e => {
-					saveOrderProperties();
-					socket.emit('updateOrderQB', theOrder._id, message => {
-						$('#orderInfo').text(message);
-						setTimeout(() => {
-							$('#orderInfo').text('');
-						}, 2000);
-					});
-				});
+      $('#updateQuickbooks').click(e => {
+        saveOrderProperties();
+        socket.emit('updateOrderQB', theOrder._id, message => {
+          $('#orderInfo').text(message);
+          setTimeout(() => {
+            $('#orderInfo').text('');
+          }, 2000);
+        });
+      });
 
-				$('#invoiceOrder').click(e => {
-					saveOrderProperties();
-					socket.emit('invoiceOrder', theOrder._id, message => {
-						$('#orderInfo').text(message);
-						setTimeout(() => {
-							$('#orderInfo').text('');
-						}, 2000);
-					});
-				});
+      $('#invoiceOrder').click(e => {
+        saveOrderProperties();
+        socket.emit('invoiceOrder', theOrder._id, message => {
+          $('#orderInfo').text(message);
+          setTimeout(() => {
+            $('#orderInfo').text('');
+          }, 2000);
+        });
+      });
 
-				$('#removeFromBatchButton').click(e => {
-					e.preventDefault();
-					var yes = confirm('Are you sure you want to remove this order from it\'s batch?');
-					if (yes) {
-						socket.emit('removeOrderFromBatch', theOrder._id, response => {
-							location.reload();
-						});
-					}
-				});
+      $('#removeFromBatchButton').click(e => {
+        e.preventDefault();
+        var yes = confirm('Are you sure you want to remove this order from it\'s batch?');
+        if (yes) {
+          socket.emit('removeOrderFromBatch', theOrder._id, response => {
+            location.reload();
+          });
+        }
+      });
 
-				$('#deleteOrder').click(e => {
-					e.preventDefault();
-					var yes = confirm('Are you sure you want to delete the order from the system? If the order has a status of "New" in 3D Cart it will be imported again.');
-					if (yes) {
-						socket.emit('deleteOrder', theOrder._id, cb => {
-							window.location = '/orders';
-						});
-					}
-				});
+      $('#deleteOrder').click(e => {
+        e.preventDefault();
+        var yes = confirm('Are you sure you want to delete the order from the system? If the order has a status of "New" in 3D Cart it will be imported again.');
+        if (yes) {
+          socket.emit('deleteOrder', theOrder._id, cb => {
+            window.location = '/orders';
+          });
+        }
+      });
 
-				$('#refreshFromOriginal').click(e => {
-					e.preventDefault();
-					var yes = confirm('This will revert the order to it\'s original state. Are you sure you want to continue?');
-					if (yes) {
-						socket.emit('refreshOrder', theOrder._id, cb => {
-							location.reload();
-						});
-					}
-				});
+      $('#refreshFromOriginal').click(e => {
+        e.preventDefault();
+        var yes = confirm('This will revert the order to it\'s original state. Are you sure you want to continue?');
+        if (yes) {
+          socket.emit('refreshOrder', theOrder._id, cb => {
+            location.reload();
+          });
+        }
+      });
 
-				$('#createBackorderButton').click(e => {
-					e.preventDefault();
-					var yes = confirm('This will create a back order for this order with all unpicked items on it. Do you want to continue?');
-					if (yes) {
-						socket.emit('createBackorder', theOrder._id, cb => {
-							location.reload();
-						});
-					}
-				});
+      $('#createBackorderButton').click(e => {
+        e.preventDefault();
+        var yes = confirm('This will create a back order for this order with all unpicked items on it. Do you want to continue?');
+        if (yes) {
+          socket.emit('createBackorder', theOrder._id, cb => {
+            location.reload();
+          });
+        }
+      });
 
-				$('#calculateProfitButton').click(e => {
-					e.preventDefault();
-					socket.emit('calculateProfit', theOrder._id, cb => {
-						location.reload();
-					});
-				});
+      $('#calculateProfitButton').click(e => {
+        e.preventDefault();
+        socket.emit('calculateProfit', theOrder._id, cb => {
+          location.reload();
+        });
+      });
 
-				$('#closeSalesOrderButton').click(e => {
-					e.preventDefault();
-					var yes = confirm('This will manually close the original sales order in Quickbooks. Do you want to continue?');
-					if (yes) {
-						socket.emit('closeSalesOrder', theOrder.orderId, cb => {
-							$('#orderInfo').text(cb);
-							setTimeout(() => {
-								$('#orderInfo').text('');
-							}, 2000);
-						});
-					}
-				});
+      $('#closeSalesOrderButton').click(e => {
+        e.preventDefault();
+        var yes = confirm('This will manually close the original sales order in Quickbooks. Do you want to continue?');
+        if (yes) {
+          socket.emit('closeSalesOrder', theOrder.orderId, cb => {
+            $('#orderInfo').text(cb);
+            setTimeout(() => {
+              $('#orderInfo').text('');
+            }, 2000);
+          });
+        }
+      });
 
-				$('#orderTable').DataTable({
-					order: [[0, 'asc']],
-					pageLength: -1
-				});
-			});
+      $('#orderTable').DataTable({
+        order: [[0, 'asc']],
+        pageLength: -1
+      });
+    });
 
-			function determineItemPrice(item) {
-				if (theOrder.canadian) {
-					if (theOrder.customerType == 0) {
-						return item.canPrice;
-					} else {
-						return item.canWholesalePrice;
-					}
-				} else {
-					if (theOrder.customerType == 0) {
-						return item.usPrice;
-					} else {
-						return item.usWholesalePrice;
-					}
-				}
-			}
+    function determineItemPrice(item) {
+      if (theOrder.canadian) {
+        if (theOrder.customerType == 0) {
+          return item.canPrice;
+        } else {
+          return item.canWholesalePrice;
+        }
+      } else {
+        if (theOrder.customerType == 0) {
+          return item.usPrice;
+        } else {
+          return item.usWholesalePrice;
+        }
+      }
+    }
 
-			function showModal(item) {
-				theItem = item;
-				$('#addItemModal').modal();
-				$('#itemSKU').val(item.item.sku);
-				$('#itemQuantity').val(item.quantity);
-				if (item.price)
-					$('#itemPrice').val(item.price.toFixed(2));
-				$('#itemPickedQuantity').val(item.pickedQuantity);
-				$('#viewItem').prop('href', '/item?id='+item.item._id);
-			}
+    function showModal(item) {
+      theItem = item;
+      $('#addItemModal').modal();
+      $('#itemSKU').val(item.item.sku);
+      $('#itemQuantity').val(item.quantity);
+      if (item.price)
+        $('#itemPrice').val(item.price.toFixed(2));
+      $('#itemPickedQuantity').val(item.pickedQuantity);
+      $('#viewItem').prop('href', '/item?id='+item.item._id);
+    }
 
-			function editItem(id) {
-				for (item of theOrder.items) {
-					if (item._id == id)
-						showModal(item);
-				}
-			}
+    function editItem(id) {
+      for (item of theOrder.items) {
+        if (item._id == id)
+          showModal(item);
+      }
+    }
 
-			function recalculateTotal() {
-				theOrder.orderValue = 0;
-				theOrder.items.forEach(item => {
-					theOrder.orderValue += (item.quantity * item.price);
-				});
-			}
+    function recalculateTotal() {
+      theOrder.orderValue = 0;
+      theOrder.items.forEach(item => {
+        theOrder.orderValue += (item.quantity * item.price);
+      });
+    }
 
-			function saveOrderProperties() {
-				theOrder.shippingCost = $('#orderShippingCost').val();
-				theOrder.reasonForHold = $('#holdReason').val();
-				theOrder.comments = $('#orderComments').val();
-				theOrder.cartOrder.ShipmentList[0].ShipmentAddress = $('#shipmentAddress').val();
-				theOrder.cartOrder.ShipmentList[0].ShipmentAddress2 = $('#shipmentAddress2').val();
-				theOrder.cartOrder.ShipmentList[0].ShipmentCity = $('#shipmentCity').val();
-				theOrder.cartOrder.ShipmentList[0].ShipmentZipCode = $('#shipmentZipCode').val();
-				theOrder.cartOrder.ShipmentList[0].ShipmentCountry = $('#shipmentCountry').val();
-				theOrder.cartOrder.BillingAddress = $('#billingAddress').val();
-				theOrder.cartOrder.BillingAddress2 = $('#billingAddress2').val();
-				theOrder.cartOrder.BillingCity = $('#billingCity').val();
-				theOrder.cartOrder.BillingState = $('#billingState').val();
-				theOrder.cartOrder.BillingZipCode = $('#billingZipCode').val();
-				theOrder.cartOrder.BillingCountry = $('#billingCountry').val();
-				theOrder.shipDate = $('#orderShipDate').val();
-				theOrder.trackingNumber = $('#trackingNumber').val();
-			}
+    function saveOrderProperties() {
+      theOrder.shippingCost = $('#orderShippingCost').val();
+      theOrder.reasonForHold = $('#holdReason').val();
+      theOrder.comments = $('#orderComments').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentAddress = $('#shipmentAddress').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentAddress2 = $('#shipmentAddress2').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentCity = $('#shipmentCity').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentZipCode = $('#shipmentZipCode').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentCountry = $('#shipmentCountry').val();
+      theOrder.cartOrder.BillingAddress = $('#billingAddress').val();
+      theOrder.cartOrder.BillingAddress2 = $('#billingAddress2').val();
+      theOrder.cartOrder.BillingCity = $('#billingCity').val();
+      theOrder.cartOrder.BillingState = $('#billingState').val();
+      theOrder.cartOrder.BillingZipCode = $('#billingZipCode').val();
+      theOrder.cartOrder.BillingCountry = $('#billingCountry').val();
+      theOrder.shipDate = $('#orderShipDate').val();
+      theOrder.trackingNumber = $('#orderTrackingNumber').val();
+    }
 
-			function loadFromFile(items) {
-				theOrder.items.forEach(orderItem => {
-					for (let i = 0; i < items.length; i++) {
-						if (orderItem.item.sku == items[i].sku) {
-							orderItem.price = items[i].price;
-							break;
-						}
-					}
-				});
+    function loadFromFile(items) {
+      theOrder.items.forEach(orderItem => {
+        for (let i = 0; i < items.length; i++) {
+          if (orderItem.item.sku == items[i].sku) {
+            orderItem.price = items[i].price;
+            break;
+          }
+        }
+      });
 
-				recalculateTotal();
-				socket.emit('updateOrder', theOrder, response => {
-					location.reload();
-				});
-			}
+      recalculateTotal();
+      socket.emit('updateOrder', theOrder, response => {
+        location.reload();
+      });
+    }
 

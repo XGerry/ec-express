@@ -8,21 +8,21 @@ mixin orderRow(order)
 
 mixin processingCard(name, id, colour, textColour, orders)
 	.card
-			.card-header(class=colour + ' ' + textColour)
-				h5.mb-0=name
-			.card-body.summary-card
-				table.table.table-sm.table-hover
-					thead
-						tr
-							th ID
-							th Name
-							th Order Date
-							th Due Date
-							th Number of SKUs
-					tbody(id=id+"SummaryTable")
-						each order in orders
-							+orderRow(order)
-			.card-footer(id=id+"CardFooter")= orders.length + ' orders.'
+		.card-header(class=colour + ' ' + textColour)
+			h5.mb-0=name
+		.card-body.summary-card
+			table.table.table-sm.table-hover
+				thead
+					tr
+						th ID
+						th Name
+						th Order Date
+						th Due Date
+						th Number of SKUs
+				tbody(id=id+"SummaryTable")
+					each order in orders
+						+orderRow(order)
+		.card-footer(id=id+"CardFooter")= orders.length + ' orders.'
 
 doctype html
 include mixins

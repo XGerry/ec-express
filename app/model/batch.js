@@ -27,13 +27,18 @@ var batchSchema = new mongoose.Schema({
 	shortid: {
 		type: String,
 		default: shortid.generate
+	},
+	picker: {
+		type: ObjectId,
+		ref: 'User'
 	}
 });
 
-batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus, batchType) {
+batchSchema.statics.createAutoBatch = function(maxNumberOfItems, maxNumberOfSkus, batchType, user) {
 	var newBatch = new this();
 	newBatch.orders = [];
 	newBatch.startTime = new Date();
+	newBatch.picker = user._id;
 	var query = {picked: false, batch: null, hold: false};
 
 	if (batchType == 'ca') {
@@ -105,9 +110,10 @@ async function getBatch(orders, batch, maxItems, maxSKUs, maxOrders) {
 	return getBatch(orders, batch, maxItems, maxSKUs, maxOrders);
 }
 
-batchSchema.statics.createCustomBatch = function(orderIds) {
+batchSchema.statics.createCustomBatch = function(orderIds, user) {
 	var newBatch = new this();
 	newBatch.startTime = new Date();
+	newBatch.picker = user._id;
 
 	return Order.find({_id: {$in: orderIds}}).then(orders => {
 		console.log(orders.length);

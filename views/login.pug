@@ -1,0 +1,53 @@
+extends templates/template
+
+append head
+	title Login
+append body
+	.container.pt-5
+		.row
+			.col.text-center
+				h1 Login
+		.row.mt-2.justify-content-center
+			.col-6
+				.card.animated#loginCard
+					form(action="/login" method="post").card-body
+						p#info=error
+						.form-group
+							label(for="email") Email
+							input.form-control(type="email" name="email")#email
+						.form-group
+							label(for="password") Password
+							input.form-control(type="password" name="password")#password
+						.row
+							.col.d-flex.justify-content-end.align-items-center
+								p.mb-0.mt-1.mr-auto Don't have an account? Please #[a(href="/register") register].
+								button.btn.btn-primary(type="submit")#loginButton Login
+						.row
+	script.
+		$(document).ready(e => {
+		});
+		
+		function login() {
+			var user = {
+				email: $('#email').val(),
+				password: $('#password').val()
+			}
+			if (user.email == '') {
+				$('#info').text('Please enter an email.');
+				$('#email').select();
+				return;
+			}
+			if (user.password == '') {
+				$('#info').text('Your password must be at least 6 characters.')
+				$('#password').select();
+				return;
+			}
+			socket.emit('login', user, cb => {
+				if (cb.error) {
+					$('#info').text(cb.error);
+					$('#loginCard').animateCss('headShake fast');
+				} else {
+					location = '/home';
+				}
+			});
+		}

@@ -9,7 +9,10 @@ mixin tableRow(order)
 		td=order.customer.companyName
 		td=order.items.length
 		td=order.items.reduce((total, item) => total + parseInt(item.quantity), 0)
-		td='$' + order.orderValue.toFixed(2)
+		if (order.orderValue)
+			td='$' + order.orderValue.toFixed(2)
+		else
+			td N/A
 
 doctype html
 include mixins

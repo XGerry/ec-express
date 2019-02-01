@@ -1,0 +1,68 @@
+extends template.pug
+
+append head
+  block head
+
+append body
+  nav.navbar.navbar-expand-lg.navbar-dark.fixed-top.bg-dark.flex-md-nowrap.px-0.py-1.shadow
+    a.navbar-brand.col-sm-3.col-md-2.m-0(href="/") Ecstasy Crafts
+    block nav-items
+    ul.navbar-nav.ml-auto
+      block nav-items-right
+      li.nav-item.dropdown
+        a.nav-link.dropdown-toggle(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")#userDropdown=user.email
+        .dropdown-menu(aria-labelledby="userDropdown")
+          a.dropdown-item(href="/user") Settings
+          .dropdown-divider
+          a.dropdown-item.bg-danger.text-white(href="/logout") Logout
+
+  .container-fluid
+    .row
+      .col-md-2.d-none.d-md-block.bg-light.sidebar
+        .sidebar-sticky
+          ul.nav.flex-column
+            li.nav-item
+              a.nav-link(href="/")
+                i.far.fa-fw.fa-home.mr-1
+                | Home
+            li.nav-item
+              a.nav-link(href='/products')
+                i.far.fa-fw.fa-shopping-cart.mr-1
+                | Products
+            li.nav-item
+              a.nav-link(href="/vendors")
+                i.far.fa-fw.fa-truck.mr-1
+                | Vendors
+            li.nav-item
+              a.nav-link(href="/orders")
+                i.far.fa-fw.fa-box-open.mr-1
+                | Orders
+            li.nav-item
+              a.nav-link(href="/customers")
+                i.far.fa-fw.fa-users.mr-1
+                | Customers
+          h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1
+            span Marketplaces
+            a.d-flex.align-items-center.nav-item(href="/new-marketplace")
+              i.far.fa-plus-circle.fa-2x
+          ul.nav.flex-column.mb-2
+            //for marketplace in company.marketplaces
+              li.nav-item
+                a.nav-link(href="/marketplace/"+marketplace._id)
+                  i.far.fa-fw.fa-store.mr-1
+                  = marketplace.name
+          h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1
+            span Saved Reports
+            a.d-flex.align-items-center.nav-item(href="#")
+              i.far.fa-plus-circle.fa-2x
+          ul.nav.flex-column.mb-2
+            li.nav-item
+              a.nav-link(href="#") Coming Soon!
+
+      main(role="main").col-md-9.ml-sm-auto.col-lg-10.px-4
+        .d-flex.justify-content-between.flex-wrap.flax-md-nowrap.align-items-center.pt-3.pb-2.mb-3
+        block body
+    
+    footer.py-3.bg-dark.fixed-bottom.hide-printer
+      .container
+        p.m-0.text-center.text-white Copyright &copy; Ecstasy Crafts 2018

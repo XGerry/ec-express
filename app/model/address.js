@@ -1,3 +1,5 @@
+// Candidate for Deprecation
+
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 

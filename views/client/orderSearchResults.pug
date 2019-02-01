@@ -1,0 +1,15 @@
+.list-group.position-absolute(style="width: 500px; overflow-y: auto; max-height: 600px;").shadow
+	for order in orders
+		a(href='/orders/view/'+order._id).list-group-item.list-group-item-action.flex-column.align-items-start
+			.d-flex.w-100.justify-content-between
+				h5.mb-1=order.orderId
+				h5.mb-1=moment(order.orderDate).format('MMM Do YYYY')
+			if (order.customer)
+				.d-flex.justify-content-between
+					h6.mb-1=order.customer.name
+					if (order.customer.companyName)
+						h6.mb-1=order.customer.companyName
+			.d-flex.w-100.justify-content-between.text-muted
+				p.mb-0='$' + order.orderValue.toFixed(2)
+				p.mb-0='SKUs: ' + order.items.length
+				p.mb-0='Items: ' + order.numberOfItems

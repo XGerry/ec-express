@@ -1,65 +1,136 @@
+extends templates/default
+
 mixin orderRow(order)
-	tr(onclick="orderSelected('"+order._id+"', event)")
+	tr(class=moment().isAfter(order.dueDate) ? 'overdue' : '', class=moment().isSame(order.dueDate, 'day') ? 'due' : '', onclick="window.location='/order?id="+order._id+"'")
 		td=order.orderId
-		if (order.customer)
-			td=order.customer.name
-		else
-			td No customer
-		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
-		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
-		if (order.customer)
-			td=order.customer.companyName
-		else
-			td No company
-		td='$' + order.orderValue.toFixed(2)
-		td='$' + order.orderProfit.toFixed(2)
-		td=order.picked ? 'yes' : 'no'
-		td=order.invoiced ? 'yes' : 'no'
+		td=order.customer ? order.customer.name : 'No Customer'
+		td=moment(order.orderDate).format('MMM Do')
+		td=moment(order.dueDate).format('MMM Do')
+		td=order.items.length
 
-doctype html
-include mixins
-html
-	include includes/head
-		title Order Overview
-	body
-		#wrapper
-			+sidebarNav("orders")
+append head
+	title Order Overview
+	script(src="/js/search.js")
+	script(src="/js/orders.js")
+	script(src="/js/views/orderSearchResults.js")
 
-			#page-content
-				+menuToggle
-				.starter-template
-					h1 Orders
-					p.lead View the orders in the database.
+append nav-items
+	ul.navbar-nav.mr-auto.ml-2
+		li.nav-item
+			input.form-control-lg.form-control(type="search" placeholder="Search" size="40")#searchBar
+			#searchResults
+	
+append body
+	.container-fluid
+		.row
+			.col
+				h5 Recent Orders
+				p.lead The 10 most recent orders.
+			.col
+				h5 Open Batches
+				p.lead All open batches currently being picked.
+		.row
+			.col
+				table.table.table-striped.table-hover#orderTable
+					thead
+						tr
+							th Order ID
+							th Name
+							th Date
+							th Company
+							th Value
+					tbody
+						each order in recentOrders
+							tr(onclick="orderSelected('"+order._id+"', event)")
+								td=order.orderId
+								if (order.customer)
+									td=order.customer.name
+								else
+									td No customer
+								td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
+								if (order.customer)
+									td=order.customer.companyName
+								else
+									td No company
+								td='$' + order.orderValue.toFixed(2)
+			.col
+				table.table.table-striped.table-hover
+					thead
+						tr
+							th Batch ID
+							th Start Date
+							th Picker
+							th Number of Orders
+							th Number of Items
+					tbody
+						each batch in batches
+							tr
+								td=batch.shortid
+								td=moment(batch.startTime).utc().format('MMM Do YYYY')
+								if (batch.picker)
+									td=batch.picker.username
+								else
+									td N/A
+								td=batch.orders.length
+								td=batch.numberOfItems
+		.row
+			.col
+				h4 Processing
+				p.lead Orders that have not been picked yet.
+		.row
+			- let canadianOrders = unpicked.filter(o => o.canadian)
+			- let usOrders = unpicked.filter(o => !o.canadian && !o.amazon)
+			- let amazon = unpicked.filter(o => o.amazon)
+			.col
+				h5 Canadian
+				p.lead= canadianOrders.filter(o => moment().isAfter(o.dueDate)).length + ' orders are overdue.'
+				table.table.table-striped.table-hover
+					thead
+						tr
+							th ID
+							th Name
+							th Order Date
+							th Due Date
+							th Number of SKUs
+					tbody
+						for order in canadianOrders
+							+orderRow(order)
+			.col
+				h5 US
+				p.lead= usOrders.filter(o => moment().isAfter(o.dueDate)).length + ' orders are overdue.'
+				table.table.table-striped.table-hover
+					thead
+						tr
+							th ID
+							th Name
+							th Order Date
+							th Due Date
+							th Number of SKUs
+					tbody
+						for order in usOrders
+							+orderRow(order)
+		.row
+			.col
+				h5 Amazon
+				p.lead= amazon.filter(o => moment().isAfter(o.dueDate)).length + ' orders are overdue.'
+				table.table.table-striped.table-hover
+					thead
+						tr
+							th ID
+							th Name
+							th Order Date
+							th Due Date
+							th Number of SKUs
+					tbody
+						for order in amazon
+							+orderRow(order)
 
-				.container-fluid
-					.row
-						.col
-							table.table.table-striped.table-hover#orderTable
-								thead
-									tr
-										th Order ID
-										th Name
-										th Date
-										th Due Date
-										th Company
-										th Value
-										th Profit
-										th Picked
-										th Invoiced
-								tbody
-									each order in orders
-										+orderRow(order)
 
-		+footer
-		script.
-			$('#orderTable').DataTable({
-				bDestroy: true,
-				pageLength: 100,
-				order: [[2, 'desc']]
-			});
 
-			function orderSelected(id, e) {
-				if (e.target.localName != 'a') {
-					window.location="/order?id="+id;
-				}
+
+	script.
+		function orderSelected(id, e) {
+			if (e.target.localName != 'a') {
+				window.location="/order?id="+id;
 			}
+		}
