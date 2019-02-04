@@ -166,13 +166,78 @@ module.exports = app => {
   app.get('/orders/pick', verifyUser, (req, res) => {
     Order.find({picked: false, batch: null, hold: false}).populate('customer').sort('orderDate').then(orders => {
       res.render('print-orders', {
-        orders: orders
+        orders: orders,
+        user: req.session.user
       });
     });
   });
 
   app.get('/order-dashboard', verifyUser, (req, res) => {
     res.redirect('/orders');
+  });
+
+  app.get('/batch', verifyUser, (req, res) => {
+    let id = req.query.id;
+    if (id) {
+      res.redirect('/batch/'+id);
+    } else {
+      res.redirect('/batches');
+    }
+  });
+
+  app.get('/batch/:batchId', verifyUser, (req, res) => {
+    loadBatch(req.params.batchId).then(batch => {
+      if (batch) {
+        res.render('batch', {
+          batch: batch,
+          user: req.session.user
+        });
+      } else {
+        res.redirect('/batches');
+      }
+    });
+  });
+
+  app.get('/batch-sheet', async (req, res) => {
+    var shortid = req.query.shortid;
+    var id;
+    if (shortid) {
+      var batch = await Batch.findOne({shortid: shortid});
+      id = batch._id;
+    } else {
+      id = req.query.id;
+    }
+    loadBatch(id).then(batch => {
+      if (batch) {
+        res.render('batch-sheet', {
+          batch: batch
+        });
+      } else {
+        res.redirect('/batches');
+      }
+    });
+  });
+
+  app.get('/batch/print/:batchId', verifyUser, async (req, res) => {
+    let batch = await Batch.findOne({shortid: req.params.batchId});
+    if (batch) {
+      batch = await loadBatch(batch._id);
+      res.render('batch-sheet', {
+        batch: batch,
+        user: req.session.user
+      });
+    } else {
+      res.redirect('/batches');
+    }
+  });
+
+  app.get('/batches', verifyUser, (req, res) => {
+    Batch.find({}).then(batches => {
+      res.render('batches', {
+        batches: batches,
+        user: req.session.user
+      });
+    });
   });
 
   app.get('/inventory', function(req, res) {
@@ -441,34 +506,6 @@ module.exports = app => {
     });
   });
 
-  app.get('/batch-sheet', async (req, res) => { 
-    var shortid = req.query.shortid;
-    var id;
-    if (shortid) {
-      var batch = await Batch.findOne({shortid: shortid});
-      id = batch._id;
-    } else {
-      id = req.query.id;
-    }
-    loadBatch(id).then(batch => {
-      if (batch) {
-        res.render('batch-sheet', {
-          batch: batch
-        });
-      } else {
-        res.redirect('/batches');
-      }
-    });
-  });
-
-  app.get('/batches', (req, res) => {
-    Batch.find({}).then(batches => {
-      res.render('batches', {
-        batches: batches
-      });
-    });
-  });
-
   app.get('/orders/on/:day', (req, res) => {
     var dayStart = moment(req.params.day).startOf('day');
     var dayEnd = moment(req.params.day).endOf('day');
@@ -524,18 +561,6 @@ module.exports = app => {
           res.render('packing-slip', {
             batch: batch
           });
-        });
-      } else {
-        res.redirect('/batches');
-      }
-    });
-  });
-
-  app.get('/batch', (req, res) => {
-    loadBatch(req.query.id).then(batch => {
-      if (batch) {
-        res.render('batch', {
-          batch: batch
         });
       } else {
         res.redirect('/batches');
@@ -690,7 +715,7 @@ module.exports = app => {
         path: 'customer',
         model: 'Customer'
       }]
-    });
+    }).populate('picker');
   }
 
   function getCustomerType(order) {

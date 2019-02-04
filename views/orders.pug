@@ -19,7 +19,13 @@ append nav-items
 		li.nav-item
 			input.form-control-lg.form-control(type="search" placeholder="Search" size="40")#searchBar
 			#searchResults
-	
+
+append nav-items-right
+	li.nav-item
+		a.btn.btn-outline-primary(href="/batches").mr-2 Sort Batch
+	li.nav-item
+		a.btn.btn-outline-primary(href="/orders/pick") Pick Orders
+
 append body
 	.container-fluid
 		.row
@@ -64,7 +70,7 @@ append body
 							th Number of Items
 					tbody
 						each batch in batches
-							tr
+							tr(onclick="window.location='/batch/"+batch._id+"'")
 								td=batch.shortid
 								td=moment(batch.startTime).utc().format('MMM Do YYYY')
 								if (batch.picker)
@@ -84,49 +90,49 @@ append body
 			.col
 				h5 Canadian
 				p.lead= canadianOrders.filter(o => moment().isAfter(o.dueDate)).length + ' orders are overdue.'
-				table.table.table-striped.table-hover
-					thead
-						tr
-							th ID
-							th Name
-							th Order Date
-							th Due Date
-							th Number of SKUs
-					tbody
-						for order in canadianOrders
-							+orderRow(order)
+				.summary-table
+					table.table.table-striped.table-hover
+						thead
+							tr
+								th ID
+								th Name
+								th Order Date
+								th Due Date
+								th Number of SKUs
+						tbody
+							for order in canadianOrders
+								+orderRow(order)
 			.col
 				h5 US
 				p.lead= usOrders.filter(o => moment().isAfter(o.dueDate)).length + ' orders are overdue.'
-				table.table.table-striped.table-hover
-					thead
-						tr
-							th ID
-							th Name
-							th Order Date
-							th Due Date
-							th Number of SKUs
-					tbody
-						for order in usOrders
-							+orderRow(order)
+				.summary-table
+					table.table.table-striped.table-hover
+						thead
+							tr
+								th ID
+								th Name
+								th Order Date
+								th Due Date
+								th Number of SKUs
+						tbody
+							for order in usOrders
+								+orderRow(order)
 		.row
-			.col
+			.col.pt-2
 				h5 Amazon
 				p.lead= amazon.filter(o => moment().isAfter(o.dueDate)).length + ' orders are overdue.'
-				table.table.table-striped.table-hover
-					thead
-						tr
-							th ID
-							th Name
-							th Order Date
-							th Due Date
-							th Number of SKUs
-					tbody
-						for order in amazon
-							+orderRow(order)
-
-
-
+				.summary-table
+					table.table.table-striped.table-hover
+						thead
+							tr
+								th ID
+								th Name
+								th Order Date
+								th Due Date
+								th Number of SKUs
+						tbody
+							for order in amazon
+								+orderRow(order)
 
 	script.
 		function orderSelected(id, e) {

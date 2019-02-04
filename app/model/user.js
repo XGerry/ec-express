@@ -31,6 +31,7 @@ userSchema.pre('save', async function() {
     this.password = hash;
     console.log('Warning! Changing the user\'s password!');
   }
+  return Promise.resolve();
 });
 
 userSchema.statics.authenticate = function(email, password) {

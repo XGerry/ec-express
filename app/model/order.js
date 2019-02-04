@@ -277,16 +277,20 @@ orderSchema.methods.removeBatch = function() {
 	}
 }
 
-orderSchema.methods.updateOrderStatus = function(status) {
+orderSchema.methods.updateOrderStatus = async function(status) {
 	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = {
 		OrderStatusID: status
 	};
 	
   if (this.isCartOrder)	{
-    return this.save().then(() => {
-      return rp(options);
-    });
+    await this.save();
+    try {
+      let response = await rp(options);
+      return response;
+    } catch(err) {
+      return Promise.resolve('Unable to move order in 3D Cart.');
+    }
   } else {
     return this.save();
   }

@@ -125,3 +125,8 @@ table tbody tr.rush {
 .due {
   background-color: #BBF8FC !important;
 }
+
+.summary-table {
+  max-height: 500px;
+  overflow-y: scroll;
+}

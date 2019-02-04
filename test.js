@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var Order = require('./app/model/order');
 var Customer = require('./app/model/customer');
 var Item = require('./app/model/item');
+var User = require('./app/model/user');
 var Batch = require('./app/model/batch');
 const chalk = require('chalk');
 
@@ -17,7 +18,7 @@ var uriString = process.env.MONGODB_URI ||
                 'mongodb://localhost/test';
 
 mongoose.connect(uriString, {
-  useMongoClient: true,
+  useNewUrlParser: true,
   socketTimeoutMS: 0,
   autoReconnect: true,
   keepAlive: true
@@ -88,10 +89,11 @@ function fail(e) {
 }
 
 async function cleanUp() {
-  await Item.remove({});
-  await Order.remove({});
-  await Customer.remove({});
-  await Batch.remove({});
+  await Item.deleteMany({});
+  await Order.deleteMany({});
+  await Customer.deleteMany({});
+  await Batch.deleteMany({});
+  await User.deleteMany({});
 }
 
 function getTestCartItem(name, numberOfOptions) {
@@ -135,6 +137,13 @@ function createItemInDB(name, numberOfOptions) {
   var newItem = new Item();
   newItem.sku = testItem.SKUInfo.SKU.trim();
   return newItem.updateFrom3DCart(testItem);
+}
+
+function createUser(email) {
+  return User.create({
+    email: email,
+    password: '1234'
+  });
 }
 
 function getTestCartOrder(email, id, canadian, itemList) {
@@ -275,6 +284,7 @@ async function testImportOrder() {
 }
 
 async function testBatchCreation() {
+  let testUser = await createUser('matt@ecstasycrafts.com');
   console.log(chalk.cyan('Testing batch creation'));
   await createItemInDB('Test_1', 0);
   await createItemInDB('Test_2', 0);
@@ -300,7 +310,7 @@ async function testBatchCreation() {
     }
   }
   
-  return Batch.createAutoBatch(250, 20, 'ca').then(async batch => {
+  return Batch.createAutoBatch(250, 20, 'ca', testUser).then(async batch => {
     console.log(batch.orders.length);
     if (batch.orders.length != 5) {
       return Promise.reject('Wrong amount of orders in batch');

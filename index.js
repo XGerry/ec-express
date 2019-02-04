@@ -32,7 +32,7 @@ var uriString = process.env.MONGODB_URI ||
                 process.env.MONGOHQ_URL ||
                 'mongodb://localhost/db';
 
-mongoose.connect(uriString, { useMongoClient: true }).then(() => {
+mongoose.connect(uriString, {useNewUrlParser: true}).then(() => {
   console.log('Connected to database');
 }).catch(err => {
   console.log('Error connecting to database');

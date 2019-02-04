@@ -1,5 +1,7 @@
+extends templates/default
+
 mixin tableRow(order)
-	tr(onclick="openOrder('"+order._id+"', event)" class=order.canadian ? 'can-row' : 'us-row' class=order.rush ? 'rush text-white' : '')
+	tr(onclick="openOrder('"+order._id+"', event)" class=order.rush ? 'rush text-white' : '')
 		td
 			input(type="checkbox", style="transform: scale(2);" order-id=order._id).order-check.ml-2
 		td=order.orderId
@@ -14,53 +16,55 @@ mixin tableRow(order)
 		else
 			td N/A
 
-doctype html
-include mixins
-html
-	include includes/head
-		title Print Orders
-		script(src="./js/print-orders.js")
-	body
+mixin orderTable(title, orders)
+	h4=title
+	p.lead= "There are " + orders.length + " US orders."
+	.summary-table
+		table.table-hover.table#orderTable.table-striped
+			thead
+				tr
+					th
+					th Order Number
+					th Order Date
+					th Due Date
+					th Customer Name
+					th Company Name
+					th Number of SKUs
+					th Number of Items
+					th Value of Order
+			tbody#orderTableBody
+				each order in orders
+					+tableRow(order)
 
-		#wrapper
-			+sidebarNav("print-orders")
-			
-			#page-content
-				+menuToggle
-				.container
-					.starter-template
-						h1 Unpicked Orders
-						p.lead Select and order to see it in more detail.
-						button.btn-outline-primary.btn(type="button")#printAllButton Print All New Orders
-					.row
-						.col-6.text-center
-							select.form-control.form-control-lg#batchType(style="width: 200px; display: inline-block;")
-								option(value="us") US
-								option(value="ca") CA
-								option(value="az") Amazon
-							button.btn-outline-success.btn.btn-lg.ml-2.mb-2(type="button")#createBatchButton Auto Batch
-						.col-6.text-center
-							button.btn-outline-primary.btn.btn-lg.ml-2.mb-2(type="button")#customBatchButton Custom Batch
+append nav-items-right
+	button.btn-outline-primary.btn.mr-2(type="button")#customBatchButton Custom Batch
+	select.form-control.px-1.py-0#batchType(style="width: 200px;")
+		option(value="us") US
+		option(value="ca") CA
+		option(value="az") Amazon
+	button.btn.btn-success.ml-2(type="button")#createBatchButton Auto Batch
 
-				.container-fluid
-					.row.pt-3
-						.col-lg-12
-							table.table-hover.table#orderTable.table-dark
-								thead
-									tr
-										th
-										th Order Number
-										th Order Date
-										th Due Date
-										th Customer Name
-										th Company Name
-										th Number of SKUs
-										th Number of Items
-										th Value of Order
-								tbody#orderTableBody
-									each order in orders
-										+tableRow(order)
-		+footer
+append head
+	title Create Batch
+
+append body
+	.row
+		.col
+			h3 Unpicked Orders
+			p.lead Select and order to see it in more detail.
+	.row
+		- let usOrders = orders.filter(o => !o.canadian && !o.amazon)
+		- let canOrders = orders.filter(o => o.canadian && !o.amazon)
+		- let amazonOrders = orders.filter(o => o.amazon)
+		.col
+			+orderTable('US Orders', usOrders)
+	.row
+		.col.pt-2
+			+orderTable('Canadian Orders', canOrders)
+	.row
+		.col.pt-2
+			+orderTable('Amazon Orders', amazonOrders)
+
 		script.
 			$(document).ready(e => {
 				$('#customBatchButton').click(e => {
@@ -71,15 +75,33 @@ html
 						}
 					});
 					if (orderIds.length > 0) {
-						socket.emit('getCustomBatch', orderIds, (batch) => {
-							window.location = '/batch-sheet?id='+batch._id;
+						axios.post('/api/batch/start/custom', {
+							orders: orderIds
+						}).then(response => {
+							let batch = response.data;
+							window.location = '/batch/print/'+batch.shortId;
 						});
 					}
 				});
 
-				$('#orderTable').dataTable({
-					order: [[2, 'asc']],
-					pageLength: 100
+				//- $('#orderTable').dataTable({
+				//- 	order: [[2, 'asc']],
+				//- 	pageLength: 100
+				//- });
+
+				$('#createBatchButton').click(e => {
+					let batchType = $('#batchType').val();
+					console.log(batchType);
+					axios.post('/api/batch/start/auto', {
+						type: batchType,
+						maxItems: 200,
+						maxSkus: 35
+					}).then(response => {
+						let batch = response.data;
+						window.location = '/batch/print/'+batch.shortid;
+					}).catch(err => {
+						console.log(err);
+					});
 				});
 			});	
 
@@ -89,6 +111,5 @@ html
 					window.open('/order?id='+id, '_blank');
 				}
 			}
-
 
 	include includes/end

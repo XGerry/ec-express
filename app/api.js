@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('./model/user');
 const Customer = require('./model/customer');
+const Batch = require('./model/batch');
 const Order = require('./model/order');
 
 // TODO permissions inside middle ware
@@ -40,5 +41,23 @@ router.get('/orders/search/:searchTerms', async (req, res) => {
     res.status(500).send(err);
   });
 });
+
+router.post('/batch/start/custom', (req, res) => {
+  let orderIds = req.body.orders;
+  Batch.createCustomBatch(orderIds, req.session.user).then(newBatch => {
+    res.json(newBatch);
+  }).catch(err => {
+    res.status(500).send(err);
+  });
+});
+
+router.post('/batch/start/auto', (req, res) => {
+  Batch.createAutoBatch(req.body.maxItems, req.body.maxSkus, req.body.type, req.session.user).then(batch => {
+    res.json(batch);
+  }).catch(err => {
+    console.log(err);
+    res.status(500).send(err);
+  });
+})
 
 module.exports.router = router;
