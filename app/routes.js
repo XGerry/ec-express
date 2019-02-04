@@ -117,7 +117,7 @@ module.exports = app => {
   // ORDERS
   app.get('/orders', verifyUser, async (req, res) => {
     Order.find({}).limit(10).sort('-orderDate').populate('customer').then(async recentOrders => {
-      let batches = await Batch.find({completed: false}).populate('user').sort('startTime').exec();
+      let batches = await Batch.find({completed: false}).populate('picker').sort('startTime').exec();
       let unpickedOrders = await Order.find({picked: false, hold: false}).populate('customer').exec();
       res.render('orders', {
         recentOrders: recentOrders,

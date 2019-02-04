@@ -49,8 +49,9 @@ append body
 		function register() {
 			var user = {
 				email: $('#email').val(),
-				password: $('#password').val()
-			}
+				password: $('#password').val(),
+				username: $('#username').val()
+			};
 			if (user.email == '') {
 				$('#info').text('Please enter an email.');
 				$('#email').select();
