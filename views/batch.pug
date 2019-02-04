@@ -46,7 +46,10 @@ append body
 						td=batch.endTime ? moment(batch.endTime).format('MMM Do hh:mm:ss a') : '-'
 						td=batch.completed ? 'yes' : 'no'
 						td=batch.orders.length
-						td=batch.picker.email
+						if (batch.picker)
+							td=batch.picker.email
+						else
+							td N/A
 
 	.row.pt-2
 		.col
