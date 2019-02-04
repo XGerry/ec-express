@@ -115,7 +115,7 @@ table tbody tr.us-row {
 }
 
 table tbody tr.rush {
-  background-color: #22AD00;
+  background-color: #22AD00 !important;
 }
 
 .overdue {
