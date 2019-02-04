@@ -15,6 +15,9 @@ router.use(async (req, res, next) => {
   }
 });
 
+router.use(express.json());
+router.use(express.urlencoded({extended: true}));
+
 router.get('/orders/search/:searchTerms', async (req, res) => {
   let searchRegex = {
     $regex: req.params.searchTerms,

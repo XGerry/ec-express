@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const qbws = require('./qbws/qbws'); // my modified qbws
+var qbws = require('./qbws/qbws'); // my modified qbws
 const mongoose = require('mongoose');
 const api = require('./app/api');
 const routes = require('./app/routes');
@@ -32,7 +32,7 @@ var uriString = process.env.MONGODB_URI ||
                 process.env.MONGOHQ_URL ||
                 'mongodb://localhost/db';
 
-mongoose.connect(uriString, {useNewUrlParser: true}).then(() => {
+mongoose.connect(uriString, { useNewUrlParser: true }).then(() => {
   console.log('Connected to database');
 }).catch(err => {
   console.log('Error connecting to database');
@@ -43,6 +43,7 @@ app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redi
 app.use('/js', express.static(__dirname + '/node_modules/papaparse')); // redirect Papaparse
 app.use('/js', express.static(__dirname + '/node_modules/moment')); // redirect Moment
 app.use('/js', express.static(__dirname + '/node_modules/jsbarcode/dist')); // redirect JS Barcode
+
 
 var server = app.listen(process.env.PORT || 3000, function() {
   console.log('EC-Express running on port 3000');

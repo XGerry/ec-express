@@ -8,7 +8,7 @@ var xmlParser = require('xml2js').parseString;
 var xml2js = require('xml2js-es6-promise');
 var Order = require('../app/model/order');
 var helpers = require('../app/helpers.js');
-var async = require('async');
+var bodyParser = require('body-parser');
 
 var qbws,
     server,
@@ -774,6 +774,10 @@ function (args, responseCallback) {
 module.exports = {
     run : function(app) {
       // server should already be started
+      app.use('/wsdl', bodyParser.raw({
+        inflate: true,
+        type: 'text/xml'
+      }));
 
       var soapServer,
         xml = fs.readFileSync(__dirname + '/wsdl/qbwc.wsdl', 'utf8');
