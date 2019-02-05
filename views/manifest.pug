@@ -28,6 +28,9 @@ html
               var totalItems = 0;
               var sentItems = order.items.filter(item => {
                 if (item.pickedQuantity > 0) {
+                  if (!item.item) {
+                    console.log(order.orderId + ' order has an invalid item');
+                  }
                   if (item.item.htcCode) {
                     item.item.htcCode = item.item.htcCode.replace(/\./g, '');
                     item.item.htcCode = item.item.htcCode.replace(/\ /g, '');
@@ -51,6 +54,10 @@ html
                       country = 'TW';
                     } else if (country == 'UNITED KINGDOM' || country == 'ENGLAND' || country == 'UK' || country == 'GB') {
                       country = 'GB';
+                    } else if (country == 'FRANCE' || country == 'FR') {
+                      country = 'FR';
+                    } else if (country == 'GERMANY' || country == 'DE') {
+                      country = 'DE';
                     }
                     else {
                       console.log('No standardized code for the country: ' + country);
