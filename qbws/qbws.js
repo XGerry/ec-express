@@ -776,7 +776,8 @@ module.exports = {
       // server should already be started
       app.use('/wsdl', bodyParser.raw({
         inflate: true,
-        type: 'text/xml'
+        type: 'text/xml',
+        limit: '50mb'
       }));
 
       var soapServer,
