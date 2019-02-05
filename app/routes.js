@@ -232,7 +232,7 @@ module.exports = app => {
   });
 
   app.get('/batches', verifyUser, (req, res) => {
-    Batch.find({}).then(batches => {
+    Batch.find({}).populate('picker').then(batches => {
       res.render('batches', {
         batches: batches,
         user: req.session.user

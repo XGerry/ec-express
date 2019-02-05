@@ -7,6 +7,7 @@ mixin tableRow(batch)
 		td=batch.numberOfItems
 		td=batch.completed
 		td(data-sort=moment(batch.startTime))=moment(batch.startTime).format('MMMM Do, h:mm:ss a')
+			td= batch.picker ? batch.picker.username : 'N/A'
 		th
 			a.btn.btn-secondary(href="/packing-slip?id="+batch._id, target="_blank") View
 
@@ -38,6 +39,7 @@ append body
 						th Number of Items
 						th Completed
 						th Start Date
+						th Picker
 						th Packing Slips
 				tbody#orderTableBody
 					each batch in batches
