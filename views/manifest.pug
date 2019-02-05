@@ -30,6 +30,7 @@ html
                 if (item.pickedQuantity > 0) {
                   if (!item.item) {
                     console.log(order.orderId + ' order has an invalid item');
+                    return false;
                   }
                   if (item.item.htcCode) {
                     item.item.htcCode = item.item.htcCode.replace(/\./g, '');
@@ -154,7 +155,7 @@ html
       console.log(htcs);
 
       $('#downloadButton').click(e => {
-        var file = 'Carrier,SCN,provinceOfLoading,ShipperName,ShipperADDR1,ShipperCity,ShipperProvince,ShipperPC,ConName,ConsADDR1,ConsADDR2,ConsCity,ConsState,ConsPC,PartNum,description,quantity,packagingUnit,weight,weightUnit,harmonizedCode,value,countryOfOrigin\r\n';
+        var file = 'Carrier,SCN,provinceOfLoading,ShipperName,ShipperADDR1,ShipperADDR2,ShipperCity,ShipperProvince,ShipperPC,ConName,ConsADDR1,ConsADDR2,ConsCity,ConsState,ConsPC,PartNum,description,quantity,packagingUnit,weight,weightUnit,harmonizedCode,value,countryOfOrigin\r\n';
         
         htcs.forEach(order => {
           Object.keys(order.htcMap).forEach(country => {
@@ -164,6 +165,7 @@ html
             line += 'ON,';
             line += 'Ecstasy Crafts,';
             line += '630 Shannonville Rd.,';
+            line += ',';
             line += 'Shannonville,';
             line += 'ON,';
             line += 'K0K 3A0,';
