@@ -44,7 +44,6 @@ app.use('/js', express.static(__dirname + '/node_modules/papaparse')); // redire
 app.use('/js', express.static(__dirname + '/node_modules/moment')); // redirect Moment
 app.use('/js', express.static(__dirname + '/node_modules/jsbarcode/dist')); // redirect JS Barcode
 
-
 var server = app.listen(process.env.PORT || 3000, function() {
   console.log('EC-Express running on port 3000');
   qbws.run(app);

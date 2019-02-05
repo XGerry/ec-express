@@ -204,7 +204,7 @@ append body
                     input(type="checkbox" checked=order.isBackorder style="transform: scale(2);" disabled)
                   td
                     if (order.batch)
-                      a(href="batch?id="+order.batch) View
+                      a(href="/batch?id="+order.batch) View
                     else
                       | None
                   if (order.isBackorder)
