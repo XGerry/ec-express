@@ -8,17 +8,17 @@ var Order = require('./model/order.js');
 var Item = require('./model/item.js');
 
 module.exports = function(qbws) {
-  // var sync = schedule.scheduleJob('0 4-20 * * *', () => {
-  //   syncOrdersAndInventory(qbws);
-  // }); 
-  // var refresh = schedule.scheduleJob('0 21 * * *', () => {
-  //   cart3d.refreshFrom3DCart().then(() => {
-  //     console.log('Finished refreshing the items');
-  //     amazon.updateAllInventory().then(response => console.log(response));
-  //     walmart.updateAllInventory().then(response => console.log(response));
-  //     helpers.queryAllItems(qbws); // update from quickbooks
-  //   });
-  // });
+  var sync = schedule.scheduleJob('0 4-20 * * *', () => {
+    syncOrdersAndInventory(qbws);
+  }); 
+  var refresh = schedule.scheduleJob('0 21 * * *', () => {
+    cart3d.refreshFrom3DCart().then(() => {
+      console.log('Finished refreshing the items');
+      amazon.updateAllInventory().then(response => console.log(response));
+      walmart.updateAllInventory().then(response => console.log(response));
+      helpers.queryAllItems(qbws); // update from quickbooks
+    });
+  });
 }
 
 function syncOrdersAndInventory(qbws) {

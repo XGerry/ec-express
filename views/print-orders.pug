@@ -18,7 +18,7 @@ mixin tableRow(order)
 
 mixin orderTable(title, orders)
 	h4=title
-	p.lead= "There are " + orders.length + " US orders."
+	p.lead= "There are " + orders.length + " orders."
 	.summary-table
 		table.table-hover.table#orderTable.table-striped
 			thead
@@ -95,7 +95,7 @@ append body
 					axios.post('/api/batch/start/auto', {
 						type: batchType,
 						maxItems: 200,
-						maxSkus: 35
+						maxSkus: 40
 					}).then(response => {
 						let batch = response.data;
 						window.location = '/batch/print/'+batch.shortid;

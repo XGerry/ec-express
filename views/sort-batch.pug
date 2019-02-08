@@ -1,3 +1,5 @@
+extends templates/default
+
 mixin orderSummaryTableRow(order, index)
 	tr(class=order._id + '-row' onclick="openOrder('"+order._id+"')").sortTableRow
 		td=index+1
@@ -6,8 +8,6 @@ mixin orderSummaryTableRow(order, index)
 		td=order.items.length
 		td=order.items.reduce((total, item) => total + item.quantity, 0)
 		td(class=order._id + '-picked')=order.items.reduce((total, item) => total + item.pickedQuantity, 0)
-		th
-			input(type="checkbox", style="transform: scale(2);margin: 0;", id=order._id+'-print', checked=order.toPrint)
 
 mixin modalOrderTableRow(order, index)
 	tr(class=order._id + '-row').sortTableRow
@@ -27,95 +27,77 @@ mixin itemRow(item)
 				img(src="https://www.ecstasycrafts.com/"+item.item.imageURL, width="100px", height="auto")
 		td=item.quantity
 
-doctype html
-include mixins
-html
-	include includes/head
-		title Sort Batch
-	body
-		#wrapper
-			+sidebarNav("sort-batch")
-			#page-content
-				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
-					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
-						i.far.fa-bars.fa-fw
-					span.navbar-brand.mb-0.h1.pl-2=batch._id + ' - ' + batch.shortid
-					//form.form-inline
-						select.form-control#orderStatus
-							option(value=1) New
-							option(value=2) Processing
-							option(value=3) Backorder
-							option(value=6) Pre-order
-							option(value=9) Awaiting Payment
-							option(value=13) Awaiting Shipment
-							option(value=4) Shipped
-					span.navbar-text#orderInfo.ml-2
-					ul.navbar-nav.ml-auto
-						li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
-							ul.dropdown-menu.dropdown-menu-right
-								a#resetBatch(href="#").dropdown-item.bg-danger.text-white Reset Batch
-						button.btn-outline-success.btn.mr-2(type="button")#saveButton Save
-						button.btn.btn-success(type="button")#finishedSortingButton Finished Sorting
-				
-				.container.pt-3
-					.row.pt-2
-						.col-12
-							table.table-sm.table
-								thead 
-									tr 
-										th Total Number of SKUs
-										th Total Number of Items
-										th Number of Orders
-										th Status
-								tbody
-									tr
-										td=batch.numberOfSkus
-										td=batch.numberOfItems
-										td=batch.orders.length
-										td=batch.completed ? 'Finished' : 'In Progress'
-					.row.justify-content-center
-						.col-8
-							input.form-control.form-control-lg(type="text" placeholder="Scan the barcode of your item here")#item-barcode
-					.row.pt-5
-						.col-12
-							table.table-sm.table.table-hover
-								thead
-									tr
-										th Box Number
-										th Order ID
-										th Customer
-										th Number of SKUs
-										th Total Items
-										th Items Picked
-										th Packing Slip
-								tbody#ordersSummary
-									each order, index in batch.orders
-										+orderSummaryTableRow(order, index)
-					.row.pt-2
-						h2 Items in Batch
-						table.table.table-hover
-							thead
-								tr
-									th SKU
-									th Image
-									th Ordered
-							-
-								var allItems = batch.orders.reduce((arr, order) => {
-									return arr.concat(order.items);
-								}, []);
-								allItems.sort((a, b) => {
-									if (a.item.sku < b.item.sku)
-										return -1;
-									else
-										return 1;
-								});
+append nav-items-right
+	li.dropdown.nav-item
+		a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+		ul.dropdown-menu.dropdown-menu-right
+			a#resetBatch(href="#").dropdown-item.bg-danger.text-white Reset Batch
+	button.btn-outline-success.btn.mr-2(type="button")#saveButton Save
+	button.btn.btn-success(type="button")#finishedSortingButton Finished Sorting
 
-							tbody#itemsWithoutBarcodeTable
-								each item in allItems
-									if (item.pickedQuantity < item.quantity)
-										+itemRow(item)
-		+footer
+append nav-items
+	span.navbar-brand.mb-0.h1.pl-2=batch._id + ' - ' + batch.shortid
+	span.navbar-text#orderInfo.ml-2
+
+append head
+	title Sort Batch
+
+append body
+	.row.pt-2
+		.col-12
+			table.table-sm.table
+				thead 
+					tr 
+						th Total Number of SKUs
+						th Total Number of Items
+						th Number of Orders
+						th Status
+				tbody
+					tr
+						td=batch.numberOfSkus
+						td=batch.numberOfItems
+						td=batch.orders.length
+						td=batch.completed ? 'Finished' : 'In Progress'
+	.row.justify-content-center
+		.col-8
+			input.form-control.form-control-lg(type="text" placeholder="Scan the barcode of your item here")#item-barcode
+	.row.pt-5
+		.col-12
+			table.table-sm.table.table-hover
+				thead
+					tr
+						th Box Number
+						th Order ID
+						th Customer
+						th Number of SKUs
+						th Total Items
+						th Items Picked
+				tbody#ordersSummary
+					each order, index in batch.orders
+						+orderSummaryTableRow(order, index)
+	.row.pt-2
+		h2 Items in Batch
+		table.table.table-hover
+			thead
+				tr
+					th SKU
+					th Image
+					th Ordered
+			-
+				var allItems = batch.orders.reduce((arr, order) => {
+					return arr.concat(order.items);
+				}, []);
+				allItems.sort((a, b) => {
+					if (a.item.sku < b.item.sku)
+						return -1;
+					else
+						return 1;
+				});
+
+			tbody#itemsWithoutBarcodeTable
+				each item in allItems
+					if (item.pickedQuantity < item.quantity)
+						+itemRow(item)
 
 		.modal(role="dialog" tabindex="-1").fade#sortModal
 			.modal-dialog(role="document")
@@ -189,7 +171,7 @@ html
 						});
 						socket.emit('finishBatch', batch, response => {
 							console.log(response);
-							window.location='/packing-slip?id='+batch._id;
+							window.location='/batch/confirm/'+batch._id;
 						});
 					}
 				});

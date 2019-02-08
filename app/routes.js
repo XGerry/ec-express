@@ -198,6 +198,60 @@ module.exports = app => {
     });
   });
 
+  app.get('/batch/confirm/:batchId', verifyUser, async (req, res) => {
+    let batch = await loadBatch(req.params.batchId);
+    res.render('confirm-batch', {
+      batch: batch,
+      user: req.session.user
+    });
+  });
+
+  app.get('/packing-slip', (req, res) => {
+    res.redirect('/batch/slips/'+req.query.id);
+  });
+
+  app.get('/batch/slips/:batchId', verifyUser, async (req, res) => {
+    let batch = await loadBatch(req.params.batchId);
+    if (batch) {
+      var promises = [];
+      batch.orders.forEach(o => {
+        promises.push(getCustomerType(o));
+      });
+      Promise.all(promises).then(r => {
+        res.render('packing-slip', {
+          batch: batch,
+          user: req.session.user
+        });
+      });
+    } else {
+      res.redirect('/batches');
+    }
+  });
+
+  app.get('/sort-batch', verifyUser, async (req, res) => {
+    var shortid = req.query.shortid;
+    var id;
+    if (shortid) {
+      var batch = await Batch.findOne({shortid: shortid});
+      if (batch)
+        id = batch._id;
+      else 
+        return res.redirect('/batches');
+    } else {
+      id = req.query.id;
+    }
+    loadBatch(id).then(batch => {
+      if (batch) {
+        res.render('sort-batch', {
+          batch: batch,
+          user: req.session.user
+        });
+      } else {
+        res.redirect('/batches');
+      }
+    });
+  });
+
   app.get('/batch-sheet', async (req, res) => {
     var shortid = req.query.shortid;
     var id;
@@ -524,47 +578,6 @@ module.exports = app => {
           canOrders: canOrders
         });
       });
-    });
-  });
-
-  app.get('/sort-batch', async (req, res) => {
-    var shortid = req.query.shortid;
-    var id;
-    if (shortid) {
-      var batch = await Batch.findOne({shortid: shortid});
-      if (batch)
-        id = batch._id;
-      else 
-        return res.redirect('/batches');
-    } else {
-      id = req.query.id;
-    }
-    loadBatch(id).then(batch => {
-      if (batch) {
-        res.render('sort-batch', {
-          batch: batch
-        });
-      } else {
-        res.redirect('/batches');
-      }
-    });
-  });
-
-  app.get('/packing-slip', (req, res) => {
-    loadBatch(req.query.id).then(batch => {
-      if (batch) {
-        var promises = [];
-        batch.orders.forEach(o => {
-          promises.push(getCustomerType(o));
-        });
-        Promise.all(promises).then(r => {
-          res.render('packing-slip', {
-            batch: batch
-          });
-        });
-      } else {
-        res.redirect('/batches');
-      }
     });
   });
 

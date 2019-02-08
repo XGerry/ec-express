@@ -61,6 +61,20 @@ router.post('/batch/start/auto', (req, res) => {
     console.log(err);
     res.status(500).send(err);
   });
-})
+});
+
+router.put('/orders', async (req, res) => {
+  let orders = req.body;
+  for (order of orders) {
+    let dbOrder = await Order.findOne({_id: order._id});
+    if (dbOrder) {
+      dbOrder.set(order);
+      await dbOrder.save();
+    } else {
+      console.log('invalid order');
+    }
+  }
+  res.send('success');
+});
 
 module.exports.router = router;

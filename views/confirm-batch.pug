@@ -1,0 +1,95 @@
+extends templates/default
+
+mixin billingAddress(customer)
+	address
+		h4 Billing
+		strong=customer.name
+		br
+		if (customer.companyName)
+			strong=customer.companyName
+			br 
+		=customer.billingAddress
+		br
+		if (customer.billingAddress2)
+			=customer.billingAddress2
+			br
+		=customer.billingCity + ", " + customer.billingState
+		br
+		=customer.billingCountry + ", " + customer.billingZipCode
+
+mixin shippingAddress(shippingInfo)
+	address
+		h4 Shipping
+		strong=shippingInfo.ShipmentFirstName + " " + shippingInfo.ShipmentLastName
+		br
+		if (shippingInfo.ShipmentCompany)
+			strong=shippingInfo.ShipmentCompany
+			br
+		=shippingInfo.ShipmentAddress
+		br
+		if (shippingInfo.ShipmentAddress2)
+			=shippingInfo.ShipmentAddress2
+			br
+		=shippingInfo.ShipmentCity + ", " + shippingInfo.ShipmentState
+		br
+		=shippingInfo.ShipmentCountry + ", " + shippingInfo.ShipmentZipCode
+
+append head
+	title Confirm Batch
+
+append nav-items
+	span.navbar-brand.mb-0.h1.pl-2=batch._id + ' - ' + batch.shortid
+
+append nav-items-right
+	button.btn.btn-success(type="button")#continueButton Continue
+
+append body
+	.row
+		.col
+			h1 Confirm Ship Dates
+			each order in batch.orders
+				.row.pt-2
+					.col
+						a(href="/orders/view/"+order._id, target="_blank")
+							h3=order.orderId
+				.row
+					.col
+						+billingAddress(order.customer)
+					.col
+						+shippingAddress(order.cartOrder.ShipmentList[0])
+				.row
+					.form-group.col
+						label Ship date
+						input.form-control(type="date" value=order.shipDate ? moment(order.shipDate).utc().format('YYYY-MM-DD') : '', id=order._id+'-shipDate')
+					.form-group.col
+						label Is the order on hold?
+						label.switch
+							input.danger(type="checkbox" checked=order.hold id=order._id+'-hold')
+							span.slider
+						small.form-text.text-muted i.e. This order will not ship
+					.form-group.col
+						label What is the reason for the hold?
+						input.form-control(type="text" value=order.reasonForHold id=order._id+'-holdReason')
+				hr
+	script.
+		let theBatch = !{JSON.stringify(batch)};
+		$(document).ready(function(e) {
+			$('#continueButton').click(e => {
+				let body = [];
+				theBatch.orders.forEach(order => {
+					let orderUpdate = {
+						_id: order._id,
+						reasonForHold: $('#'+order._id+'-holdReason').val(),
+						hold: $('#'+order._id+'-hold').is(':checked'),
+						shipDate: $('#'+order._id+'-shipDate').val()
+					};
+					body.push(orderUpdate);
+				});
+
+				axios.put('/api/orders', body).then(response => {
+					window.location='/batch/slips/'+theBatch._id;
+				}).catch(err => {
+					alert('Error saving the batch!');
+				});
+			});
+		});
