@@ -128,9 +128,7 @@ html
                 br
                 =shipmentAddress.ShipmentCity + ', ' + shipmentAddress.ShipmentState
                 br
-                =shipmentAddress.ShipmentZipCode
-                br
-                =shipmentAddress.ShipmentCountry
+                =shipmentAddress.ShipmentZipCode + ', ' + shipmentAddress.ShipmentCountry
               .col
                 h5 Ecstasy Crafts
                 | 630 Shannonville Rd.
@@ -139,7 +137,7 @@ html
                 br
                 | K0K 1L0, Canada
             .row
-              .col
+              .col.pt-1
                 -
                   let htcMap = generateHTCMap(order);
                   htcs.push({
