@@ -320,6 +320,8 @@ $(document).ready(function() {
 			socket.emit('saveItemLocations', items, location, primaryOrSecondary);
 		}
 
+		console.log(putAwayItem);
+
 		if (primaryOrSecondary && putAwayItem) {
 			putAwayItem.location = location;
 		} else if (putAwayItem) {
