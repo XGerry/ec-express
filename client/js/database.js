@@ -473,6 +473,7 @@ function buildItemTable(items) {
 				$('#canSalePrice').val(0.00);
 			}
 			if (item.cost != undefined) {
+				console.log(item.cost);
 				$('#itemCost').val(item.cost.toFixed(2));
 			} else {
 				$('#itemCost').val(0.00);
