@@ -542,7 +542,7 @@ function saveItem(item) {
 
 function saveItemProperties(item) {
 	item.name = $('#itemName').val();
-	item.cost = $('#itemCost').val();
+	item.cost = parseFloat($('#itemCost').val());
 	item.usPrice = parseFloat($('#usPrice').val());
 	item.canPrice = parseFloat($('#canPrice').val());
 	item.canSalePrice = parseFloat($('#canSalePrice').val());
