@@ -320,7 +320,6 @@ $(document).ready(function() {
 			socket.emit('saveItemLocations', items, location, primaryOrSecondary);
 		}
 
-		console.log(putAwayItem);
 
 		if (primaryOrSecondary && putAwayItem) {
 			putAwayItem.location = location;
@@ -329,6 +328,7 @@ $(document).ready(function() {
 		}
 
 		if (putAwayItem) {
+			console.log(putAwayItem);
 			socket.emit('saveItem', putAwayItem, false, responses => {
 				$('#putAwaySKU').select();
 				$('#putAwayPrimaryOrSecondary').val('');
