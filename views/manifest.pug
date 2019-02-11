@@ -113,12 +113,14 @@ html
           each order in orders
             .row.pt-2
               .col
+                h5 Invoice
+                h6=order.orderId
+              .col
                 - let shipmentAddress = order.cartOrder.ShipmentList[0];
-                strong=shipmentAddress.ShipmentFirstName + ' ' + shipmentAddress.ShipmentLastName
+                h5= "Ship to " + shipmentAddress.ShipmentFirstName + ' ' + shipmentAddress.ShipmentLastName
                 if (shipmentAddress.ShipmentCompany)
-                  br
                   strong=shipmentAddress.ShipmentCompany
-                br
+                  br
                 =shipmentAddress.ShipmentAddress
                 if (shipmentAddress.ShipmentAddress2)
                   br 
@@ -130,7 +132,12 @@ html
                 br
                 =shipmentAddress.ShipmentCountry
               .col
-                h5=order.orderId
+                h5 Ecstasy Crafts
+                | 630 Shannonville Rd.
+                br
+                | Shannonville, Ontario
+                br
+                | K0K 1L0, Canada
             .row
               .col
                 -
