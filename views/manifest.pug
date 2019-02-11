@@ -79,7 +79,8 @@ html
               });
               var pricePerItem = 0;
               if (totalValue >= 800) {
-                pricePerItem = 794.86 / totalItems;
+                let randomOrderTotal = Math.random() * (799.87 - 750) + 750;
+                pricePerItem = randomOrderTotal / totalItems;
               }
 
               let htcMap = {};
@@ -95,6 +96,7 @@ html
                 }
                 htcMap[item.countryOfOrigin].quantity += orderItem.pickedQuantity;
                 if (totalValue >= 800) {
+                  orderItem.price = pricePerItem;
                   htcMap[item.countryOfOrigin].value += orderItem.pickedQuantity * pricePerItem;
                 } else {
                   htcMap[item.countryOfOrigin].value += orderItem.pickedQuantity * orderItem.price;
@@ -113,6 +115,9 @@ html
               .col-2
                 - let shipmentAddress = order.cartOrder.ShipmentList[0];
                 strong=shipmentAddress.ShipmentFirstName + ' ' + shipmentAddress.ShipmentLastName
+                if (shipmentAddress.ShipmentCompany)
+                  br
+                  strong=shipmentAddress.ShipmentCompany
                 br
                 =shipmentAddress.ShipmentAddress
                 if (shipmentAddress.ShipmentAddress2)
@@ -131,7 +136,7 @@ html
                     htcMap: htcMap,
                     order: order
                   });
-                table.table.table-sm
+                //table.table.table-sm
                   thead
                     tr
                       th Description
@@ -147,6 +152,32 @@ html
                         td=htcMap[country].quantity
                         td="$" + htcMap[country].value.toFixed(2)
                         td=htcMap[country].weight.toFixed(2) + ' lbs'
+                table.table.table-table-sm
+                  thead
+                    tr
+                      th SKU
+                      th Name
+                      th Quantity
+                      th Price
+                      th Line Total
+                  tbody
+                    - let orderTotal = 0;
+                    each item in order.items
+                      if (item.pickedQuantity > 0)
+                        - orderTotal += item.price;
+                        tr
+                          td=item.item.sku
+                          td=item.item.name
+                          td=item.pickedQuantity
+                          td='$' + item.price.toFixed(2)
+                          td='$' + (item.price * item.pickedQuantity).toFixed(2)
+                  tfoot
+                    tr
+                      td
+                      td
+                      td
+                      th Total
+                      th='$' + orderTotal.toFixed(2)
     +footer
 
     script.
