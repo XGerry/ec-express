@@ -112,7 +112,7 @@ html
             }
           each order in orders
             .row.pt-2
-              .col-2
+              .col
                 - let shipmentAddress = order.cartOrder.ShipmentList[0];
                 strong=shipmentAddress.ShipmentFirstName + ' ' + shipmentAddress.ShipmentLastName
                 if (shipmentAddress.ShipmentCompany)
@@ -175,7 +175,6 @@ html
                           - let lineTotal = (item.price * item.pickedQuantity);
                           td='$' + lineTotal.toFixed(2)
                         - orderTotal += lineTotal;
-                  tfoot
                     tr
                       td
                       td
