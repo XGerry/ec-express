@@ -307,7 +307,7 @@ $(document).ready(function() {
 
 	$('#savePutAwayModal').click(e => {
 		// save the item first
-		var location = $('#putAwayPrimaryOrSecondary').val();
+		var newLocation = $('#putAwayPrimaryOrSecondary').val();
 
 		// save the location
 		var itemsOrLocations = $('#putAwayItems').val();
@@ -320,11 +320,11 @@ $(document).ready(function() {
 			socket.emit('saveItemLocations', items, location, primaryOrSecondary);
 		}
 
-
 		if (primaryOrSecondary && putAwayItem) {
-			putAwayItem.location = location;
+			console.log('setting the location');
+			putAwayItem.location = newLocation;
 		} else if (putAwayItem) {
-			putAwayItem.secondLocation = location;
+			putAwayItem.secondLocation = newLocation;
 		}
 
 		if (putAwayItem) {
