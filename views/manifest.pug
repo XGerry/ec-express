@@ -130,6 +130,9 @@ html
                 br
                 =shipmentAddress.ShipmentCountry
               .col
+                h5=order.orderId
+            .row
+              .col
                 -
                   let htcMap = generateHTCMap(order);
                   htcs.push({
@@ -164,13 +167,14 @@ html
                     - let orderTotal = 0;
                     each item in order.items
                       if (item.pickedQuantity > 0)
-                        - orderTotal += item.price;
                         tr
                           td=item.item.sku
                           td=item.item.name
                           td=item.pickedQuantity
                           td='$' + item.price.toFixed(2)
-                          td='$' + (item.price * item.pickedQuantity).toFixed(2)
+                          - let lineTotal = (item.price * item.pickedQuantity);
+                          td='$' + lineTotal.toFixed(2)
+                        - orderTotal += lineTotal;
                   tfoot
                     tr
                       td
