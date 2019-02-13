@@ -1,3 +1,5 @@
+extends templates/default
+
 mixin tableRow(order)
 	tr
 		td
@@ -24,11 +26,8 @@ mixin tableRow(order)
 				| No Customer
 		td=  moment(new Date(order.createdDate)).format('MMM Do, YYYY')
 
-doctype html
-include mixins
-html
-	include includes/head
-		title List Orders
+append head
+	title List Orders
 	script.
 		$(document).ready(e => {
 			$('#orderTable').DataTable({
@@ -36,29 +35,22 @@ html
 				order: []
 			})
 		});
-	body
-		#wrapper
-			+sidebarNav("list-orders")
-			
-			#page-content
-				+menuToggle
-				.container
-					.starter-template
-						h1 All Custom Orders
-						p.lead Select and order to see it in more detail.
-						a.btn.btn-outline-success(href="/new-order") New Order
-				.container-fluid
-					.row
-						.col-12
-							table.table-hover.table#orderTable
-								thead
-									tr
-										th Invoice Number
-										th Customer Name
-										th Items
-										th Website
-										th Created Date
-								tbody
-									each order in orders
-										+tableRow(order)
-		+footer
+
+append nav-items-right
+	li.nav-item
+		a.btn.btn-outline-success(href="/new-order") New Order
+
+append body
+	.row
+		.col-12
+			table.table-hover.table#orderTable
+				thead
+					tr
+						th Invoice Number
+						th Customer Name
+						th Items
+						th Website
+						th Created Date
+				tbody
+					each order in orders
+						+tableRow(order)

@@ -296,6 +296,16 @@ module.exports = app => {
     });
   });
 
+  app.get('/list-orders', verifyUser, (req, res) => {
+    var findOrders = CustomOrder.find({}).sort({lastModified: -1}).limit(100);
+    findOrders.then((customOrders) => {
+      res.render('list-orders', {
+        orders: customOrders,
+        user: req.session.user
+      });
+    });
+  });
+
   app.get('/inventory', function(req, res) {
     res.render('inventory');
   });
@@ -312,16 +322,19 @@ module.exports = app => {
     res.render('amazon');
   });
 
-  app.get('/new-order', function(req, res) {
+  app.get('/new-order', verifyUser, function(req, res) {
     var customId = req.query.id;
     if (customId) {
       CustomOrder.findOne({_id: customId}).then(cOrder => {
         res.render('new-order', {
-          customOrder: cOrder
+          customOrder: cOrder,
+          user: req.session.user
         });
       });
     } else {
-      res.render('new-order');
+      res.render('new-order', {
+        user: req.session.user
+      });
     }
   });
 
@@ -476,15 +489,6 @@ module.exports = app => {
     } else {
       res.render('show-order');
     }
-  });
-
-  app.get('/list-orders', (req, res) => {
-    var findOrders = CustomOrder.find({}).sort({lastModified: -1}).limit(100);
-    findOrders.then((customOrders) => {
-      res.render('list-orders', {
-        orders: customOrders
-      });
-    });
   });
 
   app.get('/list-manifests', (req, res) => {

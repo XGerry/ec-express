@@ -21,6 +21,12 @@ append nav-items
 			#searchResults
 
 append nav-items-right
+	li.nav-item.dropdown
+		a.nav-link.dropdown-toggle(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#")#customOrderDropdown Custom Orders
+		.dropdown-menu(aria-labelledby="customOrderDropdown")
+			a.dropdown-item(href="/new-order") New
+			a.dropdown-item(href="/list-orders") View
+
 	li.nav-item
 		a.btn.btn-outline-primary(href="/batches").mr-2 Sort Batch
 	li.nav-item

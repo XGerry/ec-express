@@ -1,191 +1,176 @@
-doctype html
-include mixins
-html
-	include includes/head
-		script(src="/js/papaparse.min.js")
-		script(src="/js/new-order.js")
-		title New Order
-	body
-		#wrapper
-			+sidebarNav("new-order")
-			#page-content
-				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
-					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
-						i.far.fa-bars.fa-fw
-					span.navbar-brand.mb-0.h1.pl-2#orderNavTitle New Order
-					form.form-inline
-						select.form-control#orderStatus
-							option(value=1) New
-							option(value=2) Processing
-							option(value=3) Backorder
-							option(value=6) Pre-order
-							option(value=9) Awaiting Payment
-							option(value=13) Awaiting Shipment
-							option(value=4) Shipped
-					span.navbar-text#orderInfo.ml-2
-					ul.navbar-nav.ml-auto
-						li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
-							ul.dropdown-menu.dropdown-menu-right
-								a(href="/new-order").dropdown-item New Order
-								a(href="#").dropdown-item#clearItemsButton Clear Items
-								.dropdown-divider
-								a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
-						li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Import
-							ul.dropdown-menu.dropdown-menu-right
-								a(href="#").dropdown-item#browseButton Browse for file
-								input(type="file" style="display:none;")#fileInput
-								a.dropdown-item(href="#", data-toggle="modal", data-target="#orderImportModal") Enter invoice number
-						.btn-group
-							button.btn.btn-success(type="button")#saveOrderButton Save
-							button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
-							.dropdown-menu.dropdown-menu-right
-								a.dropdown-item(href="#")#saveToSiteButton Save to 3D Cart
-								a.dropdown-item(href="#")#createOrderButton Create Order
+extends templates/default
 
-				.container.pt-3
-					.row
-						.col-12
-							.card
-								.card-header 
-									h5.card-title.d-inline-block.mb-0 Customer
-									button.btn.btn-sm.btn-primary.float-right#addcustomerButton(type="button", data-toggle="modal" data-target="#customerModal")
-										i.far.fa-plus.fa-fw
-								.card-body
-									table.table.table-striped.table-hover#customerTable
-										thead
-											tr
-												th Name
-												th Email
-												th Phone
-												th Shipping Address
-												th Shipping City
-										tbody#customerTableBody
-					.row.pt-2
-						.col-12
-							.card
-								.card-header
-									h5.mb-0 Order Sheet
-								.card-body
-									.form-group.row
-										.col-sm-2
-											label(for="itemSKU") SKU
-											input#itemSKU.form-control(type="text", list="itemList")
-											datalist#itemList
-										.col-sm-4
-											label(for="itemName") Name
-											input#itemName.form-control(type="text")
-										.col-sm-2
-											label(for="itemQuantity") Quantity
-											input#itemQuantity.form-control(type="number", value="1")
-										.col-sm-2
-											label(for="itemPrice") Item Price
-											.input-group
-												.input-group-prepend
-													.input-group-text
-														i.far.fa-dollar-sign
-												input#itemPrice.form-control(type="number", step="any")
-										.col-sm-2
-											label(for="lineTotal") Line Total
-											.input-group
-												.input-group-prepend
-													.input-group-text
-														i.far.fa-dollar-sign
-												input#lineTotal.form-control(type="number", readonly)
-									hr
-									table.table.table-striped.table-hover#orderTable
-										thead
-											tr
-												th SKU
-												th Name
-												th Quantity
-												th Price
-												th Line Total
-										tbody#orderTableBody
-										tfoot
-											tr
-												th
-												th
-												th
-												th Sub Total
-												th#subTotalTable
-					.row.pt-2
-						.col-12
-							.card
-								.card-header
-									h5.mb-0 Options
-								.card-body
-									.form-group.row
-										.col-sm-3
-											label Coupon Code
-											input(type="text")#couponCode.form-control
-										.col-sm-3
-											label Discount Type
-											select.form-control#discountType
-												option(value="percentage") Percentage
-												option(value="dollar") Dollar Value
-										.col-sm-3
-											label Discount
-											.input-group
-												input(type="number", value="0")#discount.form-control
-												.input-group-append
-													.input-group-text#typeSymbol %
-										.col-sm-3
-											label Calculated Discount
-											.input-group
-												.input-group-prepend
-													.input-group-text
-														i.far.fa-dollar-sign
-												input.form-control#totalDiscount(type="number" readonly)
-									.row.form-group
-										.col-sm-3
-											label(for="shippingOptions") Shipping Method
-											select#shippingOptions.form-control
-												option(value="cheapest way") Best Way
-												option(value="UPS") UPS
-												option(value="Canada Post") Canada Post
-												option(value="Priority Mail") USPS
-										.col-sm-3
-											label(for="shipping") Shipping Value
-											.input-group
-												.input-group-prepend
-													.input-group-text
-														i.far.fa-dollar-sign
-												input.form-control#shipping(type="number", value="0")
-										.col-sm-3
-											label(for="taxOptions") Tax Code
-											select#taxOptions.form-control
-												option(value=0) No Tax - 0%
-												option(value=5) GST - 5%
-												option(value=11) GST + PST - 11%
-												option(value=12) GST + PST - 12%
-												option(value=13) HST (GST + PST) - 13%
-												option(value=14.975) GST + QST - 14.975%
-												option(value=15) HST - 15%
-										.col-sm-3
-											label Tax
-											.input-group
-												.input-group-prepend
-													.input-group-text
-														i.far.fa-dollar-sign
-												input.form-control#taxes(type="number", readonly)
-									.row.form-group
-										.col-sm-4
-											label PO Number
-											input.form-control#poNumber(type="text")
-										.col-sm-8
-											label Total
-											.input-group
-												.input-group-prepend
-													.input-group-text
-														i.far.fa-dollar-sign
-												input.form-control#total(type="number", readonly)
-									.row.form-group
-										.col-sm-12
-											label Comments
-											textarea.form-control(rows="5")#notesArea
-		+footer
+append head
+	script(src="/js/papaparse.min.js")
+	script(src="/js/new-order.js")
+	title New Order
+
+append nav-items
+	span.mb-0.h4.pl-2.text-white#orderNavTitle New Order
+	span.navbar-text#orderInfo.ml-2
+
+append nav-items-right
+	li.dropdown.nav-item
+		a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+		ul.dropdown-menu.dropdown-menu-right
+			a(href="/new-order").dropdown-item New Order
+			a(href="#").dropdown-item#clearItemsButton Clear Items
+			.dropdown-divider
+			a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+	li.dropdown.nav-item
+		a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Import
+		ul.dropdown-menu.dropdown-menu-right
+			a(href="#").dropdown-item#browseButton Browse for file
+			input(type="file" style="display:none;")#fileInput
+			a.dropdown-item(href="#", data-toggle="modal", data-target="#orderImportModal") Enter invoice number
+	.btn-group
+		button.btn.btn-success(type="button")#saveOrderButton Save
+		button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
+		.dropdown-menu.dropdown-menu-right
+			a.dropdown-item(href="#")#saveToSiteButton Save to 3D Cart
+			a.dropdown-item(href="#")#createOrderButton Create Order
+
+append body
+	.row
+		.col-12
+			.card
+				.card-header 
+					h5.card-title.d-inline-block.mb-0 Customer
+					button.btn.btn-sm.btn-primary.float-right#addcustomerButton(type="button", data-toggle="modal" data-target="#customerModal")
+						i.far.fa-plus.fa-fw
+				.card-body
+					table.table.table-striped.table-hover#customerTable
+						thead
+							tr
+								th Name
+								th Email
+								th Phone
+								th Shipping Address
+								th Shipping City
+						tbody#customerTableBody
+	.row.pt-2
+		.col-12
+			.card
+				.card-header
+					h5.mb-0 Order Sheet
+				.card-body
+					.form-group.row
+						.col-sm-2
+							label(for="itemSKU") SKU
+							input#itemSKU.form-control(type="text", list="itemList")
+							datalist#itemList
+						.col-sm-4
+							label(for="itemName") Name
+							input#itemName.form-control(type="text")
+						.col-sm-2
+							label(for="itemQuantity") Quantity
+							input#itemQuantity.form-control(type="number", value="1")
+						.col-sm-2
+							label(for="itemPrice") Item Price
+							.input-group
+								.input-group-prepend
+									.input-group-text
+										i.far.fa-dollar-sign
+								input#itemPrice.form-control(type="number", step="any")
+						.col-sm-2
+							label(for="lineTotal") Line Total
+							.input-group
+								.input-group-prepend
+									.input-group-text
+										i.far.fa-dollar-sign
+								input#lineTotal.form-control(type="number", readonly)
+					hr
+					table.table.table-striped.table-hover#orderTable
+						thead
+							tr
+								th SKU
+								th Name
+								th Quantity
+								th Price
+								th Line Total
+						tbody#orderTableBody
+						tfoot
+							tr
+								th
+								th
+								th
+								th Sub Total
+								th#subTotalTable
+	.row.pt-2
+		.col-12
+			.card
+				.card-header
+					h5.mb-0 Options
+				.card-body
+					.form-group.row
+						.col-sm-3
+							label Coupon Code
+							input(type="text")#couponCode.form-control
+						.col-sm-3
+							label Discount Type
+							select.form-control#discountType
+								option(value="percentage") Percentage
+								option(value="dollar") Dollar Value
+						.col-sm-3
+							label Discount
+							.input-group
+								input(type="number", value="0")#discount.form-control
+								.input-group-append
+									.input-group-text#typeSymbol %
+						.col-sm-3
+							label Calculated Discount
+							.input-group
+								.input-group-prepend
+									.input-group-text
+										i.far.fa-dollar-sign
+								input.form-control#totalDiscount(type="number" readonly)
+					.row.form-group
+						.col-sm-3
+							label(for="shippingOptions") Shipping Method
+							select#shippingOptions.form-control
+								option(value="cheapest way") Best Way
+								option(value="UPS") UPS
+								option(value="Canada Post") Canada Post
+								option(value="Priority Mail") USPS
+						.col-sm-3
+							label(for="shipping") Shipping Value
+							.input-group
+								.input-group-prepend
+									.input-group-text
+										i.far.fa-dollar-sign
+								input.form-control#shipping(type="number", value="0")
+						.col-sm-3
+							label(for="taxOptions") Tax Code
+							select#taxOptions.form-control
+								option(value=0) No Tax - 0%
+								option(value=5) GST - 5%
+								option(value=11) GST + PST - 11%
+								option(value=12) GST + PST - 12%
+								option(value=13) HST (GST + PST) - 13%
+								option(value=14.975) GST + QST - 14.975%
+								option(value=15) HST - 15%
+						.col-sm-3
+							label Tax
+							.input-group
+								.input-group-prepend
+									.input-group-text
+										i.far.fa-dollar-sign
+								input.form-control#taxes(type="number", readonly)
+					.row.form-group
+						.col-sm-4
+							label PO Number
+							input.form-control#poNumber(type="text")
+						.col-sm-8
+							label Total
+							.input-group
+								.input-group-prepend
+									.input-group-text
+										i.far.fa-dollar-sign
+								input.form-control#total(type="number", readonly)
+					.row.form-group
+						.col-sm-12
+							label Comments
+							textarea.form-control(rows="5")#notesArea
 
 	#customerModal.modal.fade(role="dialog")
 		.modal-dialog.modal-lg(role="document")
