@@ -95,7 +95,7 @@ append body
 					axios.post('/api/batch/start/auto', {
 						type: batchType,
 						maxItems: 200,
-						maxSkus: 40
+						maxSkus: 100
 					}).then(response => {
 						let batch = response.data;
 						window.location = '/batch/print/'+batch.shortid;
