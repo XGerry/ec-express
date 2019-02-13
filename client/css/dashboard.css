@@ -126,6 +126,10 @@ table tbody tr.rush {
   background-color: #BBF8FC !important;
 }
 
+.in-stock {
+  background-color: #90F393FF !important;
+}
+
 .summary-table {
   max-height: 500px;
   overflow-y: scroll;

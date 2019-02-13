@@ -119,11 +119,13 @@ module.exports = app => {
     Order.find({}).limit(10).sort('-orderDate').populate('customer').then(async recentOrders => {
       let batches = await Batch.find({completed: false}).populate('picker').sort('-startTime').exec();
       let unpickedOrders = await Order.find({picked: false, hold: false}).populate('customer').exec();
+      let heldOrders = await Order.find({hold: true}).populate('customer').sort('orderDate').exec();
       res.render('orders', {
         recentOrders: recentOrders,
         user: req.session.user,
         batches: batches,
-        unpicked: unpickedOrders
+        unpicked: unpickedOrders,
+        heldOrders: heldOrders
       });
     });
   });

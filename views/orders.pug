@@ -133,6 +133,24 @@ append body
 						tbody
 							for order in amazon
 								+orderRow(order)
+			.col.pt-2
+				h4 Held Orders
+				p.lead= 'There are ' + heldOrders.length + ' orders on Hold.'
+				.summary-table
+					table.table.table-striped.table-hover
+						thead
+							tr
+								th ID
+								th Name
+								th Order Date
+								th Hold Reason
+						tbody
+							each order in heldOrders
+								tr(onclick="window.location='/order?id="+order._id+"'")
+									td= order.orderId
+									td= order.customer.name
+									td= moment(order.orderDate).utc().format('MMM Do, YYYY')
+									td= order.reasonForHold
 
 	script.
 		function orderSelected(id, e) {

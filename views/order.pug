@@ -1,7 +1,7 @@
 extends templates/default
 
-mixin itemRow(item, order)
-  tr(onclick="editItem('"+item._id+"')")
+mixin itemRow(item, order, dbOrder)
+  tr(onclick="editItem('"+item._id+"')" class="test" class=(item.item.stock <= 0) ? 'due' : '' class=((item.pickedQuantity < item.quantity) && (item.item.usStock > 0 || item.item.canStock > 0) && dbOrder.hold) ? 'in-stock' : '')
     if (!item.item)
       td Error loading item
       td -
@@ -285,7 +285,7 @@ append body
             th Line Total
         tbody#orderTableBody
           each item in order.items
-            +itemRow(item, order.cartOrder)
+            +itemRow(item, order.cartOrder, order)
   if (order.backorders.length > 0)
     .row.pt-2
       .col
