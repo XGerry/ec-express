@@ -241,6 +241,17 @@ append body
                   input.form-control(type="text" value=order.customer.billingCountry)#billingCountry
           .col
             h5 Shipping Info
+              .row
+                .col
+                  .form-group
+                    label Shipment Name
+                    input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentFirstName)#shipmentFirstName
+                  .form-group
+                    label Shipment Name
+                    input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentLastName)#shipmentLastName
+            .form-group
+              label Shipment Company
+              input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCompany)#shipmentCompany
             .form-group
               label Address 1
               input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentAddress)#shipmentAddress
@@ -591,6 +602,9 @@ append body
       theOrder.cartOrder.ShipmentList[0].ShipmentCity = $('#shipmentCity').val();
       theOrder.cartOrder.ShipmentList[0].ShipmentZipCode = $('#shipmentZipCode').val();
       theOrder.cartOrder.ShipmentList[0].ShipmentCountry = $('#shipmentCountry').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentFirstName = $('#shipmentFirstName').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentLastName = $('#shipmentLastName').val();
+      theOrder.cartOrder.ShipmentList[0].ShipmentCompany = $('#shipmentCompany').val();
       theOrder.cartOrder.BillingAddress = $('#billingAddress').val();
       theOrder.cartOrder.BillingAddress2 = $('#billingAddress2').val();
       theOrder.cartOrder.BillingCity = $('#billingCity').val();
