@@ -241,14 +241,14 @@ append body
                   input.form-control(type="text" value=order.customer.billingCountry)#billingCountry
           .col
             h5 Shipping Info
-              .row
-                .col
-                  .form-group
-                    label Shipment Name
-                    input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentFirstName)#shipmentFirstName
-                  .form-group
-                    label Shipment Name
-                    input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentLastName)#shipmentLastName
+            .row
+              .col
+                .form-group
+                  label Shipment First Name
+                  input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentFirstName)#shipmentFirstName
+                .form-group
+                  label Shipment Last Name
+                  input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentLastName)#shipmentLastName
             .form-group
               label Shipment Company
               input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCompany)#shipmentCompany
