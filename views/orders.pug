@@ -21,12 +21,16 @@ append nav-items
 			#searchResults
 
 append nav-items-right
+	li.nav-item
+		.input-group
+			input.form-control(type="date")#manifestDate
+			.input-group-append
+				button.btn.btn-primary(type="button")#manifestButton Manifest
 	li.nav-item.dropdown
 		a.nav-link.dropdown-toggle(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#")#customOrderDropdown Custom Orders
 		.dropdown-menu(aria-labelledby="customOrderDropdown")
 			a.dropdown-item(href="/new-order") New
 			a.dropdown-item(href="/list-orders") View
-
 	li.nav-item
 		a.btn.btn-outline-primary(href="/batches").mr-2 Sort Batch
 	li.nav-item
@@ -164,3 +168,9 @@ append body
 				window.location="/order?id="+id;
 			}
 		}
+
+		$('#manifestButton').click(e => {
+			let date = $('#manifestDate').val();
+			if (date)
+				window.location = '/manifest/'+date;
+		});
