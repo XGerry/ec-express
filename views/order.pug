@@ -1,7 +1,7 @@
 extends templates/default
 
 mixin itemRow(item, order, dbOrder)
-  tr(onclick="editItem('"+item._id+"')" class="test" class=((item.pickedQuantity > 0) && (item.item.stock <= 0)) ? 'overdue' : '' class=((item.pickedQuantity < item.quantity) && (item.item.usStock > 0 || item.item.canStock > 0) && dbOrder.hold) ? 'in-stock' : '')
+  tr(onclick="editItem('"+item._id+"')" class="test" class=((item.pickedQuantity == 0) && (item.item.stock <= 0)) ? 'overdue' : '' class=((item.pickedQuantity < item.quantity) && (item.item.usStock > 0 || item.item.canStock > 0) && dbOrder.hold) ? 'in-stock' : '')
     if (!item.item)
       td Error loading item
       td -
