@@ -16,7 +16,7 @@ router.use(async (req, res, next) => {
 });
 
 router.use(express.json());
-router.use(express.urlencoded({extended: true}));
+router.use(express.urlencoded({extended: true, limit: '50mb'}));
 
 router.get('/orders/search/:searchTerms', async (req, res) => {
   let searchRegex = {

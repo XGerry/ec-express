@@ -14,7 +14,7 @@ app.locals._ = require('lodash');
 app.set('view engine', 'pug');
 app.use(express.static('client'));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({extended: true, limit: '50mb'}));
 
 // Session setup
 let sessionMiddleware = session({
