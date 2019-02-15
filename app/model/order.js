@@ -317,13 +317,13 @@ orderSchema.methods.updateOrder = async function(order) {
 orderSchema.methods.updateOrderIn3DCart = function(order) {
   var oldOrder = {};
   // replace the items
-  oldOrder.OrderItemList = [];
   oldOrder.BillingAddress = order.cartOrder.BillingAddress;
   oldOrder.BillingAddress2 = order.cartOrder.BillingAddress2;
   oldOrder.BillingState = order.cartOrder.BillingState;
   oldOrder.BillingZipCode = order.cartOrder.BillingZipCode;
   oldOrder.BillingCountry = order.cartOrder.BillingCountry;
   oldOrder.ShipmentList = order.cartOrder.ShipmentList;
+  oldOrder.ShipmentList[0].ShipmentShippedDate = order.shipDate;
   delete oldOrder.ShipmentList[0].ShipmentOrderStatus;
   delete oldOrder.ShipmentList[0].ShipmentTrackingCode;
   oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
@@ -332,18 +332,19 @@ orderSchema.methods.updateOrderIn3DCart = function(order) {
   if (this.comments)
     oldOrder.InternalComments = this.comments;
 
-  this.items.forEach(item => {
-    var orderItem = {
-      ItemID: item.item.sku,
-      ItemQuantity: item.quantity,
-      ItemUnitPrice: item.price,
-      ItemDescription: item.item.name
-    };
-    oldOrder.OrderItemList.push(orderItem);
-  });
-
+  if (!this.invoiced) { // only change the item quantities if the order has not been invoiced
+    oldOrder.OrderItemList = [];
+    this.items.forEach(item => {
+      var orderItem = {
+        ItemID: item.item.sku,
+        ItemQuantity: item.quantity,
+        ItemUnitPrice: item.price,
+        ItemDescription: item.item.name
+      };
+      oldOrder.OrderItemList.push(orderItem);
+    });
+  }
   this.updateCustomer();
-
   var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
   options.body = oldOrder;
   return rp(options);

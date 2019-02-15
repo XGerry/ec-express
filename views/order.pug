@@ -1,7 +1,7 @@
 extends templates/default
 
 mixin itemRow(item, order, dbOrder)
-  tr(onclick="editItem('"+item._id+"')" class="test" class=(item.item.stock <= 0 && item.pickedQuantity > 0) ? 'overdue' : '' class=((item.pickedQuantity < item.quantity) && (item.item.usStock > 0 || item.item.canStock > 0) && dbOrder.hold) ? 'in-stock' : '')
+  tr(onclick="editItem('"+item._id+"')" class="test" class=((item.item.stock <= 0) && (item.pickedQuantity > 0)) ? 'overdue' : '' class=((item.pickedQuantity < item.quantity) && (item.item.usStock > 0 || item.item.canStock > 0) && dbOrder.hold) ? 'in-stock' : '')
     if (!item.item)
       td Error loading item
       td -
@@ -53,12 +53,9 @@ append nav-items-right
         a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
       a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
   button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
-  .btn-group
-    button.btn.btn-success(type="button")#saveOrderButton Save
-    button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type="button" data-toggle="dropdown")
-    .dropdown-menu.dropdown-menu-right
-      a.dropdown-item(href="#")#updateQuickbooks Update in QB
-      a.dropdown-item(href="#")#invoiceOrder Invoice Order
+  button.btn.btn-success.mr-2(type="button")#saveOrderButton Save
+  button.btn.btn-outline-success.mr-2#updateQuickbooks Update Sales Order
+  button.btn.btn-outline-success#invoiceOrder Invoice
 
 append nav-items
   h4.pl-2.text-white=order.orderId
