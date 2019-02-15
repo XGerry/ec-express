@@ -31,6 +31,10 @@ var batchSchema = new mongoose.Schema({
 	picker: {
 		type: ObjectId,
 		ref: 'User'
+	},
+	sorter: {
+		type: ObjectId,
+		ref: 'User'
 	}
 });
 
@@ -183,8 +187,12 @@ batchSchema.methods.delete = function() {
 	});
 }
 
-batchSchema.methods.finish = async function(batch) {
+batchSchema.methods.finish = async function(batch, user) {
+	await this.populate('orders').execPopulate();
 	await this.updatePickedQuantities(batch);
+	if (user) {
+		this.sorter = user._id;
+	}
 	this.endTime = new Date();
 	this.completed = true;
 	await this.save();

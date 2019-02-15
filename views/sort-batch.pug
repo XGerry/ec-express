@@ -166,12 +166,16 @@ append body
 				$('#finishedSortingButton').click(e => {
 					var answer = confirm('Are you sure you are finished sorting this order? Any items that were not picked will be placed on back order');
 					if (answer) {
-						batch.orders.forEach(order => {
-							order.toPrint = $('#'+order._id+'-print').is(':checked');
-						});
-						socket.emit('finishBatch', batch, response => {
+						axios.post('/api/batch/finish', batch).then(response => {
 							console.log(response);
 							window.location='/batch/confirm/'+batch._id;
+						}).catch(err => {
+							console.log(err.response);
+							if (err.response.status == 401) {
+								alert('You must be signed in to finish a batch! Please save the batch, log in and try again.');
+							} else {
+								alert('There was an error finishing the batch!');
+							}
 						});
 					}
 				});

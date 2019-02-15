@@ -63,6 +63,17 @@ router.post('/batch/start/auto', (req, res) => {
   });
 });
 
+router.post('/batch/finish', (req, res) => {
+  Batch.findOne({_id: req.body._id}).then(batch => {
+    batch.finish(req.body, req.session.user).then(batch => {
+      res.json(batch);
+    }).catch(err => {
+      console.log(err);
+      res.status(500).send(err);
+    });
+  });
+});
+
 router.put('/orders', async (req, res) => {
   let orders = req.body;
   for (order of orders) {
