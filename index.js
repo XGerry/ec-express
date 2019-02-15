@@ -13,7 +13,7 @@ app.locals.moment = require('moment');
 app.locals._ = require('lodash');
 app.set('view engine', 'pug');
 app.use(express.static('client'));
-app.use(express.json());
+app.use(express.json({limit: '150mb'}));
 app.use(express.urlencoded({extended: true, limit: '50mb'}));
 
 // Session setup
