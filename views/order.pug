@@ -1,7 +1,7 @@
 extends templates/default
 
 mixin itemRow(item, order, dbOrder)
-  tr(onclick="editItem('"+item._id+"')" class="test" class=(item.item.stock <= 0) ? 'overdue' : '' class=((item.pickedQuantity < item.quantity) && (item.item.usStock > 0 || item.item.canStock > 0) && dbOrder.hold) ? 'in-stock' : '')
+  tr(onclick="editItem('"+item._id+"')" class="test" class=(item.item.stock <= 0 && item.pickedQuantity > 0) ? 'overdue' : '' class=((item.pickedQuantity < item.quantity) && (item.item.usStock > 0 || item.item.canStock > 0) && dbOrder.hold) ? 'in-stock' : '')
     if (!item.item)
       td Error loading item
       td -
@@ -84,6 +84,10 @@ append body
       .tab-pane.fade.show.active#info(role="tabpanel" aria-labelledby="info-tab")
         .row.pt-2
           .col-8
+            -
+              var pickedValue = 0;
+              pickedValue = order.items.reduce((total, item) => total += item.pickedQuantity * item.price, 0);
+              pickedValue += order.shippingCost;
             table.table.table-sm
               thead
                 tr
@@ -91,8 +95,8 @@ append body
                   th Company Name
                   th Email
                   th Phone
-                  th Value
                   th Date
+                  th Calculated Value
               tbody
                 tr
                   td=order.customer.name
@@ -100,7 +104,7 @@ append body
                   td=order.customer.email
                   td=order.customer.phone
                   td=moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
-                  td='$'+order.orderValue.toFixed(2)
+                  td='$'+pickedValue.toFixed(2)
           .col-4
             .row
               .col
@@ -170,11 +174,6 @@ append body
                     td= order.cartOrder.BillingPaymentMethod
                   td= order.customer.customerType == 0 ? 'Retail' : 'Wholesale'
                   td='$'+order.orderValue.toFixed(2)
-                  -
-                    var pickedValue = 0;
-                    pickedValue = order.items.reduce((total, item) => total += item.pickedQuantity * item.price, 0);
-                    pickedValue += order.shippingCost;
-
                   td= '$' + pickedValue.toFixed(2)
                   if (order.orderProfit != undefined)
                     td= '$'+order.orderProfit.toFixed(2)

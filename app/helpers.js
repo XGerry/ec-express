@@ -1549,7 +1549,7 @@ function queryAllItems(qbws) {
   return Item.find({}).then(items => {
     qbws.addRequest(getMultipleItemsRq(items), updateInventoryPart, true);
     qbws.addRequest(getMultipleItemAssemblyRq(items), updateInventoryAssembly, true); // how do we know if it's a bundle?
-    return Item.update({}, {$set: {updated: false}});
+    return Item.updateMany({}, {$set: {updated: false}});
   });
 }
 
@@ -1557,7 +1557,7 @@ function runInventory(qbws) {
   return Item.find({}).then(items => {
     var siteRq = getItemSiteInventory(items);
     qbws.addRequest(siteRq, updateItemSites, true);
-    return Item.update({}, {$set: {updated: false}});
+    return Item.updateMany({}, {$set: {updated: false}});
   });
 }
 

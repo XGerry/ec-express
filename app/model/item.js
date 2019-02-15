@@ -53,7 +53,10 @@ var itemSchema = new mongoose.Schema({
 	isOption: Boolean,
 	inactive: Boolean,
 	hidden: Boolean,
-	hasOptions: Boolean,
+	hasOptions: {
+    type: Boolean,
+    default: false
+  },
 	optionId: Number,
 	optionIdCan: Number,
 	onSale: Boolean,
@@ -206,9 +209,6 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
 
 itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, canadian) {
   this.name = optionItem.AdvancedOptionName;
-  console.log('canadian? ' + canadian);
-  console.log(this.sku);
-  console.log(this.name);
   if (canadian) {
     this.optionIdCan = optionItem.AdvancedOptionCode;
     this.catalogIdCan = parentItem.SKUInfo.CatalogID; // Parent Item
@@ -246,14 +246,8 @@ itemSchema.methods.setStock = function(stock) {
     stock = 0;
   }
 
-  var itemIsInactive = false;
-  if (this.IsActive == false || this.IsActive == 'false') {
-    itemIsInactive = true;
-    stock = 0;
-  }
-
   var updated = (this.usStock != stock) || (this.canStock != stock);
-  updated = updated || (this.inactive != itemIsInactive);
+
   if (updated) {
     this.stock = stock;
     this.usStock = stock;

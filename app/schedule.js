@@ -6,6 +6,7 @@ var amazon = require('./amazon');
 var walmart = require('./walmart');
 var Order = require('./model/order.js');
 var Item = require('./model/item.js');
+const CartMarketplace = require('./cartMarketplace');
 
 module.exports = function(qbws) {
   var sync = schedule.scheduleJob('0 4-20 * * *', () => {
@@ -19,6 +20,8 @@ module.exports = function(qbws) {
       helpers.queryAllItems(qbws); // update from quickbooks
     });
   });
+
+  //syncTutti(qbws);
 }
 
 function syncOrdersAndInventory(qbws) {
@@ -88,4 +91,39 @@ function saveInventory() {
   promises.push(saveWalmart);
   promises.push(saveAmazon);
   return Promise.all(promises);
+}
+
+// get items from Dani's store
+async function syncTutti(qbws) {
+  let tuttiStore = new CartMarketplace('https://www.tuttidesigns.com/', 
+    process.env.CART_PRIVATE_KEY, process.env.TUTTI_TOKEN);
+  let items = await tuttiStore.getItems();
+  await Item.updateMany({}, {$set: {updated: false}});
+  let promises = [];
+  items.forEach(item => {
+    let updateStock = Item.findOne({sku: item.SKUInfo.SKU}).then(dbItem => {
+      if (dbItem) {
+        dbItem.setStock = item.SKUInfo.Stock;
+      } else {
+        console.log('The item ' + item.SKUInfo.SKU + ' was not found.');
+      }
+    });
+    return promises.push(updateStock);
+  });
+
+  Promise.all(promises).then(updatedItems => {
+    updatedItems = updatedItems.filter(item => item != undefined);
+    console.log(updatedItems.length + ' items were updated.');
+    let items = updatedItems.map(dbItem => {
+      return { 
+        sku: dbItem.sku,
+        newStock: dbItem.usStock
+      }
+    });
+    let inventoryAdjustmentRequest = helpers.modifyItemsInventoryRq(items, 'Updated from Tutti Site.');
+    qbws.addRequest(inventoryAdjustmentRequest);
+    saveInventory().then(() => {
+      console.log('done everything!');
+    });
+  });
 }
