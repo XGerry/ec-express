@@ -350,21 +350,6 @@ module.exports = {
 			res.send('New product.');
 		});
 
-		app.post('/webhooks/contact', jsonParser, function(req, res) {
-			var support = req.body;
-			customerSupportBot(packageSupportRequest(support));
-			mailer.sendSupportMail(support.firstName, 
-				support.lastName, 
-				support.email,
-				support.phone,
-				support.country,
-				support.subject,
-				support.message, 
-				function(err, info) {
-					res.send('Received support request.');
-				});
-		});
-
 		app.post('/webhooks/wholesale', jsonParser, function(req, res) {
 			var wholesaleApp = req.body;
 			var slackMessage = packageWholesaleRequest(wholesaleApp);

@@ -188,7 +188,6 @@ batchSchema.methods.delete = function() {
 }
 
 batchSchema.methods.finish = async function(batch, user) {
-	await this.populate('orders').execPopulate();
 	await this.updatePickedQuantities(batch);
 	if (user) {
 		this.sorter = user._id;
@@ -196,11 +195,16 @@ batchSchema.methods.finish = async function(batch, user) {
 	this.endTime = new Date();
 	this.completed = true;
 	await this.save();
+	await this.populate('orders').execPopulate();
 	for (order of this.orders) {
-		order.picked = true;
-		order.isNew = false;
-		delete order.__v;
-		await order.save();
+		if (order.numberOfItemsPicked > 0) {
+			order.picked = true;
+			order.isNew = false;
+			delete order.__v;
+			await order.save();
+		} else {
+			console.log(order.orderId + ' - Not setting picked to true, because not enough items have been picked.');
+		}
 	}
 	return this;
 }
