@@ -171,7 +171,7 @@ html
                   tbody
                     - let orderTotal = 0;
                     each item in order.items
-                      if (item.pickedQuantity > 0)
+                      if (item.pickedQuantity > 0 && item.item)
                         tr
                           td=item.item.sku
                           td=item.item.name
