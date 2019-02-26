@@ -141,7 +141,7 @@ append body
                 .input-group-prepend
                     .input-group-text
                       i.far.fa-dollar-sign
-                if (order.shippingCost)
+                if (order.shippingCost != undefined)
                   input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
                 else
                   input.form-control(type="number")#orderShippingCost
