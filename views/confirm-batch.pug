@@ -67,7 +67,7 @@ append body
               .input-group-prepend
                 .input-group-text
                   i.far.fa-dollar-sign
-            input.form-control(type="number" value=order.shippingCost.toFixed(2) id=order._id+'-shippingCost')
+            input.form-control(type="number" value=order.shippingCost ? order.shippingCost.toFixed(2) : 0.00, id=order._id+'-shippingCost')
           .form-group.col
             label Is the order on hold?
             label.switch
