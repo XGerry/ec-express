@@ -38,7 +38,7 @@ append nav-items-right
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
     ul.dropdown-menu.dropdown-menu-right
       if (order.batch)
-        a(href="/batch/"+batch) View Batch
+        a.dropdown-item(href="/batch/"+order.batch) View Batch
       a(href="#").dropdown-item#calculateProfitButton Calculate Profit
       if (order.invoiced)
         a(href="#").dropdown-item#createBackorderButton Create Backorder
