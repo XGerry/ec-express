@@ -288,7 +288,7 @@ module.exports = app => {
   });
 
   app.get('/batches', verifyUser, (req, res) => {
-    Batch.find({}).populate('picker').then(batches => {
+    Batch.find({}).populate('picker sorter').then(batches => {
       res.render('batches', {
         batches: batches,
         user: req.session.user
@@ -734,7 +734,7 @@ module.exports = app => {
         path: 'customer',
         model: 'Customer'
       }]
-    }).populate('picker');
+    }).populate('picker sorter');
   }
 
   function getCustomerType(order) {

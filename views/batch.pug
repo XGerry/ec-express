@@ -40,6 +40,7 @@ append body
 						th Completed
 						th Number of Orders
 						th Picker
+						th Sorter
 				tbody#customerTableBody
 					tr
 						td=moment(batch.startTime).format('MMM Do - h:mm:ss a')
@@ -50,6 +51,7 @@ append body
 							td=batch.picker.email
 						else
 							td N/A
+						td= batch.sorter ? batch.sorter.email : 'N/A'
 
 	.row.pt-2
 		.col
