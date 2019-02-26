@@ -37,6 +37,8 @@ append nav-items-right
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
     ul.dropdown-menu.dropdown-menu-right
+      if (order.batch)
+        a(href="/batch/"+batch) View Batch
       a(href="#").dropdown-item#calculateProfitButton Calculate Profit
       if (order.invoiced)
         a(href="#").dropdown-item#createBackorderButton Create Backorder
@@ -47,7 +49,7 @@ append nav-items-right
       a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
       a(href="#").dropdown-item#replacePricing Replace Pricing
       input(type="file" style="display:none;")#fileInput
-      a(href="#").dropdown-item#refreshFromOriginal Reload from Original
+      //a(href="#").dropdown-item#refreshFromOriginal Reload from Original
       .dropdown-divider
       if (order.batch)
         a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
