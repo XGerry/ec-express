@@ -188,6 +188,7 @@ batchSchema.methods.delete = function() {
 }
 
 batchSchema.methods.finish = async function(batch, user) {
+	await this.populate('orders').execPopulate();
 	await this.updatePickedQuantities(batch);
 	if (user) {
 		this.sorter = user._id;
