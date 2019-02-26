@@ -47,6 +47,7 @@ append nav-items-right
       if (order.imported)
         a(href="#").dropdown-item#closeSalesOrderButton Close Sales Order
       a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
+      a(href="/order/slip/"+order._id target="_self").dropdown-item Packing Slip
       a(href="#").dropdown-item#replacePricing Replace Pricing
       input(type="file" style="display:none;")#fileInput
       //a(href="#").dropdown-item#refreshFromOriginal Reload from Original

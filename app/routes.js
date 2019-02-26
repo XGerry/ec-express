@@ -230,6 +230,18 @@ module.exports = app => {
     }
   });
 
+  app.get('/order/slip/:orderId', verifyUser, async (req, res) => {
+    let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
+    if (order) {
+      res.render('packing-slip', {
+        order: order,
+        user: req.session.user
+      });
+    } else {
+      res.redirect('/orders');
+    }
+  });
+
   app.get('/sort-batch', verifyUser, async (req, res) => {
     var shortid = req.query.shortid;
     var id;

@@ -38,12 +38,15 @@ mixin itemRow(item)
 		td=item.quantity
 		td=item.pickedQuantity
 		td=item.item.name
+		td='$' + item.price.toFixed(2)
+		td='$' + (item.price * item.pickedQuantity).toFixed(2)
 
 mixin unsentItemRow(item)
 	tr
 		td=item.item.sku
 		td=item.item.name
 		td=item.quantity
+		td='$' + item.price
 		td Not in stock
 
 mixin customerInfoPanel(order)
@@ -85,14 +88,12 @@ mixin customerInfoPanel(order)
 					tr
 						th Items Ordered
 						th Items Shipped
-						th Value
 						th Ship Method
 						th Payment Method
 				tbody.infoTableBody
 					tr
 						td= order.items.reduce((total, item) => total + item.quantity, 0)
 						td= order.items.reduce((total, item) => total + item.pickedQuantity, 0)
-						td= '$'+order.orderValue.toFixed(2)
 						td= order.cartOrder.ShipmentList[0].ShipmentMethodName
 						td= order.cartOrder.BillingPaymentMethod
 
@@ -115,26 +116,47 @@ mixin orderItemPanel(order)
 							th Ordered
 							th Shipped
 							th Description
+							th Price
+							th Line Total
 					tbody
+						- let grandTotal = 0;
 						each item in order.items
 							if (item.pickedQuantity > 0)
+								- grandTotal += (item.pickedQuantity * item.price);
 								+itemRow(item)
-		.row
-			.col
-				h3 Items not sent
-				table.table.table-striped.pick-table
-					thead
+							else
+								- unsentItems = true;
 						tr
-							th SKU
-							th Description
-							th Ordered
-							th Reason
-					tbody
-						each item in order.items
-							if (item.pickedQuantity == 0)
-								+unsentItemRow(item)
-
-
+							th
+							th
+							th
+							td Shipping &amp; Handling
+							td= '$' + (order.shippingCost ? order.shippingCost.toFixed(2) : '0.00')
+							td= '$' + (order.shippingCost ? order.shippingCost.toFixed(2) : '0.00')
+						- grandTotal += order.shippingCost ? order.shippingCost : 0;
+						tr
+							th
+							th
+							th
+							th Total
+							th
+							th= '$' + grandTotal.toFixed(2)
+		if (unsentItems)
+			.row
+				.col
+					h3 Items not sent
+					table.table.table-striped.pick-table
+						thead
+							tr
+								th SKU
+								th Description
+								th Ordered
+								th Price
+								th Reason
+						tbody
+							each item in order.items
+								if (item.pickedQuantity == 0)
+									+unsentItemRow(item)
 
 mixin orderSection(order)
 	.container
@@ -155,7 +177,10 @@ html
 			#page-content
 				+menuToggle
 				.container.pt-3
-				each order in batch.orders
-					if (order.toPrint)
-						+orderSection(order)
+				if (batch)
+					each order in batch.orders
+						if (order.toPrint)
+							+orderSection(order)
+				else if (order)
+					+orderSection(order)
 		+footer
