@@ -22,12 +22,15 @@ append nav-items-right
 		ul.dropdown-menu.dropdown-menu-right
 			a(href="#").dropdown-item#finishBatchButton Finish
 			a(href="/batch-shipping?id="+batch._id).dropdown-item Shipping Info
+			a.dropdown-item(href="/sort-batch?id="+batch._id) Sort
+			a.dropdown-item(href="/batch/confirm/"+batch._id) Confirm Shipping
 			.dropdown-divider
 			a#deleteBatchButton(href="#").dropdown-item.bg-danger.text-white Delete
-	a.btn-outline-primary.btn.mr-2(href="/batch-sheet?id="+batch._id) Pick Sheet
-	a.btn-outline-primary.btn.mr-2(href="/packing-slip?id="+batch._id) Packing Slip
-	a.btn-outline-primary.btn.mr-2(href="/sort-batch?id="+batch._id) Sort
-	a.btn-outline-primary.btn.mr-2(href="/batch/confirm/"+batch._id) Confirm Shipping
+	li.dropdown.nav-item
+		a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") View
+		ul.dropdown-menu.dropdown-menu-right
+			a.dropdown-item(href="/batch-sheet?id="+batch._id) Pick Sheet
+			a.dropdown-item(href="/packing-slip?id="+batch._id) Packing Slip
 	button.btn-primary.btn.mr-2(type="button")#addOrderButton Add Order
 
 append body		

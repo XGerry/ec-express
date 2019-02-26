@@ -62,6 +62,9 @@ append body
 						label Ship date
 						input.form-control(type="date" value=order.shipDate ? moment(order.shipDate).utc().format('YYYY-MM-DD') : '', id=order._id+'-shipDate')
 					.form-group.col
+						label Ship Cost
+						input.form-control(type="number" value=order.shippingCost.toFixed(2) id=order._id+'-shippingCost')
+					.form-group.col
 						label Is the order on hold?
 						label.switch
 							input.danger(type="checkbox" checked=order.hold id=order._id+'-hold')
