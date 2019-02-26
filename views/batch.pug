@@ -26,6 +26,8 @@ append nav-items-right
 			a#deleteBatchButton(href="#").dropdown-item.bg-danger.text-white Delete
 	a.btn-outline-primary.btn.mr-2(href="/batch-sheet?id="+batch._id) Pick Sheet
 	a.btn-outline-primary.btn.mr-2(href="/packing-slip?id="+batch._id) Packing Slip
+	a.btn-outline-primary.btn.mr-2(href="/sort-batch?id="+batch._id) Sort
+	a.btn-outline-primary.btn.mr-2(href="/batch/confirm/"+batch._id) Confirm Shipping
 	button.btn-primary.btn.mr-2(type="button")#addOrderButton Add Order
 
 append body		
