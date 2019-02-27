@@ -34,6 +34,7 @@ append nav-items-right
     ul.dropdown-menu.dropdown-menu-right
       a(href="/customer?id="+order.customer._id).dropdown-item View
       a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
+      a(href="/api/order/email/invoice/"+order._id).dropdown-item Email Invoice
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
     ul.dropdown-menu.dropdown-menu-right
@@ -96,7 +97,8 @@ append body
                   th Email
                   th Phone
                   th Date
-                  th Calculated Value
+                  th Grand Total
+                  th Sales Tax
               tbody
                 tr
                   td=order.customer.name
@@ -104,7 +106,8 @@ append body
                   td=order.customer.email
                   td=order.customer.phone
                   td=moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
-                  td='$'+pickedValue.toFixed(2)
+                  td='$' + (order.subtotal + order.salesTax).toFixed(2)
+                  td='$' + order.salesTax.toFixed(2)
           .col-4
             .row
               .col
@@ -137,6 +140,14 @@ append body
             .form-group
               label(for="orderTrackingNumber") Tracking Number
               input.form-control(type="text", value=order.trackingNumber)#orderTrackingNumber
+          .col
+            .form-group
+              label(for="orderTrackingNumber") Discount
+              .input-group
+                .input-group-prepend
+                    .input-group-text
+                      i.far.fa-dollar-sign
+                input.form-control(type="number", value=order.discount)#orderDiscount
           .col
             .form-group
               label(for="orderShippingCost") Shipping Cost
@@ -612,6 +623,7 @@ append body
       theOrder.cartOrder.BillingCountry = $('#billingCountry').val();
       theOrder.shipDate = $('#orderShipDate').val();
       theOrder.trackingNumber = $('#orderTrackingNumber').val();
+      theOrder.discount = parseFloat($('#orderDiscount').val());
     }
 
     function loadFromFile(items) {

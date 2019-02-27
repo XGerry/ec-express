@@ -49,66 +49,45 @@ mixin unsentItemRow(item)
 		td='$' + item.price
 		td Not in stock
 
-mixin customerInfoPanel(order)
-	.row
-		.col
-			p.lead Thank you for shopping at Ecstasy Crafts!
-	h2= order.orderId
-	.row
-		.col-12
-			table.table.table-striped.table-hover.table-sm
-				thead
-					tr
-						th Phone
-						th Email
-						th Order Date
-						th Customer Type
-				tbody.infoTableBody
-					tr
-						td= order.cartOrder.ShipmentList[0].ShipmentPhone
-						td.email= order.cartOrder.BillingEmail
-						td= moment(new Date(order.orderDate)).format('dddd MMM Do, h:mm:ss a')
-						td
-							if (order.customer.customerType == '2' || order.customer.customerType == '14')
-								| Wholesale
-							else if (order.customer.customerType == '3') 
-								| Teacher 
-							else if (order.customer.customerType == '4')
-								| Preferred Customer
-							else 
-								| Retail
-	.row
-		.col-lg-2.col-sm-2
-			+billingAddress(order.customer)
-		.col-lg-2.col-sm-2
-			+shippingAddress(order.cartOrder.ShipmentList[0])
-		.col-8
-			table.table.table-striped.table-hover.table-sm
-				thead 
-					tr
-						th Items Ordered
-						th Items Shipped
-						th Ship Method
-						th Payment Method
-				tbody.infoTableBody
-					tr
-						td= order.numberOfItems
-						td= order.numberOfItemsPicked
-						td= order.cartOrder.ShipmentList[0].ShipmentMethodName
-						td= order.cartOrder.BillingPaymentMethod
-
-	if (order.cartOrder.CustomerComments)
+body
+	.container-fluid
 		.row
-			.col-lg-12.col-sm-12
-				h4 Comments
-				.well
-					p=order.cartOrder.CustomerComments
-
-mixin orderItemPanel(order)
-	#pickSheet
+			.col
+				h1= order.orderId
+				p Dear #[=order.customer.firstname], 
+				p Thank you for shopping at Ecstasy Crafts. 
+					if (order.shipDate)
+						|  Your order is scheduled to ship on #[=moment(order.shipDate).format('MMMM Do')].
+					if (order.paid)
+						|  Your order has been successfully paid.
+					else
+						|  We are currently processing your payment. 
+				p Below you will find your invoice. If you have any questions or concerns please reply to this email and we will get back to you as soon as possible.
+		.row
+			.col
+				+billingAddress(order.customer)
+			.col
+				+shippingAddress(order.cartOrder.ShipmentList[0])
+		.row
+			.col
+				h2 Order Summary
+				table.table.table-striped.table-hover.table-sm
+					thead 
+						tr
+							th Items Ordered
+							th Items Shipped
+							th Ship Method
+							th Payment Method
+					tbody.infoTableBody
+						tr
+							td= order.items.reduce((total, item) => total + item.quantity, 0)
+							td= order.items.reduce((total, item) => total + item.pickedQuantity, 0)
+							td= order.cartOrder.ShipmentList[0].ShipmentMethodName
+							td= order.cartOrder.BillingPaymentMethod
 		.row
 			- let unsentItems = false;
 			.col
+				h2 Invoice
 				table.table.table-striped.table-hover.pick-table
 					thead
 						tr
@@ -131,6 +110,14 @@ mixin orderItemPanel(order)
 							td Shipping &amp; Handling
 							td= '$' + (order.shippingCost ? order.shippingCost.toFixed(2) : '0.00')
 							td= '$' + (order.shippingCost ? order.shippingCost.toFixed(2) : '0.00')
+						- grandTotal += order.shippingCost ? order.shippingCost : 0;
+						tr
+							th
+							th
+							th
+							td Sales Tax
+							td='$' + order.salesTax.toFixed(2)
+							td='$' + order.salesTax.toFixed(2)
 						if (order.discount > 0)
 							tr
 								th
@@ -139,13 +126,6 @@ mixin orderItemPanel(order)
 								td Discounts
 								td = '$' (order.discount ? order.discount.toFixed(2) : '0.00')
 								td = '$' (order.discount ? order.discount.toFixed(2) : '0.00')
-						tr
-							td
-							td
-							td
-							td Sales Tax
-							td='$' + order.salesTax.toFixed(2)
-							td='$' + order.salesTax.toFixed(2)
 						tr
 							th
 							th
@@ -169,30 +149,4 @@ mixin orderItemPanel(order)
 							each item in order.items
 								if (item.pickedQuantity == 0)
 									+unsentItemRow(item)
-
-mixin orderSection(order)
-	.container
-		+customerInfoPanel(order)
-	.container.pt-2
-		+orderItemPanel(order)
-	.pagebreak
-
-doctype html
-include mixins
-html
-	include includes/head
-		title Packing Slips
-	body
-		#wrapper
-			+sidebarNav("packing")
-
-			#page-content
-				+menuToggle
-				.container.pt-3
-				if (batch)
-					each order in batch.orders
-						if (order.toPrint)
-							+orderSection(order)
-				else if (order)
-					+orderSection(order)
-		+footer
+					p Any Creative Expressions, Lavinia or Sticky Specks items that were not sent in your order will be automatically back-ordered and sent when they arrive. Please let us know if you do not want us to hold a back order for you.

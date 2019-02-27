@@ -4,7 +4,11 @@ const User = require('./model/user');
 const Customer = require('./model/customer');
 const Batch = require('./model/batch');
 const Order = require('./model/order');
-
+const pug = require('pug');
+const mailer = require('./mailer');
+const path = require('path');
+const juice = require('juice');
+const fs = require('fs');
 // TODO permissions inside middle ware
 router.use(async (req, res, next) => {
   if (req.session.userId == null || req.session.userId == undefined) {
@@ -86,6 +90,31 @@ router.put('/orders', async (req, res) => {
     }
   }
   res.send('success');
+});
+
+router.get('/order/email/invoice/:orderId', async (req, res) => {
+  let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
+  let emailContent = pug.renderFile(path.resolve(__dirname, '../views/emails/invoice.pug'), {
+    order: order,
+    moment: require('moment')
+  });
+  let css = fs.readFileSync(path.resolve(__dirname, '../node_modules/bootstrap/dist/css/bootstrap.css'), 'utf8');
+  let html = juice.inlineContent(emailContent, css);
+  let mailOptions = {
+    from: 'Ecstasy Crafts <support@ecstasycrafts.com>',
+    to: 'mattoskamp@gmail.com',
+    subject: 'Invoice for order ' + order.orderId,
+    html: html
+  };
+
+  mailer.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send(err);
+    } else {
+      res.send('Successfully sent email to customer');
+    }
+  });
 });
 
 module.exports.router = router;

@@ -229,7 +229,7 @@ module.exports = app => {
       res.redirect('/batches');
     }
   });
-
+  
   app.get('/order/slip/:orderId', verifyUser, async (req, res) => {
     let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
     if (order) {

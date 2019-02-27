@@ -103,7 +103,19 @@ var orderSchema = new mongoose.Schema({
     ref: 'Order'
   },
   reasonForHold: String,
-  reasonForUnpaid: String
+  reasonForUnpaid: String,
+  salesTax: {
+    type: Number,
+    default: 0
+  },
+  discount: {
+    type: Number,
+    default: 0
+  },
+  promotionList: [{
+    type: ObjectId,
+    ref: 'Promotion'
+  }]
 }, {
   toObject: {
     virtuals: true
@@ -114,16 +126,26 @@ var orderSchema = new mongoose.Schema({
   usePushEach: true
 });
 
+orderSchema.pre('save', async function() {
+  console.log('sales tax');
+  await this.calculateSalesTax();
+});
+
 orderSchema.virtual('incomplete').get(function() {
   return (this.numberOfItemsPicked < this.numberOfItems) && (this.backorders.length == 0);
 });
 
 orderSchema.virtual('numberOfItems').get(function() {
-  return this.items.reduce((total, item) => total += item.quantity, 0);
+  return this.items.reduce((total, item) => total + item.quantity, 0);
 });
 
 orderSchema.virtual('numberOfItemsPicked').get(function() {
-  return this.items.reduce((total, item) => total += item.pickedQuantity, 0);
+  return this.items.reduce((total, item) => total + item.pickedQuantity, 0);
+});
+
+orderSchema.virtual('subtotal').get(function() {
+  let subtotal = this.items.reduce((total, item) => total + (item.pickedQuantity * item.price), 0);
+  return subtotal + this.shippingCost - this.discount;
 });
 
 orderSchema.statics.findUnpaidOrders = function(canadian) {
@@ -229,6 +251,7 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   this.shippingCost = cartOrder.ShipmentList[0].ShipmentCost;
   this.comments = cartOrder.InternalComments;
   this.paymentMethod = cartOrder.BillingPaymentMethod;
+  this.discount = cartOrder.OrderDiscount;
 
   this.items = [];
   var theOrder = this;
@@ -469,7 +492,7 @@ orderSchema.methods.addSalesOrderRq = function() {
 
   // another place there could be a discount
   // let's just add all the discounts lumped into one line
-  if (this.cartOrder.OrderDiscount > 0) {
+  if (this.discount > 0) {
     invoiceAdds.push({
       ItemRef : {
         FullName : "DISC"
@@ -622,6 +645,34 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({pretty: true});
   return str;
+}
+
+orderSchema.methods.calculateSalesTax = async function() {
+  await this.populate('customer').execPopulate();
+  let salesTax = 0;
+  if (this.customer.billingCountry == 'CA') {
+    if (this.customer.billingState == 'ON' ||
+      this.customer.billingState == 'MB') {
+      salesTax = 0.13;
+    } else if (this.customer.billingState == 'AB' ||
+      this.customer.billingState == 'NU' ||
+      this.customer.billingState == 'NT' ||
+      this.customer.billingState == 'YT') {
+      salesTax = 0.05;
+    } else if (this.customer.billingState == 'BC') {
+      salesTax = 0.12;
+    } else if (this.customer.billingState == 'NB' ||
+      this.customer.billingState == 'NL' ||
+      this.customer.billingState == 'PE' ||
+      this.customer.billingState == 'NS') {
+      salesTax = 0.15;
+    } else if (this.customer.billingState == 'SK') {
+      salesTax = 0.11;
+    } else if (this.customer.billingState == 'QB') {
+      salesTax = 0.1498;
+    }
+  }
+  this.salesTax = salesTax * this.subtotal;
 }
 
 orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
