@@ -469,10 +469,7 @@ append body
         recalculateTotal();
         socket.emit('updateOrder', theOrder, response => {
           console.log(response);
-          $('#orderInfo').text('Saved Successfully!');
-          setTimeout(() => {
-            $('#orderInfo').text('');
-          }, 2000);
+          location.reload();
         });
       });
 
