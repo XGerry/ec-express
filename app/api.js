@@ -102,7 +102,7 @@ router.get('/order/email/invoice/:orderId', async (req, res) => {
   let html = juice.inlineContent(emailContent, css);
   let mailOptions = {
     from: 'Ecstasy Crafts <support@ecstasycrafts.com>',
-    to: 'mattoskamp@gmail.com',
+    to: 'mattoskamp@gmail.com', //order.customer.email,
     subject: 'Invoice for order ' + order.orderId,
     html: html
   };

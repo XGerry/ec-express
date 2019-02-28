@@ -127,8 +127,8 @@ var orderSchema = new mongoose.Schema({
 });
 
 orderSchema.pre('save', async function() {
-  console.log('sales tax');
-  await this.calculateSalesTax();
+  // todo calculate the discounts
+  await this.calculateSalesTax(); // calculate the sales tax
 });
 
 orderSchema.virtual('incomplete').get(function() {

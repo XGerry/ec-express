@@ -34,7 +34,7 @@ append nav-items-right
     ul.dropdown-menu.dropdown-menu-right
       a(href="/customer?id="+order.customer._id).dropdown-item View
       a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
-      a(href="/api/order/email/invoice/"+order._id).dropdown-item Email Invoice
+      a(href="#").dropdown-item#emailInvoiceButton Email Invoice
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
     ul.dropdown-menu.dropdown-menu-right
@@ -537,6 +537,18 @@ append body
         e.preventDefault();
         socket.emit('calculateProfit', theOrder._id, cb => {
           location.reload();
+        });
+      });
+
+      $('#emailInvoiceButton').click(e => {
+        e.preventDefault();
+        axios.get('/api/order/email/invoice/'+theOrder._id).then(response => {
+          $('#orderInfo').text('Email sent.');
+          setTimeout(() => {
+            $('#orderInfo').text('');
+          }, 3000);
+        }).catch(err => {
+          alert('There was an error sending the email. Please make sure you are logged in.');
         });
       });
 

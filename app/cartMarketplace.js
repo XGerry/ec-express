@@ -64,4 +64,8 @@ Marketplace.prototype.getItems = async function() {
 	return allItems;
 }
 
+Marketplace.prototype.getPromotions = async function() {
+	await this.get('Promotions');
+}
+
 module.exports = Marketplace;

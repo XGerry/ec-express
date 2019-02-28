@@ -47,7 +47,7 @@ mixin unsentItemRow(item)
 		td=item.item.name
 		td=item.quantity
 		td='$' + item.price
-		td Not in stock
+		td=item.discontinued ? 'Discontinued' : 'Not in stock'
 
 body
 	.container-fluid
@@ -61,8 +61,8 @@ body
 					if (order.paid)
 						|  Your order has been successfully paid.
 					else
-						|  We are currently processing your payment. 
-				p Below you will find your invoice. If you have any questions or concerns please reply to this email and we will get back to you as soon as possible.
+						|  We are currently processing your payment.
+				p Below you will find your invoice. 
 		.row
 			.col
 				+billingAddress(order.customer)
@@ -149,4 +149,8 @@ body
 							each item in order.items
 								if (item.pickedQuantity == 0)
 									+unsentItemRow(item)
-					p Any Creative Expressions, Lavinia or Sticky Specks items that were not sent in your order will be automatically back-ordered and sent when they arrive. Please let us know if you do not want us to hold a back order for you.
+					p Any Creative Expressions, Lavinia or Sticky Specks items that were not sent in your order will automatically be back-ordered and sent when they arrive. #[strong Please let us know if you do not want us to hold a back order for you].
+			.row
+				.col
+					p If you have any questions or concerns please reply to this email and we will get back to you as soon as possible.
+					p Sincerely, #[br] The Team at Ecstasy Crafts.

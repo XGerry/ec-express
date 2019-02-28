@@ -1,275 +1,277 @@
+extends templates/default
+
 mixin orderTableRow(order, iteminfo)
-	tr(onclick="window.location='/order?id="+order._id+"';")
-		td=order.orderId
-		td=moment(order.orderDate).format('MMM Do, YYYY')
-		td=order.customer.name
-		td=iteminfo.ordered
-		td=iteminfo.sent
-		td=order.picked ? 'yes' : 'no'
+  tr(onclick="window.location='/order?id="+order._id+"';")
+    td=order.orderId
+    td=moment(order.orderDate).format('MMM Do, YYYY')
+    td=order.customer.name
+    td=iteminfo.ordered
+    td=iteminfo.sent
+    td=order.picked ? 'yes' : 'no'
 
-doctype html
-include mixins
-html
-	include includes/head
-		title=item.sku
-	body
-		#wrapper
-			+sidebarNav("orders")
-			#page-content
-				nav.navbar.navbar-light.bg-light.navbar-expand-sm.sticky-top
-					button.btn.btn-secondary.btn-toggles(type="button").m-0.position-relative#left-menu-toggle
-						i.far.fa-bars.fa-fw
-					span.navbar-brand.mb-0.h1.pl-2=item.sku
-					span.navbar-text#orderInfo.ml-2
-					ul.navbar-nav.ml-auto
-						li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Admin
-							ul.dropdown-menu.dropdown-menu-right
-								a(href='https://www.ecstasycrafts.com/admin/iteminfo.asp?catid='+item.catalogId target="_blank").dropdown-item US
-								a(href='https://www.ecstasycrafts.ca/admin/iteminfo.asp?catid='+item.catalogIdCan target="_blank").dropdown-item Canadian
-						li.dropdown.nav-item
-							a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
-							ul.dropdown-menu.dropdown-menu-right
-								a(href="#").dropdown-item#salesMetricsButton Calculate Sales Metrics
-								a(href=item.usLink target="_blank").dropdown-item US Site
-								a(href=item.canLink, target="_blank").dropdown-item Canadian Site
-								a#refreshFrom3DCart(href="#").dropdown-item Refresh from 3D Cart
-								.dropdown-divider
-								a#deleteItem(href="#").dropdown-item.bg-danger.text-white Delete Item
-						//button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
-						button.btn.btn-success(type="button")#saveButton Save
+append head
+  title=item.sku
 
-				.container.pt-3
-					.row
-						.col-4
-							-
-								var imgSrc = item.imageURL;
-								if (!imgSrc) {
-									imgSrc = 'https://via.placeholder.com/400x400';
-								} else {
-									if (!imgSrc.startsWith('http')) {
-										imgSrc = 'https://www.ecstasycrafts.com/'+imgSrc;
-									}
-								}
-							img.img-fluid(src=imgSrc)
-						.col-8
-							.row
-								.col
-									h3=item.name
-									p!=item.description
-							.row
-								.col
-									h5 Inventory
-									table.table-sm.table
-										thead
-											th QB Stock
-											th Online Stock
-											th On Sales Orders
-											th On Purchase Orders
-										tbody
-											td=item.stock
-											td=item.usStock
-											td=item.onSalesOrders
-											if (item.onPurchaseOrders)
-												td=item.onPurchaseOrders
-											else
-												td N/A
-							.row
-								.col
-									h5 Pricing
-									table.table-sm.table
-										thead
-											th US Cost
-											th US Price
-											th US Wholesale
-											th CA Price
-											th CA Wholesale
-										tbody
-											if (item.cost)
-												td='$'+item.cost.toFixed(2)
-											else
-												td N/A
-											if (item.usPrice)
-												td='$'+item.usPrice.toFixed(2)
-											else
-												td N/A
-											if (item.usWholesalePrice)
-												td='$'+item.usWholesalePrice.toFixed(2)
-											else
-												td N/A
-											td='$'+item.canPrice.toFixed(2)
-											td='$'+item.canWholesalePrice.toFixed(2)
-							.row
-								.col
+append nav-items-right
+  ul.navbar-nav.ml-auto
+    li.dropdown.nav-item
+      a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Admin
+      ul.dropdown-menu.dropdown-menu-right
+        a(href='https://www.ecstasycrafts.com/admin/iteminfo.asp?catid='+item.catalogId target="_blank").dropdown-item US
+        a(href='https://www.ecstasycrafts.ca/admin/iteminfo.asp?catid='+item.catalogIdCan target="_blank").dropdown-item Canadian
+    li.dropdown.nav-item
+      a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+      ul.dropdown-menu.dropdown-menu-right
+        a(href="#").dropdown-item#salesMetricsButton Calculate Sales Metrics
+        a(href=item.usLink target="_blank").dropdown-item US Site
+        a(href=item.canLink, target="_blank").dropdown-item Canadian Site
+        a#refreshFrom3DCart(href="#").dropdown-item Refresh from 3D Cart
+        .dropdown-divider
+        a#deleteItem(href="#").dropdown-item.bg-danger.text-white Delete Item
+    button.btn.btn-success(type="button")#saveButton Save
 
-							.row
-								.col
-									.form-group
-										label Barcode
-										input.form-control(type="text" value=item.barcode)#barcode
-								.col
-									.form-group
-										label Location
-										input.form-control(type="text" value=item.location)#location
-								.col
-									.form-group
-										label Second Location
-										input.form-control(type="text" value=item.secondLocation)#secondLocation
+append nav-items
+  span.navbar-brand.mb-0.h1.pl-2=item.sku
+  span.navbar-text#orderInfo.ml-2
 
+append body
+  .container-fluid.pt-3
+    .row
+      .col-4
+        -
+          var imgSrc = item.imageURL;
+          if (!imgSrc) {
+            imgSrc = 'https://via.placeholder.com/400x400';
+          } else {
+            if (!imgSrc.startsWith('http')) {
+              imgSrc = 'https://www.ecstasycrafts.com/'+imgSrc;
+            }
+          }
+        img.img-fluid(src=imgSrc)
+      .col-8
+        .row
+          .col
+            h3=item.name
+            p!=item.description
+        .row
+          .col
+            h5 Inventory
+            table.table-sm.table
+              thead
+                th QB Stock
+                th Online Stock
+                th On Sales Orders
+                th On Purchase Orders
+              tbody
+                td=item.stock
+                td=item.usStock
+                td=item.onSalesOrders
+                if (item.onPurchaseOrders)
+                  td=item.onPurchaseOrders
+                else
+                  td N/A
+        .row
+          .col
+            h5 Pricing
+            table.table-sm.table
+              thead
+                th US Cost
+                th US Price
+                th US Wholesale
+                th CA Price
+                th CA Wholesale
+              tbody
+                if (item.cost)
+                  td='$'+item.cost.toFixed(2)
+                else
+                  td N/A
+                if (item.usPrice)
+                  td='$'+item.usPrice.toFixed(2)
+                else
+                  td N/A
+                if (item.usWholesalePrice)
+                  td='$'+item.usWholesalePrice.toFixed(2)
+                else
+                  td N/A
+                td='$'+item.canPrice.toFixed(2)
+                td='$'+item.canWholesalePrice.toFixed(2)
+        .row
+          .col
 
-					.row.pt-2
-						.col
-							h2 Orders
-					.row.pt-2
-						.col
-							table.table-hover.table.table-striped
-								thead
-									tr
-										th Order ID
-										th Date
-										th Name
-										th Ordered
-										th Sent
-										th Picked
-								tbody
-									- let totalOrdered = 0;
-									- let totalSent = 0;
-									- let itemsOnOrders = [];
-									each order in orders
-										-
-											let itemsOrdered = 0;
-											var iteminfo = order.items.filter(i => {
-												if (i.item.equals(item._id)) {
-													itemsOrdered = parseInt(i.quantity);
-													totalOrdered += itemsOrdered;
-													totalSent += parseInt(i.pickedQuantity);
-													return item;
-												}
-											});
+        .row
+          .col
+            .form-group
+              label Barcode
+              input.form-control(type="text" value=item.barcode)#barcode
+          .col
+            .form-group
+              label Location
+              input.form-control(type="text" value=item.location)#location
+          .col
+            .form-group
+              label Second Location
+              input.form-control(type="text" value=item.secondLocation)#secondLocation
+        .row
+          .col
+            label Discontinued
+            label.switch
+              input.default(type="checkbox" checked=item.discontinued style="transform: scale(2);")#discontinuedCheckbox
+              span.slider
 
-											let totalItems = {
-												ordered: 0,
-												sent: 0
-											};
-											iteminfo.forEach(item => {
-												totalItems.ordered += item.quantity;
-												totalItems.sent += item.pickedQuantity;
-											});
-											totalItems.order = order.orderId;
-											totalItems.date = order.orderDate;
-											itemsOnOrders.push(totalItems);
-										+orderTableRow(order, totalItems)
-								tfoot
-									tr
-										th
-										th
-										th Total
-										th= totalOrdered
-										th= totalSent
-					.row.pt-2
-						.col
-							h2 Sales
-					.row.pt-2
-						.col
-							if (item.profitOverTwoWeeks != undefined)
-								p= "Profit for the past month: $" + item.profitOverOneMonth.toFixed(2)
-					.row
-						.col
-							canvas#salesChart
+    .row.pt-2
+      .col
+        h2 Orders
+    .row.pt-2
+      .col
+        table.table-hover.table.table-striped
+          thead
+            tr
+              th Order ID
+              th Date
+              th Name
+              th Ordered
+              th Sent
+              th Picked
+          tbody
+            - let totalOrdered = 0;
+            - let totalSent = 0;
+            - let itemsOnOrders = [];
+            each order in orders
+              -
+                let itemsOrdered = 0;
+                var iteminfo = order.items.filter(i => {
+                  if (i.item.equals(item._id)) {
+                    itemsOrdered = parseInt(i.quantity);
+                    totalOrdered += itemsOrdered;
+                    totalSent += parseInt(i.pickedQuantity);
+                    return item;
+                  }
+                });
 
-		+footer
-		script.
-			var socket = io();
-			var theItem = !{JSON.stringify(item)};
-			var theOrders = !{JSON.stringify(orders)};
-			var itemsOnOrders = !{JSON.stringify(itemsOnOrders)};
-			console.log(theItem);
-			$(document).ready(e => {
-				$('#refreshFrom3DCart').click(e => {
-					e.preventDefault();
-					socket.emit('refreshItem', theItem, cb => {
-						location.reload();
-					});
-				});
+                let totalItems = {
+                  ordered: 0,
+                  sent: 0
+                };
+                iteminfo.forEach(item => {
+                  totalItems.ordered += item.quantity;
+                  totalItems.sent += item.pickedQuantity;
+                });
+                totalItems.order = order.orderId;
+                totalItems.date = order.orderDate;
+                itemsOnOrders.push(totalItems);
+              +orderTableRow(order, totalItems)
+          tfoot
+            tr
+              th
+              th
+              th Total
+              th= totalOrdered
+              th= totalSent
+              td
+    .row.pt-2
+      .col
+        h2 Sales
+    .row.pt-2
+      .col
+        if (item.profitOverTwoWeeks != undefined)
+          p= "Profit for the past month: $" + item.profitOverOneMonth.toFixed(2)
+    .row
+      .col
+        canvas#salesChart
 
-				$('#saveButton').click(e => {
-					updateItemProperties();
-					socket.emit('saveItem', theItem, false, cb => {
-						location.reload();
-					});
-				});
+  script.
+    var socket = io();
+    var theItem = !{JSON.stringify(item)};
+    var theOrders = !{JSON.stringify(orders)};
+    var itemsOnOrders = !{JSON.stringify(itemsOnOrders)};
+    console.log(theItem);
+    $(document).ready(e => {
+      $('#refreshFrom3DCart').click(e => {
+        e.preventDefault();
+        socket.emit('refreshItem', theItem, cb => {
+          location.reload();
+        });
+      });
 
-				$('#salesMetricsButton').click(e => {
-					e.preventDefault();
-					socket.emit('calculateSalesMetrics', theItem, cb => {
-						location.reload();
-					});
-				});
+      $('#saveButton').click(e => {
+        updateItemProperties();
+        socket.emit('saveItem', theItem, false, cb => {
+          location.reload();
+        });
+      });
 
-				var orderedData = [];
-				var today = moment();
-				var firstDay = moment(itemsOnOrders[0].date);
-				firstDay.startOf('day');
-				var labels = [];
+      $('#salesMetricsButton').click(e => {
+        e.preventDefault();
+        socket.emit('calculateSalesMetrics', theItem, cb => {
+          location.reload();
+        });
+      });
 
-				var daysApart = today.diff(firstDay, 'days');
-				for (var i = 0; i < daysApart; i++) {
-					var dataPoint = {
-						t: firstDay.format(),
-						y: 0,
-						label: firstDay.format('MMM Do')
-					};
-					labels.push(firstDay.format());
-					itemsOnOrders.forEach(item => {
-						if (firstDay.isSame(item.date, 'day')) {
-							dataPoint.y += item.ordered;
-						}
-					});
-					orderedData.push(dataPoint);
-					firstDay.add(1, 'day');
-				}
+      var orderedData = [];
+      var today = moment();
+      var firstDay = moment(itemsOnOrders[0].date);
+      firstDay.startOf('day');
+      var labels = [];
 
-				console.log(labels);
-				console.log(orderedData);
+      var daysApart = today.diff(firstDay, 'days');
+      for (var i = 0; i < daysApart; i++) {
+        var dataPoint = {
+          t: firstDay.format(),
+          y: 0,
+          label: firstDay.format('MMM Do')
+        };
+        labels.push(firstDay.format());
+        itemsOnOrders.forEach(item => {
+          if (firstDay.isSame(item.date, 'day')) {
+            dataPoint.y += item.ordered;
+          }
+        });
+        orderedData.push(dataPoint);
+        firstDay.add(1, 'day');
+      }
 
-				var lineGraph = new Chart($('#salesChart'), {
-					type: 'line',
-					data: {
-						labels: labels,
-						datasets: [{
-							label: 'Items Ordered',
-							data: orderedData,
-							fill: false
-						}]
-					},
-					options: {
-						scales: {
-							xAxes: [{
-								type: 'time',
-								time: {
-									unit: 'day'
-								}
-							}],
-							yAxes: [{
-								ticks: {
-									min: 0
-								}
-							}]
-						},
-						tooltips: {
-							callbacks: {
-								title: function(items, data) {
-									var label = data.datasets[items[0].datasetIndex].data[items[0].index].label;
-									return label;
-								}
-							}
-						}
-					}
-				});
-			});
-			
-			function updateItemProperties() {
-				theItem.barcode = $('#barcode').val();
-				theItem.location = $('#location').val();
-				theItem.secondLocation = $('#secondLocation').val();
-			}
+      console.log(labels);
+      console.log(orderedData);
+
+      var lineGraph = new Chart($('#salesChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Items Ordered',
+            data: orderedData,
+            fill: false
+          }]
+        },
+        options: {
+          scales: {
+            xAxes: [{
+              type: 'time',
+              time: {
+                unit: 'day'
+              }
+            }],
+            yAxes: [{
+              ticks: {
+                min: 0
+              }
+            }]
+          },
+          tooltips: {
+            callbacks: {
+              title: function(items, data) {
+                var label = data.datasets[items[0].datasetIndex].data[items[0].index].label;
+                return label;
+              }
+            }
+          }
+        }
+      });
+    });
+    
+    function updateItemProperties() {
+      theItem.barcode = $('#barcode').val();
+      theItem.location = $('#location').val();
+      theItem.secondLocation = $('#secondLocation').val();
+      theItem.discontinued = $('#discontinuedCheckbox').is(':checked');
+    }

@@ -22,6 +22,7 @@ module.exports = function(qbws) {
   });
 
   //syncTutti(qbws);
+  getPromotions();
 }
 
 function syncOrdersAndInventory(qbws) {
@@ -126,4 +127,17 @@ async function syncTutti(qbws) {
       console.log('done everything!');
     });
   });
+}
+
+async function getPromotions() {
+  let canadaStore = new CartMarketplace('https://www.ecstasycrafts.ca',
+    process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN_CANADA);
+  try {
+    let promotions = await canadaStore.get('Promotions', {
+      limit: 200
+    });
+    console.log(promotions);
+  } catch(err) {
+    console.log(err);
+  }
 }

@@ -229,7 +229,7 @@ module.exports = app => {
       res.redirect('/batches');
     }
   });
-  
+
   app.get('/order/slip/:orderId', verifyUser, async (req, res) => {
     let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
     if (order) {
@@ -315,6 +315,27 @@ module.exports = app => {
         orders: customOrders,
         user: req.session.user
       });
+    });
+  });
+
+  // ITEMS
+  app.get('/item', verifyUser, (req, res) => {
+    res.redirect('/item/'+req.query.id);
+  });
+
+  app.get('/item/:itemId', verifyUser, (req, res) => {
+    Item.findOne({_id: req.params.itemId}).then(item => {
+      if (item) {
+        item.findOrders().then(orders => {
+          res.render('item', {
+            item: item,
+            orders: orders,
+            user: req.session.user
+          });
+        });
+      } else {
+        res.redirect('database');
+      }
     });
   });
 
@@ -518,6 +539,7 @@ module.exports = app => {
     var endDate = moment(shipDate).utc().endOf('day');
     Order.find({shipDate: {$gte: startDate.toDate(), $lt: endDate.toDate()}, canadian: false, hold: false, picked: true}).populate('items.item').then(orders => {
       console.log('found ' + orders.length + ' orders with that ship date');
+      orders = orders.filter(order => order.cartOrder.ShipmentList[0].ShipmentCountry == 'US');
       res.render('manifest', {
         orders: orders,
         shipDate: shipDate
@@ -616,21 +638,6 @@ module.exports = app => {
       res.render('batch-shipping', {
         batch: batch
       });
-    });
-  });
-
-  app.get('/item', (req, res) => {
-    Item.findOne({_id: req.query.id}).then(item => {
-      if (item) {
-        item.findOrders().then(orders => {
-          res.render('item', {
-            item: item,
-            orders: orders
-          });
-        });
-      } else {
-        res.redirect('database');
-      }
     });
   });
 
