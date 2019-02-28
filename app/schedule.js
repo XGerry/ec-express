@@ -22,7 +22,7 @@ module.exports = function(qbws) {
   });
 
   //syncTutti(qbws);
-  getPromotions();
+  //getPromotions();
 }
 
 function syncOrdersAndInventory(qbws) {
