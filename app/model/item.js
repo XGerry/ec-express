@@ -71,6 +71,10 @@ var itemSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  availableForBackorder: {
+    type: Boolean,
+    default: false
+  },
 	width: Number,
 	height: Number,
 	length: Number,
@@ -138,6 +142,7 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
   this.weight = cartItem.Weight;
   this.manufacturerName = cartItem.ManufacturerName;
   this.hidden = cartItem.Hide;
+  this.availableForBackorder = cartItem.InventoryControl == '2';
   
   var categories = [];
   cartItem.CategoryList.forEach(function(category) {
@@ -233,6 +238,7 @@ itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, o
   this.manufacturerName = parentItem.ManufacturerName;
   this.weight = parentItem.Weight;
   this.isOption = true;
+  this.availableForBackorder = dbParent.availableForBackorder;
 
   this.parent = dbParent._id;
   return this.save();

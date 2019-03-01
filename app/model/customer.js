@@ -122,7 +122,29 @@ customerSchema.methods.getCustomerFrom3DCart = function() {
   if (this.customerId) {
     var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
     return rp(options).then(response => {
+      if (Array.isArray(response)) {
+        response = response[0];
+      }
       console.log(response);
+      this.customerType = response.CustomerGroupID;
+      this.email = response.Email;
+      this.firstname = response.BillingFirstName;
+      this.lastname = response.BillingLastName;
+      this.phone = response.BillingPhoneNumber;
+      this.companyName = response.BillingCompany;
+      this.billingAddress = response.BillingAddress1;
+      this.billingAddress2 = response.BillingAddress2;
+      this.billingCity = response.BillingCity;
+      this.billingState = response.BillingState;
+      this.billingCountry = response.BillingCountry;
+      this.billingZipCode = response.BillingZipCode;
+      this.shippingAddress = response.ShippingAddress1;
+      this.shippingAddress2 = response.ShippingAddress2;
+      this.shippingCity = response.ShippingCity;
+      this.shippingState = response.ShippingState;
+      this.shippingZipCode = response.ShippingZipCode;
+      this.shippingCountry = response.ShippingCountry;
+      return this.save();
     });    
   } else {
     console.log('no customer id');

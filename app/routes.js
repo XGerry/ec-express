@@ -650,9 +650,9 @@ module.exports = app => {
   });
 
   app.get('/customer', (req, res) => {
-    Customer.findOne({_id: req.query.id}).populate('orders').then(customer => {
+    Customer.findOne({_id: req.query.id}).populate('orders').then(async customer => {
       if (customer) {
-        customer.getCustomerFrom3DCart();
+        await customer.getCustomerFrom3DCart();
         customer.getCustomerType().then(customer => {
           res.render('customer', {
             customer: customer
@@ -665,8 +665,8 @@ module.exports = app => {
   });
 
   app.get('/customer-cart/:id', (req, res) => {
-    Customer.findOne({customerId: req.params.id}).populate('orders').then(customer => {
-      customer.getCustomerFrom3DCart();
+    Customer.findOne({customerId: req.params.id}).populate('orders').then(async customer => {
+      await customer.getCustomerFrom3DCart();
       res.render('customer', {
         customer: customer
       });

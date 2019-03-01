@@ -47,7 +47,8 @@ mixin unsentItemRow(item)
 		td=item.item.name
 		td=item.quantity
 		td='$' + item.price
-		td Not in stock
+		td=item.item.discontinued ? 'Discontinued' : 'Not in stock'
+		td=(item.item.availableForBackorder && !item.item.discontinued) ? 'Yes' : 'No'
 
 mixin customerInfoPanel(order)
 	.row
@@ -165,6 +166,7 @@ mixin orderItemPanel(order)
 								th Ordered
 								th Price
 								th Reason
+								th Backordered
 						tbody
 							each item in order.items
 								if (item.pickedQuantity == 0)

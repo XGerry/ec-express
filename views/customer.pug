@@ -52,9 +52,10 @@ html
 						.col
 							.form-group
 								label Type
-								select.form-control(value=customer.customerType)#customerType
-									option(value="0") Retail
-									option(value="14") Wholesale
+								select.form-control#customerType
+									option(value="0" selected= customer.customerType == 0) Retail
+									option(value=(customer.canadian ? "19" : "18") selected= (customer.canadian && customer.customerType == 19) || (!customer.canadian && customer.customerType == 18)) Premier Member
+									option(value="14" selected=customer.customerType == 14) Wholesale
 						.col
 							.form-group
 								label Email

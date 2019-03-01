@@ -13,7 +13,7 @@ append head
   title=item.sku
 
 append nav-items-right
-  ul.navbar-nav.ml-auto
+  ul.navbar-nav.mr-auto
     li.dropdown.nav-item
       a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Admin
       ul.dropdown-menu.dropdown-menu-right
@@ -117,7 +117,11 @@ append body
             label.switch
               input.default(type="checkbox" checked=item.discontinued style="transform: scale(2);")#discontinuedCheckbox
               span.slider
-
+          .col
+            label Available For Backorder
+            label.switch
+              input.default(type="checkbox" checked=item.availableForBackorder style="transform: scale(2);")#backorderCheckbox
+              span.slider
     .row.pt-2
       .col
         h2 Orders

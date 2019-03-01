@@ -574,13 +574,13 @@ append body
 
     function determineItemPrice(item) {
       if (theOrder.canadian) {
-        if (theOrder.customerType == 0) {
+        if (theOrder.customerType == 0 || theOrder.customerType == 19) {
           return item.canPrice;
         } else {
           return item.canWholesalePrice;
         }
       } else {
-        if (theOrder.customerType == 0) {
+        if (theOrder.customerType == 0 || theOrder.customerType == 18) {
           return item.usPrice;
         } else {
           return item.usWholesalePrice;

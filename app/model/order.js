@@ -412,7 +412,7 @@ orderSchema.methods.createBackorder = async function() {
 
   var backOrder = new this.constructor();
   backOrder.customer = this.customer;
-  await this.populate('customer').execPopulate();
+  await this.populate('customer items.item').execPopulate();
   this.customer.orders.push(backOrder._id);
   backOrder.cartOrder = this.cartOrder; // TODO: change to use dedicated shipping address
   backOrder.canadian = this.canadian;
@@ -424,7 +424,7 @@ orderSchema.methods.createBackorder = async function() {
   var backorderItems = [];
   var orderValue = 0;
   for (item of this.items) {
-    if (item.pickedQuantity < item.quantity) {
+    if (item.pickedQuantity < item.quantity && item.item.availableForBackorder && !item.item.discontinued) {
       var bItem = {
         item: item.item,
         quantity: item.quantity - item.pickedQuantity,
