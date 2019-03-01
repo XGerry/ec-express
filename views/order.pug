@@ -184,7 +184,20 @@ append body
                     td= order.paymentMethod
                   else
                     td= order.cartOrder.BillingPaymentMethod
-                  td= order.customer.customerType == 0 ? 'Retail' : 'Wholesale'
+                  if order.customer.canadian
+                    if (order.customer.customerType == 0)
+                      td Retail
+                    else if (order.customer.customerType == 19)
+                      td Premier Member
+                    else
+                      td Wholesale
+                  else
+                    if (order.customer.customerType == 0)
+                      td Retail
+                    else if (order.customer.customerType == 18)
+                      td Premier Member
+                    else
+                      td Wholesale
                   td='$'+order.orderValue.toFixed(2)
                   td= '$' + pickedValue.toFixed(2)
                   if (order.orderProfit != undefined)
