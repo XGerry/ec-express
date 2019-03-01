@@ -444,6 +444,7 @@ orderSchema.methods.createBackorder = async function() {
   backOrder.comments = "This is a back order";
   backOrder.parent = this._id;
   backOrder.hold = true; // on hold by default
+  backOrder.reasonForHold = "Back order";
   this.backorders.push(backOrder._id);
   await backOrder.save();
   await this.customer.save();
@@ -651,25 +652,25 @@ orderSchema.methods.calculateSalesTax = async function() {
   await this.populate('customer').execPopulate();
   let salesTax = 0;
   if (this.customer.billingCountry == 'CA') {
-    if (this.customer.billingState == 'ON' ||
-      this.customer.billingState == 'MB') {
+    if (this.customer.billingState == 'ON') {
       salesTax = 0.13;
     } else if (this.customer.billingState == 'AB' ||
       this.customer.billingState == 'NU' ||
       this.customer.billingState == 'NT' ||
+      this.customer.billingState == 'MB' ||
       this.customer.billingState == 'YT') {
       salesTax = 0.05;
     } else if (this.customer.billingState == 'BC') {
-      salesTax = 0.12;
+      salesTax = 0.05;
     } else if (this.customer.billingState == 'NB' ||
       this.customer.billingState == 'NL' ||
       this.customer.billingState == 'PE' ||
       this.customer.billingState == 'NS') {
       salesTax = 0.15;
     } else if (this.customer.billingState == 'SK') {
-      salesTax = 0.11;
+      salesTax = 0.05;
     } else if (this.customer.billingState == 'QB') {
-      salesTax = 0.1498;
+      salesTax = 0.05;
     }
   }
   this.salesTax = salesTax * this.subtotal;
