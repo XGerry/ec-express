@@ -31,7 +31,7 @@ mixin itemRow(item, order, dbOrder)
 append nav-items-right
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Customer
-    ul.dropdown-menu.dropdown-menu-right
+    .dropdown-menu.dropdown-menu-right
       a(href="/customer?id="+order.customer._id).dropdown-item View
       a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
       a(href="#").dropdown-item#emailInvoiceButton Email Invoice
@@ -62,8 +62,9 @@ append nav-items-right
   button.btn.btn-outline-success#invoiceOrder Invoice
 
 append nav-items
-  h4.pl-2.text-white=order.orderId
-  span.navbar-text#orderInfo.ml-2
+  ul.navbar-nav.mr-auto
+    h4.pl-2.text-white=order.orderId
+    span.navbar-text#orderInfo.ml-2
 
 append head
   title=order.orderId
@@ -108,7 +109,7 @@ append body
                   td=moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
                   td='$' + (order.subtotal + order.salesTax).toFixed(2)
                   td='$' + order.salesTax.toFixed(2)
-          .col-4
+          .col-lg-4
             .row
               .col
                 label Picked

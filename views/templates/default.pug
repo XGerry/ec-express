@@ -4,17 +4,20 @@ append head
   block head
 
 append body
-  nav.navbar.navbar-expand-lg.navbar-dark.fixed-top.bg-dark.flex-md-nowrap.px-0.py-1.shadow
+  nav.navbar.navbar-expand-lg.navbar-dark.fixed-top.bg-dark.py-1.shadow
     a.navbar-brand.col-sm-3.col-md-2.m-0(href="/") Ecstasy Crafts
-    block nav-items
-    ul.navbar-nav.ml-auto
-      block nav-items-right
-      li.nav-item.dropdown
-        a.nav-link.dropdown-toggle(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")#userDropdown=user.email
-        .dropdown-menu(aria-labelledby="userDropdown")
-          a.dropdown-item(href="/user") Settings
-          .dropdown-divider
-          a.dropdown-item.bg-danger.text-white(href="/logout") Logout
+    button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbarCollapse")
+      span.far.fa-bars
+    .collapse.navbar-collapse#navbarCollapse
+      block nav-items
+      ul.navbar-nav.ml-auto
+        block nav-items-right
+        li.nav-item.dropdown
+          a.nav-link.dropdown-toggle(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")#userDropdown=user.email
+          .dropdown-menu(aria-labelledby="userDropdown")
+            a.dropdown-item(href="/user") Settings
+            .dropdown-divider
+            a.dropdown-item.bg-danger.text-white(href="/logout") Logout
 
   .container-fluid
     .row
