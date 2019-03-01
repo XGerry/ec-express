@@ -27,10 +27,11 @@ append nav-items-right
 			.input-group-append
 				button.btn.btn-primary(type="button")#manifestButton Manifest
 	li.nav-item.dropdown
-		a.nav-link.dropdown-toggle(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#")#customOrderDropdown Custom Orders
+		a.nav-link.dropdown-toggle(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#")#customOrderDropdown Actions
 		.dropdown-menu(aria-labelledby="customOrderDropdown")
-			a.dropdown-item(href="/new-order") New
-			a.dropdown-item(href="/list-orders") View
+			a.dropdown-item(href="/new-order") New Custom Order
+			a.dropdown-item(href="/list-orders") View Custom Order
+			a.dropdown-item(href="/order-sync") Sync
 	li.nav-item
 		a.btn.btn-outline-primary(href="/batches").mr-2 Sort Batch
 	li.nav-item

@@ -987,6 +987,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                         dbOrder.invoiced = true;
                         dbOrder.updateOrderStatus(9); // awaiting payment
                         dbOrder.calculateProfit().catch(err => {
+                          console.log(err);
                           console.log('Error calculating profit!');
                         });
                         webhooks.orderBot({

@@ -343,8 +343,10 @@ module.exports = app => {
     res.render('inventory');
   });
 
-  app.get('/order-sync', function(req, res) {
-    res.render('order-sync');
+  app.get('/order-sync', verifyUser, function(req, res) {
+    res.render('order-sync', {
+      user: req.session.user
+    });
   });
 
   app.get('/database', function(req, res) {
