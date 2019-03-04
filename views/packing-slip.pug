@@ -38,7 +38,7 @@ mixin itemRow(item)
     td=item.quantity
     td=item.pickedQuantity
     td=item.item.name
-    - let price = item.price ? 0;
+    - let price = item.price != undefined ? 0;
     td='$' + price.toFixed(2)
     td='$' + (price * item.pickedQuantity).toFixed(2)
 
