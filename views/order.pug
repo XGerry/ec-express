@@ -606,7 +606,7 @@ append body
       $('#addItemModal').modal();
       $('#itemSKU').val(item.item.sku);
       $('#itemQuantity').val(item.quantity);
-      if (item.price)
+      if (item.price != undefined && item.price != null)
         $('#itemPrice').val(item.price.toFixed(2));
       $('#itemPickedQuantity').val(item.pickedQuantity);
       $('#viewItem').prop('href', '/item?id='+item.item._id);
