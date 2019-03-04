@@ -38,8 +38,9 @@ mixin itemRow(item)
     td=item.quantity
     td=item.pickedQuantity
     td=item.item.name
-    td='$' + item.price.toFixed(2)
-    td='$' + (item.price * item.pickedQuantity).toFixed(2)
+    - let price = item.price ? 0;
+    td='$' + price.toFixed(2)
+    td='$' + (price * item.pickedQuantity).toFixed(2)
 
 mixin unsentItemRow(item)
   tr
