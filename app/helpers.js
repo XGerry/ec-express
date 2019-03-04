@@ -977,7 +977,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                   (so.RefNumber == dbOrder.orderId) && dbOrder.invoiced == false) {
                   qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                     console.log(response); 
-                    xml2js(response, {explicitArray: false}).then(obj => {
+                    xml2js(response, {explicitArray: false}).then(async obj => {
                       var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
                       if (errorCode == '3210') {
                         webhooks.orderBot({
@@ -985,7 +985,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                         });
                       } else {
                         dbOrder.invoiced = true;
-                        dbOrder.updateOrderStatus(9); // awaiting payment
+                        await dbOrder.updateOrderStatus(9); // awaiting payment
                         dbOrder.calculateProfit().catch(err => {
                           console.log(err);
                           console.log('Error calculating profit!');
