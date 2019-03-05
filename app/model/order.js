@@ -709,14 +709,14 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
       FullName: 'DISC',
     },
     Desc : 'All discounts on order',
-    Rate: item.discount
+    Rate: this.discount
   });
 
   invoiceItems.push({
     ItemRef: {
       FullName: 'Shipping & Handling'
     },
-    Rate: item.shippingCost
+    Rate: this.shippingCost
   });
 
   var addInvoiceRq = {
