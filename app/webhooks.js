@@ -9,6 +9,7 @@ var helpers = require('./helpers');
 var amazon = require('./amazon');
 var Settings = require('./model/settings');
 var mailer = require('./mailer');
+var rp = require('request-promise-native');
 
 function updateOrderInfo(order, cartOrder) {
   order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
@@ -64,7 +65,7 @@ function orderBot(body) {
 		json: true,
 		body: body
 	};
-	request(options);
+	return rp(options);
 }
 
 function sendOrderToSlack(order) {

@@ -960,6 +960,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     webhooks.orderBot({
                       text: "Error creating invoice! " + dbOrder.orderId + " has already been invoiced."
                     });
+                    // update the invoice in quickbooks
+                    
                     await Order.update({_id: dbOrder._id}, {$set: {invoiced: true}});
                   }
                 }
@@ -983,7 +985,11 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                         webhooks.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Please check the invoice in QB."
                         });
-                      } else {
+                      } else if (errorCode == '3176') {
+                        webhooks.orderBot({
+                          text: "Error creating invoice! " + dbOrder.orderId + " Could not obtain the lock."
+                        });
+                      }else {
                         dbOrder.invoiced = true;
                         await dbOrder.updateOrderStatus(9); // awaiting payment
                         dbOrder.calculateProfit().catch(err => {

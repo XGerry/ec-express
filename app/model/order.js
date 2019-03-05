@@ -347,6 +347,7 @@ orderSchema.methods.updateOrderIn3DCart = function(order) {
   oldOrder.BillingCountry = order.cartOrder.BillingCountry;
   oldOrder.ShipmentList = order.cartOrder.ShipmentList;
   oldOrder.ShipmentList[0].ShipmentShippedDate = order.shipDate;
+  oldOrder.OrderDiscount = order.discount;
   delete oldOrder.ShipmentList[0].ShipmentOrderStatus;
   delete oldOrder.ShipmentList[0].ShipmentTrackingCode;
   oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
@@ -499,7 +500,7 @@ orderSchema.methods.addSalesOrderRq = function() {
         FullName : "DISC"
       },
       Desc : 'All discounts on order',
-      Rate: this.cartOrder.OrderDiscount
+      Rate: this.discount
     });
   }
 
@@ -690,7 +691,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
   lineItems.forEach(lineItem => {
     for (let i = 0; i < items.length; i++) {
       if (lineItem.ItemRef.FullName == items[i].item.sku) {
-        console.log(lineItem.TxnLineID + ' - ' + items[i].item.sku);
         invoiceItems.push({
           Quantity: items[i].pickedQuantity,
           SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
@@ -709,6 +709,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
     if (lineItem.ItemRef.FullName == 'DISC') {
       invoiceItems.push({
         SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
+        Amount: this.discount,
         LinkToTxn: {
           TxnID: qbSalesOrder.TxnID,
           TxnLineID: lineItem.TxnLineID

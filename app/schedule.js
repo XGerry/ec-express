@@ -23,6 +23,7 @@ module.exports = function(qbws) {
 
   //syncTutti(qbws);
   //getPromotions();
+  //getPaymentToken();
 }
 
 function syncOrdersAndInventory(qbws) {
@@ -140,4 +141,11 @@ async function getPromotions() {
   } catch(err) {
     console.log(err);
   }
+}
+
+async function getPaymentToken() {
+  let canadaStore = new CartMarketplace('https://www.ecstasycrafts.ca',
+    process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN_CANADA);
+  let tokens = await canadaStore.get('PaymentTokens');
+  console.log(tokens);
 }
