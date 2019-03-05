@@ -1,6 +1,11 @@
 (function($) {
 	$.fn.searchBar = function(searchFunction) {
-		this.on('keyup', _.debounce(searchFunction, 400));
+		let searchDebounce = _.debounce(searchFunction, 400);
+		this.on('keyup', e => {
+			searchDebounce.cancel();
+			searchDebounce();
+		});
+
 		return this;
 	}
 }(jQuery));
