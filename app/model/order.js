@@ -492,25 +492,7 @@ orderSchema.methods.addSalesOrderRq = function() {
   	invoiceAdds.push(lineItem);
   });
 
-  // another place there could be a discount
-  // let's just add all the discounts lumped into one line
-  if (this.discount > 0) {
-    invoiceAdds.push({
-      ItemRef : {
-        FullName : "DISC"
-      },
-      Desc : 'All discounts on order',
-      Rate: this.discount
-    });
-  }
-
-  // add the shipping cost as a line item
-  invoiceAdds.push({
-    ItemRef : {
-      FullName : "Shipping & Handling"
-    },
-    Rate : this.shippingCost
-  });
+  // Shipping and Discounts now only show up on the invoice. not on the sales order.
 
   // we need to add a surcharge if they are a Canadian customer (only when coming from the US website)
   if (!this.canadian) {
@@ -706,27 +688,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
         break; // no need to continue
       }
     }
-
-    if (lineItem.ItemRef.FullName == 'DISC') {
-      invoiceItems.push({
-        SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
-        //Amount: this.discount,
-        LinkToTxn: {
-          TxnID: qbSalesOrder.TxnID,
-          TxnLineID: lineItem.TxnLineID
-        }
-      });
-    }
-
-    if (lineItem.ItemRef.FullName == 'Shipping & Handling') {
-      invoiceItems.push({
-        SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
-        LinkToTxn: {
-          TxnID: qbSalesOrder.TxnID,
-          TxnLineID: lineItem.TxnLineID
-        }
-      });
-    }
   });
 
   // now anything remaining in items are new, just add them at the end
@@ -741,6 +702,21 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
         FullName: 'Warehouse'
       }
     });
+  });
+
+  invoiceItems.push({
+    ItemRef: {
+      FullName: 'DISC',
+    },
+    Desc : 'All discounts on order',
+    Rate: item.discount
+  });
+
+  invoiceItems.push({
+    ItemRef: {
+      FullName: 'Shipping & Handling'
+    },
+    Rate: item.shippingCost
   });
 
   var addInvoiceRq = {
