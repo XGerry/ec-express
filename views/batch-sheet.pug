@@ -104,7 +104,9 @@ html
 									var allItems = batch.orders.reduce((arr, order) => {
 										return arr.concat(order.items);
 									}, []);
-									allItems.sort((a, b) => {
+									let pickableItems = allItems.filter(item => !item.item.discontinued);
+									let discontinuedItems = allItems.filter(item => item.item.discontinued);
+									let sortFunction = (a, b) => {
 										if (a.item.location == undefined) {
 											a.item.location = '';
 										}
@@ -152,23 +154,55 @@ html
 												return 1;
 											}
 										}
-									});
-									for (var i = 0; i < allItems.length; i++) {
-										for (var j = 0; j < allItems.length; j++) {
+									}
+
+									pickableItems.sort(sortFunction)
+									discontinuedItems.sort(sortFunction)
+
+									for (var i = 0; i < pickableItems.length; i++) {
+										for (var j = 0; j < pickableItems.length; j++) {
 											if (i != j) {
-												if (allItems[i].item.sku == allItems[j].item.sku) {
+												if (pickableItems[i].item.sku == pickableItems[j].item.sku) {
 													// found a duplicate
-													allItems[i].quantity += allItems[j].quantity;
+													pickableItems[i].quantity += pickableItems[j].quantity;
 													// remove the duplicate
-													allItems.splice(j, 1);
+													pickableItems.splice(j, 1);
 												}
 											}
 										}
 									}
 
-								each item in allItems
-									+pickTableRow(item.item, item.quantity)
+									for (var i = 0; i < discontinuedItems.length; i++) {
+										for (var j = 0; j < discontinuedItems.length; j++) {
+											if (i != j) {
+												if (discontinuedItems[i].item.sku == discontinuedItems[j].item.sku) {
+													// found a duplicate
+													discontinuedItems[i].quantity += discontinuedItems[j].quantity;
+													// remove the duplicate
+													discontinuedItems.splice(j, 1);
+												}
+											}
+										}
+									}
 
+								each item in pickableItems
+									+pickTableRow(item.item, item.quantity)
+					if (discontinuedItems.length > 0)
+						.row
+							h4 Discontinued Items
+							table.table.table-striped.pick-table
+								thead
+									tr
+										th.text-center(style="width:14%") Location
+										th.text-center SKU
+										th.text-center Quantity
+										th.text-center Picked
+										th(style="width:30%") Description
+										th Stock Level
+										th.text-center Location 2
+								tbody
+									each item in discontinuedItems
+										+pickTableRow(item.item, item.quantity)
 		+footer
 		script.
 			JsBarcode('#barcode').init();
