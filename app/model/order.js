@@ -689,6 +689,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
 
   // iterate over the items in the sales order first
   lineItems.forEach(lineItem => {
+    console.log(lineItem);
     for (let i = 0; i < items.length; i++) {
       if (lineItem.ItemRef.FullName == items[i].item.sku) {
         invoiceItems.push({
