@@ -709,7 +709,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
     if (lineItem.ItemRef.FullName == 'DISC') {
       invoiceItems.push({
         SalesTaxCodeRef: lineItem.SalesTaxCodeRef,
-        Amount: this.discount,
+        //Amount: this.discount,
         LinkToTxn: {
           TxnID: qbSalesOrder.TxnID,
           TxnLineID: lineItem.TxnLineID
