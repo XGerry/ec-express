@@ -281,7 +281,7 @@ module.exports = app => {
     if (/^[a-fA-F0-9]{24}$/.test(req.params.batchId)) {
       batch = await Batch.findOne({_id: req.params.batchId});
     } else {
-      await Batch.findOne({shortid: req.params.batchId});
+      batch = await Batch.findOne({shortid: req.params.batchId});
     }
 
     if (batch) {
