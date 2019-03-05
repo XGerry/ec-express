@@ -278,12 +278,12 @@ module.exports = app => {
 
   app.get('/batch/print/:batchId', verifyUser, async (req, res) => {
     let batch;
-    if (req.params.batchId.test(/^[a-fA-F0-9]{24}$/)) {
+    if (/^[a-fA-F0-9]{24}$/.test(req.params.batchId)) {
       batch = await Batch.findOne({_id: req.params.batchId});
     } else {
       await Batch.findOne({shortid: req.params.batchId});
     }
-    
+
     if (batch) {
       batch = await loadBatch(batch._id);
       let customers = batch.orders.map(order => order.customer._id);
