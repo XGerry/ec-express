@@ -270,29 +270,22 @@ module.exports = app => {
     var shortid = req.query.shortid;
     var id;
     if (shortid) {
-      var batch = await Batch.findOne({shortid: shortid});
-      id = batch._id;
+      res.redirect('/batch/print/'+shortid);
     } else {
-      id = req.query.id;
+      res.redirect('/batch/print/'+req.query.id);
     }
-    loadBatch(id).then(batch => {
-      if (batch) {
-        res.render('batch-sheet', {
-          batch: batch
-        });
-      } else {
-        res.redirect('/batches');
-      }
-    });
   });
 
   app.get('/batch/print/:batchId', verifyUser, async (req, res) => {
-    let batch = await Batch.findOne({shortid: req.params.batchId});
+    let batch = await Batch.findOne({$or: [{shortid: req.params.batchId},{_id: req.params.batchId}]});
     if (batch) {
       batch = await loadBatch(batch._id);
+      let customers = batch.orders.map(order => order.customer._id);
+      let heldOrders = await Order.find({customer: { $in: customers}, hold: true}).populate('customer').exec();
       res.render('batch-sheet', {
         batch: batch,
-        user: req.session.user
+        user: req.session.user,
+        heldOrders: heldOrders
       });
     } else {
       res.redirect('/batches');

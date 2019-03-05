@@ -203,6 +203,23 @@ html
 								tbody
 									each item in discontinuedItems
 										+pickTableRow(item.item, item.quantity)
+					if (heldOrders.length > 0)
+						.row
+							h4 Held Orders
+							table.table.table-striped.table-hover
+								thead
+									tr
+										th Order ID
+										th Customer
+										th Order Date
+										th Hold Reason
+								tbody
+									each order in heldOrders
+										tr(onclick="window.open('/orders/view/"+order._id+"', '_blank')")
+											td=order.orderId
+											td=order.customer.name
+											td=moment(order.orderDate).format('MMM Do, YYYY')
+											td=order.reasonForHold
 		+footer
 		script.
 			JsBarcode('#barcode').init();
