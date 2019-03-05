@@ -810,6 +810,9 @@
  				if (order.isCartOrder) {
  					await order.updateOrderStatus(5);
  				}
+ 				if (order.imported) {
+ 					helpers.closeSalesOrder(qbws, order.orderId);
+ 				}
 	 			Order.remove({_id: id}).then(res => {
 	 				cb(res);
 	 			});
