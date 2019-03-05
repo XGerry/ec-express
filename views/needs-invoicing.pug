@@ -1,99 +1,75 @@
+extends templates/default
+
 mixin orderRow(order)
-	tr(onclick="orderSelected('"+order._id+"', event)")
-		td=order.orderId
-		td=order.customer.name
-		td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
-		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
-		td=order.customer.companyName
-		td='$' + order.orderValue.toFixed(2)
-		td=order.picked ? 'yes' : 'no'
-		td=order.invoiced ? 'yes' : 'no'
-		td=order.paid ? 'yes' : 'no'
-		td=order.hold ? 'yes' : 'no'
+  tr(onclick="orderSelected('"+order._id+"', event)")
+    td=order.orderId
+    td=order.customer.name
+    td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
+    td=order.customer.companyName
+    td='$' + (order.subtotal + order.salesTax).toFixed(2)
 
-doctype html
-include mixins
-html
-	include includes/head
-		title Orders to be Invoiced
-	body
-		#wrapper
-			+sidebarNav("orders")
+append nav-items-right
+  button.btn.btn-primary(type="button")#crossCheckButton Cross Check in QB
 
-			#page-content
-				+menuToggle
-				.starter-template
-					h1 Orders to be invoiced
-					p.lead Orders that have been picked and not invoiced.
-				.container
-					.row
-						.col.text-center
-							button.btn.btn-primary(type="button")#crossCheckButton Cross Check in QB
+append head
+  title Orders to be Invoiced
 
-				.container-fluid
-					.row
-						.col
-							h2 US Orders
-							table.table.table-striped.table-hover#usOrderTable
-								thead
-									tr
-										th Order ID
-										th Name
-										th Date
-										th Due Date
-										th Company
-										th Value
-										th Picked
-										th Invoiced
-										th Paid
-										th Held
-								tbody
-									each order in usOrders
-										+orderRow(order)
+append body
+  .container-fluid
+    .row
+      .col
+        h2 US Orders
+        p.lead= 'There are ' + usOrders.length + ' orders that need to be invoiced.'
+        table.table.table-striped.table-hover#usOrderTable
+          thead
+            tr
+              th Order ID
+              th Name
+              th Order Date
+              th Company
+              th Value
+          tbody
+            each order in usOrders
+              +orderRow(order)
 
-					.row.pt-2
-						.col
-							h2 Canadian Orders
-							table.table.table-striped.table-hover#canOrderTable
-								thead
-									tr
-										th Order ID
-										th Name
-										th Date
-										th Due Date
-										th Company
-										th Value
-										th Picked
-										th Invoiced
-										th Paid
-										th Held
-								tbody
-									each order in canOrders
-										+orderRow(order)
+    .row.pt-2
+      .col
+        h2 Canadian Orders
+        p.lead= 'There are ' + canOrders.length + ' orders that need to be invoiced.'
+        table.table.table-striped.table-hover#canOrderTable
+          thead
+            tr
+              th Order ID
+              th Name
+              th Order Date
+              th Company
+              th Value
+          tbody
+            each order in canOrders
+              +orderRow(order)
 
-		+footer
-		script.
-			var socket = io();
-			$('#usOrderTable').DataTable({
-				bDestroy: true,
-				pageLength: 100,
-				order: [[2, 'desc']]
-			});
+  script.
+    var socket = io();
+    $('#usOrderTable').DataTable({
+      bDestroy: true,
+      pageLength: 100,
+      order: [[2, 'desc']]
+    });
 
-			$('#canOrderTable').DataTable({
-				bDestroy: true,
-				pageLength: 100,
-				order: [[2, 'desc']]
-			});
+    $('#canOrderTable').DataTable({
+      bDestroy: true,
+      pageLength: 100,
+      order: [[2, 'desc']]
+    });
 
-			$('#crossCheckButton').click(e => {
-				socket.emit('crossCheckUninvoicedOrders', cb => {
-					alert('Run the web connector!');
-				});
-			});
+    $('#crossCheckButton').click(e => {
+      socket.emit('crossCheckUninvoicedOrders', cb => {
+        alert('Run the web connector!');
+      });
+    });
 
-			function orderSelected(id, e) {
-				if (e.target.localName != 'a') {
-					window.location="/order?id="+id;
-				}
-			}
+    function orderSelected(id, e) {
+      if (e.target.localName != 'a') {
+        window.location="/order?id="+id;
+      }
+    }

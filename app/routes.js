@@ -674,12 +674,13 @@ module.exports = app => {
     });
   });
 
-  app.get('/needs-invoicing', (req, res) => {
+  app.get('/needs-invoicing', verifyUser, (req, res) => {
     Order.findOrdersToBeInvoiced(true).populate('customer').then(canOrders => {
       Order.findOrdersToBeInvoiced(false).populate('customer').then(usOrders => {
         res.render('needs-invoicing', {
           usOrders: usOrders,
-          canOrders: canOrders
+          canOrders: canOrders,
+          user: req.session.user
         });
       });
     });
