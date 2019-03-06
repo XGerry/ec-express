@@ -455,8 +455,7 @@ orderSchema.methods.createBackorder = async function() {
   return this.save();
 }
 
-orderSchema.methods.invoiceTo3DCart = function() {
-
+orderSchema.methods.invoiceTo3DCart = async function() {
 	var cartOrder = {};
 	cartOrder.OrderItemList = [];
 	this.items.forEach(item => {
@@ -472,7 +471,8 @@ orderSchema.methods.invoiceTo3DCart = function() {
 	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
 	options.body = cartOrder;
 	if (this.isCartOrder && !this.hold)
-    return rp(options);
+    await rp(options);
+  await dbOrder.updateOrderStatus(4); // shipped
 }
 
 orderSchema.methods.customerRq = function() {

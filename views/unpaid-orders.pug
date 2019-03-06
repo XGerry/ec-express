@@ -82,7 +82,7 @@ append body
 		$(document).ready(e => {
 			$('#crossCheckButton').click(e => {
 				socket.emit('crossCheckUnpaidOrders', response => {
-					console.log(response);
+					alert(response);
 				});
 			});
 		});

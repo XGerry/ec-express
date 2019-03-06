@@ -992,7 +992,6 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                         });
                       } else {
                         dbOrder.invoiced = true;
-                        await dbOrder.updateOrderStatus(9); // awaiting payment
                         dbOrder.calculateProfit().catch(err => {
                           console.log(err);
                           console.log('Error calculating profit!');
