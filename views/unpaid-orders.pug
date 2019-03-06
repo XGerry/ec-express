@@ -8,7 +8,7 @@ mixin orderRow(order)
 		td(data-sort=moment(order.dueDate))=moment(order.dueDate).format('MMM Do')
 		td=order.customer.companyName
 		td='$' + order.orderValue.toFixed(2)
-		td=order.cartOrder.BillingPaymentMethod
+		td=order.paymentMethod
 		td=order.reasonForHold
 
 append head
