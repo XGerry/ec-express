@@ -42,7 +42,7 @@ router.get('/orders/search/:searchTerms', async (req, res) => {
   });
 
   let customerIds = customers.map(customer => customer._id);
-  Order.find({$or: [{customer: {$in: customerIds}}, {orderId: searchRegex}]}).populate('customer').sort('-orderDate').then(orders => {
+  Order.find({$or: [{customer: {$in: customerIds}}, {orderId: searchRegex}]}).populate('customer').sort('-orderDate').limit(200).then(orders => {
     res.json(orders);
   }).catch(err => {
     res.status(500).send(err);
