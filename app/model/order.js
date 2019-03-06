@@ -657,7 +657,7 @@ orderSchema.methods.calculateSalesTax = async function() {
       salesTax = 0.15;
     } else if (this.customer.billingState == 'SK') {
       salesTax = 0.05;
-    } else if (this.customer.billingState == 'QB') {
+    } else if (this.customer.billingState == 'QC') {
       salesTax = 0.05;
     }
   }
