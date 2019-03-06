@@ -590,12 +590,13 @@ module.exports = app => {
     res.render('tools');
   });
 
-  app.get('/unpaid-orders', (req, res) => {
+  app.get('/unpaid-orders', verifyUser, (req, res) => {
     Order.findUnpaidOrders(true).populate('customer').then(canOrders => {
       Order.findUnpaidOrders(false).populate('customer').then(usOrders => {
         res.render('unpaid-orders', {
           canOrders: canOrders,
-          usOrders: usOrders
+          usOrders: usOrders,
+          user: req.session.user
         });
       });
     });

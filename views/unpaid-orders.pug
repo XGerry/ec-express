@@ -1,3 +1,5 @@
+extends templates/default
+
 mixin orderRow(order)
 	tr(onclick="orderSelected('"+order._id+"', event)")
 		td=order.orderId
@@ -9,89 +11,78 @@ mixin orderRow(order)
 		td=order.cartOrder.BillingPaymentMethod
 		td=order.reasonForHold
 
-doctype html
-include mixins
-html
-	include includes/head
-		title Unpaid Orders
-	body
-		#wrapper
-			+sidebarNav("orders")
+append head
+	title Unpaid Orders
 
-			#page-content
-				+menuToggle
-				.starter-template
-					h1 Unpaid Orders
-					p.lead Orders that haven't been paid, but have been picked and invoiced.
-				.container
-					.row
-						.col.text-center
-							button.btn.btn-primary(type="button")#crossCheckButton Cross Check in QB
+append nav-items-right
+	button.btn.btn-primary(type="button")#crossCheckButton Cross Check in QB
 
-				.container-fluid
-					.row
-						.col
-							h2 US Orders
-							table.table.table-striped.table-hover#usOrderTable
-								thead
-									tr
-										th Order ID
-										th Name
-										th Date
-										th Due Date
-										th Company
-										th Value
-										th Payment Method
-										th Reason for Hold
+append body
+	.container-fluid
+		.row
+			.col
+				h2 US Orders
+				p.lead='There are ' + usOrders.length + ' orders that need payment.'
+				table.table.table-striped.table-hover#usOrderTable
+					thead
+						tr
+							th Order ID
+							th Name
+							th Date
+							th Due Date
+							th Company
+							th Value
+							th Payment Method
+							th Reason for Hold
 
-								tbody
-									each order in usOrders
-										+orderRow(order)
+					tbody
+						each order in usOrders
+							+orderRow(order)
 
-					.row.pt-2
-						.col
-							h2 Canadian Orders
-							table.table.table-striped.table-hover#canOrderTable
-								thead
-									tr
-										th Order ID
-										th Name
-										th Date
-										th Due Date
-										th Company
-										th Value
-										th Payment Method
-										th Reason for Hold
+		.row.pt-2
+			.col
+				h2 Canadian Orders
+				p.lead='There are ' + canOrders.length + ' orders that need payment.'
+				table.table.table-striped.table-hover#canOrderTable
+					thead
+						tr
+							th Order ID
+							th Name
+							th Date
+							th Due Date
+							th Company
+							th Value
+							th Payment Method
+							th Reason for Hold
 
-								tbody
-									each order in canOrders
-										+orderRow(order)
+					tbody
+						each order in canOrders
+							+orderRow(order)
 
-		+footer
-		script.
-			socket = io();
-			$('#usOrderTable').DataTable({
-				bDestroy: true,
-				pageLength: 20,
-				order: [[2, 'desc']]
-			});
+	script.
+		socket = io();
+		$('#usOrderTable').DataTable({
+			bDestroy: true,
+			pageLength: 20,
+			order: [[2, 'desc']]
+		});
 
-			$('#canOrderTable').DataTable({
-				bDestroy: true,
-				pageLength: 20,
-				order: [[2, 'desc']]
-			});
+		$('#canOrderTable').DataTable({
+			bDestroy: true,
+			pageLength: 20,
+			order: [[2, 'desc']]
+		});
 
-			function orderSelected(id, e) {
-				if (e.target.localName != 'a') {
-					window.open("/order?id="+id, '_blank');
-				}
+		function orderSelected(id, e) {
+			if (e.target.localName != 'a') {
+				window.open("/order?id="+id, '_blank');
 			}
+		}
 
-			$(document).ready(e => {
-				$('#crossCheckButton').click(e => {
-					socket.emit('crossCheckUnpaidOrders', response => {
-						console.log(response);
-					});
+		$(document).ready(e => {
+			$('#crossCheckButton').click(e => {
+				socket.emit('crossCheckUnpaidOrders', response => {
+					console.log(response);
 				});
 			});
+		});
