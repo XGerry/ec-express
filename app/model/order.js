@@ -470,11 +470,11 @@ orderSchema.methods.invoiceTo3DCart = async function() {
 	  cartOrder.OrderItemList.push(orderItem);
 	});
 
-	var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
-	options.body = cartOrder;
-	if (this.isCartOrder && !this.hold)
+  var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
+  options.body = cartOrder;
+  await this.updateOrderStatus(4); // shipped
+  if (this.isCartOrder && !this.hold)
     await rp(options);
-  await dbOrder.updateOrderStatus(4); // shipped
 }
 
 orderSchema.methods.customerRq = function() {
