@@ -1,8 +1,8 @@
 mixin orderTableRow(order, customer)
 	tr(onclick="window.location='/order?id="+order._id+"';")
 		td=order.orderId
-		td=customer.name
 		td=moment(order.orderDate).format('MMM Do YYYY')
+		td=customer.name
 		td=order.picked ? 'yes' : 'no'
 		td=order.invoiced ? 'yes' : 'no'
 		td=order.paid ? 'yes' : 'no'
