@@ -449,7 +449,7 @@ orderSchema.methods.createBackorder = async function() {
   backOrder.parent = this._id;
   backOrder.hold = true; // on hold by default
   backOrder.reasonForHold = "Back order";
-  backOrder.paymentMethod = this.paymentMethod; // Default it to the same
+  backOrder.paymentMethod = "On Account"; // Default it on account for now
   this.backorders.push(backOrder._id);
   await backOrder.save();
   await this.customer.save();
