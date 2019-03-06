@@ -967,6 +967,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                 }
               }
             }
+            console.log('checked the invoice!');
 
             // now proceed as normal
             salesOrders.forEach(so => {
@@ -989,7 +990,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                         webhooks.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Could not obtain the lock."
                         });
-                      }else {
+                      } else {
                         dbOrder.invoiced = true;
                         await dbOrder.updateOrderStatus(9); // awaiting payment
                         dbOrder.calculateProfit().catch(err => {
