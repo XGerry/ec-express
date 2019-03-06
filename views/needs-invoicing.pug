@@ -1,7 +1,7 @@
 extends templates/default
 
 mixin orderRow(order)
-  tr(onclick="orderSelected('"+order._id+"', event)")
+  tr(onclick="orderSelected('"+order._id+"', event)" id="row-"+order._id)
     td=order.orderId
     td=order.customer.name
     td(data-sort=moment(order.orderDate))=moment(order.orderDate).format('MMM Do')
@@ -48,8 +48,64 @@ append body
             each order in canOrders
               +orderRow(order)
 
+  #orderModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5#modalTitle
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          .row
+            .col
+              table.table-sm.table
+                thead
+                  tr
+                    th Name
+                    th Company Name
+                    th Picked Total
+                    th Shipping Cost
+                    th Discount
+                    th Sales Tax
+                    th Grand Total
+                tbody
+                  tr
+                    td#modalName
+                    td#modalCompanyName
+                    td#modalPickedTotal
+                    td#modalShippingCost
+                    td#modalDiscount
+                    td#modalSalesTax
+                    td#modalGrandTotal
+                    
+          .row
+            .col
+              table.table-sm.table
+                thead
+                  tr
+                    th Payment Method
+                    th Order Date
+                    th Ship Date
+                    th Items Sent
+                    th Items Not Sent
+                tbody
+                  tr
+                    td#modalPaymentMethod
+                    td#modalOrderDate
+                    td#modalShipDate
+                    td#modalItemsSent
+                    td#modalItemsNotSent
+        .modal-footer
+          button.btn-success.btn(type="button")#invoiceOrderButton Invoice
+          a.btn-outline-secondary.btn(target="_blank")#viewOrder View Order
+          button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
+
   script.
     var socket = io();
+    let usOrders = !{JSON.stringify(usOrders)};
+    let canOrders = !{JSON.stringify(canOrders)};
+    let theOrder;
+
     $('#usOrderTable').DataTable({
       bDestroy: true,
       pageLength: 100,
@@ -68,8 +124,38 @@ append body
       });
     });
 
+    $('#invoiceOrderButton').click(e => {
+      socket.emit('invoiceOrder', theOrder._id, response => {
+        $('#orderModal').modal('hide');
+        $('#row-'+theOrder._id).addClass('rush');
+      });
+    });
+
     function orderSelected(id, e) {
-      if (e.target.localName != 'a') {
-        window.location="/order?id="+id;
+      theOrder = _.find(canOrders, {_id: id});
+      if (!theOrder) {
+        theOrder = _.find(usOrders, {_id: id});
       }
+      populateModalFields(theOrder);
+      $('#orderModal').modal();
     }
+
+    function populateModalFields(order) {
+      if (!order.shippingCost)
+        order.shippingCost = 0;
+      $('#modalTitle').text(order.orderId);
+      $('#modalName').text(order.customer.name);
+      $('#modalCompanyName').text(order.customer.companyName);
+      $('#modalGrandTotal').text('$' + (order.subtotal + order.salesTax).toFixed(2));
+      $('#modalPickedTotal').text('$' + (order.pickedTotal).toFixed(2));
+      $('#modalShippingCost').text('$' + order.shippingCost.toFixed(2));
+      $('#modalSalesTax').text('$' + order.salesTax.toFixed(2));
+      $('#modalDiscount').text('$' + order.discount.toFixed(2));
+      $('#modalItemsSent').text(order.numberOfItemsPicked);
+      $('#modalItemsNotSent').text(order.numberOfItems - order.numberOfItemsPicked);
+      $('#modalOrderDate').text(moment(order.orderDate).format('MMM Do, YYYY'));
+      $('#modalPaymentMethod').text(order.paymentMethod);
+      $('#modalShipDate').text(moment(order.shipDate).format('MMM Do, YYYY'));
+      $('#viewOrder').prop('href', '/orders/view/'+order._id);
+    }
+

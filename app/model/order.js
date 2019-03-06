@@ -143,9 +143,12 @@ orderSchema.virtual('numberOfItemsPicked').get(function() {
   return this.items.reduce((total, item) => total + item.pickedQuantity, 0);
 });
 
+orderSchema.virtual('pickedTotal').get(function() {
+  return this.items.reduce((total, item) => total + (item.pickedQuantity * item.price), 0);
+});
+
 orderSchema.virtual('subtotal').get(function() {
-  let subtotal = this.items.reduce((total, item) => total + (item.pickedQuantity * item.price), 0);
-  return subtotal + this.shippingCost - this.discount;
+  return this.pickedTotal + this.shippingCost - this.discount;
 });
 
 orderSchema.statics.findUnpaidOrders = function(canadian) {
