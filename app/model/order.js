@@ -115,7 +115,8 @@ var orderSchema = new mongoose.Schema({
   promotionList: [{
     type: ObjectId,
     ref: 'Promotion'
-  }]
+  }],
+  stripeInvoice: String
 }, {
   toObject: {
     virtuals: true

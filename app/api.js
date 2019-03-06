@@ -9,6 +9,8 @@ const mailer = require('./mailer');
 const path = require('path');
 const juice = require('juice');
 const fs = require('fs');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 // TODO permissions inside middle ware
 router.use(async (req, res, next) => {
   if (req.session.userId == null || req.session.userId == undefined) {
@@ -115,6 +117,58 @@ router.get('/order/email/invoice/:orderId', async (req, res) => {
       res.send('Successfully sent email to customer');
     }
   });
+});
+
+router.get('/stripe/customer/:email', (req, res) => {
+  stripe.customers.list({email: req.params.email}).then(response => {
+    let customer = response.data[0];
+    if (customer.email == req.params.email) {
+      res.send(customer);
+    } else {
+      res.status(400).send('No customer found');
+    }
+  });
+});
+
+router.post('/stripe/invoice/:orderId', async (req, res) => {
+  // this will attempt to send the customer an email to pay the invoice via stripe
+  let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
+
+  if (order.stripeInvoice) {
+    return res.status(400).send('Stripe invoice already exists.');
+  }
+
+  let stripeCustomer = await stripe.customers.list({email: 'mattoskamp@gmail.com'}); // order.customer.email});
+  stripeCustomer = stripeCustomer.data[0];
+  // if (!stripeCustomer || order.customer.email != stripeCustomer.email) {
+  //   console.log('No customer exists in Stripe. Creating a new one.');
+  //   stripeCustomer = await stripe.customers.create({email: order.customer.email});
+  // }
+  console.log(stripeCustomer);
+
+  // add the items to the invoice
+  let lineItem = await stripe.invoiceItems.create({
+    customer: stripeCustomer.id,
+    currency: customer.currency,
+    amount: 10,
+    quantity: 2,
+    description: 'Test Item',
+    livemode: false
+  });
+
+  console.log(lineItem);
+
+  let invoice = await stripe.invoices.create({
+    customer: stripeCustomer.id,
+    custom_fields: [{
+      name: 'Order ID',
+      value: 'AB-12345'
+    }]
+  });
+
+  console.log(invoice);
+  invoice = await stripe.invoices.finalizeInvoice(invoice.id);
+  res.json(invoice);
 });
 
 module.exports.router = router;

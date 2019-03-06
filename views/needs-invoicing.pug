@@ -98,6 +98,7 @@ append body
         .modal-footer
           button.btn-success.btn(type="button")#invoiceOrderButton Invoice
           a.btn-outline-secondary.btn(target="_blank")#viewOrder View Order
+          a.btn-outline-secondary.btn(target="_blank")#viewOn3DCart View on 3D Cart
           button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
 
   script.
@@ -157,5 +158,6 @@ append body
       $('#modalPaymentMethod').text(order.paymentMethod);
       $('#modalShipDate').text(moment(order.shipDate).format('MMM Do, YYYY'));
       $('#viewOrder').prop('href', '/orders/view/'+order._id);
+      $('#viewOn3DCart').prop('href', "https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID);
     }
 

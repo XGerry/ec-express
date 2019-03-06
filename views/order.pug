@@ -30,6 +30,10 @@ mixin itemRow(item, order, dbOrder)
 
 append nav-items-right
   li.dropdown.nav-item
+    a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Payments
+    .dropdown-menu.dropdown-menu-right
+      button.dropdown-item(type="button")#requestPaymentButton Request Payment
+  li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Customer
     .dropdown-menu.dropdown-menu-right
       a(href="/customer?id="+order.customer._id).dropdown-item View
@@ -577,6 +581,12 @@ append body
             }, 2000);
           });
         }
+      });
+
+      $('#requestPaymentButton').click(e => {
+        axios.post('/api/stripe/invoice/'+theOrder._id).then(response => {
+          console.log(response);
+        });
       });
 
       $('#orderTable').DataTable({
