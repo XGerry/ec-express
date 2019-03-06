@@ -102,6 +102,7 @@ append body
                   th Email
                   th Phone
                   th Date
+                  th Picked Total
                   th Grand Total
                   th Sales Tax
               tbody
@@ -111,6 +112,7 @@ append body
                   td=order.customer.email
                   td=order.customer.phone
                   td=moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
+                  td='$' + (order.pickedTotal).toFixed(2)
                   td='$' + (order.subtotal + order.salesTax).toFixed(2)
                   td='$' + order.salesTax.toFixed(2)
           .col-lg-4
