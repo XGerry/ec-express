@@ -94,6 +94,18 @@ router.put('/orders', async (req, res) => {
   res.send('success');
 });
 
+router.get('/order/:orderId/cart/payments', async (req, res) => {
+  let theOrder = await Order.findOne({_id: req.params.orderId});
+  let response = await theOrder.checkPayment();
+  res.json(response);
+});
+
+router.put('/order/:orderId/payment', async (req, res) => {
+  let theOrder = await Order.findOne({_id: req.params.orderId});
+  let response = await theOrder.addPayment(req.body);
+  res.json(response);
+});
+
 router.get('/order/email/invoice/:orderId', async (req, res) => {
   let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
   let emailContent = pug.renderFile(path.resolve(__dirname, '../views/emails/invoice.pug'), {

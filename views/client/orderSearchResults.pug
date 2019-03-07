@@ -10,6 +10,7 @@
 					if (order.customer.companyName)
 						h6.mb-1=order.customer.companyName
 			.d-flex.w-100.justify-content-between.text-muted
-				p.mb-0='$' + order.orderValue.toFixed(2)
+				- let total = order.orderValue ? order.orderValue : 0;
+				p.mb-0='$' + total.toFixed(2)
 				p.mb-0='SKUs: ' + order.items.length
 				p.mb-0='Items: ' + order.numberOfItems

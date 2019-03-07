@@ -10,7 +10,11 @@ const CartMarketplace = require('./cartMarketplace');
 
 module.exports = function(qbws) {
   var sync = schedule.scheduleJob('0 4,6,8,10,12,14,16,18,20 * * *', () => {
-    syncOrdersAndInventory(qbws);
+    if (process.env.DEV_MODE == 'TRUE') {
+      // do nothing
+    } else {
+      syncOrdersAndInventory(qbws);
+    }
   }); 
   var refresh = schedule.scheduleJob('0 21 * * *', () => {
     cart3d.refreshFrom3DCart().then(() => {

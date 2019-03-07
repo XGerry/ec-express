@@ -5,6 +5,7 @@ var rp = require('request-promise-native');
 var Item = require('./item');
 var moment = require('moment');
 var _ = require('lodash');
+const CartMarketplace = require('../cartMarketplace');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -116,7 +117,17 @@ var orderSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'Promotion'
   }],
-  stripeInvoice: String
+  stripeInvoice: String,
+  payments: [{
+    amount: Number,
+    reference: String,
+    method: String,
+    cartId: String,
+    type: {
+      type: String,
+      enum: ['Authorize', 'Manual', 'Capture', 'Sale']
+    }
+  }]
 }, {
   toObject: {
     virtuals: true
@@ -150,6 +161,15 @@ orderSchema.virtual('pickedTotal').get(function() {
 
 orderSchema.virtual('subtotal').get(function() {
   return this.pickedTotal + this.shippingCost - this.discount;
+});
+
+orderSchema.virtual('balance').get(function() {
+  let total = this.subtotal + this.salesTax;
+  let validPayments = this.payments.filter(payment => {
+    return payment.type == 'Capture' || payment.type == 'Manual' || payment.type == 'Sale';
+  });
+  let paid = validPayments.reduce((total, payment) => total += payment.amount, 0);
+  return total - paid;
 });
 
 orderSchema.statics.findUnpaidOrders = function(canadian) {
@@ -787,6 +807,50 @@ orderSchema.methods.createShippingAddress = function() {
   shippingAddress.PostalCode = this.cartOrder.ShipmentList[0].ShipmentZipCode.substring(0, 40);
   shippingAddress.Country = this.cartOrder.ShipmentList[0].ShipmentCountry.substring(0, 40);
   return shippingAddress;
+}
+
+orderSchema.methods.checkPayment = async function() {
+  if (!this.isCartOrder)
+    return 'Not a cart order.';
+  let cartOrder = await this.get3DCart().get('Orders/'+this.cartOrder.OrderID);
+  cartOrder = cartOrder[0];
+  console.log(cartOrder.TransactionList);
+  cartOrder.TransactionList.forEach(transaction => {
+    let newPayment = true;
+    let payment = {
+      amount: transaction.TransactionAmount,
+      reference: transaction.TransactionReference,
+      cartId: transaction.TransactionIndexID,
+      type: transaction.TransactionType,
+      method: transaction.TransactionMethod
+    };
+    this.payments.forEach(dbPayment => {
+      if (payment.cartId == dbPayment.cartId) {
+        newPayment = false;
+        dbPayment.amount = payment.amount;
+        dbPayment.reference = payment.reference;
+        dbPayment.type = payment.type;
+        dbPayment.method = payment.method;
+      };
+    });
+    if (newPayment)
+      this.payments.push(payment);
+  });
+  this.paid = this.balance <= 0;
+  return this.save();
+}
+
+orderSchema.methods.addPayment = async function(payment) {
+  this.payments.push(payment);
+  this.paid = this.balance <= 0;
+  return this.save();
+}
+
+orderSchema.methods.get3DCart = function() {
+  if (this.canadian) {
+    return new CartMarketplace('https://www.ecstasycrafts.ca', process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN_CANADA);
+  }
+  return new CartMarketplace('https://www.ecstasycrafts.com', process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN);
 }
 
 // helpers

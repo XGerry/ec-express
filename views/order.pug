@@ -32,6 +32,9 @@ append nav-items-right
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Payments
     .dropdown-menu.dropdown-menu-right
+      if (order.isCartOrder)
+        button.dropdown-item(type="button")#checkPayment Check Payments
+      button.dropdown-item(type="button")#addPaymentButton Add Payment
       button.dropdown-item(type="button")#requestPaymentButton Request Payment
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Customer
@@ -83,6 +86,9 @@ append body
         a.nav-link#details-tab(data-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="true") Details
       li.nav-item
         a.nav-link#customer-tab(data-toggle="tab" href="#customer" role="tab" aria-controls="customer" aria-selected="false") Customer
+      li.nav-item
+        a.nav-link#payments-tab(data-toggle="tab" href="#payments" role="tab" aria-controls="payments" aria-selected="false") Payments
+          span.badge.badge-secondary.ml-1=order.payments.length
       li.nav-item
         a.nav-link#reports-tab(data-toggle="tab" href="#reports" role="tab" aria-controls="reports" aria-selected="false") Sales Reports
 
@@ -181,6 +187,7 @@ append body
                   th Original Value
                   th Order Total
                   th Order Profit
+                  th Open Balance
                   th Order Date
                   th Ordered
                   th Picked
@@ -210,6 +217,7 @@ append body
                     td= '$'+order.orderProfit.toFixed(2)
                   else
                     td N/A
+                  td='$'+order.balance.toFixed(2)
                   td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
                   td= order.numberOfItems
                   td= order.numberOfItemsPicked
@@ -306,6 +314,25 @@ append body
                 .form-group
                   label Country
                   input.form-control(type="text" value=order.cartOrder.ShipmentList[0].ShipmentCountry)#shipmentCountry
+      .tab-pane.fade#payments(role="tabpanel" aria-labelledby="payments-tab")
+        .row.pt-2
+          .col
+            table.table.table-striped.table-hover
+              thead
+                tr
+                  th Amount
+                  th Type
+                  th Reference
+                  th Method
+                  th ID
+              tbody
+                each payment in order.payments
+                  tr
+                    td='$'+payment.amount.toFixed(2)
+                    td=payment.type
+                    td=payment.reference
+                    td=payment.method
+                    td=payment.cartId
 
   if (order.cartOrder.CustomerComments)
     .row
@@ -377,6 +404,38 @@ append body
           button.btn-outline-danger.btn(type="button")#deleteItemButton Delete
           button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
           a.btn-outline-secondary.btn(target="_blank")#viewItem View Item
+
+  #addPaymentModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5 Record Payment
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          .row
+            .col
+              label Amount
+              .input-group
+                .input-group-prepend
+                  .input-group-text $
+                input.form-control(type="number")#paymentAmount
+            .col
+              label Type
+              select.form-control#paymentType
+                option(value="Manual") Manual
+            .col
+              label Reference Code (Optional)
+              input.form-control(type="text")#paymentReference
+            .col
+              label Method
+              select.form-control#paymentMethod
+                option(value="Stripe") Stripe
+                option(value="PayPal") PayPal
+                option(value="In-Store") In-Store
+        .modal-footer
+          button.btn-primary.btn(type="button")#savePaymentButton Save
+          button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelPaymentButton Cancel
 
   script.
     var socket = io();
@@ -589,6 +648,33 @@ append body
         axios.post('/api/stripe/invoice/'+theOrder._id).then(response => {
           console.log(response);
         });
+      });
+
+      $('#checkPayment').click(e => {
+        axios.get('/api/order/'+theOrder._id+'/cart/payments').then(response => {
+          location.reload();
+        }).catch(err => {
+          location.reload();
+        });
+      });
+
+      $('#addPaymentButton').click(e => {
+        $('#addPaymentModal').modal();
+      });
+
+      $('#savePaymentButton').click(e => {
+        let payment = {
+          amount: $('#paymentAmount').val(),
+          type: $('#paymentType').val(),
+          reference: $('#paymentReference').val(),
+          method: $('#paymentMethod').val()
+        };
+        axios.put('/api/order/'+theOrder._id+'/payment', payment).then(response => {
+          location.reload();
+        }).catch(err => {
+          console.log(err);
+          alert('There was an error');
+        })
       });
 
       $('#orderTable').DataTable({
