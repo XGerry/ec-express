@@ -621,14 +621,25 @@ append body
 
       $('#emailInvoiceButton').click(e => {
         e.preventDefault();
-        axios.get('/api/order/email/invoice/'+theOrder._id).then(response => {
-          $('#orderInfo').text('Email sent.');
+        let sendEmail = !theOrder.emailSent;
+        if (theOrder.emailSent) {
+          sendEmail = confirm('An invoice has already been emailed to the customer. Are you sure you want to send another?');
+        }
+        if (sendEmail) {
+          axios.get('/api/order/email/invoice/'+theOrder._id).then(response => {
+            $('#orderInfo').text('Email sent.');
+            setTimeout(() => {
+              $('#orderInfo').text('');
+            }, 3000);
+          }).catch(err => {
+            alert('There was an error sending the email. Please make sure you are logged in.');
+          });
+        } else {
+          $('#orderInfo').text('Email not sent.');
           setTimeout(() => {
             $('#orderInfo').text('');
           }, 3000);
-        }).catch(err => {
-          alert('There was an error sending the email. Please make sure you are logged in.');
-        });
+        }
       });
 
       $('#closeSalesOrderButton').click(e => {
