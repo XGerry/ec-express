@@ -126,6 +126,8 @@ router.get('/order/email/invoice/:orderId', async (req, res) => {
       console.log(err);
       res.status(500).send(err);
     } else {
+      order.emailSent = true;
+      order.save();
       res.send('Successfully sent email to customer');
     }
   });

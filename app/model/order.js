@@ -127,7 +127,11 @@ var orderSchema = new mongoose.Schema({
       type: String,
       enum: ['Authorize', 'Manual', 'Capture', 'Sale']
     }
-  }]
+  }],
+  emailSent: {
+    type: Boolean,
+    default: false
+  }
 }, {
   toObject: {
     virtuals: true
@@ -836,7 +840,7 @@ orderSchema.methods.checkPayment = async function() {
     if (newPayment)
       this.payments.push(payment);
   });
-  this.paid = this.balance <= 0;
+  this.paid = this.balance.toFixed(2) <= 0.00;
   return this.save();
 }
 
