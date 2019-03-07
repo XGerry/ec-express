@@ -41,7 +41,6 @@ append nav-items-right
     .dropdown-menu.dropdown-menu-right
       a(href="/customer?id="+order.customer._id).dropdown-item View
       a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
-      a(href="#").dropdown-item#emailInvoiceButton Email Invoice
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
     ul.dropdown-menu.dropdown-menu-right
@@ -50,23 +49,29 @@ append nav-items-right
       a(href="#").dropdown-item#calculateProfitButton Calculate Profit
       if (order.invoiced)
         a(href="#").dropdown-item#createBackorderButton Create Backorder
-      if (order.isCartOrder)
-        a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").dropdown-item View on 3D Cart
       if (order.imported)
         a(href="#").dropdown-item#closeSalesOrderButton Close Sales Order
       a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
       a(href="/order/slip/"+order._id target="_self").dropdown-item Packing Slip
-      a(href="#").dropdown-item#replacePricing Replace Pricing
+      //a(href="#").dropdown-item#replacePricing Replace Pricing
       input(type="file" style="display:none;")#fileInput
       //a(href="#").dropdown-item#refreshFromOriginal Reload from Original
       .dropdown-divider
       if (order.batch)
         a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
       a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+  li.dropdown.nav-item
+    a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Invoicing
+    ul.dropdown-menu.dropdown-menu-right
+      button.dropdown-item#invoiceOrder Invoice
+      button.dropdown-item#updateQuickbooks Update Sales Order
+      button.dropdown-item#emailInvoiceButton Email Invoice
+
   button.btn-primary.btn.mr-2(type="button")#addItemButton Add Item
-  button.btn.btn-success.mr-2(type="button")#saveOrderButton Save
-  button.btn.btn-outline-success.mr-2#updateQuickbooks Update Sales Order
-  button.btn.btn-outline-success#invoiceOrder Invoice
+  if (order.isCartOrder)
+    a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").btn.btn-info View
+      i.far.fa-external-link.pl-2
+  button.btn.btn-success.ml-2(type="button")#saveOrderButton Save
 
 append nav-items
   ul.navbar-nav.mr-auto
