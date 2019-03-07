@@ -645,9 +645,10 @@ append body
       });
 
       $('#requestPaymentButton').click(e => {
-        axios.post('/api/stripe/invoice/'+theOrder._id).then(response => {
-          console.log(response);
-        });
+        alert('Coming Soon!');
+        //- axios.post('/api/stripe/invoice/'+theOrder._id).then(response => {
+        //-   console.log(response);
+        //- });
       });
 
       $('#checkPayment').click(e => {
