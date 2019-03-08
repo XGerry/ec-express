@@ -10,6 +10,7 @@ const path = require('path');
 const juice = require('juice');
 const fs = require('fs');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+let qbws;
 
 // TODO permissions inside middle ware
 router.use(async (req, res, next) => {
@@ -106,6 +107,11 @@ router.put('/order/:orderId/payment', async (req, res) => {
   res.json(response);
 });
 
+router.post('/qb/payments/:orderId', async (req, res) => {
+  let theOrder = await Order.findOne({_id: req.params.orderId});
+  theOrder.applyPaymentsToQB(this.qbws);
+});
+
 router.get('/order/email/invoice/:orderId', async (req, res) => {
   let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
   let emailContent = pug.renderFile(path.resolve(__dirname, '../views/emails/invoice.pug'), {
@@ -126,7 +132,7 @@ router.get('/order/email/invoice/:orderId', async (req, res) => {
       console.log(err);
       res.status(500).send(err);
     } else {
-      order.emailSent = true;
+      order.flags.emailSent = true;
       order.save();
       res.send('Successfully sent email to customer');
     }
@@ -186,3 +192,6 @@ router.post('/stripe/invoice/:orderId', async (req, res) => {
 });
 
 module.exports.router = router;
+module.exports.setQBWS = qbws => {
+  this.qbws = qbws;
+}

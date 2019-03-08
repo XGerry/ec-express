@@ -128,9 +128,15 @@ var orderSchema = new mongoose.Schema({
       enum: ['Authorize', 'Manual', 'Capture', 'Sale']
     }
   }],
-  emailSent: {
-    type: Boolean,
-    default: false
+  flags: {
+    emailSent: {
+      type: Boolean,
+      default: false
+    },
+    paymentsApplied: {
+      type: Boolean,
+      default: false
+    }
   }
 }, {
   toObject: {
@@ -856,6 +862,62 @@ orderSchema.methods.get3DCart = function() {
     return new CartMarketplace('https://www.ecstasycrafts.ca', process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN_CANADA);
   }
   return new CartMarketplace('https://www.ecstasycrafts.com', process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN);
+}
+
+orderSchema.methods.applyPaymentsToQB = async function(qbws) {
+  if (this.flags.paymentsApplied) {
+    return 'The payments have already been applied. Check quickbooks';
+  }
+
+  let validPayments = this.payments.filter(payment => {
+    return payment.type == 'Capture' || payment.type == 'Manual' || payment.type == 'Sale';
+  });
+
+  let theOrder = this;
+  for (payment of this.payments) {
+    let paymentRq = await this.getAddPaymentRq(payment);
+    qbws.addRequest(paymentRq, xmlResponse => {
+      console.log(xmlResponse);
+      theOrder.flags.paymentsApplied = true;
+    });
+  }
+}
+
+orderSchema.methods.getAddPaymentRq = async function(payment) {
+  await this.populate('customer').execPopulate();
+  let customerRef = this.customer.lastname + ' ' + this.customer.firstname;
+
+  // An exception for Amazon
+  if (this.isCartOrder) {
+    if (this.cartOrder.BillingFirstName == 'Amazon') {
+      customerRef = 'Amazon';
+    } else if (this.cartOrder.BillingFirstName == 'Amazon.') {
+      customerRef = 'Amazon. ca';
+    }
+  }
+  
+  let receivePaymentAddRq = {
+    ReceivePaymentAddRq: {
+      '@requestID': 'payment-' + this.orderId,
+      ReceivePaymentAdd: {
+        CustomerRef: {
+          FullName: customerRef
+        },
+        RefNumber: payment.reference,
+        TotalAmount: payment.amount,
+        PaymentMethodRef: {
+          FullName: 'Online Credit Card', // default
+        },
+        Memo: 'EC-Express - ' + payment.method,
+        IsAutoApply: true
+      }
+    }
+  };
+
+  var xmlDoc = getXMLRequest(receivePaymentAddRq);
+  var str = xmlDoc.end({pretty: true});
+  console.log(str);
+  return str;
 }
 
 // helpers

@@ -2,14 +2,19 @@
 <?qbxml version="13.0"?>
 <QBXML>
   <QBXMLMsgsRq onError="continueOnError">
-    <CustomerAddRq>
-      <CustomerAdd>
-        <Name>Van Dyk Wilma</Name>
-        <FirstName>Wilma</FirstName>
-        <LastName>Van Dyk</LastName>
-        <Phone>905-372-4912</Phone>
-        <OpenBalance>-8.03</OpenBalance>
-      </CustomerAdd>
-    </CustomerAddRq>
+    <ReceivePaymentAddRq requestID="payment-CA-38438">
+      <ReceivePaymentAdd>
+        <CustomerRef>
+          <FullName>Oskamp Matt</FullName>
+        </CustomerRef>
+        <RefNumber/>
+        <TotalAmount>10</TotalAmount>
+        <PaymentMethodRef>
+          <FullName>Online Credit Card</FullName>
+        </PaymentMethodRef>
+        <Memo>EC-Express - Stripe</Memo>
+        <IsAutoApply>true</IsAutoApply>
+      </ReceivePaymentAdd>
+    </ReceivePaymentAddRq>
   </QBXMLMsgsRq>
 </QBXML>

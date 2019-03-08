@@ -51,9 +51,9 @@ var server = app.listen(process.env.PORT || 3000, function() {
 
 // socket.io
 var io = require('socket.io')(server);
-
+api.setQBWS(qbws);
 events(io, qbws);
-app.use('/api', require('./app/api.js').router);
+app.use('/api', api.router);
 routes(app);
 webhooks.route(app, qbws);
 require('./app/schedule')(qbws);
