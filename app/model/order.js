@@ -905,7 +905,7 @@ orderSchema.methods.getAddPaymentRq = async function(payment) {
           FullName: customerRef
         },
         RefNumber: payment.reference.substring(0, 10),
-        TotalAmount: payment.amount,
+        TotalAmount: payment.amount.toFixed(2),
         PaymentMethodRef: {
           FullName: payment.method
         },
