@@ -101,7 +101,7 @@ router.get('/order/:orderId/cart/payments', async (req, res) => {
   if (theOrder.paid && !theOrder.flags.paymentsApplied) {
     theOrder.applyPaymentsToQB(qbws);
   }
-  res.json(response);
+  res.json(theOrder);
 });
 
 router.put('/order/:orderId/payment', async (req, res) => {
