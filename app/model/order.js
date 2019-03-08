@@ -879,6 +879,7 @@ orderSchema.methods.applyPaymentsToQB = async function(qbws) {
     qbws.addRequest(paymentRq, xmlResponse => {
       console.log(xmlResponse);
       theOrder.flags.paymentsApplied = true;
+      return theOrder.save();
     });
   }
 }
