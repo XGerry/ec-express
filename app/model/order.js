@@ -903,10 +903,10 @@ orderSchema.methods.getAddPaymentRq = async function(payment) {
         CustomerRef: {
           FullName: customerRef
         },
-        RefNumber: payment.reference,
+        RefNumber: payment.reference.substring(0, 10),
         TotalAmount: payment.amount,
         PaymentMethodRef: {
-          FullName: 'Online Credit Card', // default
+          FullName: payment.method
         },
         Memo: 'EC-Express - ' + payment.method,
         IsAutoApply: true
