@@ -451,6 +451,13 @@ append body
     console.log(theOrder);
 
     $(document).ready(e => {
+      if (theOrder.paid && theOrder.picked && theOrder.invoiced && !theOrder.hold && !theOrder.flags.emailSent) {
+        let yes = confirm('Looks good! Would you like to email an invoice to the customer?');
+        if (yes) {
+          sendEmail();
+        }
+      }
+
       $('#addItemButton').click(e => {
         addingItem = true;
         var newItem = {
@@ -627,26 +634,7 @@ append body
 
       $('#emailInvoiceButton').click(e => {
         e.preventDefault();
-        let sendEmail = !theOrder.flags.emailSent;
-        if (theOrder.flags.emailSent) {
-          sendEmail = confirm('An invoice has already been emailed to the customer. Are you sure you want to send another?');
-        }
-        if (sendEmail) {
-          axios.get('/api/order/email/invoice/'+theOrder._id).then(response => {
-            $('#orderInfo').text('Email sent.');
-            theOrder.flags.emailSent = true;
-            setTimeout(() => {
-              $('#orderInfo').text('');
-            }, 3000);
-          }).catch(err => {
-            alert('There was an error sending the email. Please make sure you are logged in.');
-          });
-        } else {
-          $('#orderInfo').text('Email not sent.');
-          setTimeout(() => {
-            $('#orderInfo').text('');
-          }, 3000);
-        }
+        sendEmail();
       });
 
       $('#closeSalesOrderButton').click(e => {
@@ -730,6 +718,29 @@ append body
         } else {
           return item.usWholesalePrice;
         }
+      }
+    }
+
+    function sendEmail() {
+      let sendEmail = !theOrder.flags.emailSent;
+      if (theOrder.flags.emailSent) {
+        sendEmail = confirm('An invoice has already been emailed to the customer. Are you sure you want to send another?');
+      }
+      if (sendEmail) {
+        axios.get('/api/order/email/invoice/'+theOrder._id).then(response => {
+          $('#orderInfo').text('Email sent.');
+          theOrder.flags.emailSent = true;
+          setTimeout(() => {
+            $('#orderInfo').text('');
+          }, 3000);
+        }).catch(err => {
+          alert('There was an error sending the email. Please make sure you are logged in.');
+        });
+      } else {
+        $('#orderInfo').text('Email not sent.');
+        setTimeout(() => {
+          $('#orderInfo').text('');
+        }, 3000);
       }
     }
 
