@@ -830,7 +830,7 @@ orderSchema.methods.checkPayment = async function() {
     let newPayment = true;
     let payment = {
       amount: transaction.TransactionAmount,
-      reference: transaction.TransactionReference,
+      reference: transaction.TransactionApproval,
       cartId: transaction.TransactionIndexID,
       type: transaction.TransactionType,
       method: transaction.TransactionMethod
@@ -874,7 +874,7 @@ orderSchema.methods.applyPaymentsToQB = async function(qbws) {
   });
 
   let theOrder = this;
-  for (payment of this.payments) {
+  for (payment of validPayments) {
     let paymentRq = await this.getAddPaymentRq(payment);
     qbws.addRequest(paymentRq, xmlResponse => {
       console.log(xmlResponse);
