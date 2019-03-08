@@ -496,9 +496,10 @@ orderSchema.methods.invoiceTo3DCart = async function() {
 
   var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
   options.body = cartOrder;
-  await this.updateOrderStatus(4); // shipped
-  if (this.isCartOrder && !this.hold)
+  if (this.isCartOrder && !this.hold) {
     await rp(options);
+    await this.updateOrderStatus(4); // shipped
+  }
 }
 
 orderSchema.methods.customerRq = function() {
