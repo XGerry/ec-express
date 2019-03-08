@@ -5,6 +5,7 @@ var rp = require('request-promise-native');
 var Item = require('./item');
 var moment = require('moment');
 var _ = require('lodash');
+const xml2js = require('xml2js-es6-promise');
 const CartMarketplace = require('../cartMarketplace');
 mongoose.Promise = global.Promise;
 var ObjectId = mongoose.Schema.Types.ObjectId;
@@ -878,8 +879,17 @@ orderSchema.methods.applyPaymentsToQB = async function(qbws) {
     let paymentRq = await this.getAddPaymentRq(payment);
     qbws.addRequest(paymentRq, xmlResponse => {
       console.log(xmlResponse);
-      theOrder.flags.paymentsApplied = true;
-      return theOrder.save();
+      return xml2js(xmlResponse, {explicitArray: false}).then(async responseObject => {
+        var response = responseObject.QBXML.QBXMLMsgsRs.ReceivePaymentAddRs;
+        if (response.$.statusSeverity == 'Error') {
+          theOrder.flags.paymentsApplied = false;
+          console.log(response.$.statusMessage);
+        } else {
+          theOrder.flags.paymentsApplied = true;
+        }
+        return theOrder.save();
+      });
+
     });
   }
 }
