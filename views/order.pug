@@ -61,9 +61,9 @@ append nav-items-right
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Invoicing
     ul.dropdown-menu.dropdown-menu-right
       button.dropdown-item#invoiceOrder Invoice
-      button.dropdown-item#updateQuickbooks Update Sales Order
       if (order.invoiced)
         button.dropdown-item#createBackorderButton Create Backorder
+      button.dropdown-item#updateQuickbooks Update Sales Order
       if (order.imported)
         button.dropdown-item#closeSalesOrderButton Close Sales Order
       button.dropdown-item#emailInvoiceButton Email Invoice
@@ -651,7 +651,11 @@ append body
 
       $('#closeSalesOrderButton').click(e => {
         e.preventDefault();
-        var yes = confirm('This will manually close the original sales order in Quickbooks. Do you want to continue?');
+        let message = 'This will manually close the original sales order in Quickbooks. Do you want to continue?';
+        if (theOrder.backorders.length > 0) {
+          message = 'You have back orders associated with this sales order. Are you sure you want to close it?';
+        }
+        var yes = confirm(message);
         if (yes) {
           socket.emit('closeSalesOrder', theOrder.orderId, cb => {
             $('#orderInfo').text(cb);
