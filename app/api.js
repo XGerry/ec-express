@@ -99,7 +99,7 @@ router.get('/order/:orderId/cart/payments', async (req, res) => {
   let theOrder = await Order.findOne({_id: req.params.orderId});
   theOrder = await theOrder.checkPayment();
   if (theOrder.paid && !theOrder.flags.paymentsApplied) {
-    theOrder.applyPaymentsToQB(qbws);
+    theOrder.applyPaymentsToQB(this.qbws);
   }
   res.json(theOrder);
 });
