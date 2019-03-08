@@ -451,7 +451,7 @@ append body
     console.log(theOrder);
 
     $(document).ready(e => {
-      if (theOrder.paid && theOrder.picked && theOrder.invoiced && !theOrder.hold && !theOrder.flags.emailSent) {
+      if (theOrder.paid && theOrder.picked && theOrder.invoiced && !theOrder.hold && !theOrder.flags.emailSent && moment(theOrder.orderDate).isAfter('2019-03-05')) {
         let yes = confirm('Looks good! Would you like to email an invoice to the customer?');
         if (yes) {
           sendEmail();
