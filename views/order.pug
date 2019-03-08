@@ -634,6 +634,7 @@ append body
         if (sendEmail) {
           axios.get('/api/order/email/invoice/'+theOrder._id).then(response => {
             $('#orderInfo').text('Email sent.');
+            theOrder.flags.emailSent = true;
             setTimeout(() => {
               $('#orderInfo').text('');
             }, 3000);
