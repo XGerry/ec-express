@@ -147,7 +147,7 @@ module.exports = app => {
         path: 'parent',
         model: 'Item'
       }
-    }).then(order => {
+    }).populate('userComments.user').then(order => {
       if (order) {
         getCustomerType(order).then(() => {
           res.render('order', {

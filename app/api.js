@@ -110,6 +110,12 @@ router.put('/order/:orderId/payment', async (req, res) => {
   res.json(response);
 });
 
+router.post('/order/:orderId/comment', async (req, res) => {
+  let theOrder = await Order.findOne({_id: req.params.orderId});
+  theOrder = await theOrder.addComment(req.body.comment, req.session.user._id);
+  res.json(theOrder);
+});
+
 router.post('/qb/payments/:orderId', async (req, res) => {
   let theOrder = await Order.findOne({_id: req.params.orderId});
   theOrder.applyPaymentsToQB(this.qbws);

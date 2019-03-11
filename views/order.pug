@@ -73,6 +73,7 @@ append nav-items-right
   if (order.isCartOrder)
     a(href="https://www.ecstasycrafts." + (order.canadian ? "ca" : "com") + "/admin/order_details.asp?orderid="+order.cartOrder.OrderID target="_blank").btn.btn-info View
       i.far.fa-external-link.pl-2
+  button.btn.btn-warning.ml-2(type="button" data-target="#addCommentModal" data-toggle="modal") Comment
   button.btn.btn-success.ml-2(type="button")#saveOrderButton Save
 
 append nav-items
@@ -377,16 +378,25 @@ append body
                 td=backorder.orderId
                 td=backorder.numberOfItems
                 td=backorder.numberOfItemsPicked
-  .row
-    .col
-      h5 Internal Comments
-      textarea.form-control(rows=4)#orderComments= order.comments
+  if (order.comments)
+    .row
+      .col
+        h5 Internal Comments
+        textarea.form-control(rows=4)#orderComments= order.comments
+  if (order.userComments)
+    h5 User Comments
+    for comment in order.userComments
+      .row
+        .col.pt-2
+          .card
+            .card-body=comment.comment
+            .card-footer=comment.user.username + ' - ' + moment(comment.date).format('MMM Do, YYYY. h:mm:ss a')
 
   #addItemModal.modal(tabindex="-1" role="dialog").fade
     .modal-dialog.modal-lg(role="document")
       .modal-content
         .modal-header
-          h5 Add or Edit Item
+          h5.mb-0 Add or Edit Item
           button.close(type="button", data-dismiss="modal", aria-label="Close")
             span(aria-hidden="true") &times;
         .modal-body
@@ -411,6 +421,21 @@ append body
           button.btn-outline-danger.btn(type="button")#deleteItemButton Delete
           button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
           a.btn-outline-secondary.btn(target="_blank")#viewItem View Item
+
+  #addCommentModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5.mb-0 New Comment
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          .row
+            .col
+              textarea.form-control#userComment
+        .modal-footer
+          button.btn-primary.btn(type="button")#addCommentButton Save
+          button.btn-secondary.btn(type="button" data-dismiss="modal") Cancel
 
   #addPaymentModal.modal(tabindex="-1" role="dialog").fade
     .modal-dialog.modal-lg(role="document")
@@ -478,6 +503,13 @@ append body
         $('#fileInput').click();
       });
 
+      $('#addCommentButton').click(e => {
+        axios.post('/api/order/'+theOrder._id+'/comment', {
+          comment: $('#userComment').val()
+        }).then(response => {
+          location.reload();
+        });
+      });
 
       $('#fileInput').on('change', e => {
         console.log('file change');

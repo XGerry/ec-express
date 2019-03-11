@@ -138,7 +138,15 @@ var orderSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     }
-  }
+  },
+  userComments: [{
+    comment: String,
+    date: Date,
+    user: {
+      type: ObjectId,
+      ref: 'User'
+    }
+  }]
 }, {
   toObject: {
     virtuals: true
@@ -666,6 +674,15 @@ orderSchema.methods.modifySalesOrderRq = function(qbOrder) {
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({pretty: true});
   return str;
+}
+
+orderSchema.methods.addComment = function(comment, userId) {
+  this.userComments.push({
+    comment: comment,
+    date: new Date(),
+    user: userId
+  });
+  return this.save();
 }
 
 orderSchema.methods.calculateSalesTax = async function() {
