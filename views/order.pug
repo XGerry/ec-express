@@ -607,9 +607,9 @@ append body
           });
         });
         console.log('done.');
-        socket.emit('updateOrder', theOrder, response => {
-          location.reload();
-        });
+        //- socket.emit('updateOrder', theOrder, response => {
+        //-   location.reload();
+        //- });
       });
 
       $('#deleteOrder').click(e => {
