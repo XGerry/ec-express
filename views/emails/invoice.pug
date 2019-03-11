@@ -63,6 +63,8 @@ body
 						|  Your order has been successfully paid.
 					else
 						|  We are currently processing your payment.
+				if (order.trackingNumber)
+					p= 'Your tracking number is ' + order.trackingNumber + '.'
 				p Below you will find your invoice. 
 		.row
 			.col

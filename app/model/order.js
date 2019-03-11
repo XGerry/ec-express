@@ -826,6 +826,9 @@ orderSchema.methods.checkPayment = async function() {
     return 'Not a cart order.';
   let cartOrder = await this.get3DCart().get('Orders/'+this.cartOrder.OrderID);
   cartOrder = cartOrder[0];
+  if (this.trackingNumber == undefined || this.trackingNumber == '') {
+    this.trackingNumber = cartOrder.ShipmentList[0].ShipmentTrackingCode;
+  }
   console.log(cartOrder.TransactionList);
   cartOrder.TransactionList.forEach(transaction => {
     let newPayment = true;
