@@ -51,6 +51,7 @@ append nav-items-right
       a(href="/shipping-label?id="+order._id target="_blank").dropdown-item White Label
       a(href="/order/slip/"+order._id target="_self").dropdown-item Packing Slip
       //a(href="#").dropdown-item#replacePricing Replace Pricing
+      button.dropdown-item#recalculatePricing Recalculate Pricing
       input(type="file" style="display:none;")#fileInput
       //a(href="#").dropdown-item#refreshFromOriginal Reload from Original
       .dropdown-divider
@@ -593,6 +594,19 @@ append body
             location.reload();
           });
         }
+      });
+
+      $('#recalculatePricing').click(e => {
+        theOrder.items.forEach(item => {
+          socket.emit('searchSKU', item.item.sku, returnedItems => {
+            if (returnedItems.length == 0) { // item was not found
+              console.log('The SKU, ' + item.item.sku + ', was not found in the database. Please try again.');
+            } else {
+              item.price = determineItemPrice(returnedItems[0]);
+            }
+          });
+        });
+        console.log('done.');
       });
 
       $('#deleteOrder').click(e => {
