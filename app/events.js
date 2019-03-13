@@ -781,7 +781,7 @@
  		});
 
  		socket.on('invoiceOrder', (id, cb) => {
- 			Order.findOne({_id: id}).populate('items.item').populate('parent').then(order => {
+ 			Order.findOne({_id: id}).populate('items.item').populate('parent originalOrder').then(order => {
  				if (order.isCartOrder) {
  					order.invoiceTo3DCart();
  				}

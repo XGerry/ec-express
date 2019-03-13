@@ -618,7 +618,12 @@ function getSalesOrdersRq(orders, includeLineItems) {
   }
   var orderIds = orders.map(o => {
     if (o.isBackorder) {
-      return o.parent.orderId;
+      // get the sales order parent
+      if (o.originalOrder) {
+        return o.originalOrder.orderId; // always points to the proper sales order
+      } else {
+        return o.parent.orderId;
+      }
     } else {
       return o.orderId
     }
@@ -976,7 +981,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                   webhooks.orderBot({
                     text: 'Not creating invoice for ' + dbOrder.orderId + ' because it is on hold.'
                   });
-                } else if ((dbOrder.isBackorder == true && dbOrder.parent.orderId == so.RefNumber) ||
+                } else if ((dbOrder.isBackorder == true && (dbOrder.originalOrder.orderId == so.RefNumber || dbOrder.parent.orderId == so.RefNumber)) ||
                   (so.RefNumber == dbOrder.orderId) && dbOrder.invoiced == false) {
                   qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
                     console.log(response); 

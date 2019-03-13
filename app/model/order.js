@@ -104,6 +104,10 @@ var orderSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'Order'
   },
+  originalOrder: {
+    type: ObjectId,
+    ref: 'Order'
+  },
   reasonForHold: String,
   reasonForUnpaid: String,
   salesTax: {
@@ -487,6 +491,11 @@ orderSchema.methods.createBackorder = async function() {
   backOrder.dueDate = getDueDate(backOrder.orderDate, backOrder);
   backOrder.comments = "This is a back order";
   backOrder.parent = this._id;
+  if (this.originalOrder) {
+    backOrder.originalOrder = this.originalOrder;
+  } else {
+    backOrder.originalOrder = this._id;
+  }
   backOrder.hold = true; // on hold by default
   backOrder.reasonForHold = "Back order";
   backOrder.paymentMethod = "On Account"; // Default it on account for now
