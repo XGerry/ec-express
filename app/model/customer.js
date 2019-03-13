@@ -69,8 +69,8 @@ customerSchema.statics.createCustomCustomer = function(customer) {
 
 customerSchema.methods.updateFrom3DCart = function(cartOrder) {
 	this.email = cartOrder.BillingEmail;
-	this.firstname = cartOrder.BillingFirstName;
-	this.lastname = cartOrder.BillingLastName;
+	//this.firstname = cartOrder.BillingFirstName;
+	//this.lastname = cartOrder.BillingLastName;
 	this.phone = cartOrder.BillingPhoneNumber;
 	this.companyName = cartOrder.BillingCompany;
 	this.billingAddress = cartOrder.BillingAddress;
@@ -153,6 +153,8 @@ customerSchema.methods.getCustomerFrom3DCart = function() {
 
 customerSchema.methods.addCustomerRq = async function(order, requestID) {
 	console.log('Creating customer ' + this.name);
+  console.log('Firstname: ' this.firstname);
+  console.log('Lastname: ' this.lastname);
 
   // figure out what tax code they will get based on their billing address
   var shippingAddress = order.createShippingAddress();
