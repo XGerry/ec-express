@@ -108,6 +108,10 @@ var orderSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'Order'
   },
+  backOrderCount: {
+    type: Number,
+    default: 1
+  },
   reasonForHold: String,
   reasonForUnpaid: String,
   salesTax: {
@@ -460,11 +464,14 @@ orderSchema.methods.createBackorder = async function() {
 
   var backOrder = new this.constructor();
   backOrder.customer = this.customer;
-  await this.populate('customer items.item').execPopulate();
+  await this.populate('customer items.item originalOrder parent').execPopulate();
   this.customer.orders.push(backOrder._id);
   backOrder.cartOrder = this.cartOrder; // TODO: change to use dedicated shipping address
   backOrder.canadian = this.canadian;
-  backOrder.orderId = this.orderId + '-BO';
+  if (this.isBackorder)
+    backOrder.orderId = this.originalOrder.orderId + '-BO-' + this.originalOrder.backOrderCount;
+  else
+    backOrder.orderId = this.orderId+'-BO-' + this.backOrderCount;
   backOrder.isBackorder = true;
   backOrder.imported = true; // Make sure this doesn't get sent to quickbooks as a sales order
 
@@ -493,8 +500,11 @@ orderSchema.methods.createBackorder = async function() {
   backOrder.parent = this._id;
   if (this.originalOrder) {
     backOrder.originalOrder = this.originalOrder;
+    this.originalOrder.backOrderCount++;
+    await this.originalOrder.save();
   } else {
     backOrder.originalOrder = this._id;
+    this.backOrderCount++;
   }
   backOrder.hold = true; // on hold by default
   backOrder.reasonForHold = "Back order";
