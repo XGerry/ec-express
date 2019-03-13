@@ -469,9 +469,9 @@ orderSchema.methods.createBackorder = async function() {
   backOrder.cartOrder = this.cartOrder; // TODO: change to use dedicated shipping address
   backOrder.canadian = this.canadian;
   if (this.isBackorder)
-    backOrder.orderId = this.originalOrder.orderId + '-BO-' + this.originalOrder.backOrderCount;
+    backOrder.orderId = this.originalOrder.orderId + '-' + this.originalOrder.backOrderCount;
   else
-    backOrder.orderId = this.orderId+'-BO-' + this.backOrderCount;
+    backOrder.orderId = this.orderId + '-' + this.backOrderCount;
   backOrder.isBackorder = true;
   backOrder.imported = true; // Make sure this doesn't get sent to quickbooks as a sales order
 
