@@ -240,6 +240,7 @@ append body
                   th Batch
                   if (order.isBackorder)
                     th Parent
+                    th Original
               tbody
                 tr
                   td.text-center
@@ -256,6 +257,8 @@ append body
                   if (order.isBackorder)
                     td
                       a(href="/order?id="+order.parent) View
+                    td
+                      a(href="/order?id="+order.originalOrder) View
 
       .tab-pane.fade#customer(role="tabpanel" aria-labelledby="customer-tab")
         .row.pt-2
