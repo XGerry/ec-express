@@ -995,6 +995,10 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                         webhooks.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Could not obtain the lock."
                         });
+                      } else if (errorCode =='3070') {
+                        webhooks.orderBot({
+                          text: "Error creating invoice! " + dbOrder.orderId + " Order ID too long."
+                        });
                       } else {
                         dbOrder.invoiced = true;
                         dbOrder.calculateProfit().catch(err => {

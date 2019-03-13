@@ -208,6 +208,8 @@ function generateOrderRequest() {
     for (order of orders) {
       if (order.customer) {
         var createCustomerRq = await order.customer.addCustomerRq(order, requestNumber++);
+        console.log(createCustomerRq);
+        console.log(order.customer.name);
         addRequest(createCustomerRq);
       } else {
         console.log('fallback!');

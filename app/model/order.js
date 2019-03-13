@@ -591,7 +591,7 @@ orderSchema.methods.addSalesOrderRq = function() {
     paymentMethod = 'On Account';
   }
 
-  var customerRef = this.cartOrder.BillingLastName + ' ' + this.cartOrder.BillingFirstName;
+  var customerRef = this.customer.lastname + ' ' + this.customer.lastname;
   // var customerRef = order.BillingEmail;
 
   // find the PO number in the comments
