@@ -135,11 +135,11 @@ function buildInventoryTable() {
 		var stock = $('<td></td>');
 		var difference = $('<td></td>');
 
-		if (item.newStock) {
+		if (item.newStock != undefined) {
 			stock.text(item.newStock);
 			difference.text(item.stock - item.newStock);
 		}
-		if (item.quantityDifference) {
+		if (item.quantityDifference != undefined) {
 			stock.text(item.stock + item.quantityDifference);
 			difference.text(item.quantityDifference);
 		}
@@ -258,7 +258,7 @@ function populateFromFile(data) {
 		console.log(items.length);
 		items.forEach(item => {
 			var stockToAdd = restocks[item.barcode] || restocks[item.sku];
-			if (stockToAdd) {
+			if (stockToAdd != undefined) {
 				addToInventoryList(item, stockToAdd, false);
 			}
 		});

@@ -152,7 +152,9 @@ customerSchema.methods.getCustomerFrom3DCart = function() {
 }
 
 customerSchema.methods.addCustomerRq = async function(order, requestID) {
-	console.log('Creating customer ' + this.name);
+  console.log('Creating customer ' + this.name);
+  console.log('firstname ' + this.firstname);
+	console.log('lastname ' + this.lastname);
 
   // figure out what tax code they will get based on their billing address
   var shippingAddress = order.createShippingAddress();
@@ -189,7 +191,7 @@ customerSchema.methods.addCustomerRq = async function(order, requestID) {
     customerType += 'Retail';
   }
   
-  // Don't do this any more
+  // Don't do this anymore
   // if (order.isCartOrder)
   //   await this.updateFrom3DCart(order.cartOrder);
 
