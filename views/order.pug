@@ -41,7 +41,7 @@ append nav-items-right
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Customer
     .dropdown-menu.dropdown-menu-right
       a(href="/customer?id="+order.customer._id).dropdown-item View
-      a(href="mailto:"+order.customer.email, target="_blank").dropdown-item Email
+      a(href="mailto:"+order.customer.email+"?subject=Ecstasy Crafts - Order "+order.orderId, target="_blank").dropdown-item Email
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
     ul.dropdown-menu.dropdown-menu-right
