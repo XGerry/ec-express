@@ -234,9 +234,6 @@ append body
         firstDay.add(1, 'day');
       }
 
-      console.log(labels);
-      console.log(orderedData);
-
       var lineGraph = new Chart($('#salesChart'), {
         type: 'line',
         data: {
@@ -278,4 +275,5 @@ append body
       theItem.location = $('#location').val();
       theItem.secondLocation = $('#secondLocation').val();
       theItem.discontinued = $('#discontinuedCheckbox').is(':checked');
+      theItem.availableForBackorder = $('#backorderCheckbox').is(':checked');
     }

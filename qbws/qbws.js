@@ -224,25 +224,29 @@ function generateOrderRequest() {
 
 function checkError(response) {
   return xml2js(response, {explicitArray: false}).then(result => {
-    var salesOrderRs = result.QBXML.QBXMLMsgsRs.SalesOrderAddRs;
-    if (salesOrderRs) {
-      var requestID = salesOrderRs.$.requestID;
-      return Order.findOne({ orderId : requestID }).then(doc => {
-        if (doc) {
-          if (salesOrderRs.$.statusCode == '3140' || 
-              salesOrderRs.$.statusCode == '3205' || 
-              salesOrderRs.$.statusCode == '3070' || 
-              salesOrderRs.$.statusCode == '3045') { // error
-            doc.imported = false;
-            doc.message = salesOrderRs.$.statusMessage;
-            console.log('found an error: ' + doc.message);
-          } else {
-            doc.imported = true;
-            doc.message = 'Success';
+    if (result) {
+      var salesOrderRs = result.QBXML.QBXMLMsgsRs.SalesOrderAddRs;
+      if (salesOrderRs) {
+        var requestID = salesOrderRs.$.requestID;
+        return Order.findOne({ orderId : requestID }).then(doc => {
+          if (doc) {
+            if (salesOrderRs.$.statusCode == '3140' || 
+                salesOrderRs.$.statusCode == '3205' || 
+                salesOrderRs.$.statusCode == '3070' || 
+                salesOrderRs.$.statusCode == '3045') { // error
+              doc.imported = false;
+              doc.message = salesOrderRs.$.statusMessage;
+              console.log('found an error: ' + doc.message);
+            } else {
+              doc.imported = true;
+              doc.message = 'Success';
+            }
+            return doc.save();
           }
-          return doc.save();
-        }
-      });
+        });
+      }
+    } else {
+      console.log('No result?');
     }
   });
 }
