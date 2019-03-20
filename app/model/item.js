@@ -362,6 +362,10 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
     cartItem.SKUInfo.Stock = 0;
   }
 
+  if (this.discontinued) {
+    cartItem.InventoryControl = '1'; // Out of Stock
+  }
+
   return cartItem;
 }
 
