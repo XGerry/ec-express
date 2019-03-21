@@ -25,9 +25,11 @@ mongoose.connect(uriString, {
       for (order of orders) {
         if (order.originalOrder == null || order.originalOrder == undefined) {
           order.originalOrder = order.parent;
+          console.log('Fixing back order');
           await order.save();
         }
       }
+      console.log('Done.');
     });
   }
 });
