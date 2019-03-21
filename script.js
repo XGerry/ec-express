@@ -21,17 +21,13 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    Order.find({invoiced: true}).then(async orders => {
+    Order.find({isBackorder: true}).then(async orders => {
       for (order of orders) {
-        try {
-          await order.calculateProfit();
-        } catch (err) {
-          console.log(err);
-          console.log(order.orderId);
-          console.log('moving on...');
+        if (order.originalOrder == null || order.originalOrder == undefined) {
+          order.originalOrder = order.parent;
+          await order.save();
         }
       }
-      console.log('Done.');
     });
   }
 });
