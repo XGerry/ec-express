@@ -1,0 +1,19 @@
+extends templates/default
+
+append head
+  title Settings
+
+append body
+  .container-fluid
+    .row
+      .col
+        button.btn.btn-primary(type="button")#refreshManufacturers Refresh Manufacturers
+
+  script.
+    let socket = io();
+
+    $('#refreshManufacturers').click(e => {
+      axios.get('/api/cart/manufacturers').then(response => {
+        console.log(response.data);
+      });
+    });

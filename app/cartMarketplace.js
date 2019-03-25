@@ -38,34 +38,41 @@ Marketplace.prototype.put = function(url, body) {
 	return rp(options);
 }
 
-Marketplace.prototype.getItems = async function() {
-	let totalCount = await this.get('Products', {
+Marketplace.prototype.getAll = async function(route) {
+	let totalCount = await this.get(route, {
 		countonly: 1
 	});
 
 	totalCount = totalCount.TotalCount;
 	let numberOfRequests = Math.ceil(totalCount / 200);
 
-	console.log('Found ' + totalCount + ' number of items.');
-
+	console.log('Found ' + totalCount + ' number of objects from .' + route);
 	console.log('Performing ' + numberOfRequests + ' number of requests.');
 
-	let allItems = [];
+	let allObjects = [];
 	for (let i = 0; i < numberOfRequests; i++) {
 		console.log('Starting request ' + (i + 1));
-		let items = await this.get('Products', {
+		let items = await this.get(route, {
 			limit: 200,
 			offset: i * 200
 		});
-		allItems = allItems.concat(items);
+		allObjects = allObjects.concat(items);
 		console.log('done.');
 	}
 
-	return allItems;
+	return allObjects;
+}
+
+Marketplace.prototype.getItems = function() {
+	return this.getAll('Items');
 }
 
 Marketplace.prototype.getPromotions = async function() {
-	await this.get('Promotions');
+	return this.getAll('Promotions');
+}
+
+Marketplace.prototype.getManufacturers = async function() {
+	return this.getAll('Manufacturers');
 }
 
 module.exports = Marketplace;

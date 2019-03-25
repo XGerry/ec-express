@@ -5,6 +5,7 @@ var ShowOrder = require('./model/showOrder');
 var Order = require('./model/order');
 var Batch = require('./model/batch');
 var Customer = require('./model/customer');
+var Manufacturer = require('./model/manufacturer');
 var CustomOrder = require('./model/customOrder');
 const User = require('./model/user');
 const Company = require('./model/company');
@@ -335,6 +336,20 @@ module.exports = app => {
       } else {
         res.redirect('database');
       }
+    });
+  });
+
+  app.get('/settings', verifyUser, (req, res) => {
+    res.render('settings', {
+      user: req.session.user
+    });
+  });
+
+  app.get('/reports/items', verifyUser, async (req, res) => {
+    let manufacturers = await Manufacturer.find({}).sort('name').exec();
+    res.render('item-sales', {
+      user: req.session.user,
+      manufacturers: manufacturers
     });
   });
 

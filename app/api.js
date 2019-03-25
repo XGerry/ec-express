@@ -4,12 +4,15 @@ const User = require('./model/user');
 const Customer = require('./model/customer');
 const Batch = require('./model/batch');
 const Order = require('./model/order');
+const Item = require('./model/item');
+const Manufacturer = require('./model/manufacturer');
 const pug = require('pug');
 const mailer = require('./mailer');
 const path = require('path');
 const juice = require('juice');
 const fs = require('fs');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const moment = require('moment');
 let qbws;
 
 // TODO permissions inside middle ware
@@ -198,6 +201,54 @@ router.post('/stripe/invoice/:orderId', async (req, res) => {
   console.log(invoice);
   invoice = await stripe.invoices.finalizeInvoice(invoice.id);
   res.json(invoice);
+});
+
+router.get('/cart/manufacturers', async (req, res) => {
+  await Manufacturer.getManufacturersFrom3DCart('https://www.ecstasycrafts.com',
+    process.env.CART_PRIVATE_KEY,
+    process.env.CART_TOKEN);
+  await Manufacturer.getManufacturersFrom3DCart('https://www.ecstasycrafts.ca',
+    process.env.CART_PRIVATE_KEY,
+    process.env.CART_TOKEN_CANADA);
+  let manufacturers = await Manufacturer.find({});
+  res.json(manufacturers);
+});
+
+router.get('/reports/items/sales', (req, res) => {
+  console.log(req.query);
+  let fromDate = moment(req.query.from).utc().startOf('day');
+  let to = moment(req.query.to).utc().startOf('day');
+  Order.aggregate().match({orderDate: {$gte: fromDate.toDate(), $lt: to.toDate()}, isBackorder: false})
+  .project({
+    items: 1,
+    orderValue: 1,
+    orderDate: 1,
+    orderId: 1
+  })
+  .unwind('items')
+  .group({
+    _id: '$items.item',
+    totalOrdered: {
+      $sum: '$items.quantity'
+    },
+    totalPicked: {
+      $sum: '$item.pickedQuantity'
+    },
+    orders: {
+      $push: '$orderId'
+    }
+  })
+  .sort('-totalOrdered').then(aggregate => {
+    Item.populate(aggregate, {path: '_id', select: 'sku name manufacturerName'}).then(items => {
+      console.log(items.length);
+      if (req.query.manufacturer == 'all') {
+        res.json(items);
+      } else {
+        items = items.filter(item => item._id.manufacturerName == req.query.manufacturer);
+        res.json(items);
+      }
+    });
+  });
 });
 
 module.exports.router = router;
