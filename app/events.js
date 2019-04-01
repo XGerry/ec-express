@@ -336,7 +336,7 @@
  				if (cb)
  					cb({order: response});
  			}).catch(err => {
- 				console.log(err.message);
+ 				console.log(err);
  				if (cb)
  					cb({error: err.message});
  			});

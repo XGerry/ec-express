@@ -113,16 +113,18 @@ $(document).ready(function() {
 		}
 	});
 
-	$('#searchCustomerButton').click(e => {
-		loadingOrder = false;
-		var customerEmail = $('#customerEmailModal').val();
-		socket.emit('searchCustomer3DCart', customerEmail, $('#websiteSelect').val() == 'canada');
-		$('#searchCustomerButton').button('loading');
+	$('#customerEmail').on('keydown', e => {
+		if (e.keyCode == 13) {
+			searchCustomer();
+		}
 	});
 
-	$('#findOrderButton').click(function() {
-		socket.emit('loadFrom3DCart', $('#orderPrefix').val(), $('#orderNumber').val());
-		$('#orderImportModal').modal('hide');
+	$('#customerSearch').click(e => {
+		searchCustomer();
+	});
+
+	$('#shippingOptions').change(e => {
+		calculateTotals();
 	});
 
 	$('#clearItemsButton').click(e => {
@@ -171,51 +173,6 @@ $(document).ready(function() {
 	});
 });
 
-socket.on('receivedOrder', function(orders) {
-	loadingOrder = true;
-	var cartOrder = orders[0];
-	console.log(cartOrder);
-
-	var website = cartOrder.InvoiceNumberPrefix == 'CA-' ? 'canada' : 'us';
-	var customerEmail = cartOrder.BillingEmail.trim();
-	$('#websiteSelect').val(website);
-	console.log(website);
-	socket.emit('searchCustomer3DCart', customerEmail, website == 'canada');
-
-	itemsInOrder = [];
-	cartOrder.OrderItemList.forEach(function(item) {
-		var orderItem = {
-			name: item.ItemDescription,
-			sku: item.ItemID,
-			quantity: item.ItemQuantity,
-			imageURL: item.ItemImage1,
-			salesPrice: item.ItemUnitPrice,
-			usStock: item.ItemUnitStock,
-			canStock: item.ItemUnitStock,
-			location: item.ItemWarehouseLocation
-		}
-		itemsInOrder.push(orderItem);
-	});
-
-	$('#orderStatus').val(cartOrder.OrderStatusID);
-
-	$('#shipping').val(cartOrder.ShipmentList[0].ShipmentCost);
-	$('#discountType').val('dollar');
-	$('#discount').val(cartOrder.OrderDiscountPromotion);
-	$('#notesArea').val(cartOrder.CustomerComments);
-	$('#taxes').val(cartOrder.SalesTax);
-
-	if (theCustomer.billingState == 'ON') {
-		$('#taxOptions').val(13);
-	}
-	
-	theOrder.items = itemsInOrder;
-	theOrder.orderId = cartOrder.OrderID;
-
-	buildOrderTable();
-	calculateTotals();
-});
-
 socket.on('searchSKUFinished', function(items) {
 	$('#itemList').empty();
 	items.forEach(function(item) {
@@ -242,25 +199,6 @@ socket.on('deleteCustomOrderFinished', () => {
 	window.location = '/list-orders';
 });
 
-socket.on('searchCustomer3DCartFinished', (err, customer) => {
-	$('#searchCustomerButton').button('reset');
-	if (err) {
-		console.log(err);
-		$('#emailSearchInfo').text('An error has occurred');
-	} else {
-		if (customer.length > 0) {
-			$('#emailSearchInfo').text(customer.length + ' customer(s) were found.');
-			populateCustomerInfo(customer[0]);
-			if (loadingOrder) {
-				$('#customerEmailModal').val(customer[0].Email);
-				saveCustomer();
-			}
-		} else {
-			$('#emailSearchInfo').text('No customers were found.');
-		}
-	}
-});
-
 socket.on('findingItemsFinished', items => {
 	items.forEach(item => {
 		item.salesPrice = determineItemPrice(item);
@@ -269,6 +207,23 @@ socket.on('findingItemsFinished', items => {
 	});
 	calculateTotals();
 });
+
+function searchCustomer() {
+	console.log('searching customer');
+	loadingOrder = false;
+	var customerEmail = $('#customerEmail').val();
+	$('#customerSearch').button('loading');
+	axios.get('/api/customers/'+customerEmail).then(response => {
+		console.log(response);
+		if (response.data) {
+			theCustomer.name = response.data.name;
+			setCustomerModalFields(response.data);
+			$('#customerModal').modal();
+		} else {
+			alert('No customer found on 3D Cart!');
+		}
+	});
+}
 
 function onSaveOrderFinished(order) {
 	theOrder = order;
@@ -365,7 +320,7 @@ function determineItemPrice(item) {
 		}
 	}
 
-	if (theCustomer.website == 'canada') {
+	if (theCustomer.website == 'can') {
 		if (item.onSale) {
 			price = item.canSalePrice;
 		} else {
@@ -380,8 +335,8 @@ function determineItemPrice(item) {
 		}
 	}
 
-	if (theCustomer.profile == '2' || theCustomer.profile == '14') { // wholesale
-		if (theCustomer.website == 'canada') {
+	if (theCustomer.profile == 'wholesale' || theCustomer.profile == 'craftershome' || theCustomer.profile == 'preferredwholesale') { // wholesale
+		if (theCustomer.website == 'can') {
 			price = item.canWholesalePrice;
 		} else {
 			price = item.usWholesalePrice;
@@ -470,6 +425,23 @@ function saveCustomer() {
 	theCustomer.profile = $('#profileSelect').val();
 	theCustomer.website = $('#websiteSelect').val();
 
+	if (theCustomer.profile == 'preferredretail') {
+		$('#discountType').val('percentage');
+		$('#discount').val('15');
+	} else if (theCustomer.profile == 'premier') {
+		$('#discountType').val('percentage');
+		$('#discount').val('5');
+		$('#shippingOptions').val('free shipping');
+	} else if (theCustomer.profile == 'craftershome') {
+		$('#discountType').val('percentage');
+		$('#discount').val('5');
+		$('#shippingOptions').val('free shipping');
+	} else if (theCustomer.profile == 'preferredwholesale') {
+		$('#discountType').val('percentage');
+		$('#discount').val('15');
+	}
+
+	calculateTotals();
 	addCustomerRow(theCustomer);
 }
 
@@ -498,7 +470,7 @@ function addCustomerRow(customer) {
 }
 
 function setCustomerModalFields(customer) {
-	$('#customerName').val(customer.firstname + customer.lastname);
+	$('#customerName').val(customer.name);
 	$('#customerFirstName').val(customer.firstname);
 	$('#customerLastName').val(customer.lastname);
 	$('#customerEmailModal').val(customer.email);
@@ -509,22 +481,61 @@ function setCustomerModalFields(customer) {
 	$('#billingState').val(customer.billingState);
 	$('#billingCountry').val(customer.billingCountry);
 	$('#billingZip').val(customer.billingZipCode);
-	$('#shipmentFirstName').val(customer.shipmentFirstName);
-	$('#shipmentLastName').val(customer.shipmentLastName);
-	$('#shipmentCompany').val(customer.shipmentCompany);
-	$('#shipmentPhone').val(customer.shipmentPhone);
+	$('#shipmentFirstName').val(customer.firstname);
+	$('#shipmentLastName').val(customer.lastname);
+	$('#shipmentCompany').val(customer.companyName);
+	$('#shipmentPhone').val(customer.phone);
 	$('#shippingAddress').val(customer.shippingAddress);
 	$('#shippingAddress2').val(customer.shippingAddress2);
 	$('#shippingCity').val(customer.shippingCity);
 	$('#shippingState').val(customer.shippingState);
 	$('#shippingCountry').val(customer.shippingCountry);
 	$('#shippingZip').val(customer.shippingZipCode);
-	$('#profileSelect').val(customer.profile);
-	$('#websiteSelect').val(customer.website);
+
+	if (customer.canadian) {
+		if (customer.customerType == '0') {
+			$('#profileSelect').val('retail');
+		} else if (customer.customerType == '14') {
+			$('#profileSelect').val('wholesale');
+		} else if (customer.customerType == '19') {
+			$('#profileSelect').val('premier');
+		} else if (customer.customerType == '22') {
+			$('#profileSelect').val('craftershome');
+		} else if (customer.customerType == '3') {
+			$('#profileSelect').val('preferredretail');
+		} else if (customer.customerType == '21') {
+			$('#profileSelect').val('preferredwholesale');
+		} 
+	} else {
+		if (customer.customerType == '0') {
+			$('#profileSelect').val('retail');
+		} else if (customer.customerType == '2') {
+			$('#profileSelect').val('wholesale');
+		} else if (customer.customerType == '18') {
+			$('#profileSelect').val('premier');
+		} else if (customer.customerType == '21') {
+			$('#profileSelect').val('craftershome');
+		} else if (customer.customerType == '3') {
+			$('#profileSelect').val('preferredretail');
+		} else if (customer.customerType == '20') {
+			$('#profileSelect').val('preferredwholesale');
+		}
+	}
+
+	if (customer.website) {
+		$('#websiteSelect').val(customer.website);
+	} else {
+		$('#websiteSelect').val(customer.canadian ? 'can' : 'us');
+	}
+
+	if (customer.profile) {
+		$('#profileSelect').val(customer.profile);	
+	}
 }
 
 function populateCustomerInfo(customer) {
 	console.log(customer);
+	$('#customerEmailModal').val(customer.Email);
 	$('#customerName').val(customer.BillingFirstName + customer.BillingLastName);
 	$('#companyName').val(customer.ShippingCompany);
 	$('#customerFirstName').val(customer.BillingFirstName);
@@ -595,6 +606,33 @@ function buildOrderTable() {
 	});
 }
 
+function calculateTax(subtotal) {
+	let salesTax = 0;
+	if (theCustomer.billingCountry == 'CA') {
+    if (theCustomer.billingState == 'ON') {
+      salesTax = 0.13;
+    } else if (theCustomer.billingState == 'AB' ||
+      theCustomer.billingState == 'NU' ||
+      theCustomer.billingState == 'NT' ||
+      theCustomer.billingState == 'MB' ||
+      theCustomer.billingState == 'YT') {
+      salesTax = 0.05;
+    } else if (theCustomer.billingState == 'BC') {
+      salesTax = 0.05;
+    } else if (theCustomer.billingState == 'NB' ||
+      theCustomer.billingState == 'NL' ||
+      theCustomer.billingState == 'PE' ||
+      theCustomer.billingState == 'NS') {
+      salesTax = 0.15;
+    } else if (theCustomer.billingState == 'SK') {
+      salesTax = 0.05;
+    } else if (theCustomer.billingState == 'QC') {
+      salesTax = 0.05;
+    }
+  }
+  return subtotal * salesTax;
+}
+
 function calculateTotals() {
 	var tax = 0;
 	var subTotal = 0;
@@ -622,9 +660,10 @@ function calculateTotals() {
 		discount = discountValue;
 	}
 
+	calculateShipping(subTotal - discount);
+
 	shipping = parseFloat($('#shipping').val());
-	tax = parseFloat($('#taxOptions').val()) / 100;
-	var salesTax = tax * (subTotal - discount + shipping);
+	var salesTax = calculateTax(subTotal - discount + shipping);
 	total = subTotal - discount + salesTax + shipping;
 
 	$('#subTotalTable').text('$'+subTotal.toFixed(2));
@@ -639,6 +678,111 @@ function calculateTotals() {
 	theOrder.shipping = shipping.toFixed(2);
 	theOrder.shippingMethod = $('#shippingOptions').val();
 	theOrder.discountValue = discountValue;
+}
+
+function calculateShipping(subtotal) {
+	let shippingMethod = $('#shippingOptions').val();
+	if (shippingMethod == 'Free Shipping') {
+		return $('#shipping').val(0);
+	}
+	if (theCustomer.profile == 'premier' ||
+		theCustomer.profile == 'preferredwholesale' ||
+		(theCustomer.shippingCountry == 'CA' && subtotal > 150 && theCustomer.profile == 'retail') ||
+		(theCustomer.shippingCountry == 'US' && subtotal > 100) && theCustomer.profile == 'retail') {
+		$('#shippingOptions').val('Free Shipping');
+		$('#shipping').val(0);
+		return;
+	} else if ((theCustomer.profile == 'wholesale' || theCustomer.profile == 'craftershome') && subtotal > 500) {
+		$('#shippingOptions').val('Free Shipping');
+		$('#shipping').val(0);
+		return;
+	}
+
+	if (theCustomer.shippingCountry == 'CA') {
+		if (theCustomer.profile == 'wholesale' || theCustomer.profile == 'craftershome') {
+			if (shippingMethod == 'UPS') {
+				if (subtotal < 100) {
+					return $('#shipping').val(15);
+				} else if (subtotal < 200) {
+					return $('#shipping').val(17);
+				} else if (subtotal < 250) {
+					return $('#shipping').val(20);
+				} else if (subtotal < 500) {
+					return $('#shipping').val(15);
+				} else {
+					return $('#shipping').val(0);
+				}
+			} else if (shippingMethod == 'Canada Post') {
+				if (subtotal < 150) {
+					return $('#shipping').val(15);
+				} else if (subtotal < 250) {
+					return $('#shipping').val(20);
+				} else if (subtotal < 500) {
+					return $('#shipping').val(15);
+				}
+			}
+		} else {
+			if (shippingMethod == 'Canada Post') {
+				if (subtotal < 15) {
+					return $('#shipping').val(5);
+				} else if (subtotal < 25) {
+					return $('#shipping').val(6);
+				} else if (subtotal < 40) {
+					return $('#shipping').val(7.5);
+				} else if (subtotal < 50) {
+					return $('#shipping').val(8);
+				} else if (subtotal < 60) {
+					return $('#shipping').val(9);
+				} else if (subtotal < 150) {
+					return $('#shipping').val(11);
+				}
+			}
+		}
+	} else if (theCustomer.shippingCountry == 'US') {
+		if (theCustomer.profile == 'wholesale' || theCustomer.profile == 'craftershome') {
+			if (shippingMethod == 'UPS') {
+				if (subtotal < 150) {
+					return $('#shipping').val(15.50);
+				} else if (subtotal < 250) {
+					return $('#shipping').val(18);
+				} else {
+					return $('#shipping').val(15);
+				}
+			} else if (shippingMethod == 'Priority Mail') {
+				if (subtotal < 100) {
+					return $('#shipping').val(10);
+				} else if (subtotal < 200) {
+					return $('#shipping').val(15);
+				} else if (subtotal < 250) {
+					return $('#shipping').val(18);
+				} else if (subtotal < 500) {
+					return $('#shipping').val(15);
+				} else {
+					return $('#shipping').val(0);
+				}
+			}
+		} else {
+			if (shippingMethod == 'Priority Mail') {
+				if (subtotal < 25) {
+					return $('#shipping').val(5.5);
+				} else if (subtotal < 40) {
+					return $('#shipping').val(7);
+				} else if (subtotal < 50) {
+					return $('#shipping').val(7.5);
+				} else if (subtotal < 60) {
+					return $('#shipping').val(8);
+				} else if (subtotal < 75) {
+					return $('#shipping').val(8.5);
+				} else if (subtotal < 85) {
+					return $('#shipping').val(9);
+				} else if (subtotal < 100) {
+					return $('#shipping').val(9.5);
+				} else {
+					return $('#shipping').val(0);
+				}
+			}
+		}
+	}
 }
 
 function generateOrder() {

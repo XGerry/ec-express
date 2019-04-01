@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var ObjectId = mongoose.Schema.Types.ObjectId;
 var builder = require('xmlbuilder');
 var request = require('request');
+const Marketplace = require('../cartMarketplace.js');
 var rp = require('request-promise-native');
 
 var customerSchema = new mongoose.Schema({
@@ -34,7 +35,12 @@ var customerSchema = new mongoose.Schema({
 	shippingZipCode: String,
 	customerType: Number,
 	customerId: Number, // 3D Cart customer id
-	comments: String
+	comments: String,
+  defaultSite: {
+    type: String,
+    enum: ['us', 'can'],
+    default: 'us'
+  }
 }, {
 	toObject: {
 		virtuals: true
@@ -56,6 +62,31 @@ customerSchema.virtual('canadian').get(function() {
 customerSchema.statics.createCustomer = function(cartOrder) {
 	var newCustomer = new this();
 	return newCustomer.updateFrom3DCart(cartOrder);
+}
+
+customerSchema.statics.findCustomer = async function(email) {
+  let customer = await this.findOne({email: email});
+  if (customer) {
+    return customer.getCustomerFrom3DCart();
+  } else {
+    let canadaCart = new Marketplace('https://www.ecstasycrafts.ca',
+      process.env.CART_PRIVATE_KEY,
+      process.env.CART_TOKEN_CANADA);
+    let canadaCustomer = await canadaCart.getCustomer(req.params.email);
+    let usCart = new Marketplace('https://www.ecstasycrafts.com',
+      process.env.CART_PRIVATE_KEY,
+      process.env.CART_TOKEN);
+    let usCustomer = await usCart.getCustomer(req.params.email);
+    let newCustomer = new this();
+    newCustomer.email = email;
+    newCustomer.billingCountry = 'CA';
+    try {
+      return newCustomer.getCustomerFrom3DCart();
+    } catch (err) {
+      newCustomer.billingCountry = 'US';
+      return newCustomer.getCustomerFrom3DCart();
+    }
+  }
 }
 
 customerSchema.statics.createCustomCustomer = function(customer) {
@@ -118,37 +149,40 @@ customerSchema.methods.addOrder = function(orderId) {
   return mongoose.model('Customer').update({_id: this._id}, {$addToSet: {orders: orderId}});
 }
 
-customerSchema.methods.getCustomerFrom3DCart = function() {
-  if (this.customerId) {
-    var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Customers/'+this.customerId, 'GET', this.billingCountry == 'CA');
-    return rp(options).then(response => {
-      if (Array.isArray(response)) {
-        response = response[0];
-      }
-      console.log(response);
-      this.customerType = response.CustomerGroupID;
-      this.email = response.Email;
-      this.firstname = response.BillingFirstName;
-      this.lastname = response.BillingLastName;
-      this.phone = response.BillingPhoneNumber;
-      this.companyName = response.BillingCompany;
-      this.billingAddress = response.BillingAddress1;
-      this.billingAddress2 = response.BillingAddress2;
-      this.billingCity = response.BillingCity;
-      this.billingState = response.BillingState;
-      this.billingCountry = response.BillingCountry;
-      this.billingZipCode = response.BillingZipCode;
-      this.shippingAddress = response.ShippingAddress1;
-      this.shippingAddress2 = response.ShippingAddress2;
-      this.shippingCity = response.ShippingCity;
-      this.shippingState = response.ShippingState;
-      this.shippingZipCode = response.ShippingZipCode;
-      this.shippingCountry = response.ShippingCountry;
-      return this.save();
-    });    
+customerSchema.methods.getCustomerFrom3DCart = async function() {
+  if (this.billingCountry == 'CA') {
+    marketplace = new Marketplace('https://www.ecstasycrafts.ca',
+      process.env.CART_PRIVATE_KEY,
+      process.env.CART_TOKEN_CANADA);
   } else {
-    console.log('no customer id');
+    marketplace = new Marketplace('https://www.ecstasycrafts.com',
+    process.env.CART_PRIVATE_KEY,
+    process.env.CART_TOKEN);
   }
+
+  let response = await marketplace.getCustomer(this.email);
+  if (Array.isArray(response)) {
+    response = response[0];
+  }
+  this.customerType = response.CustomerGroupID;
+  this.email = response.Email;
+  this.firstname = response.BillingFirstName;
+  this.lastname = response.BillingLastName;
+  this.phone = response.BillingPhoneNumber;
+  this.companyName = response.BillingCompany;
+  this.billingAddress = response.BillingAddress1;
+  this.billingAddress2 = response.BillingAddress2;
+  this.billingCity = response.BillingCity;
+  this.billingState = response.BillingState;
+  this.billingCountry = response.BillingCountry;
+  this.billingZipCode = response.BillingZipCode;
+  this.shippingAddress = response.ShippingAddress1;
+  this.shippingAddress2 = response.ShippingAddress2;
+  this.shippingCity = response.ShippingCity;
+  this.shippingState = response.ShippingState;
+  this.shippingZipCode = response.ShippingZipCode;
+  this.shippingCountry = response.ShippingCountry;
+  return this.save();
 }
 
 customerSchema.methods.addCustomerRq = async function(order, requestID) {

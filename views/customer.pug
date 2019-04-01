@@ -55,7 +55,8 @@ html
 								select.form-control#customerType
 									option(value="0" selected= customer.customerType == 0) Retail
 									option(value=(customer.canadian ? "19" : "18") selected= (customer.canadian && customer.customerType == 19) || (!customer.canadian && customer.customerType == 18)) Premier Member
-									option(value="14" selected=customer.customerType == 14) Wholesale
+									option(value="14" selected=(customer.canadian && customer.customerType == 14) || (!customer.canadian && customer.customerType == 2)) Wholesale
+									option(value="22" selected=(customer.customerType == 22 && customer.canadian)) Crafter's Home
 						.col
 							.form-group
 								label Email

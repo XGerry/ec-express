@@ -75,4 +75,10 @@ Marketplace.prototype.getManufacturers = async function() {
 	return this.getAll('Manufacturers');
 }
 
+Marketplace.prototype.getCustomer = async function(email) {
+	return this.get('Customers', {
+		email: email
+	});
+}
+
 module.exports = Marketplace;

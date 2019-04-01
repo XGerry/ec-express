@@ -391,14 +391,14 @@ orderSchema.methods.updateOrder = async function(order) {
 orderSchema.methods.updateOrderIn3DCart = function(order) {
   var oldOrder = {};
   // replace the items
-  oldOrder.BillingAddress = order.cartOrder.BillingAddress;
-  oldOrder.BillingAddress2 = order.cartOrder.BillingAddress2;
-  oldOrder.BillingState = order.cartOrder.BillingState;
-  oldOrder.BillingZipCode = order.cartOrder.BillingZipCode;
-  oldOrder.BillingCountry = order.cartOrder.BillingCountry;
-  oldOrder.ShipmentList = order.cartOrder.ShipmentList;
-  oldOrder.ShipmentList[0].ShipmentShippedDate = order.shipDate;
-  oldOrder.OrderDiscount = order.discount;
+  oldOrder.BillingAddress = this.cartOrder.BillingAddress;
+  oldOrder.BillingAddress2 = this.cartOrder.BillingAddress2;
+  oldOrder.BillingState = this.cartOrder.BillingState;
+  oldOrder.BillingZipCode = this.cartOrder.BillingZipCode;
+  oldOrder.BillingCountry = this.cartOrder.BillingCountry;
+  oldOrder.ShipmentList = this.cartOrder.ShipmentList;
+  oldOrder.ShipmentList[0].ShipmentShippedDate = this.shipDate;
+  oldOrder.OrderDiscount = this.discount;
   delete oldOrder.ShipmentList[0].ShipmentOrderStatus;
   delete oldOrder.ShipmentList[0].ShipmentTrackingCode;
   oldOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
@@ -518,6 +518,7 @@ orderSchema.methods.createBackorder = async function() {
 orderSchema.methods.invoiceTo3DCart = async function() {
 	var cartOrder = {};
 	cartOrder.OrderItemList = [];
+  cartOrder.ShipmentList = [{}];
 	this.items.forEach(item => {
 		var orderItem = {
 	    ItemID: item.item.sku,
@@ -527,6 +528,11 @@ orderSchema.methods.invoiceTo3DCart = async function() {
 	  };
 	  cartOrder.OrderItemList.push(orderItem);
 	});
+
+  cartOrder.OrderDiscount = this.discount;
+  cartOrder.ShipmentList[0].ShipmentShippedDate = this.shipDate;
+  cartOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
+  cartOrder.SalesTax = this.salesTax;
 
   var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
   options.body = cartOrder;

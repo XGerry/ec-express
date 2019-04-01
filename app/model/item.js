@@ -308,6 +308,8 @@ itemSchema.methods.updateFromQuickbooks = function(qbItem) {
   if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
     itemIsInactive = true;
     theStock = 0;
+  } else if (qbItem.IsActive == true || qbItem.IsActive == 'true') {
+    this.discontinued = true;
   }
 
   var updated = (this.usStock != theStock) || (this.canStock != theStock);
@@ -347,6 +349,7 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
       SKU: this.sku,
     },
     MFGID: this.sku,
+    GTIN: this.barcode, 
     WarehouseLocation: this.location,
     ExtraField8: this.barcode,
     ExtraField9: this.countryOfOrigin

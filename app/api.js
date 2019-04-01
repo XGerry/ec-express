@@ -8,6 +8,7 @@ const Item = require('./model/item');
 const Manufacturer = require('./model/manufacturer');
 const pug = require('pug');
 const mailer = require('./mailer');
+const Marketplace = require('./cartMarketplace');
 const path = require('path');
 const juice = require('juice');
 const fs = require('fs');
@@ -212,6 +213,32 @@ router.get('/cart/manufacturers', async (req, res) => {
     process.env.CART_TOKEN_CANADA);
   let manufacturers = await Manufacturer.find({});
   res.json(manufacturers);
+});
+
+router.get('/cart/customers/:email', async (req, res) => {
+  let canadaCart = new Marketplace('https://www.ecstasycrafts.ca',
+    process.env.CART_PRIVATE_KEY,
+    process.env.CART_TOKEN_CANADA);
+  let canadaCustomer = await canadaCart.getCustomer(req.params.email);
+  let usCart = new Marketplace('https://www.ecstasycrafts.com',
+    process.env.CART_PRIVATE_KEY,
+    process.env.CART_TOKEN);
+  let usCustomer = await usCart.getCustomer(req.params.email);
+  res.json({
+    us: usCustomer[0],
+    can: canadaCustomer[0]
+  });
+});
+
+router.get('/customers/:email', async(req, res) => {
+  try {
+    let customer = await Customer.findCustomer(req.params.email);
+    res.json(customer);
+  } catch (err) {
+    console.log(err);
+    console.log('no customers found.');
+    res.json({});
+  }
 });
 
 router.get('/reports/items/sales', (req, res) => {
