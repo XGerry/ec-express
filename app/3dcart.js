@@ -913,7 +913,9 @@ async function saveCustomOrder(order, saveToSite) {
   } else {
     dbOrder = await CustomOrder.findOne({orderId: order.orderId, "customer.website": order.customer.website});
   }
-
+  if (!dbOrder) {
+    dbOrder = new CustomOrder();
+  }
   await dbOrder.update(order);
 
   if (saveToSite) {
