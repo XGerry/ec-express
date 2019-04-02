@@ -1,4 +1,5 @@
 var helpers = require('./helpers');
+var webhooks = require('./webhooks');
 var schedule = require('node-schedule');
 var routes = require('./routes');
 var cart3d = require('./3dcart');
@@ -14,7 +15,10 @@ module.exports = function(qbws) {
     if (process.env.DEV_MODE == 'TRUE') {
       // do nothing
     } else {
-      syncOrdersAndInventory(qbws);
+      //syncOrdersAndInventory(qbws);
+      syncOrdersAndInventoryNew(qbws).then(() => {
+        console.log('Done the new inventory system.');
+      });
     }
   }); 
   var refresh = schedule.scheduleJob('0 21 * * *', () => {
@@ -25,12 +29,6 @@ module.exports = function(qbws) {
       helpers.queryAllItems(qbws); // update from quickbooks
     });
   });
-
-  //syncTutti(qbws);
-  //getPromotions();
-  //getPaymentToken();
-  //getOrdersFromSL();
-  getSKUInfos(qbws);
 }
 
 function syncOrdersAndInventory(qbws) {
@@ -165,6 +163,29 @@ async function getPaymentToken() {
   console.log(tokens);
 }
 
+async function syncOrdersAndInventoryNew(qbws) {
+  let marketplaces = await Marketplace.find({});
+  let promises = [];
+  marketplaces.forEach(market => {
+    promises.push(market.importOrders());
+  });
+
+  return Promise.all(promises).then(async () => {
+    await helpers.createSalesOrdersRequests(qbws);
+    qbws.addFinalCallback(async () => {
+      console.log('Generating Report');
+      let settings = await Settings.findOne({});
+      let report = await helpers.getOrderReport(settings);
+      webhooks.orderBot(helpers.getSlackOrderReport(report));
+      settings.lastImports = [];
+      delete settings.__v;
+      await settings.save();
+    });
+
+    return getSKUInfos(qbws);
+  });
+}
+
 async function getSKUInfos(qbws) {
   let marketplaces = await Marketplace.find({});
   let promises = [];
@@ -172,7 +193,7 @@ async function getSKUInfos(qbws) {
     promises.push(market.getSKUInfos());
   });
 
-  Promise.all(promises).then(async response => {
+  return Promise.all(promises).then(async response => {
     console.log('Everything is now updated.');
     await helpers.runInventory(qbws);
     qbws.addFinalCallback(async function() {

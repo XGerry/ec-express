@@ -143,6 +143,16 @@ var itemSchema = new mongoose.Schema({
       type: Map,
       of: Number,
       default: {}
+    },
+    link: {
+      type: Map,
+      of: String,
+      default: {}
+    },
+    wholesalePrice: {
+      type: Map,
+      of: Number,
+      default: {}
     }
   },
 }, {
@@ -159,6 +169,15 @@ itemSchema.statics.getUpdatedOptions = function() {
 
 itemSchema.statics.getBaseOptions = function() {
   return this.find({hasOptions: true}).populate('children');
+}
+
+itemSchema.statics.upsertFromMarketplace = async function(cartItem, marketplace) {
+  let item = await this.findOne({sku: cartItem.SKUInfo.SKU.trim()});
+  if (!item) {
+    item = new this();
+    item.sku = cartItem.SKUInfo.SKU.trim();
+  }
+  return item.updateFrom3DCart(cartItem, marketplace);
 }
 
 itemSchema.statics.updateFromMarketplaceSKUInfo = async function(skuInfo, marketplace) {
@@ -189,7 +208,7 @@ itemSchema.methods.updateFromSKUInfo = function(skuInfo, marketplace) {
 }
 
 
-itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
+itemSchema.methods.updateFrom3DCart = async function(cartItem, marketplace) {
   // common attributes
   this.onSale = cartItem.SKUInfo.OnSale;
   this.description = cartItem.Description;
@@ -199,6 +218,7 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
   this.manufacturerName = cartItem.ManufacturerName;
   this.hidden = cartItem.Hide;
   this.availableForBackorder = cartItem.InventoryControl == '2';
+  this.manufacturerId = cartItem.ManufacturerID;
   
   var categories = [];
   cartItem.CategoryList.forEach(function(category) {
@@ -216,22 +236,12 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
   	this.barcode = cartItem.GTIN;
   }
 
-  if (canadian) {
-    this.canPrice = cartItem.SKUInfo.Price;
-    this.catalogIdCan = cartItem.SKUInfo.CatalogID;
-    this.canLink = cartItem.ProductLink;
-    this.canStock = cartItem.SKUInfo.Stock;
-    this.canWholesalePrice = cartItem.PriceLevel2; // Canadian Wholesale Price
-  }
-  else {
-    this.usPrice = cartItem.SKUInfo.Price;
-    this.catalogId = cartItem.SKUInfo.CatalogID;
-    this.usLink = cartItem.ProductLink;
-    this.manufacturerId = cartItem.ManufacturerID;
-    this.usStock = cartItem.SKUInfo.Stock;
-    this.usWholesalePrice = cartItem.PriceLevel2; // US Wholesale Price
-    this.cost = cartItem.SKUInfo.Cost;
-  }
+  this.marketplaceProperties.price.set(marketplace._id.toString(), cartItem.SKUInfo.Price);
+  this.marketplaceProperties.cost.set(marketplace._id.toString(), cartItem.SKUInfo.Cost);
+  this.marketplaceProperties.catalogId.set(marketplace._id.toString(), cartItem.SKUInfo.CatalogID);
+  this.marketplaceProperties.link.set(marketplace._id.toString(), cartItem.ProductLink);
+  this.marketplaceProperties.stock.set(marketplace._id.toString(), cartItem.SKUInfo.Stock);
+  this.marketplaceProperties.wholesalePrice.set(marketplace._id.toString(), cartItem.PriceLevel2);
 
   if (cartItem.AdvancedOptionList.length > 0) {
     this.hasOptions = true;
@@ -245,13 +255,13 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
         await this.model('Item').findOne({sku: optionSKU}).exec().then(async function(advancedOption) {
           if (advancedOption) {
             parentItem.children.push(advancedOption._id);
-          	await advancedOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, canadian);
+          	await advancedOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, marketplace);
           } else if (optionItem.AdvancedOptionSufix != '') {
-            var newOption = new parentItem.constructor(); 
+            var newOption = new parentItem.constructor();
             newOption.isNew = true;
             newOption.sku = optionSKU;
             parentItem.children.push(newOption._id);
-            await newOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, canadian);
+            await newOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, marketplace);
           }
         });
       }
@@ -271,25 +281,16 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
   return this.save();
 }
 
-itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, canadian) {
+itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, optionItem, marketplace) {
   this.name = optionItem.AdvancedOptionName;
-  if (canadian) {
-    this.optionIdCan = optionItem.AdvancedOptionCode;
-    this.catalogIdCan = parentItem.SKUInfo.CatalogID; // Parent Item
-    this.canPrice = optionItem.AdvancedOptionPrice;
-    this.canWholesalePrice = parentItem.PriceLevel2;
-    this.canLink = parentItem.ProductLink;
-    this.canStock = optionItem.AdvancedOptionStock;
-  }
-  else {
-    this.usPrice = optionItem.AdvancedOptionPrice;
-    this.usWholesalePrice = parentItem.PriceLevel2;
-    this.catalogId = parentItem.SKUInfo.CatalogID; // Parent Item
-    this.optionId = optionItem.AdvancedOptionCode;
-    this.usLink = parentItem.ProductLink;
-    this.usStock = optionItem.AdvancedOptionStock;
-    this.imageURL = parentItem.MainImageFile;
-  }
+
+  this.marketplaceProperties.optionId.set(marketplace._id.toString(), optionItem.AdvancedOptionCode);
+  this.marketplaceProperties.catalogId.set(marketplace._id.toString(), parentItem.SKUInfo.CatalogID);
+  this.marketplaceProperties.cost.set(marketplace._id.toString(), parentItem.SKUInfo.Cost);
+  this.marketplaceProperties.price.set(marketplace._id.toString(), optionItem.AdvancedOptionPrice);
+  this.marketplaceProperties.wholesalePrice.set(marketplace._id.toString(), parentItem.PriceLevel2);
+  this.marketplaceProperties.link.set(marketplace._id.toString(), parentItem.ProductLink);
+  this.marketplaceProperties.stock.set(marketplace._id.toString(), optionItem.AdvancedOptionStock);
 
   this.manufacturerName = parentItem.ManufacturerName;
   this.weight = parentItem.Weight;

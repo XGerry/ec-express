@@ -6,6 +6,7 @@ append nav-items-right
     ul.dropdown-menu.dropdown-menu-right
       button.dropdown-item#testButton Test Connection
       button.dropdown-item#importButton Import New Orders
+      button.dropdown-item#importProductsButton Import Products
       button.dropdown-item#skuInfoButton Get SKU Infos
       .dropdown-divider
       a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
@@ -52,5 +53,11 @@ append body
     $('#importButton').click(e => {
       axios.get('/api/marketplace/'+marketplace._id+'/import/orders').then(response => {
         alert('Imported ' + response.data.length + ' new orders.');
+      });
+    });
+
+    $('#importProductsButton').click(e => {
+      axios.get('/api/marketplace/'+marketplace._id+'/import/products').then(response => {
+        alert('Imported ' + response.data.length + ' products.');
       });
     });

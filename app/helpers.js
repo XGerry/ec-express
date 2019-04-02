@@ -1276,7 +1276,7 @@ function createInvoiceRequests(qbws) {
 }
 
 function createSalesOrdersRequests(qbws) {
-  Order.find({imported: false}).then(orders => {
+  return Order.find({imported: false}).then(orders => {
     var salesOrderRq = getSalesOrdersRq(orders, false);
     qbws.addRequest(salesOrderRq, response => {
       return xml2js(response, {explicitArray: false}).then(responseObject => {

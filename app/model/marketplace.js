@@ -25,13 +25,12 @@ marketplaceSchema.methods.importOrders = async function() {
 }
 
 marketplaceSchema.methods.getItems = async function() {
-	let cartItems = await this.getCart().getItems();
-	console.log('Retrieved ' + cartItems.length);
-	let promises = [];
-	for (let i = 0; i < cartItems.length; i++) {
-		promises.push(mongoose.model('Item').updateFrom3DCart(cartItems[i], this));
-	}
-	return Promise.all(promises);
+	let marketplace = this;
+	let cartItems = await this.getCart().getItems(async function(cartItems) {
+		for (let i = 0; i < cartItems.length; i++) {
+			await mongoose.model('Item').upsertFromMarketplace(cartItems[i], marketplace);
+		}
+	});
 }
 
 marketplaceSchema.methods.getSKUInfos = async function() {

@@ -65,8 +65,8 @@ Marketplace.prototype.getAll = async function(route, qs, fnc) {
 	return allObjects;
 }
 
-Marketplace.prototype.getItems = function() {
-	return this.getAll('Products');
+Marketplace.prototype.getItems = function(fnc) {
+	return this.getAll('Products', {}, fnc);
 }
 
 Marketplace.prototype.getSKUInfo = function(fnc) {
