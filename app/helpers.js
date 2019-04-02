@@ -1893,7 +1893,7 @@ async function generateSalesOrders(qbws) {
     console.log('Generating Report');
     let settings = await Settings.findOne({});
     let report = await getOrderReport(settings);
-    webhooks.orderBot(helpers.getSlackOrderReport(report));
+    webhooks.orderBot(getSlackOrderReport(report));
     settings.lastImports = [];
     delete settings.__v;
     await settings.save();
