@@ -21,8 +21,14 @@ module.exports = function(qbws) {
       });
     }
   }); 
-  var refresh = schedule.scheduleJob('0 21 * * *', () => {
-    cart3d.refreshFrom3DCart().then(() => {
+  var refresh = schedule.scheduleJob('0 21 * * *', async () => {
+    let marketplaces = await Marketplace.find({});
+    let promises = [];
+    marketplaces.forEach(market => {
+      promises.push(market.getItems());
+    });
+
+    Promise.all(promises).then(() => {
       console.log('Finished refreshing the items');
       amazon.updateAllInventory().then(response => console.log(response));
       walmart.updateAllInventory().then(response => console.log(response));

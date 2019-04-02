@@ -479,14 +479,14 @@ itemSchema.methods.calculateSalesMetrics = function() {
 }
 
 itemSchema.methods.refreshFrom3DCart = async function() {
-  var canOptions = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+this.catalogIdCan,
-    'GET', true);
-  var usOptions = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+this.catalogId,
-    'GET', false);
-  var response = await rp(canOptions);
-  var usResponse = await rp(usOptions);
-  await this.updateFrom3DCart(response[0], true);
-  return this.updateFrom3DCart(usResponse[0], false);
+  let marketplaces = await mongoose.model('Marketplace').find({});
+  let item = this;
+  marketplaces.forEach(async market => {
+    let catalogId = item.marketplaceProperties.catalogId.get(market._id.toString());
+    let cartItem = await market.getCart().get('Products/'+catalogId);
+    await this.updateFrom3DCart(cartItem[0], market);
+  });
+  console.log('done.');
 }
 
 // helpers
