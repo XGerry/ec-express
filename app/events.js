@@ -58,6 +58,7 @@
  			});
 
  			Promise.all(promises).then(numberOfOrders => {
+ 				helpers.generateSalesOrders(qbws);
  				socket.emit('getOrdersFinished', numberOfOrders);
  				// Now, refresh the stock levels in 3D Cart
  				let promises = [];
@@ -65,23 +66,17 @@
  					promises.push(market.getSKUInfos());
  				});
 
- 				cart3d.getItems(qbws, (counter, total) => {
- 					socket.emit('getItemsProgress', {
- 						progress: counter,
- 						total: total
- 					});
- 				}).then(responses => {
- 					helpers.runInventory(qbws).then(() => {
- 						qbws.addFinalCallback(() => {
- 							socket.emit('webConnectorFinished');
- 							saveInventory().then(() => {
- 								console.log('Saving inventory');
- 							});
- 							return Promise.resolve('Finished');
- 						});
- 						socket.emit('getItemsFinished');
- 						// Now we need to run the web connector
- 					});
+ 				Promise.all(promises).then(async () => {
+ 					await helpers.runInventory(qbws);
+ 					qbws.addFinalCallback(() => {
+						socket.emit('webConnectorFinished');
+						saveInventory().then(() => {
+							console.log('Saving inventory');
+						});
+						return Promise.resolve('Finished');
+					});
+					socket.emit('getItemsFinished');
+					// Now we need to run the web connector
  				});
  			});
  		});
@@ -157,16 +152,14 @@
  		/**
  		 * Find all the orders in 3D Cart and save them to our db
  		 */
- 		socket.on('getOrders', function(data) {
- 			var query = {
- 				limit: 200,
-        orderstatus : 1, // Status of New = 1
-      };
-
- 			cart3d.getOrders(query, qbws).then(numberOfOrders => {
- 				console.log(numberOfOrders);
- 				socket.emit('getOrdersFinished', numberOfOrders);
+ 		socket.on('getOrders', async function(data) {
+ 			let marketplaces = await Marketplace.find({});
+ 			let promises = [];
+ 			helpers.setTimeCode();
+ 			marketplaces.forEach(market => {
+ 				promises.push(market.importOrders(helpers.getTimeCode()));
  			});
+ 			helpers.generateSalesOrders(qbws);
  		});
 
  		socket.on('closeSalesOrder', (orderId, cb) => {

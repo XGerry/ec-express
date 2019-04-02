@@ -178,17 +178,7 @@ async function syncOrdersAndInventoryNew(qbws) {
   });
 
   return Promise.all(promises).then(async () => {
-    await helpers.createSalesOrdersRequests(qbws);
-    qbws.addFinalCallback(async () => {
-      console.log('Generating Report');
-      let settings = await Settings.findOne({});
-      let report = await helpers.getOrderReport(settings);
-      webhooks.orderBot(helpers.getSlackOrderReport(report));
-      settings.lastImports = [];
-      delete settings.__v;
-      await settings.save();
-    });
-
+    helpers.generateSalesOrders(qbws);
     return getSKUInfos(qbws);
   });
 }

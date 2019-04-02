@@ -1887,6 +1887,19 @@ function removeDelivery(delivery) {
   return Delivery.remove({_id: delivery._id});
 }
 
+async function generateSalesOrders(qbws) {
+  await helpers.createSalesOrdersRequests(qbws);
+  qbws.addFinalCallback(async () => {
+    console.log('Generating Report');
+    let settings = await Settings.findOne({});
+    let report = await helpers.getOrderReport(settings);
+    webhooks.orderBot(helpers.getSlackOrderReport(report));
+    settings.lastImports = [];
+    delete settings.__v;
+    await settings.save();
+  });
+}
+
 module.exports = {
   getXMLRequest : getXMLRequest,
   getXMLDoc: getXMLDoc,
@@ -1946,5 +1959,6 @@ module.exports = {
   checkUninvoicedOrders: checkUninvoicedOrders,
   closeSalesOrder: closeSalesOrder,
   importCustomerRq: importCustomerRq,
-  createPORq: createPORq
+  createPORq: createPORq,
+  generateSalesOrders: generateSalesOrders
 }
