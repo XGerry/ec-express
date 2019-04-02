@@ -160,7 +160,7 @@ append body
           .col
             .form-group
               label(for="orderTrackingNumber") Tracking Number
-              input.form-control(type="text", value=order.trackingNumber)#orderTrackingNumber
+              input.form-control(type="text", value=order.trackingNumber autocomplete="off")#orderTrackingNumber
           .col
             .form-group
               label(for="orderDiscount") Discount
@@ -168,7 +168,7 @@ append body
                 .input-group-prepend
                     .input-group-text
                       i.far.fa-dollar-sign
-                input.form-control(type="number", value=order.discount)#orderDiscount
+                input.form-control(type="number", value=order.discount autocomplete="off")#orderDiscount
           .col
             .form-group
               label(for="orderShippingCost") Shipping Cost
@@ -177,9 +177,9 @@ append body
                     .input-group-text
                       i.far.fa-dollar-sign
                 if (order.shippingCost != undefined)
-                  input.form-control(type="number", value=order.shippingCost.toFixed(2))#orderShippingCost
+                  input.form-control(type="number", value=order.shippingCost.toFixed(2) autocomplete="off")#orderShippingCost
                 else
-                  input.form-control(type="number")#orderShippingCost
+                  input.form-control(type="number" autocomplete="off")#orderShippingCost
           .col
             .form-group
               label(for="orderShipDate") Ship Date

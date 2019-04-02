@@ -6,6 +6,7 @@ var amazon = require('./amazon');
 var walmart = require('./walmart');
 var Order = require('./model/order.js');
 var Item = require('./model/item.js');
+const Marketplace = require('./model/marketplace.js');
 const CartMarketplace = require('./cartMarketplace');
 
 module.exports = function(qbws) {
@@ -28,6 +29,8 @@ module.exports = function(qbws) {
   //syncTutti(qbws);
   //getPromotions();
   //getPaymentToken();
+  //getOrdersFromSL();
+  getSKUInfos(qbws);
 }
 
 function syncOrdersAndInventory(qbws) {
@@ -109,7 +112,7 @@ async function syncTutti(qbws) {
   items.forEach(item => {
     let updateStock = Item.findOne({sku: item.SKUInfo.SKU}).then(dbItem => {
       if (dbItem) {
-        dbItem.setStock = item.SKUInfo.Stock;
+        dbItem.setStock(item.SKUInfo.Stock);
       } else {
         console.log('The item ' + item.SKUInfo.SKU + ' was not found.');
       }
@@ -134,6 +137,14 @@ async function syncTutti(qbws) {
   });
 }
 
+async function getOrdersFromSL() {
+  let responses = await Order.importOrders('https://didicrafts-com.3dcartstores.com',
+    process.env.CART_PRIVATE_KEY,
+    process.env.DIDI_TOKEN);
+
+  console.log(responses);
+}
+
 async function getPromotions() {
   let canadaStore = new CartMarketplace('https://www.ecstasycrafts.ca',
     process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN_CANADA);
@@ -152,4 +163,24 @@ async function getPaymentToken() {
     process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN_CANADA);
   let tokens = await canadaStore.get('PaymentTokens');
   console.log(tokens);
+}
+
+async function getSKUInfos(qbws) {
+  let marketplaces = await Marketplace.find({});
+  let promises = [];
+  marketplaces.forEach(market => {
+    promises.push(market.getSKUInfos());
+  });
+
+  Promise.all(promises).then(async response => {
+    console.log('Everything is now updated.');
+    await helpers.runInventory(qbws);
+    qbws.addFinalCallback(async function() {
+      let promises = [];
+      marketplaces.forEach(market => {
+        promises.push(market.updateInventory());
+      });
+      return Promise.all(promises);
+    });
+  });
 }

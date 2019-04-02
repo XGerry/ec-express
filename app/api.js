@@ -6,9 +6,10 @@ const Batch = require('./model/batch');
 const Order = require('./model/order');
 const Item = require('./model/item');
 const Manufacturer = require('./model/manufacturer');
+const Marketplace = require('./model/marketplace');
 const pug = require('pug');
 const mailer = require('./mailer');
-const Marketplace = require('./cartMarketplace');
+const CartMarketplace = require('./cartMarketplace');
 const path = require('path');
 const juice = require('juice');
 const fs = require('fs');
@@ -216,11 +217,11 @@ router.get('/cart/manufacturers', async (req, res) => {
 });
 
 router.get('/cart/customers/:email', async (req, res) => {
-  let canadaCart = new Marketplace('https://www.ecstasycrafts.ca',
+  let canadaCart = new CartMarketplace('https://www.ecstasycrafts.ca',
     process.env.CART_PRIVATE_KEY,
     process.env.CART_TOKEN_CANADA);
   let canadaCustomer = await canadaCart.getCustomer(req.params.email);
-  let usCart = new Marketplace('https://www.ecstasycrafts.com',
+  let usCart = new CartMarketplace('https://www.ecstasycrafts.com',
     process.env.CART_PRIVATE_KEY,
     process.env.CART_TOKEN);
   let usCustomer = await usCart.getCustomer(req.params.email);
@@ -276,6 +277,30 @@ router.get('/reports/items/sales', (req, res) => {
       }
     });
   });
+});
+
+router.post('/marketplace', async (req, res) => {
+  console.log(req.body);
+  let newMarketplace = new Marketplace();
+  newMarketplace.set(req.body);
+  await newMarketplace.save();
+  res.json(newMarketplace);
+});
+
+router.get('/marketplace/:id/test', async (req, res) => {
+  let marketplace = await Marketplace.findOne({_id: req.params.id});
+  marketplace.test().then(response => {
+    res.json(response);
+  }).catch(err => {
+    console.log(err);
+    res.status(500).send(err);
+  });
+});
+
+router.get('/marketplace/:id/import/orders', async (req, res) => {
+  let marketplace = await Marketplace.findOne({_id: req.params.id});
+  let responses = await marketplace.importOrders();
+  res.json(responses);
 });
 
 module.exports.router = router;

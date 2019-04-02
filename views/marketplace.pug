@@ -1,0 +1,49 @@
+extends templates/default
+
+append nav-items-right
+  li.dropdown.nav-item
+    a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
+    ul.dropdown-menu.dropdown-menu-right
+      button.dropdown-item#testButton Test Connection
+      button.dropdown-item#importButton Import New Orders
+      .dropdown-divider
+      a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
+  button.btn.btn-primary(type="button" data-target="#marketplaceModal" data-toggle="modal")#addMarketplace Add
+
+append head
+  title Marketplaces
+
+append body
+  .container-fluid
+    .row
+      .col
+        form(action="/marketplace" method="post")
+          .form-group
+            label Name
+            input.form-control(type="text" name="name" value=marketplace.name)
+          .form-group
+            label URL
+            input.form-control(type="text" name="url" value=marketplace.url)
+          .form-group
+            label Token
+            input.form-control(type="text" name="token" value=marketplace.token)
+          button.btn-success.btn(type="submit") Save
+
+  script.
+    var socket = io();
+    let marketplace = !{JSON.stringify(marketplace)};
+
+    $('#testButton').click(e => {
+      axios.get('/api/marketplace/'+marketplace._id+'/test').then(response => {
+        console.log(response.data);
+        alert('Connection successful!');
+      }).catch(err => {
+        alert('Something went wrong.');
+      });
+    });
+
+    $('#importButton').click(e => {
+      axios.get('/api/marketplace/'+marketplace._id+'/import/orders').then(response => {
+        alert('Imported ' + response.data.length + ' new orders.');
+      });
+    });

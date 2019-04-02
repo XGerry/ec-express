@@ -20,7 +20,10 @@ var customOrderSchema = new mongoose.Schema({
 	poNumber: String,
 	invoiceNumber: String,
 	lastModified: Date,
-	createdDate: Date
+	createdDate: {
+		type: Date,
+		default: Date.now
+	}
 });
 
 customOrderSchema.methods.buildCartOrder = function() {

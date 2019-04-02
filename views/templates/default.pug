@@ -48,10 +48,14 @@ append body
               a.nav-link(href="/settings")
                 i.far.fa-fw.fa-cog.mr-1
                 | Settings
+            li.nav-item
+              a.nav-link(href="/marketplaces")
+                i.far.fa-fw.fa-dollar-sign.mr-1
+                | Marketplaces
 
-          h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1
-            span Marketplaces
-            a.d-flex.align-items-center.nav-item(href="/new-marketplace")
+          //h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1
+            a.d-flex.align-items-center.nav-item(href="/marketplaces")
+              span Marketplaces
               i.far.fa-plus-circle.fa-2x
           ul.nav.flex-column.mb-2
             //for marketplace in company.marketplaces

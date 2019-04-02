@@ -125,7 +125,7 @@ append body
 						.col-sm-3
 							label Discount
 							.input-group
-								input(type="number", value="0")#discount.form-control
+								input(type="number", value="0" autocomplete="off")#discount.form-control
 								.input-group-append
 									.input-group-text#typeSymbol %
 						.col-sm-3
@@ -138,7 +138,7 @@ append body
 					.row.form-group
 						.col-sm-3
 							label(for="shippingOptions") Shipping Method
-							select#shippingOptions.form-control
+							select#shippingOptions(autocomplete="off").form-control
 								option(value="UPS") UPS
 								option(value="Canada Post") Canada Post
 								option(value="Priority Mail") USPS
@@ -161,7 +161,7 @@ append body
 					.row.form-group
 						.col-sm-4
 							label PO Number
-							input.form-control#poNumber(type="text")
+							input.form-control#poNumber(type="text" autocomplete="off")
 						.col-sm-8
 							label Total
 							.input-group
@@ -211,10 +211,10 @@ append body
 					.form-group.row
 						.col-6
 							label Company Name
-							input#companyName.form-control(type="text")
+							input#companyName.form-control(type="text" autocomplete="off")
 						.col-6
 							label(for="customerPhone") Phone
-							input#customerPhone.form-control(type="text")
+							input#customerPhone.form-control(type="text" autocomplete="off")
 					.form-group.row
 						.col-4
 							label(for="billingAddress") Address

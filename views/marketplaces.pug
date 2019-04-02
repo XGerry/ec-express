@@ -1,0 +1,49 @@
+extends templates/default
+
+append nav-items-right
+  button.btn.btn-primary(type="button" data-target="#marketplaceModal" data-toggle="modal")#addMarketplace Add
+
+append head
+  title Marketplaces
+
+append body
+  .container-fluid
+    .row
+      .col
+        table.table.table-striped.table-hover#marketplaceTable
+          thead
+            tr
+              th Name
+              th URL
+              th Token
+          tbody
+            each marketplace in marketplaces
+              tr(onClick="location.href='marketplaces/"+marketplace._id+"';")
+                td=marketplace.name
+                td=marketplace.url
+                td=marketplace.token
+
+  #marketplaceModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        form(action="/marketplace" method="post")
+          .modal-header
+            h5 New Marketplace
+            button.close(type="button", data-dismiss="modal", aria-label="Close")
+              span(aria-hidden="true") &times;
+          .modal-body
+              .form-group
+                label Name
+                input.form-control(type="text" name="name")
+              .form-group
+                label URL
+                input.form-control(type="text" name="url")
+              .form-group
+                label Token
+                input.form-control(type="text" name="token")
+          .modal-footer
+            button.btn-success.btn(type="submit")#invoiceOrderButton Save
+            button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelItemButton Cancel
+
+  script.
+    var socket = io();

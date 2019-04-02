@@ -6,6 +6,7 @@ var Order = require('./model/order');
 var Batch = require('./model/batch');
 var Customer = require('./model/customer');
 var Manufacturer = require('./model/manufacturer');
+var Marketplace = require('./model/marketplace');
 var CustomOrder = require('./model/customOrder');
 const User = require('./model/user');
 const Company = require('./model/company');
@@ -113,6 +114,35 @@ module.exports = app => {
         email: req.body.email
       });
     });
+  });
+
+  // MARKETPLACES
+  app.get('/marketplaces', verifyUser, async (req, res) => {
+    let marketplaces = await Marketplace.find({});
+    res.render('marketplaces', {
+      marketplaces: marketplaces,
+      user: req.session.user
+    });
+  });
+
+  app.post('/marketplace', verifyUser, async (req, res) => {
+    console.log(req.body);
+    let newMarketplace = new Marketplace();
+    newMarketplace.set(req.body);
+    await newMarketplace.save();
+    res.redirect('/marketplaces/'+newMarketplace._id);
+  });
+
+  app.get('/marketplaces/:marketplaceId', verifyUser, async (req, res) => {
+    let marketplace = await Marketplace.findOne({_id: req.params.marketplaceId});
+    if (marketplace) {
+      res.render('marketplace', {
+        marketplace: marketplace,
+        user: req.session.user
+      });
+    } else {
+      res.redirect('/marketplaces');
+    }
   });
 
   // ORDERS

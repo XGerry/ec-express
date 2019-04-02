@@ -154,7 +154,11 @@ var orderSchema = new mongoose.Schema({
       type: ObjectId,
       ref: 'User'
     }
-  }]
+  }],
+  marketplace: {
+    type: ObjectId,
+    ref: 'Marketplace'
+  }
 }, {
   toObject: {
     virtuals: true
@@ -198,6 +202,29 @@ orderSchema.virtual('balance').get(function() {
   let paid = validPayments.reduce((total, payment) => total += payment.amount, 0);
   return total - paid;
 });
+
+orderSchema.statics.importOrders = async function(cartOrders, marketplace) {
+  let promises = [];
+  for (cartOrder of cartOrders) {
+    let orderId = cartOrder.InvoiceNumberPrefix + cartOrder.InvoiceNumber;
+    let dbOrder = await this.findOne({orderId: orderId});
+    if (dbOrder) {
+      if (!db.imported) {
+        dbOrder.marketplace = marketplace;
+        promises.push(dbOrder.updateFrom3DCart(cartOrder));
+      }
+    } else {
+      let newOrder = new this();
+      newOrder.marketplace = marketplace._id;
+      newOrder.orderId = orderId;
+      newOrder.imported = false;
+      newOrder.retry = false;
+      promises.push(newOrder.updateFrom3DCart(cartOrder))
+    }
+  }
+
+  return Promise.all(promises);
+}
 
 orderSchema.statics.findUnpaidOrders = function(canadian) {
   return this.find({paid: false, invoiced: true, picked: true, canadian: canadian});
@@ -356,6 +383,9 @@ orderSchema.methods.updateOrderStatus = async function(status) {
 	options.body = {
 		OrderStatusID: status
 	};
+
+  let cart = this.getCartMarketplace();
+  
 	
   if (this.isCartOrder)	{
     await this.save();
@@ -974,6 +1004,19 @@ orderSchema.methods.getAddPaymentRq = async function(payment) {
   var str = xmlDoc.end({pretty: true});
   console.log(str);
   return str;
+}
+
+orderSchema.methods.getCartMarketplace = async function() {
+  if (this.marketplace) {
+    await this.populate('marketplace').execPopulate();
+    return this.marketplace.getCart();
+  } else {
+    if (this.canadian) {
+      return new CartMarketplace('https://www.ecstasycrafts.ca', process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN_CANADA);
+    } else {
+      return new CartMarketplace('https://www.ecstasycrafts.com', process.env.CART_PRIVATE_KEY, process.env.CART_TOKEN);
+    }
+  }
 }
 
 // helpers

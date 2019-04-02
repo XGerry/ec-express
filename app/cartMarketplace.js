@@ -38,33 +38,39 @@ Marketplace.prototype.put = function(url, body) {
 	return rp(options);
 }
 
-Marketplace.prototype.getAll = async function(route) {
-	let totalCount = await this.get(route, {
-		countonly: 1
-	});
+Marketplace.prototype.getAll = async function(route, qs, fnc) {
+	let query = qs ? qs : {};
+	query.countonly = 1;
+	let totalCount = await this.get(route, query);
 
 	totalCount = totalCount.TotalCount;
 	let numberOfRequests = Math.ceil(totalCount / 200);
 
-	console.log('Found ' + totalCount + ' number of objects from .' + route);
+	console.log('Found ' + totalCount + ' number of objects from ' + route);
 	console.log('Performing ' + numberOfRequests + ' number of requests.');
-
+	delete query.countonly;
 	let allObjects = [];
 	for (let i = 0; i < numberOfRequests; i++) {
-		console.log('Starting request ' + (i + 1));
-		let items = await this.get(route, {
-			limit: 200,
-			offset: i * 200
-		});
+		let query = qs ? qs : {};
+		query.limit = 200;
+		query.offset = i * 200;
+		let items = await this.get(route, query);
+		if (fnc) {
+			fnc(items);
+		}
 		allObjects = allObjects.concat(items);
-		console.log('done.');
+		process.stdout.write((((i+1) / numberOfRequests) * 100).toFixed(2) + '% complete.\r');
 	}
 
 	return allObjects;
 }
 
 Marketplace.prototype.getItems = function() {
-	return this.getAll('Items');
+	return this.getAll('Products');
+}
+
+Marketplace.prototype.getSKUInfo = function(fnc) {
+	return this.getAll('Products/skuinfo', {}, fnc);
 }
 
 Marketplace.prototype.getPromotions = async function() {
@@ -79,6 +85,10 @@ Marketplace.prototype.getCustomer = async function(email) {
 	return this.get('Customers', {
 		email: email
 	});
+}
+
+Marketplace.prototype.getOrders = function(qs) {
+	return this.getAll('Orders', qs);
 }
 
 module.exports = Marketplace;

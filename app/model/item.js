@@ -107,31 +107,87 @@ var itemSchema = new mongoose.Schema({
   profitOverOneMonth: {
     type: Number,
     default: 0
-  }
+  },
+  marketplaceProperties: {
+    cost: {
+      type: Map,
+      of: Number,
+      default: {}
+    },
+    stock: {
+      type: Map,
+      of: Number,
+      default: {}
+    },
+    price: {
+      type: Map,
+      of: Number,
+      default: {}
+    },
+    catalogId: {
+      type: Map,
+      of: Number,
+      default: {}
+    },
+    onSale: {
+      type: Map,
+      of: Boolean,
+      default: {}
+    },
+    salePrice: {
+      type: Map,
+      of: Number,
+      default: {}
+    },
+    optionId: {
+      type: Map,
+      of: Number,
+      default: {}
+    }
+  },
 }, {
 	usePushEach: true
 });
 
-itemSchema.methods.updateFromSKUInfo = function(skuInfo, canadian) {
+itemSchema.statics.getUpdatedItems = function() {
+  return this.find({updated: true, hasOptions: false, isOption: false});
+}
+
+itemSchema.statics.getUpdatedOptions = function() {
+  return this.find({isOption: true, inactive: false, updated: true});
+}
+
+itemSchema.statics.getBaseOptions = function() {
+  return this.find({hasOptions: true}).populate('children');
+}
+
+itemSchema.statics.updateFromMarketplaceSKUInfo = async function(skuInfo, marketplace) {
+  let item = await this.findOne({sku: skuInfo.SKU.trim()});
+  if (!item) {
+    item = new this();
+    item.sku = skuInfo.SKU.trim();
+  }
+  return item.updateFromSKUInfo(skuInfo, marketplace);
+}
+
+itemSchema.methods.updateFromSKUInfo = function(skuInfo, marketplace) {
 	this.name = skuInfo.Name;
   this.isOption = false;
-  this.updated = false;
-  this.onSale = skuInfo.OnSale;
-  if (canadian == true) {
-    this.catalogIdCan = skuInfo.CatalogID;
-    this.canPrice = skuInfo.Price;
-    this.canSalePrice = skuInfo.SalePrice;
-    this.canStock = skuInfo.Stock;
-  } else {
-    this.catalogId = skuInfo.CatalogID;
-    this.usPrice = skuInfo.Price;
-    this.usStock = skuInfo.Stock;
-    this.usSalePrice = skuInfo.SalePrice;
-    if (skuInfo.Cost > 0)
-      this.cost = skuInfo.Cost;
+
+  // set the marketplace properties
+  if (skuInfo.Cost > 0) {
+    this.marketplaceProperties.cost.set(marketplace._id.toString(), skuInfo.Cost);
   }
+  
+  this.marketplaceProperties.catalogId.set(marketplace._id.toString(), skuInfo.CatalogID);
+  this.marketplaceProperties.price.set(marketplace._id.toString(), skuInfo.Price);
+  this.marketplaceProperties.salePrice.set(marketplace._id.toString(), skuInfo.SalePrice);
+  this.marketplaceProperties.stock.set(marketplace._id.toString(), skuInfo.Stock);
+  this.marketplaceProperties.onSale.set(marketplace._id.toString(), skuInfo.OnSale);
+
   return this.save();
 }
+
 
 itemSchema.methods.updateFrom3DCart = async function(cartItem, canadian) {
   // common attributes
@@ -255,15 +311,27 @@ itemSchema.methods.setStock = function(stock) {
     stock = 0;
   }
 
-  var updated = (this.usStock != stock) || (this.canStock != stock);
+  let updated = false;
+  for (const [key, value] of this.marketplaceProperties.stock.entries()) {
+    if (stock != value) {
+      updated = true;
+      break;
+    }
+  }
 
+  if (!updated) {
+    updated = stock != this.usStock || stock != this.canStock;
+  }
+
+  this.stock = stock;
+  
   if (updated) {
-    this.stock = stock;
     this.usStock = stock;
     this.canStock = stock;
     this.amazonStock = stock;
     this.walmartStock = stock;
   }
+
   this.updated = updated;
   return this.save();
 }
@@ -308,8 +376,9 @@ itemSchema.methods.updateFromQuickbooks = function(qbItem) {
   if (qbItem.IsActive == false || qbItem.IsActive == 'false') {
     itemIsInactive = true;
     theStock = 0;
-  } else if (qbItem.IsActive == true || qbItem.IsActive == 'true') {
     this.discontinued = true;
+  } else {
+    this.discontinued = false;
   }
 
   var updated = (this.usStock != theStock) || (this.canStock != theStock);
@@ -343,7 +412,7 @@ itemSchema.methods.updateFromQuickbooks = function(qbItem) {
   return this.save();
 }
 
-itemSchema.methods.getCartItem = function(canadian) { // only valid if the item is not an option
+itemSchema.methods.getCartItem = function(marketplace) { // only valid if the item is not an option
 	var cartItem = {
     SKUInfo: {
       SKU: this.sku,
@@ -352,14 +421,9 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
     GTIN: this.barcode, 
     WarehouseLocation: this.location,
     ExtraField8: this.barcode,
-    ExtraField9: this.countryOfOrigin
+    ExtraField9: this.countryOfOrigin,
+    Stock: this.stock
   };
-
-  if (canadian == true) {
-    cartItem.SKUInfo.Stock = this.canStock;
-  } else {
-    cartItem.SKUInfo.Stock = this.usStock;
-  }
 
   if (this.inactive && !this.hasOptions) {
     cartItem.SKUInfo.Stock = 0;
@@ -370,6 +434,13 @@ itemSchema.methods.getCartItem = function(canadian) { // only valid if the item 
   }
 
   return cartItem;
+}
+
+itemSchema.methods.getOptionURL = async function(marketplace) {
+  await this.populate('parent').execPopulate();
+  let url = 'Products/' + this.parent.marketplaceProperties.catalogId.get(marketplace._id.toString());
+  url += '/AdvancedOptions/' + this.marketplaceProperties.optionId.get(marketplace._id.toString());
+  return url;
 }
 
 itemSchema.methods.findOrders = function() {
