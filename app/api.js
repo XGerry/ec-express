@@ -303,6 +303,12 @@ router.get('/marketplace/:id/import/orders', async (req, res) => {
   res.json(responses);
 });
 
+router.get('/marketplace/:id/import/skuinfo', async (req, res) => {
+  let marketplace = await Marketplace.findOne({_id: req.params.id});
+  let responses = await marketplace.getSKUInfos();
+  res.json(responses);
+});
+
 module.exports.router = router;
 module.exports.setQBWS = qbws => {
   this.qbws = qbws;

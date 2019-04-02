@@ -6,6 +6,7 @@ append nav-items-right
     ul.dropdown-menu.dropdown-menu-right
       button.dropdown-item#testButton Test Connection
       button.dropdown-item#importButton Import New Orders
+      button.dropdown-item#skuInfoButton Get SKU Infos
       .dropdown-divider
       a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
   button.btn.btn-primary(type="button" data-target="#marketplaceModal" data-toggle="modal")#addMarketplace Add
@@ -39,6 +40,12 @@ append body
         alert('Connection successful!');
       }).catch(err => {
         alert('Something went wrong.');
+      });
+    });
+
+    $('#skuInfoButton').click(e => {
+      axios.get('/api/marketplace/'+marketplace._id+'/skuinfo').then(response => {
+        console.log(response.data);
       });
     });
 
