@@ -70,9 +70,9 @@ marketplaceSchema.methods.updateInventory = async function() {
 	for (let i = 0; i < options.length; i++) {
 		let url = await options[i].getOptionURL(this);
 		await cart.put(url, {
-			AdvancedOptionSufix: option[i].sku,
-			AdvancedOptionName: option[i].name,
-			AdvancedOptionStock: option[i].stock,
+			AdvancedOptionSufix: options[i].sku,
+			AdvancedOptionName: options[i].name,
+			AdvancedOptionStock: options[i].stock,
 		});
 	}
 
