@@ -81,50 +81,20 @@
  			});
  		});
 
- 		function saveInventory() {
+ 		async function saveInventory() {
  			// save the walmart inventory
- 			var saveWalmart = walmart.updateInventory();
+ 			let promises = [];
+ 			promises.push(walmart.updateInventory());
 
  			// save the amazon inventory
- 			var saveAmazon = amazon.updateInventory();
+ 			promises.push(amazon.updateInventory());
 
- 			var save3dCart = cart3d.saveItems(null, (progress, total) => {
- 				socket.emit('saveItemsProgress', {
- 					progress: progress,
- 					total: total
- 				});
- 			})
- 			.then(() => {
- 				socket.emit('saveItemsFinished');
- 				// also save the options
- 				cart3d.saveOptionItems((progress, total) => {
- 					socket.emit('saveOptionItemsProgress', {
- 						progress: progress,
- 						total: total
- 					});
- 				})
- 				.then(() => {
- 					console.log('Done the item options');
- 					socket.emit('saveOptionItemsFinished');
- 					cart3d.calculateBaseItemStock((progress, total) => {
- 						socket.emit('calculateBaseStockProgress', {
- 							progress: progress,
- 							total: total
- 						});
- 					})
- 					.then(() => {
-						socket.emit('calculateBaseStockFinished');
-						Item.find({updated:true}).then(items => {
-							helpers.inventoryBot({
-								text: items.length + ' items were synced with 3D Cart.'
-							});
-							return 'Done';
-						});
-					});
- 				});
+ 			let marketplaces = await Marketplace.find({});
+ 			marketplaces.forEach(market => {
+ 				promises.push(market.updateInventory());
  			});
 
- 			return Promise.all([saveWalmart, saveAmazon, save3dCart]);
+ 			return Promise.all(promises);
  		}
 
  		/**
