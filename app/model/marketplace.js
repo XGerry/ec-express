@@ -18,10 +18,9 @@ marketplaceSchema.methods.getCart = function() {
 	return new CartMarketplace(this.url, process.env.CART_PRIVATE_KEY, this.token);
 }
 
-marketplaceSchema.methods.importOrders = async function() {
+marketplaceSchema.methods.importOrders = async function(timecode) {
   let cartOrders = await this.getCart().getOrders({orderstatus: 1}); // get all the new orders
-  console.log(cartOrders);
-  return mongoose.model('Order').importOrders(cartOrders, this);
+  return mongoose.model('Order').importOrders(cartOrders, this, timecode);
 }
 
 marketplaceSchema.methods.getItems = async function() {

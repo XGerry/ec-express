@@ -9,6 +9,7 @@
  var walmart = require('./walmart');
  var Settings = require('./model/settings');
  var CustomOrder = require('./model/customOrder');
+ var Marketplace = require('./model/marketplace');
  var Item = require('./model/item');
  var Batch = require('./model/batch');
  var Order = require('./model/order');
@@ -42,19 +43,28 @@
  			});
  		});
 
- 		socket.on('syncInventoryAndOrders', () => {
+ 		socket.on('syncInventoryAndOrders', async () => {
  			qbws.addStartingCallback(() => {
  				socket.emit('webConnectorStarted');
  				return Promise.resolve('Started!');
  			});
 
  			// First get the New orders from 3D Cart
- 			cart3d.getOrders({
- 				orderstatus: 1, // new
- 				limit: 200
- 			}, qbws).then(numberOfOrders => {
+ 			let marketplaces = await Marketplace.find({});
+ 			let promises = [];
+ 			helpers.setTimeCode();
+ 			marketplaces.forEach(market => {
+ 				promises.push(market.importOrders(helpers.getTimeCode()));
+ 			});
+
+ 			Promise.all(promises).then(numberOfOrders => {
  				socket.emit('getOrdersFinished', numberOfOrders);
  				// Now, refresh the stock levels in 3D Cart
+ 				let promises = [];
+ 				marketplaces.forEach(market => {
+ 					promises.push(market.getSKUInfos());
+ 				});
+
  				cart3d.getItems(qbws, (counter, total) => {
  					socket.emit('getItemsProgress', {
  						progress: counter,

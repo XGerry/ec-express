@@ -203,7 +203,7 @@ orderSchema.virtual('balance').get(function() {
   return total - paid;
 });
 
-orderSchema.statics.importOrders = async function(cartOrders, marketplace) {
+orderSchema.statics.importOrders = async function(cartOrders, marketplace, timecode) {
   let promises = [];
   for (cartOrder of cartOrders) {
     let orderId = cartOrder.InvoiceNumberPrefix + cartOrder.InvoiceNumber;
@@ -211,6 +211,7 @@ orderSchema.statics.importOrders = async function(cartOrders, marketplace) {
     if (dbOrder) {
       if (!db.imported) {
         dbOrder.marketplace = marketplace;
+        dbOrder.timecode = timecode;
         promises.push(dbOrder.updateFrom3DCart(cartOrder));
       }
     } else {
@@ -219,6 +220,7 @@ orderSchema.statics.importOrders = async function(cartOrders, marketplace) {
       newOrder.orderId = orderId;
       newOrder.imported = false;
       newOrder.retry = false;
+      newOrder.timecode = timecode;
       promises.push(newOrder.updateFrom3DCart(cartOrder))
     }
   }

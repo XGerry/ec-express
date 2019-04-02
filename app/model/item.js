@@ -413,17 +413,17 @@ itemSchema.methods.updateFromQuickbooks = function(qbItem) {
   return this.save();
 }
 
-itemSchema.methods.getCartItem = function(marketplace) { // only valid if the item is not an option
+itemSchema.methods.getCartItem = function() { // only valid if the item is not an option
 	var cartItem = {
     SKUInfo: {
       SKU: this.sku,
+      Stock: this.stock
     },
     MFGID: this.sku,
     GTIN: this.barcode, 
     WarehouseLocation: this.location,
     ExtraField8: this.barcode,
     ExtraField9: this.countryOfOrigin,
-    Stock: this.stock
   };
 
   if (this.inactive && !this.hasOptions) {
@@ -433,6 +433,8 @@ itemSchema.methods.getCartItem = function(marketplace) { // only valid if the it
   if (this.discontinued) {
     cartItem.InventoryControl = '1'; // Out of Stock
   }
+
+  console.log(cartItem);
 
   return cartItem;
 }

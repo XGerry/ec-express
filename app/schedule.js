@@ -172,8 +172,9 @@ async function getPaymentToken() {
 async function syncOrdersAndInventoryNew(qbws) {
   let marketplaces = await Marketplace.find({});
   let promises = [];
+  helpers.setTimeCode();
   marketplaces.forEach(market => {
-    promises.push(market.importOrders());
+    promises.push(market.importOrders(helpers.getTimeCode()));
   });
 
   return Promise.all(promises).then(async () => {
