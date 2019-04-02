@@ -1888,7 +1888,7 @@ function removeDelivery(delivery) {
 }
 
 async function generateSalesOrders(qbws) {
-  await helpers.createSalesOrdersRequests(qbws);
+  await createSalesOrdersRequests(qbws);
   qbws.addFinalCallback(async () => {
     console.log('Generating Report');
     let settings = await Settings.findOne({});
