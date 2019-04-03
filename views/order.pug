@@ -53,9 +53,9 @@ append nav-items-right
       //a(href="#").dropdown-item#replacePricing Replace Pricing
       button.dropdown-item#recalculatePricing Recalculate Pricing
       input(type="file" style="display:none;")#fileInput
-      if (order.isCartOrder)
-        a.dropdown-item(href="/api/order/"+order._id+"/cart/refresh") Refresh from 3D Cart
       .dropdown-divider
+      if (order.isCartOrder)
+        button.dropdown-item#refreshFrom3DCart Refresh from 3D Cart
       if (order.batch)
         a(href="#").dropdown-item#removeFromBatchButton Remove from Batch
       a#deleteOrder(href="#").dropdown-item.bg-danger.text-white Delete
@@ -732,6 +732,12 @@ append body
 
       $('#addPaymentButton').click(e => {
         $('#addPaymentModal').modal();
+      });
+
+      $('#refreshFrom3DCart').click(e => {
+        axios.get('/api/order/'+order._id+'/cart/refresh').then(response => {
+          location.reload();
+        });
       });
 
       $('#applyPaymentsButton').click(e => {
