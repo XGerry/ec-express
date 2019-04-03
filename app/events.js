@@ -51,8 +51,12 @@
 
  			// First get the New orders from 3D Cart
  			let marketplaces = await Marketplace.find({});
+ 			let settings = await Settings.findOne({});
  			let promises = [];
  			helpers.setTimeCode();
+ 			settings.lastImport = helpers.getTimeCode();
+ 			settings.lastImports = [helpers.getTimeCode()];
+ 			await settings.save();
  			marketplaces.forEach(market => {
  				promises.push(market.importOrders(helpers.getTimeCode()));
  			});
