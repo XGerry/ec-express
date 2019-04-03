@@ -1600,18 +1600,14 @@ function cleanDatabase(callback) {
   });
 }
 
-function getOrderReport(settings) {
-  var successOrders = Order.find({imported: true, timecode: {$in: settings.lastImports}});
-  var failedOrders = Order.find({imported: false});
+async function getOrderReport(settings) {
+  var successes = await Order.find({imported: true, timecode: {$in: settings.lastImports}});
+  var failures = await Order.find({imported: false});
 
-  return successOrders.then((successes) => {
-    return failedOrders.then((failures) => {
-      return {
-        success: successes,
-        fail: failures
-      }
-    });
-  });
+  return {
+    success: successes,
+    fail: failures
+  }
 }
 
 function getSlackOrderReport(report) {
@@ -1893,7 +1889,7 @@ async function generateSalesOrders(qbws) {
     console.log('Generating Report');
     let settings = await Settings.findOne({});
     let report = await getOrderReport(settings);
-    webhooks.orderBot(getSlackOrderReport(report));
+    await webhooks.orderBot(getSlackOrderReport(report));
     settings.lastImports = [];
     delete settings.__v;
     await settings.save();
