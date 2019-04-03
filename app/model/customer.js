@@ -64,7 +64,7 @@ customerSchema.statics.createCustomer = function(cartOrder) {
 	return newCustomer.updateFrom3DCart(cartOrder);
 }
 
-customerSchema.statics.findCustomer = async function(email) {
+customerSchema.statics.findCustomer = async function(email) { // TODO change to use Marketplace
   let customer = await this.findOne({email: email});
   if (customer) {
     return customer.getCustomerFrom3DCart();
@@ -72,11 +72,11 @@ customerSchema.statics.findCustomer = async function(email) {
     let canadaCart = new Marketplace('https://www.ecstasycrafts.ca',
       process.env.CART_PRIVATE_KEY,
       process.env.CART_TOKEN_CANADA);
-    let canadaCustomer = await canadaCart.getCustomer(req.params.email);
+    let canadaCustomer = await canadaCart.getCustomer(email);
     let usCart = new Marketplace('https://www.ecstasycrafts.com',
       process.env.CART_PRIVATE_KEY,
       process.env.CART_TOKEN);
-    let usCustomer = await usCart.getCustomer(req.params.email);
+    let usCustomer = await usCart.getCustomer(email);
     let newCustomer = new this();
     newCustomer.email = email;
     newCustomer.billingCountry = 'CA';
