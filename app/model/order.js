@@ -337,26 +337,22 @@ orderSchema.methods.updateFrom3DCart = async function(cartOrder) {
   var theOrder = this;
   for (item of cartOrder.OrderItemList) {
   	var sku = item.ItemID.trim();
-  	await Item.findOne({sku: sku}).then(function(dbItem) {
-  		if (dbItem) {
-		  	theOrder.items.push({
-		  		item: dbItem._id,
-		  		quantity: item.ItemQuantity,
-		  		pickedQuantity: 0,
-		  		price: item.ItemUnitPrice
-		  	});
-  		} else {
-  			console.log('item not found: ' + sku);
-        // create the new item here
-        //let newItem = 
-  		}
-  	});
+  	let dbItem = await Item.findOne({sku: sku}); 
+		if (dbItem) {
+	  	theOrder.items.push({
+	  		item: dbItem._id,
+	  		quantity: item.ItemQuantity,
+	  		pickedQuantity: 0,
+	  		price: item.ItemUnitPrice
+	  	});
+		} else {
+			console.log('item not found: ' + sku);
+		}
   }
 
 	// after the order is created, move it to the queue
-	return this.save().then(savedOrder => {
-		return savedOrder.updateOrderStatus(8); // Queued
-	});
+  await this.save();
+  return this.updateOrderStatus(8); // Queued
 }
 
 orderSchema.methods.removeBatch = function() {
