@@ -735,7 +735,7 @@ append body
       });
 
       $('#refreshFrom3DCart').click(e => {
-        axios.get('/api/order/'+order._id+'/cart/refresh').then(response => {
+        axios.get('/api/order/'+theOrder._id+'/cart/refresh').then(response => {
           location.reload();
         });
       });
