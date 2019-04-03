@@ -1017,6 +1017,22 @@ orderSchema.methods.getCartMarketplace = async function() {
   }
 }
 
+orderSchema.methods.refreshFrom3DCart = async function() {
+  if (!this.isCartOrder) {
+    return 'Not a cart order';
+  }
+
+  let cart = await this.getCartMarketplace();
+  try {
+    let cartOrder = await cart.get('Orders/'+this.cartOrder.OrderID);
+    console.log(cartOrder[0]);
+    console.log('updated');
+    return this.updateFrom3DCart(cartOrder[0]);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 // helpers
 
 function getXMLRequest(request) {

@@ -53,7 +53,8 @@ append nav-items-right
       //a(href="#").dropdown-item#replacePricing Replace Pricing
       button.dropdown-item#recalculatePricing Recalculate Pricing
       input(type="file" style="display:none;")#fileInput
-      //a(href="#").dropdown-item#refreshFromOriginal Reload from Original
+      if (order.isCartOrder)
+        a.dropdown-item(href="/api/order/"+order._id+"/cart/refresh") Refresh from 3D Cart
       .dropdown-divider
       if (order.batch)
         a(href="#").dropdown-item#removeFromBatchButton Remove from Batch

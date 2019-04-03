@@ -100,6 +100,12 @@ router.put('/orders', async (req, res) => {
   res.send('success');
 });
 
+router.get('/order/:orderId/cart/refresh', async (req, res) => {
+  let theOrder = await Order.findOne({_id: req.params.orderId});
+  await theOrder.refreshFrom3DCart();
+  res.json(theOrder);
+});
+
 router.get('/order/:orderId/cart/payments', async (req, res) => {
   let theOrder = await Order.findOne({_id: req.params.orderId});
   theOrder = await theOrder.checkPayment();
