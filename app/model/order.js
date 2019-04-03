@@ -212,7 +212,7 @@ orderSchema.statics.importOrders = async function(cartOrders, marketplace, timec
       if (!db.imported) {
         dbOrder.marketplace = marketplace;
         dbOrder.timecode = timecode;
-        promises.push(dbOrder.updateFrom3DCart(cartOrder));
+        await dbOrder.updateFrom3DCart(cartOrder);
       }
     } else {
       let newOrder = new this();
@@ -221,11 +221,9 @@ orderSchema.statics.importOrders = async function(cartOrders, marketplace, timec
       newOrder.imported = false;
       newOrder.retry = false;
       newOrder.timecode = timecode;
-      promises.push(newOrder.updateFrom3DCart(cartOrder))
+      await newOrder.updateFrom3DCart(cartOrder);
     }
   }
-
-  return Promise.all(promises);
 }
 
 orderSchema.statics.findUnpaidOrders = function(canadian) {
