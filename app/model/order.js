@@ -209,7 +209,7 @@ orderSchema.statics.importOrders = async function(cartOrders, marketplace, timec
     let orderId = cartOrder.InvoiceNumberPrefix + cartOrder.InvoiceNumber;
     let dbOrder = await this.findOne({orderId: orderId});
     if (dbOrder) {
-      if (!db.imported) {
+      if (!dbOrder.imported) {
         dbOrder.marketplace = marketplace;
         dbOrder.timecode = timecode;
         await dbOrder.updateFrom3DCart(cartOrder);
