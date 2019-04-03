@@ -186,7 +186,7 @@ html
 									}
 
 								each item in pickableItems
-									+pickTableRow(item.item, item.quantity)
+									+pickTableRow(item.item, item.quantity - item.pickedQuantity)
 					if (discontinuedItems.length > 0)
 						.row
 							h4 Discontinued Items
@@ -202,7 +202,7 @@ html
 										th.text-center Location 2
 								tbody
 									each item in discontinuedItems
-										+pickTableRow(item.item, item.quantity)
+										+pickTableRow(item.item, item.quantity - item.pickedQuantity)
 					if (heldOrders.length > 0)
 						.row
 							h4 Held Orders

@@ -171,8 +171,12 @@ async function getPaymentToken() {
 
 async function syncOrdersAndInventoryNew(qbws) {
   let marketplaces = await Marketplace.find({});
+  let settings = await Settings.findOne({});
   let promises = [];
   helpers.setTimeCode();
+  settings.lastImport = helpers.getTimeCode();
+  settings.lastImports = [helpers.getTimeCode()];
+  await settings.save();
   marketplaces.forEach(market => {
     promises.push(market.importOrders(helpers.getTimeCode()));
   });
@@ -194,6 +198,7 @@ async function getSKUInfos(qbws) {
     console.log('Everything is now updated.');
     await helpers.runInventory(qbws);
     qbws.addFinalCallback(async function() {
+      helpers.
       let promises = [];
       // save the walmart inventory
       promises.push(almart.updateInventory());
