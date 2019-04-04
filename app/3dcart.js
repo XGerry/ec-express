@@ -802,7 +802,7 @@ function saveItem(item, qbws, adjustInventory) {
         SKU: item.sku,
         RetailPrice: item.usPrice,
         Name: item.name,
-        //Stock: item.usStock,
+        Stock: item.stock,
         OnSale: item.onSale,
         SalePrice: item.usSalePrice
       },
