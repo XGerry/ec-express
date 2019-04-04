@@ -8,6 +8,7 @@ var request = require('request');
 var async = require('async');
 var Item = require('./model/item');
 var Order = require('./model/order');
+var Marketplace = require('./model/marketplaces');
 var ShowOrder = require('./model/showOrder');
 var CustomOrder = require('./model/customOrder');
 var Settings = require('./model/settings');
@@ -787,90 +788,14 @@ function updateCategories(categories, finalCallback) {
   });
 }
 
-function saveItem(item, qbws, adjustInventory) {
+async function saveItem(item, qbws, adjustInventory) {
   helpers.saveItem(item, qbws, adjustInventory);
-
-  if (!item.isOption) {
-    // US Website
-    var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-      'PUT',
-      false);
-
-    var body = [{
-      SKUInfo: {
-        Price: item.usPrice,
-        SKU: item.sku,
-        RetailPrice: item.usPrice,
-        Name: item.name,
-        Stock: item.stock,
-        OnSale: item.onSale,
-        SalePrice: item.usSalePrice
-      },
-      PriceLevel1: item.usPrice,
-      //MFGID: item.sku,
-      WarehouseLocation: item.location,
-      GTIN: item.barcode,
-      ExtraField8: item.barcode,
-      ExtraField9: item.countryOfOrigin,
-      Hide: item.hidden
-    }];
-
-    if (item.inactive == true) {
-      body[0].SKUInfo.Stock = 0;
-    }
-
-    options.body = body;
-    var usSave = rp(options);
-
-    // save to canadian site
-    var canOptions = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products',
-      'PUT',
-      true); 
-    canOptions.body = body;
-    canOptions.body[0].SKUInfo.Price = item.canPrice;
-    canOptions.body[0].SKUInfo.RetailPrice = item.canPrice;
-    canOptions.body[0].SKUInfo.SalePrice = item.canSalePrice;
-    //canOptions.body[0].SKUInfo.Stock = item.canStock;
-    canOptions.body[0].PriceLevel1 = item.canPrice;
-    var canSave = rp(canOptions);
-
-    return Promise.all([canSave, usSave]).then(responses => {
-      console.log('saved item for both sites');
-      console.log(responses);
-      return responses;
-    });
-  } else {
-    // Options
-    var options = helpers.get3DCartOptions('', 'PUT', false);
-
-    var optionBody = {
-      AdvancedOptionStock: item.usStock,
-      AdvancedOptionSufix: item.sku,
-      AdvancedOptionPrice: item.usPrice,
-      AdvancedOptionName: item.name
-    }
-
-    options.body = optionBody;
-    var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogId+'/AdvancedOptions/'+item.optionId;
-    options.url = url;
-    var usSave = rp(options);
-    var canOptions = helpers.get3DCartOptions('', 'PUT', true);
-    canOptions.url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+item.catalogIdCan+'/AdvancedOptions/'+item.optionIdCan;
-    canOptions.body = optionBody;
-    canOptions.body.AdvancedOptionPrice = item.canPrice;
-    canOptions.body.AdvancedOptionStock = item.canStock;
-    var canSave = rp(canOptions);
-
-    return Promise.all([usSave, canSave])
-      .catch(err => {
-        return err;
-      })
-      .then(responses => {
-        console.log('Saved options for both sites');
-        console.log(responses);
-        return responses;
-      });
-  }
+  let marketplaces = Marketplace.find({});
+  let promises = [];
+  marketplaces.forEach(market => {
+    promises.push(market.saveItem(item));
+  });
+  Promise.all(promises);
 }
 
 async function saveOrder(order, orderId, isCanadian) {

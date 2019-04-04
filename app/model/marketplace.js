@@ -42,6 +42,26 @@ marketplaceSchema.methods.getSKUInfos = async function() {
 	return skuInfos.length;
 }
 
+marketplaceSchema.methods.saveItem = async function(item) {
+	let cart = this.getCart();
+	let response;
+	if (!item.isOption) {
+		let cartItem = item.getCartItem();
+		let body = [cartItem];
+		response = await cart.put('Products', body);
+	} else {
+		let url = await options[i].getOptionURL(this);
+		response await cart.put(url, {
+			AdvancedOptionSufix: options[i].sku,
+			AdvancedOptionName: options[i].name,
+			AdvancedOptionStock: options[i].stock,
+		});
+	}
+	console.log(this.name + ': saved item.');
+	console.log(response);
+	return response;
+}
+
 marketplaceSchema.methods.updateInventory = async function() {
 	let items = await mongoose.model('Item').getUpdatedItems();
 	let cart = this.getCart();
