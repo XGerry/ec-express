@@ -952,11 +952,13 @@ orderSchema.methods.applyPaymentsToQB = async function(qbws) {
       console.log(xmlResponse);
       return xml2js(xmlResponse, {explicitArray: false}).then(async responseObject => {
         var response = responseObject.QBXML.QBXMLMsgsRs.ReceivePaymentAddRs;
-        if (response.$.statusSeverity == 'Error') {
-          theOrder.flags.paymentsApplied = false;
-          console.log(response.$.statusMessage);
-        } else {
-          theOrder.flags.paymentsApplied = true;
+        if (response) {
+          if (response.$.statusSeverity == 'Error') {
+            theOrder.flags.paymentsApplied = false;
+            console.log(response.$.statusMessage);
+          } else {
+            theOrder.flags.paymentsApplied = true;
+          }
         }
         return theOrder.save();
       });

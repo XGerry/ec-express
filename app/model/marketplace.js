@@ -57,9 +57,11 @@ marketplaceSchema.methods.updateInventory = async function() {
     let requestBody = body.slice(i * 100, (i + 1) * 100);
     try {
   		await cart.put('Products', requestBody);
-  		console.log('Done ' + (i + 1) + ' requests');
+  		console.log(this.name + ': Done ' + (i + 1) + ' requests');
     } catch (err) {
-      console.log(options);
+    	console.log('Error!')
+    	console.log(err);
+      console.log(requestBody);
     }
   }
 
@@ -74,6 +76,7 @@ marketplaceSchema.methods.updateInventory = async function() {
 			AdvancedOptionName: options[i].name,
 			AdvancedOptionStock: options[i].stock,
 		});
+		console.log(this.name + ' Done ' + (i + 1) + ' requests');
 	}
 
 	console.log('Done saving the options.');

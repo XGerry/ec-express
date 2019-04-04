@@ -98,7 +98,12 @@
  				promises.push(market.updateInventory());
  			});
 
- 			return Promise.all(promises);
+ 			return Promise.all(promises).then(async () => {
+        let updatedItems = await Item.find({updated:true});
+        helpers.inventoryBot({
+          text: updatedItems.length + ' items were synced with 3D Cart.'
+        });
+      });
  		}
 
  		/**
