@@ -85,8 +85,7 @@ marketplaceSchema.methods.updateInventory = async function() {
   		await cart.put('Products', requestBody);
   		console.log(this.name + ': Done ' + (i + 1) + ' requests');
     } catch (err) {
-    	console.log('Error!')
-    	console.log(err);
+    	console.log(this.name + ': Error saving items');
     }
   }
 
@@ -104,8 +103,7 @@ marketplaceSchema.methods.updateInventory = async function() {
 			});
 			console.log(this.name + ' Done ' + (i + 1) + ' requests');
 		} catch (err) {
-			console.log('Error when saving the option. It may not exist in this marketplace.');
-			console.log(err);
+    	console.log(this.name + ': Error saving option ' + options[i].sku);
 		}
 	}
 
@@ -137,6 +135,7 @@ marketplaceSchema.methods.updateInventory = async function() {
     let response = await cart.put('Products', body)
     process.stdout.write('Request number ' + (i + 1)+'\r');
   }
+  console.log('Done updating inventory for ' + this.name);
 }
 
 module.exports = mongoose.model('Marketplace', marketplaceSchema);
