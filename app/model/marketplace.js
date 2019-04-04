@@ -87,7 +87,6 @@ marketplaceSchema.methods.updateInventory = async function() {
     } catch (err) {
     	console.log('Error!')
     	console.log(err);
-      console.log(requestBody);
     }
   }
 
@@ -97,12 +96,17 @@ marketplaceSchema.methods.updateInventory = async function() {
 
 	for (let i = 0; i < options.length; i++) {
 		let url = await options[i].getOptionURL(this);
-		await cart.put(url, {
-			AdvancedOptionSufix: options[i].sku,
-			AdvancedOptionName: options[i].name,
-			AdvancedOptionStock: options[i].stock,
-		});
-		console.log(this.name + ' Done ' + (i + 1) + ' requests');
+		try {
+			await cart.put(url, {
+				AdvancedOptionSufix: options[i].sku,
+				AdvancedOptionName: options[i].name,
+				AdvancedOptionStock: options[i].stock,
+			});
+			console.log(this.name + ' Done ' + (i + 1) + ' requests');
+		} catch (err) {
+			console.log('Error when saving the option. It may not exist in this marketplace.');
+			console.log(err);
+		}
 	}
 
 	console.log('Done saving the options.');
