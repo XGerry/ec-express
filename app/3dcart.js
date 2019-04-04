@@ -8,7 +8,7 @@ var request = require('request');
 var async = require('async');
 var Item = require('./model/item');
 var Order = require('./model/order');
-var Marketplace = require('./model/marketplaces');
+var Marketplace = require('./model/marketplace');
 var ShowOrder = require('./model/showOrder');
 var CustomOrder = require('./model/customOrder');
 var Settings = require('./model/settings');
@@ -788,7 +788,7 @@ function updateCategories(categories, finalCallback) {
   });
 }
 
-async function saveItem(item, qbws, adjustInventory) {
+function saveItem(item, qbws, adjustInventory) {
   helpers.saveItem(item, qbws, adjustInventory);
   let marketplaces = Marketplace.find({});
   let promises = [];
