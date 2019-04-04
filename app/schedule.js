@@ -198,7 +198,6 @@ async function getSKUInfos(qbws) {
     console.log('Everything is now updated.');
     await helpers.runInventory(qbws);
     qbws.addFinalCallback(async function() {
-      helpers.
       let promises = [];
       // save the walmart inventory
       promises.push(almart.updateInventory());
