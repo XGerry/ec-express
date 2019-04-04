@@ -153,6 +153,11 @@ var itemSchema = new mongoose.Schema({
       type: Map,
       of: Number,
       default: {}
+    },
+    availableForBackorder: {
+      type: Map,
+      of: Boolean,
+      default: {}
     }
   },
 }, {
@@ -228,8 +233,6 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, marketplace) {
 
   if (cartItem.ExtraField8 != '' && cartItem.ExtraField8 != undefined) {
     this.barcode = cartItem.ExtraField8;
-  } else {
-    this.barcode = '';
   }
 
   if (cartItem.GTIN) {
