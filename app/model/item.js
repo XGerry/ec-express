@@ -407,7 +407,7 @@ itemSchema.methods.updateFromQuickbooks = function(qbItem) {
     }
   }
 
-  if (qbItem.BarCodeValue && this.barcode != qbItem.BarCodeValue) {
+  if (qbItem.BarCodeValue && (this.barcode != qbItem.BarCodeValue)) {
     this.barcode = qbItem.BarCodeValue;
   }
   this.listId = qbItem.ListID;
