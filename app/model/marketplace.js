@@ -46,21 +46,26 @@ marketplaceSchema.methods.saveItem = async function(item) {
 	let cart = this.getCart();
 	item = await mongoose.model('Item').findOne({sku: item.sku});
 	let response;
-	if (!item.isOption) {
-		let cartItem = item.getCartItem();
-		let body = [cartItem];
-		response = await cart.put('Products', body);
-	} else {
-		let url = await options[i].getOptionURL(this);
-		response = await cart.put(url, {
-			AdvancedOptionSufix: options[i].sku,
-			AdvancedOptionName: options[i].name,
-			AdvancedOptionStock: options[i].stock,
-		});
+	try {
+		if (!item.isOption) {
+			let cartItem = item.getCartItem();
+			let body = [cartItem];
+			response = await cart.put('Products', body);
+		} else {
+			let url = await options[i].getOptionURL(this);
+			response = await cart.put(url, {
+				AdvancedOptionSufix: options[i].sku,
+				AdvancedOptionName: options[i].name,
+				AdvancedOptionStock: options[i].stock,
+			});
+		}
+		console.log(this.name + ': saved item.');
+		console.log(response);
+		return response;
+	} catch (err) {
+		console.log(this.name + ': error saving item. It may not exist on this marketplace.');
+		return err;
 	}
-	console.log(this.name + ': saved item.');
-	console.log(response);
-	return response;
 }
 
 marketplaceSchema.methods.updateInventory = async function() {
