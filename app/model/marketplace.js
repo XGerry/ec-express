@@ -44,7 +44,7 @@ marketplaceSchema.methods.getSKUInfos = async function() {
 
 marketplaceSchema.methods.saveItem = async function(item) {
 	let cart = this.getCart();
-	let item = await mongoose.model('Item').findOne({sku: item.sku});
+	item = await mongoose.model('Item').findOne({sku: item.sku});
 	let response;
 	if (!item.isOption) {
 		let cartItem = item.getCartItem();
