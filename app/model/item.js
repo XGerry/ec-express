@@ -424,7 +424,6 @@ itemSchema.methods.getCartItem = function() { // only valid if the item is not a
     },
     MFGID: this.sku,
     WarehouseLocation: this.location,
-    ExtraField8: this.barcode,
     ExtraField9: this.countryOfOrigin,
   };
 
