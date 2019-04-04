@@ -323,10 +323,6 @@ itemSchema.methods.setStock = function(stock) {
     }
   }
 
-  if (!updated) {
-    updated = stock != this.usStock || stock != this.canStock;
-  }
-
   this.stock = stock;
   
   if (updated) {
@@ -340,7 +336,7 @@ itemSchema.methods.setStock = function(stock) {
   return this.save();
 }
 
-itemSchema.methods.updateFromQuickbooks = function(qbItem) {
+itemSchema.methods.updateFromQuickbooks = async function(qbItem) {
 	function addItemProperties(data) { // don't update the barcode in here anymore
 	  if (data.DataExtName == 'Location') {
 	    if (this.location != data.DataExtValue) {
@@ -385,15 +381,8 @@ itemSchema.methods.updateFromQuickbooks = function(qbItem) {
     this.discontinued = false;
   }
 
-  var updated = (this.usStock != theStock) || (this.canStock != theStock);
-  updated = updated || (this.inactive != itemIsInactive);
+  await this.setStock(theStock);
 
-  this.updated = updated;
-  this.stock = theStock;
-  this.usStock = theStock;
-  this.canStock = theStock;
-  this.amazonStock = theStock;
-  this.walmartStock = theStock;
   this.inactive = itemIsInactive;
   this.cost = qbItem.PurchaseCost;
 
