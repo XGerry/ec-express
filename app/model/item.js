@@ -423,7 +423,6 @@ itemSchema.methods.getCartItem = function() { // only valid if the item is not a
       Stock: this.stock
     },
     MFGID: this.sku,
-    GTIN: this.barcode, 
     WarehouseLocation: this.location,
     ExtraField8: this.barcode,
     ExtraField9: this.countryOfOrigin,
@@ -437,7 +436,10 @@ itemSchema.methods.getCartItem = function() { // only valid if the item is not a
     cartItem.InventoryControl = '1'; // Out of Stock
   }
 
-  console.log(cartItem);
+  if (this.barcode) {
+    cartItem.GTIN = this.barcode;
+    cartItem.ExtraField8 = this.barcode;
+  }
 
   return cartItem;
 }
