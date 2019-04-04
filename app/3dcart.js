@@ -788,9 +788,9 @@ function updateCategories(categories, finalCallback) {
   });
 }
 
-function saveItem(item, qbws, adjustInventory) {
+async function saveItem(item, qbws, adjustInventory) {
   helpers.saveItem(item, qbws, adjustInventory);
-  let marketplaces = Marketplace.find({});
+  let marketplaces = await Marketplace.find({});
   let promises = [];
   marketplaces.forEach(market => {
     promises.push(market.saveItem(item));
