@@ -538,9 +538,9 @@
  			var calculateStock = cart3d.calculateBaseItemStock();
  		});
 
- 		socket.on('refreshAllItems', function() {
+ 		socket.on('refreshAllItems', async function() {
  			console.log('Refreshing all items');
- 			let marketplaces = Marketplace.find({});
+ 			let marketplaces = await Marketplace.find({});
  			let promises = [];
  			marketplaces.forEach(market => {
  				promises.push(market.getItems());
