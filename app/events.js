@@ -540,8 +540,13 @@
 
  		socket.on('refreshAllItems', function() {
  			console.log('Refreshing all items');
- 			cart3d.refreshFrom3DCart().then(items => {
- 				console.log('Done the refresh');
+ 			let marketplaces = Marketplace.find({});
+ 			let promises = [];
+ 			marketplaces.forEach(market => {
+ 				promises.push(market.getItems());
+ 			});
+ 			Promise.all(promises).then(() => {
+ 				console.log('Done the refresh!');
  			});
  		});
 
