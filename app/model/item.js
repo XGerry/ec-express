@@ -477,14 +477,13 @@ itemSchema.methods.calculateSalesMetrics = function() {
 itemSchema.methods.refreshFrom3DCart = async function() {
   let marketplaces = await mongoose.model('Marketplace').find({});
   let item = this;
-  marketplaces.forEach(async market => {
-    let catalogId = item.marketplaceProperties.catalogId.get(market._id.toString());
-    let cartItem = await market.getCart().get('Products/'+catalogId);
+  for (let i = 0; i < marketplaces.length; i++) {
+    let catalogId = item.marketplaceProperties.catalogId.get(marketplaces[i]._id.toString());
+    let cartItem = await marketplaces[i].getCart().get('Products/'+catalogId);
     console.log(market.name);
-    console.log(cartItem);
-    await this.updateFrom3DCart(cartItem[0], market);
-  });
-  console.log('done.');
+    console.log(cartItem[0]);
+    await this.updateFrom3DCart(cartItem[0], marketplaces[i]);
+  }
 }
 
 // helpers
