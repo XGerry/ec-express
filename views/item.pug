@@ -17,8 +17,8 @@ append nav-items-right
     li.dropdown.nav-item
       a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Admin
       ul.dropdown-menu.dropdown-menu-right
-        a(href='https://www.ecstasycrafts.com/admin/iteminfo.asp?catid='+item.catalogId target="_blank").dropdown-item US
-        a(href='https://www.ecstasycrafts.ca/admin/iteminfo.asp?catid='+item.catalogIdCan target="_blank").dropdown-item Canadian
+        for marketplace in marketplaces
+          a.dropdown-item(href=marketplace.url+'/admin/iteminfo.asp?catid='+item.marketplaceProperties.catalogId.get(marketplace._id.toString()) target="_blank")= marketplace.name
     li.dropdown.nav-item
       a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
       ul.dropdown-menu.dropdown-menu-right
