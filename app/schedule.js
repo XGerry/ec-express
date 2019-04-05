@@ -37,9 +37,6 @@ module.exports = function(qbws) {
       helpers.queryAllItems(qbws); // update from quickbooks
     });
   });
-  syncOrdersAndInventoryNew(qbws).then(() => {
-    console.log('okay it finally worked');
-  });
 }
 
 function syncOrdersAndInventory(qbws) {
