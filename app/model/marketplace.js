@@ -104,6 +104,7 @@ marketplaceSchema.methods.updateInventory = async function() {
 			console.log(this.name + ' Done ' + (i + 1) + ' requests');
 		} catch (err) {
     	console.log(this.name + ': Error saving option ' + options[i].sku);
+    	console.log(url);
 		}
 	}
 
