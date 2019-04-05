@@ -480,7 +480,7 @@ itemSchema.methods.refreshFrom3DCart = async function() {
   for (let i = 0; i < marketplaces.length; i++) {
     let catalogId = item.marketplaceProperties.catalogId.get(marketplaces[i]._id.toString());
     let cartItem = await marketplaces[i].getCart().get('Products/'+catalogId);
-    console.log(marketplace[i].name);
+    console.log(marketplaces[i].name);
     console.log(cartItem[0]);
     await this.updateFrom3DCart(cartItem[0], marketplaces[i]);
   }
