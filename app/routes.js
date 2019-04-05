@@ -351,14 +351,16 @@ module.exports = app => {
     res.redirect('/item/'+req.query.id);
   });
 
-  app.get('/item/:itemId', verifyUser, (req, res) => {
+  app.get('/item/:itemId', verifyUser, async (req, res) => {
+    let marketplaces = await Marketplace.find({});
     Item.findOne({_id: req.params.itemId}).then(item => {
       if (item) {
         item.findOrders().then(orders => {
           res.render('item', {
             item: item,
             orders: orders,
-            user: req.session.user
+            user: req.session.user,
+            marketplaces: marketplaces
           });
         });
       } else {

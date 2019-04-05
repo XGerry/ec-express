@@ -93,8 +93,11 @@ append body
                   td='$'+item.usWholesalePrice.toFixed(2)
                 else
                   td N/A
-                td='$'+item.canPrice.toFixed(2)
-                td='$'+item.canWholesalePrice.toFixed(2)
+                if (item.canPrice)
+                  td='$'+item.canPrice.toFixed(2)
+                if (item.canWholesalePrice)
+                  td='$'+item.canWholesalePrice.toFixed(2)
+                  
         .row
           .col
 
