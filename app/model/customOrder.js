@@ -80,6 +80,7 @@ customOrderSchema.methods.buildCartOrder = function() {
 }
 
 customOrderSchema.methods.update = function(customOrder) {
+  delete customOrder.__v;
   let now = new Date();
 	this.set(customOrder);
   this.markModified('customer');
