@@ -59,7 +59,6 @@ append body
             table.table-sm.table
               thead
                 th QB Stock
-                th Online Stock
                 th On Sales Orders
                 th On Purchase Orders
               tbody
@@ -72,15 +71,22 @@ append body
                   td N/A
         .row
           .col
-            h5 Pricing
+            h5 Marketplace Properties
             table.table-sm.table
               thead
-                th US Cost
-                th US Price
-                th US Wholesale
-                th CA Price
-                th CA Wholesale
+                th Marketplace
+                th Cost
+                th Price
+                th Wholesale Price
+                th Stock
               tbody
+                for marketplace in marketplaces
+                  tr
+                    td= marketplace.name
+                    td= item.marketplaceProperties.cost.get(marketplace._id.toString())
+                    td= item.marketplaceProperties.price.get(marketplace._id.toString())
+                    td= item.marketplaceProperties.wholesalePrice.get(marketplace._id.toString())
+                    td= item.marketplaceProperties.stock.get(marketplace._id.toString())
                 if (item.cost)
                   td='$'+item.cost.toFixed(2)
                 else
@@ -97,7 +103,7 @@ append body
                   td='$'+item.canPrice.toFixed(2)
                 if (item.canWholesalePrice)
                   td='$'+item.canWholesalePrice.toFixed(2)
-                  
+
         .row
           .col
 

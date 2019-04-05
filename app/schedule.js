@@ -12,7 +12,7 @@ const Marketplace = require('./model/marketplace.js');
 const CartMarketplace = require('./cartMarketplace');
 
 module.exports = function(qbws) {
-  var sync = schedule.scheduleJob('0 0-20 * *', () => { // 0 4,6,8,10,12,14,16,18,20
+  var sync = schedule.scheduleJob('0 0-20/2 * *', () => { // 0 4,6,8,10,12,14,16,18,20
     if (process.env.DEV_MODE == 'TRUE') {
       // do nothing
       console.log('Doing nothing because we are in DEV mode.');
@@ -37,9 +37,8 @@ module.exports = function(qbws) {
       helpers.queryAllItems(qbws); // update from quickbooks
     });
   });
-  syncOrdersAndInventoryNew(qbws).then(() => {
-    console.log('Done the new inventory system.');
-  });
+
+  //test();
 }
 
 function syncOrdersAndInventory(qbws) {
@@ -218,6 +217,20 @@ async function getSKUInfos(qbws) {
           text: updatedItems.length + ' items were synced with 3D Cart.'
         });
       });
+    });
+  });
+}
+
+async function test() {
+  Marketplace.find({}).then(marketplaces => {
+    marketplaces.forEach(async market => {
+      console.log(market.name);
+      let cart = market.getCart();
+      let item = await Item.findOne({sku: "1016B"});
+      let url = 'Products/' + item.marketplaceProperties.catalogId.get(market._id.toString()) + '/AdvancedOptions';
+      console.log(url);
+      let response = await cart.get(url);
+      console.log(response);
     });
   });
 }
