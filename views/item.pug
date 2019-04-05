@@ -182,6 +182,7 @@ append body
     $(document).ready(e => {
       $('#refreshFrom3DCart').click(e => {
         e.preventDefault();
+        console.log('refreshing the item');
         socket.emit('refreshItem', theItem, cb => {
           location.reload();
         });
