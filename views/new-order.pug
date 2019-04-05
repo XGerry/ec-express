@@ -182,12 +182,12 @@ append body
 					button.close(data-dismiss="modal") &times;
 				.modal-body
 					.form-group.row
-						.col-6
+						.col
 							label(for="websiteSelect") Website
 							select.form-control#websiteSelect
 								option(value="us") U.S.
 								option(value="can") Canada
-						.col-6
+						.col
 							label(for="profileSelect") Profile
 							select.form-control#profileSelect
 								option(value="retail") Retail
@@ -196,6 +196,12 @@ append body
 								option(value="wholesale") Wholesale
 								option(value="craftershome") Crafter's Home - 5%
 								option(value="preferredwholesale") Preferred Wholesale
+						.col
+							label Marketplace (for pricing)
+							select.form-control#marketplaceSelect
+								for marketplace in marketplaces
+									option(value=marketplace._id)= marketplace.name
+
 					.form-group.row
 						.col-12
 							label(for="customerEmailModal") Email

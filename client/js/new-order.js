@@ -320,6 +320,20 @@ function determineItemPrice(item) {
 		}
 	}
 
+	if (theCustomer.marketplace) {
+		console.log('new way');
+		if (theCustomer.profile == 'wholesale' || theCustomer.profile == 'craftershome' || theCustomer.profile == 'preferredwholesale') { // wholesale
+			return item.marketplaceProperties.wholesalePrice[theCustomer.marketplace];
+		} else {
+			return item.marketplaceProperties.price[theCustomer.marketplace];
+		}
+	} else {
+		return oldDetermineItemPrice(item);
+	}
+}
+
+function oldDetermineItemPrice(item) {
+	let price = 0;
 	if (theCustomer.website == 'can') {
 		if (item.onSale) {
 			price = item.canSalePrice;
@@ -424,6 +438,7 @@ function saveCustomer() {
 	theCustomer.shippingZipCode = $('#shippingZip').val();
 	theCustomer.profile = $('#profileSelect').val();
 	theCustomer.website = $('#websiteSelect').val();
+	theCustomer.marketplace = $('#marketplaceSelect').val();
 
 	if (theCustomer.profile == 'preferredretail') {
 		$('#discountType').val('percentage');
@@ -491,6 +506,8 @@ function setCustomerModalFields(customer) {
 	$('#shippingState').val(customer.shippingState);
 	$('#shippingCountry').val(customer.shippingCountry);
 	$('#shippingZip').val(customer.shippingZipCode);
+	if (customer.marketplace)
+		$('#marketplaceSelect').val(customer.marketplace);
 
 	if (customer.canadian) {
 		if (customer.customerType == '0') {

@@ -401,18 +401,21 @@ module.exports = app => {
     res.render('amazon');
   });
 
-  app.get('/new-order', verifyUser, function(req, res) {
+  app.get('/new-order', verifyUser, async function(req, res) {
     var customId = req.query.id;
+    let marketplaces = await Marketplace.find({});
     if (customId) {
       CustomOrder.findOne({_id: customId}).then(cOrder => {
         res.render('new-order', {
           customOrder: cOrder,
-          user: req.session.user
+          user: req.session.user,
+          marketplaces: marketplaces
         });
       });
     } else {
       res.render('new-order', {
-        user: req.session.user
+        user: req.session.user,
+        marketplaces: marketplaces
       });
     }
   });

@@ -11,19 +11,24 @@ const cluster = require('cluster');
 const MongoStore = require('connect-mongo')(session);
 const numOfCPUs = require('os').cpus().length;
 
-if (cluster.isMaster) {
-  masterProcess();
-} else {
-  childProcess();
-}
+// if (cluster.isMaster) {
+//   masterProcess();
+// } else {
+//   childProcess();
+// }
 
-function masterProcess() {
-  console.log('Master ' + process.pid + ' is running.');
-  for (let i = 0; i < numOfCPUs; i++) {
-    console.log('Forking process number ' + i);
-    cluster.fork();
-  }
-}
+// function masterProcess() {
+//   console.log('Master ' + process.pid + ' is running.');
+//   for (let i = 0; i < numOfCPUs; i++) {
+//     console.log('Forking process number ' + i);
+//     cluster.fork();
+//   }
+
+//   // set up the socket io on the master process for now
+
+// }
+
+childProcess();
 
 function childProcess() {
   console.log('Worker ' + process.pid + ' started...');
