@@ -50,7 +50,10 @@ var itemSchema = new mongoose.Schema({
   },
 	listId: String, // need this to modify the item in quickbooks
 	editSequence: String, // also need this in order to modify the item in qb
-	isOption: Boolean,
+	isOption: {
+    type: Boolean,
+    default: false
+  },
 	inactive: Boolean,
 	hidden: Boolean,
 	hasOptions: {
@@ -299,6 +302,8 @@ itemSchema.methods.updateAdvancedOptionFields = function(dbParent, parentItem, o
   this.manufacturerName = parentItem.ManufacturerName;
   this.weight = parentItem.Weight;
   this.isOption = true;
+  this.hasOptions = false;
+  this.children = []; // for safety
   this.availableForBackorder = dbParent.availableForBackorder;
 
   this.parent = dbParent._id;
@@ -475,14 +480,19 @@ itemSchema.methods.calculateSalesMetrics = function() {
 }
 
 itemSchema.methods.refreshFrom3DCart = async function() {
-  let marketplaces = await mongoose.model('Marketplace').find({});
-  let item = this;
-  for (let i = 0; i < marketplaces.length; i++) {
-    let catalogId = item.marketplaceProperties.catalogId.get(marketplaces[i]._id.toString());
-    let cartItem = await marketplaces[i].getCart().get('Products/'+catalogId);
-    console.log(marketplaces[i].name);
-    console.log(cartItem[0]);
-    await this.updateFrom3DCart(cartItem[0], marketplaces[i]);
+  if (this.isOption) {
+    let parent = await this.populate('parent').execPopulate();
+    return parent.refreshFrom3DCart();
+  } else {
+    let marketplaces = await mongoose.model('Marketplace').find({});
+    let item = this;
+    for (let i = 0; i < marketplaces.length; i++) {
+      let catalogId = item.marketplaceProperties.catalogId.get(marketplaces[i]._id.toString());
+      let cartItem = await marketplaces[i].getCart().get('Products/'+catalogId);
+      console.log(marketplaces[i].name);
+      console.log(cartItem[0]);
+      await this.updateFrom3DCart(cartItem[0], marketplaces[i]);
+    }
   }
 }
 
