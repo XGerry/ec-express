@@ -482,8 +482,8 @@ itemSchema.methods.calculateSalesMetrics = function() {
 itemSchema.methods.refreshFrom3DCart = async function() {
   console.log('trying the refresh: ' + this.sku);
   if (this.isOption) {
-    let parent = await this.populate('parent').execPopulate();
-    return parent.refreshFrom3DCart();
+    await this.populate('parent').execPopulate();
+    return this.parent.refreshFrom3DCart();
   } else {
     let marketplaces = await mongoose.model('Marketplace').find({});
     let item = this;
