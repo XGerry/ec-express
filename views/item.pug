@@ -83,26 +83,10 @@ append body
                 for marketplace in marketplaces
                   tr
                     td= marketplace.name
-                    td= item.marketplaceProperties.cost.get(marketplace._id.toString())
-                    td= item.marketplaceProperties.price.get(marketplace._id.toString())
-                    td= item.marketplaceProperties.wholesalePrice.get(marketplace._id.toString())
+                    td= '$' + item.marketplaceProperties.cost.get(marketplace._id.toString())
+                    td= '$' + item.marketplaceProperties.price.get(marketplace._id.toString())
+                    td= '$' + item.marketplaceProperties.wholesalePrice.get(marketplace._id.toString())
                     td= item.marketplaceProperties.stock.get(marketplace._id.toString())
-                if (item.cost)
-                  td='$'+item.cost.toFixed(2)
-                else
-                  td N/A
-                if (item.usPrice)
-                  td='$'+item.usPrice.toFixed(2)
-                else
-                  td N/A
-                if (item.usWholesalePrice)
-                  td='$'+item.usWholesalePrice.toFixed(2)
-                else
-                  td N/A
-                if (item.canPrice)
-                  td='$'+item.canPrice.toFixed(2)
-                if (item.canWholesalePrice)
-                  td='$'+item.canWholesalePrice.toFixed(2)
 
         .row
           .col
