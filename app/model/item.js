@@ -245,6 +245,7 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, marketplace) {
   this.marketplaceProperties.link.set(marketplace._id.toString(), cartItem.ProductLink);
   this.marketplaceProperties.stock.set(marketplace._id.toString(), cartItem.SKUInfo.Stock);
   this.marketplaceProperties.wholesalePrice.set(marketplace._id.toString(), cartItem.PriceLevel2);
+  this.marketplaceProperties.availableForBackorder.set(marketplace._id.toString(), cartItem.InventoryControl == '2');
 
   if (cartItem.AdvancedOptionList.length > 0) {
     this.hasOptions = true;

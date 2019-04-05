@@ -6,14 +6,16 @@ var cart3d = require('./3dcart');
 var amazon = require('./amazon');
 var walmart = require('./walmart');
 var Order = require('./model/order.js');
+var Settings = require('./model/settings.js');
 var Item = require('./model/item.js');
 const Marketplace = require('./model/marketplace.js');
 const CartMarketplace = require('./cartMarketplace');
 
 module.exports = function(qbws) {
-  var sync = schedule.scheduleJob('0 4,6,8,10,12,14,16,18,20 * * *', () => {
+  var sync = schedule.scheduleJob('0 0-20 * *', () => { // 0 4,6,8,10,12,14,16,18,20
     if (process.env.DEV_MODE == 'TRUE') {
       // do nothing
+      console.log('Doing nothing because we are in DEV mode.');
     } else {
       //syncOrdersAndInventory(qbws);
       syncOrdersAndInventoryNew(qbws).then(() => {
@@ -182,6 +184,7 @@ async function syncOrdersAndInventoryNew(qbws) {
   });
 
   return Promise.all(promises).then(async () => {
+    console.log('Done the refresh');
     helpers.generateSalesOrders(qbws);
     return getSKUInfos(qbws);
   });
