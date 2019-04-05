@@ -480,6 +480,7 @@ itemSchema.methods.calculateSalesMetrics = function() {
 }
 
 itemSchema.methods.refreshFrom3DCart = async function() {
+  console.log('trying the refresh');
   if (this.isOption) {
     let parent = await this.populate('parent').execPopulate();
     return parent.refreshFrom3DCart();

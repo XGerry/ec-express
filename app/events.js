@@ -839,6 +839,7 @@
  		socket.on('refreshItem', (item, cb) => {
  			console.log('received the socket request');
  			Item.findOne({_id: item._id}).then(dbItem => {
+ 				console.log('found the item');
  				dbItem.refreshFrom3DCart().then(item => {
  					cb();
  				});
