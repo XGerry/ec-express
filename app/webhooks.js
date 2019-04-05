@@ -1,7 +1,4 @@
 var request = require('request');
-var bodyParser = require('body-parser');
-var jsonParser = bodyParser.json({limit : '50mb'});
-var formParser = bodyParser.urlencoded({limit : '50mb'});
 var Order = require('./model/order');
 var Customer = require('./model/customer');
 var Item = require('./model/item');
@@ -305,7 +302,7 @@ function advancedOptionUpdate(dbItem, stock, canadian) {
 
 module.exports = {
 	route: function(app, qbws) {
-		app.post('/webhooks/new-order', jsonParser, function(req, res) {
+		app.post('/webhooks/new-order', function(req, res) {
 			var orders = req.body;
 			adjustInventory(orders);
 			helpers.setTimeCode();
@@ -333,7 +330,7 @@ module.exports = {
 			res.send('New order.');
 		});
 
-		app.post('/webhooks/new-customer', jsonParser, function(req, res) {
+		app.post('/webhooks/new-customer', function(req, res) {
 			var customers = req.body;
 			customers.forEach((customer) => {
 				sendCustomerToSlack(customer);
@@ -342,7 +339,7 @@ module.exports = {
 			res.send('New customer.');
 		});
 
-		app.post('/webhooks/new-product', jsonParser, function(req, res) {
+		app.post('/webhooks/new-product', function(req, res) {
 			var products = req.body;
 			products.forEach((product) => {
 				sendNewProductToSlack(product)
@@ -351,7 +348,7 @@ module.exports = {
 			res.send('New product.');
 		});
 
-		app.post('/webhooks/wholesale', jsonParser, function(req, res) {
+		app.post('/webhooks/wholesale', function(req, res) {
 			var wholesaleApp = req.body;
 			var slackMessage = packageWholesaleRequest(wholesaleApp);
 			customerSupportBot(slackMessage);
@@ -385,11 +382,11 @@ module.exports = {
 			});
 		});
 
-		app.get('/webhooks/mailchimp', jsonParser, function(req, res) {
+		app.get('/webhooks/mailchimp', function(req, res) {
 			res.send('Received webhook notification');
 		});
 
-		app.post('/webhooks/mailchimp', formParser, function(req, res) {
+		app.post('/webhooks/mailchimp', function(req, res) {
 			console.log(req.body);
 			res.send('Received notification');
 		});

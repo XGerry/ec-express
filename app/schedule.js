@@ -206,7 +206,7 @@ async function getSKUInfos(qbws) {
     qbws.addFinalCallback(async function() {
       let promises = [];
       // save the walmart inventory
-      promises.push(almart.updateInventory());
+      promises.push(walmart.updateInventory());
       // save the amazon inventory
       promises.push(amazon.updateInventory());
       marketplaces.forEach(market => {

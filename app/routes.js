@@ -1,4 +1,3 @@
-var bodyParser = require('body-parser');
 var path = require('path');
 var Settings = require('./model/settings');
 var ShowOrder = require('./model/showOrder');
@@ -19,7 +18,6 @@ var helpers = require('./helpers');
 var request = require('request');
 var rp = require('request-promise-native');
 var moment = require('moment');
-var formParser = bodyParser.urlencoded({limit : '50mb'});
 
 async function verifyUser(req, res, next) {
   if (req.session.userId == undefined || req.session.userId == null) {

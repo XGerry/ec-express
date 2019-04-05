@@ -162,29 +162,24 @@ batchSchema.methods.removeOrder = function(orderId) {
 }
 
 batchSchema.methods.recalculate = async function() {
-	return this.populate('orders').execPopulate().then(() => {
-		this.numberOfItems = 0;
-		this.numberOfSkus = 0;
-		this.orders.forEach(o => {
-			this.numberOfSkus += o.items.length;
-			this.numberOfItems += o.items.reduce((totalItems, item) => {
-				return totalItems + parseInt(item.quantity);
-			}, 0);
-		});
-		return this.save();
+	await this.populate('orders').execPopulate();
+	this.numberOfItems = 0;
+	this.numberOfSkus = 0;
+	this.orders.forEach(o => {
+		this.numberOfSkus += o.items.length;
+		this.numberOfItems += o.items.reduce((totalItems, item) => {
+			return totalItems + parseInt(item.quantity);
+		}, 0);
 	});
+	return this.save();
 }
 
-batchSchema.methods.delete = function() {
-	return this.populate('orders').execPopulate().then(() => {
-		var promises = [];
-		this.orders.forEach(o => {
-			promises.push(o.removeBatch());
-		});
-		return Promise.all(promises).then(() => {
-			return this.remove({_id: this._id});
-		});
-	});
+batchSchema.methods.delete = async function() {
+	await this.populate('orders').execPopulate(); 
+	for (let i = 0; i < this.orders; i++) {
+		await this.orders[i].removeBatch();
+	}
+	return this.remove({_id: this._id});
 }
 
 batchSchema.methods.finish = async function(batch, user) {
