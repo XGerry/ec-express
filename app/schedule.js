@@ -12,18 +12,19 @@ const Marketplace = require('./model/marketplace.js');
 const CartMarketplace = require('./cartMarketplace');
 
 module.exports = function(qbws) {
-  var sync = schedule.scheduleJob('0 0-20/2 * *', () => { // 0 4,6,8,10,12,14,16,18,20
-    if (process.env.DEV_MODE == 'TRUE') {
-      // do nothing
-      console.log('Doing nothing because we are in DEV mode.');
-    } else {
-      //syncOrdersAndInventory(qbws);
-      console.log('Syncing inventory from scheduler...');
-      syncOrdersAndInventoryNew(qbws).then(() => {
-        console.log('Done the new inventory system.');
-      });
-    }
-  }); 
+  // var sync = schedule.scheduleJob('0 0-20/2 * *', () => { // 0 4,6,8,10,12,14,16,18,20
+  //   if (process.env.DEV_MODE == 'TRUE') {
+  //     // do nothing
+  //     console.log('Doing nothing because we are in DEV mode.');
+  //   } else {
+  //     //syncOrdersAndInventory(qbws);
+  //     console.log('Syncing inventory from scheduler...');
+  //     syncOrdersAndInventoryNew(qbws).then(() => {
+  //       console.log('Done the new inventory system.');
+  //     });
+  //   }
+  // }); 
+  
   var refresh = schedule.scheduleJob('0 21 * * *', async () => {
     let marketplaces = await Marketplace.find({});
     let promises = [];
@@ -36,6 +37,17 @@ module.exports = function(qbws) {
       amazon.updateAllInventory().then(response => console.log(response));
       walmart.updateAllInventory().then(response => console.log(response));
       helpers.queryAllItems(qbws); // update from quickbooks
+    });
+  });
+
+  let rule = new schedule.RecurrenceRule();
+  rule.hour = new schedule.Range(0, 20);
+  rule.minute = 0;
+
+  let test = schedule.scheduleJob(rule, function() {
+    console.log('once an hour');
+    syncOrdersAndInventoryNew(qbws).then(() => {
+      console.log('Done the new inventory system.');
     });
   });
 

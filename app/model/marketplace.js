@@ -59,6 +59,8 @@ marketplaceSchema.methods.saveItem = async function(item) {
 					AdvancedOptionName: options[i].name,
 					AdvancedOptionStock: options[i].stock,
 				});
+			} else {
+				console.log(options[i].sku + ' does not exist on this marketplace.');
 			}
 		}
 		console.log(this.name + ': saved item.');
