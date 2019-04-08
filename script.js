@@ -19,26 +19,11 @@ mongoose.connect(uriString, {
   if (err) {
     console.log('Error connecting to: ' + uriString + '. ' + err);
   } else {
-    let fromDate = moment('2019-03-01').utc();
-    let to = moment('2019-03-20').utc();
-    console.log('running aggregate');
-    Order.aggregate().match({orderDate: {$gte: fromDate.toDate(), $lt: to.toDate()}, isBackorder: false})
-      .project({
-        items: 1,
-        orderValue: 1,
-        orderDate: 1
-      })
-      .unwind('items')
-      .group({
-        _id: '$items.item',
-        totalOrdered: {
-          $sum: '$items.quantity'
-        }
-      })
-      .sort('-totalOrdered').then(aggregate => {
-        Item.populate(aggregate, {path: '_id', select: 'sku name manufacturerName'}).then(items => {
-          console.log(items);
-        });
-      });
+    let updatedOptions = await Item.find({updated: true, isOption: true});
+    console.log('found ' + updatedOptions.length);
+    for (option of updatedOptions) {
+      let option = await option.refreshFrom3DCart();
+    }
+    console.log('done refreshing the options');
   }
 });
