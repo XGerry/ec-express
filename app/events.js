@@ -63,11 +63,10 @@
 
  			Promise.all(promises).then(numberOfOrders => {
  				helpers.generateSalesOrders(qbws);
- 				console.log(numberOfOrders);
+ 				console.log(numberOfOrders[0]);
  				let numOrders = 0;
- 				console.log(response);
  				//numberOfOrders.forEach(response => numOrders += response.length);
- 				socket.emit('getOrdersFinished', response);
+ 				socket.emit('getOrdersFinished', numberOfOrders);
  				// Now, refresh the stock levels in 3D Cart
  				let promises = [];
  				marketplaces.forEach(market => {
