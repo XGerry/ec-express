@@ -116,8 +116,6 @@ marketplaceSchema.methods.updateInventory = async function() {
 			}
 		} catch (err) {
     	console.log(this.name + ': Error saving option ' + options[i].sku);
-    	console.log(url);
-    	console.log(err);
 		}
 	}
 
