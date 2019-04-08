@@ -52,7 +52,7 @@ marketplaceSchema.methods.saveItem = async function(item) {
 			let body = [cartItem];
 			response = await cart.put('Products', body);
 		} else {
-			let url = awaititem.getOptionURL(this);
+			let url = await item.getOptionURL(this);
 			if (url) {
 				console.log(url);
 				response = await cart.put(url, {
