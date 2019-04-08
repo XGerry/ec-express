@@ -182,9 +182,9 @@ async function syncOrdersAndInventoryNew(qbws) {
   settings.lastImport = helpers.getTimeCode();
   settings.lastImports = [helpers.getTimeCode()];
   await settings.save();
-  marketplaces.forEach(market => {
-    promises.push(market.importOrders(helpers.getTimeCode()));
-  });
+  for (market of marketplaces) {
+    await market.importOrders(helpers.getTimeCode());
+  }
 
   return Promise.all(promises).then(async () => {
     console.log('Done the refresh');
