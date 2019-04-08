@@ -54,7 +54,6 @@ marketplaceSchema.methods.saveItem = async function(item) {
 		} else {
 			let url = await item.getOptionURL(this);
 			if (url) {
-				console.log(url);
 				response = await cart.put(url, {
 					AdvancedOptionSufix:item.sku,
 					AdvancedOptionName:item.name,
@@ -101,6 +100,7 @@ marketplaceSchema.methods.updateInventory = async function() {
 
 	for (let i = 0; i < options.length; i++) {
 		let url = await options[i].getOptionURL(this);
+		console.log(options[i].marketplacePropeties);
 		let stock = options[i].marketplacePropeties.stock.get(this._id.toString());
 		try {
 			if (stock == options[i].stock) {

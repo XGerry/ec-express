@@ -72,17 +72,28 @@ customerSchema.statics.findCustomer = async function(email) { // TODO change to 
     let canadaCart = new Marketplace('https://www.ecstasycrafts.ca',
       process.env.CART_PRIVATE_KEY,
       process.env.CART_TOKEN_CANADA);
-    let canadaCustomer = await canadaCart.getCustomer(email);
     let usCart = new Marketplace('https://www.ecstasycrafts.com',
       process.env.CART_PRIVATE_KEY,
       process.env.CART_TOKEN);
-    let usCustomer = await usCart.getCustomer(email);
+    let canadaCustomer = undefined;
+    let usCustomer = undefined;
+    try {
+      let canadaCustomer = await canadaCart.getCustomer(email);
+    } catch (err) {
+      console.log('No canadian customer.');
+    }
+    try {
+      let usCustomer = await usCart.getCustomer(email);
+    } catch (err) {
+      console.log('No us customer.')
+    }
     let newCustomer = new this();
     newCustomer.email = email;
-    newCustomer.billingCountry = 'CA';
-    try {
+
+    if (canadaCustomer) {
+      newCustomer.billingCountry = 'CA';
       return newCustomer.getCustomerFrom3DCart();
-    } catch (err) {
+    } else {
       newCustomer.billingCountry = 'US';
       return newCustomer.getCustomerFrom3DCart();
     }

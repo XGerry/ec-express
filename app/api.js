@@ -226,11 +226,21 @@ router.get('/cart/customers/:email', async (req, res) => {
   let canadaCart = new CartMarketplace('https://www.ecstasycrafts.ca',
     process.env.CART_PRIVATE_KEY,
     process.env.CART_TOKEN_CANADA);
-  let canadaCustomer = await canadaCart.getCustomer(req.params.email);
   let usCart = new CartMarketplace('https://www.ecstasycrafts.com',
     process.env.CART_PRIVATE_KEY,
     process.env.CART_TOKEN);
-  let usCustomer = await usCart.getCustomer(req.params.email);
+  let canadaCustomer = undefined;
+  let usCustomer = undefined;
+  try {
+    canadaCustomer = await canadaCart.getCustomer(req.params.email);
+  } catch (err) {
+    console.log('No canada customer');
+  }
+  try {
+    usCustomer = await usCart.getCustomer(req.params.email);
+  } catch (err) {
+    console.log('No us customer');
+  }
   res.json({
     us: usCustomer[0],
     can: canadaCustomer[0]
