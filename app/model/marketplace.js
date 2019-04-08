@@ -100,8 +100,6 @@ marketplaceSchema.methods.updateInventory = async function() {
 
 	for (let i = 0; i < options.length; i++) {
 		let url = await options[i].getOptionURL(this);
-		console.log(options[i].sku);
-		console.log(options[i].marketplaceProperties);
 		let stock = options[i].marketplaceProperties.stock.get(this._id.toString());
 		try {
 			if (stock == options[i].stock) {
@@ -113,6 +111,8 @@ marketplaceSchema.methods.updateInventory = async function() {
 					AdvancedOptionStock: options[i].stock,
 				});
 				console.log(this.name + ' Done ' + (i + 1) + ' requests');
+				options[i].marketplaceProperties.stock.set(this._id.toString(), options[i].stock);
+				await options[i].save();
 			}
 		} catch (err) {
     	console.log(this.name + ': Error saving option ' + options[i].sku);
