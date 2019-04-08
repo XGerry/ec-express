@@ -65,7 +65,7 @@ marketplaceSchema.methods.saveItem = async function(item) {
 		console.log(response);
 		return response;
 	} catch (err) {
-		console.log(this.name + ': error saving item. It may not exist on this marketplace.');
+		console.log(this.name + ': error saving item ' + item.sku + '. It may not exist on this marketplace.');
 		return err;
 	}
 }

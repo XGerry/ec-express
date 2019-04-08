@@ -141,7 +141,9 @@
  			marketplaces.forEach(market => {
  				promises.push(market.importOrders(helpers.getTimeCode()));
  			});
- 			helpers.generateSalesOrders(qbws);
+ 			Promise.all(promises).then(() => {
+ 				helpers.generateSalesOrders(qbws);
+ 			});
  		});
 
  		socket.on('closeSalesOrder', (orderId, cb) => {
