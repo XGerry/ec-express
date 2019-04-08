@@ -54,6 +54,7 @@ marketplaceSchema.methods.saveItem = async function(item) {
 		} else {
 			let url = await options[i].getOptionURL(this);
 			if (url) {
+				console.log(url);
 				response = await cart.put(url, {
 					AdvancedOptionSufix: options[i].sku,
 					AdvancedOptionName: options[i].name,
@@ -67,7 +68,6 @@ marketplaceSchema.methods.saveItem = async function(item) {
 		console.log(response);
 		return response;
 	} catch (err) {
-		console.log(url);
 		console.log(this.name + ': error saving item ' + item.sku + '. It may not exist on this marketplace.');
 		console.log(err);
 		return err;
