@@ -101,8 +101,8 @@ marketplaceSchema.methods.updateInventory = async function() {
 	for (let i = 0; i < options.length; i++) {
 		let url = await options[i].getOptionURL(this);
 		console.log(options[i].sku);
-		console.log(options[i].marketplacePropeties);
-		let stock = options[i].marketplacePropeties.stock.get(this._id.toString());
+		console.log(options[i].marketplaceProperties);
+		let stock = options[i].marketplaceProperties.stock.get(this._id.toString());
 		try {
 			if (stock == options[i].stock) {
 				console.log('No need to update this option for this marketplace. Skipping...');
