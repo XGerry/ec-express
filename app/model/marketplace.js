@@ -100,6 +100,7 @@ marketplaceSchema.methods.updateInventory = async function() {
 
 	for (let i = 0; i < options.length; i++) {
 		let url = await options[i].getOptionURL(this);
+		console.log(options[i].sku);
 		console.log(options[i].marketplacePropeties);
 		let stock = options[i].marketplacePropeties.stock.get(this._id.toString());
 		try {
