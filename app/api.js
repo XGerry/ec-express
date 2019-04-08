@@ -252,7 +252,6 @@ router.get('/customers/:email', async(req, res) => {
     let customer = await Customer.findCustomer(req.params.email);
     res.json(customer);
   } catch (err) {
-    console.log(err);
     console.log('no customers found.');
     res.json({});
   }

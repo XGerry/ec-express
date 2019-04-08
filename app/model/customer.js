@@ -78,19 +78,21 @@ customerSchema.statics.findCustomer = async function(email) { // TODO change to 
     let canadaCustomer = undefined;
     let usCustomer = undefined;
     try {
-      let canadaCustomer = await canadaCart.getCustomer(email);
+      canadaCustomer = await canadaCart.getCustomer(email);
+      console.log('found a canadian customer.');
     } catch (err) {
       console.log('No canadian customer.');
     }
     try {
-      let usCustomer = await usCart.getCustomer(email);
+      usCustomer = await usCart.getCustomer(email);
+      console.log('found a US customer.');
     } catch (err) {
       console.log('No us customer.')
     }
     let newCustomer = new this();
     newCustomer.email = email;
 
-    if (canadaCustomer) {
+    if (canadaCustomer != undefined) {
       newCustomer.billingCountry = 'CA';
       return newCustomer.getCustomerFrom3DCart();
     } else {
