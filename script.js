@@ -1,6 +1,7 @@
 require('dotenv').config();
 var mongoose = require('mongoose');
 var Order = require('./app/model/order');
+var Marketplace = require('./app/model/marketplace');
 var Batch = require('./app/model/batch');
 var Customer = require('./app/model/customer');
 var Item = require('./app/model/item');
