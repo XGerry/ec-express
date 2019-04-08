@@ -99,16 +99,22 @@ marketplaceSchema.methods.updateInventory = async function() {
 
 	for (let i = 0; i < options.length; i++) {
 		let url = await options[i].getOptionURL(this);
+		let stock = options[i].marketplacePropeties.stock.get(this._id.toString());
 		try {
-			await cart.put(url, {
-				AdvancedOptionSufix: options[i].sku,
-				AdvancedOptionName: options[i].name,
-				AdvancedOptionStock: options[i].stock,
-			});
-			console.log(this.name + ' Done ' + (i + 1) + ' requests');
+			if (stock == options[i].stock) {
+				console.log('No need to update this option for this marketplace. Skipping...');
+			} else {
+				await cart.put(url, {
+					AdvancedOptionSufix: options[i].sku,
+					AdvancedOptionName: options[i].name,
+					AdvancedOptionStock: options[i].stock,
+				});
+				console.log(this.name + ' Done ' + (i + 1) + ' requests');
+			}
 		} catch (err) {
     	console.log(this.name + ': Error saving option ' + options[i].sku);
     	console.log(url);
+    	console.log(err);
 		}
 	}
 
