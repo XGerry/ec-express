@@ -52,13 +52,13 @@ marketplaceSchema.methods.saveItem = async function(item) {
 			let body = [cartItem];
 			response = await cart.put('Products', body);
 		} else {
-			let url = await options[i].getOptionURL(this);
+			let url = awaititem.getOptionURL(this);
 			if (url) {
 				console.log(url);
 				response = await cart.put(url, {
-					AdvancedOptionSufix: options[i].sku,
-					AdvancedOptionName: options[i].name,
-					AdvancedOptionStock: options[i].stock,
+					AdvancedOptionSufix:item.sku,
+					AdvancedOptionName:item.name,
+					AdvancedOptionStock:item.stock,
 				});
 			} else {
 				console.log(options[i].sku + ' does not exist on this marketplace.');
