@@ -441,8 +441,13 @@ itemSchema.methods.getCartItem = function() { // only valid if the item is not a
 itemSchema.methods.getOptionURL = async function(marketplace) {
   await this.populate('parent').execPopulate();
   let url = 'Products/' + this.parent.marketplaceProperties.catalogId.get(marketplace._id.toString());
-  url += '/AdvancedOptions/' + this.marketplaceProperties.optionId.get(marketplace._id.toString());
-  return url;
+  let optionId = this.marketplaceProperties.optionId.get(marketplace._id.toString());
+  if (optionId) {
+    url += '/AdvancedOptions/' + this.marketplaceProperties.optionId.get(marketplace._id.toString());
+    return url;
+  } else {
+    return false 
+  }
 }
 
 itemSchema.methods.findOrders = function() {

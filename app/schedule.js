@@ -18,6 +18,7 @@ module.exports = function(qbws) {
       console.log('Doing nothing because we are in DEV mode.');
     } else {
       //syncOrdersAndInventory(qbws);
+      console.log('Syncing inventory from scheduler...');
       syncOrdersAndInventoryNew(qbws).then(() => {
         console.log('Done the new inventory system.');
       });
