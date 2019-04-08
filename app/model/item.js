@@ -225,7 +225,9 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, marketplace) {
   this.weight = cartItem.Weight;
   this.manufacturerName = cartItem.ManufacturerName;
   this.hidden = cartItem.Hide;
-  this.availableForBackorder = cartItem.InventoryControl == '2';
+  if (marketplace.isMaster) {
+    this.availableForBackorder = cartItem.InventoryControl == '2';
+  }
   this.manufacturerId = cartItem.ManufacturerID;
   
   var categories = [];

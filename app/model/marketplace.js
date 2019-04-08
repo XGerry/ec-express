@@ -6,7 +6,11 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 let marketplaceSchema = new mongoose.Schema({
 	name: String,
 	url: String,
-	token: String
+	token: String,
+	isMaster: {
+		type: Boolean,
+		default: false
+	}
 });
 
 marketplaceSchema.methods.test = async function() {
