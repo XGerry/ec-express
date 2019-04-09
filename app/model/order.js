@@ -134,7 +134,7 @@ var orderSchema = new mongoose.Schema({
     cartId: String,
     type: {
       type: String,
-      enum: ['Authorize', 'Manual', 'Capture', 'Sale']
+      enum: ['Authorize', 'Manual', 'Capture', 'Sale', 'AMZ IMPORT']
     }
   }],
   flags: {

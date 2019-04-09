@@ -261,18 +261,17 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, marketplace) {
       var optionSKU = optionItem.AdvancedOptionSufix.trim();
       var parentItem = this;
       if (optionSKU != '') { // a lot of the options are dummy ones
-        await this.model('Item').findOne({sku: optionSKU}).exec().then(async function(advancedOption) {
-          if (advancedOption) {
-            parentItem.children.push(advancedOption._id);
-          	await advancedOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, marketplace);
-          } else if (optionItem.AdvancedOptionSufix != '') {
-            var newOption = new parentItem.constructor();
-            newOption.isNew = true;
-            newOption.sku = optionSKU;
-            parentItem.children.push(newOption._id);
-            await newOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, marketplace);
-          }
-        });
+        let advancedOption = await this.model('Item').findOne({sku: optionSKU}).exec();
+        if (advancedOption) {
+          parentItem.children.push(advancedOption._id);
+        	await advancedOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, marketplace);
+        } else if (optionItem.AdvancedOptionSufix != '') {
+          var newOption = new parentItem.constructor();
+          newOption.isNew = true;
+          newOption.sku = optionSKU;
+          parentItem.children.push(newOption._id);
+          await newOption.updateAdvancedOptionFields(parentItem, cartItem, optionItem, marketplace);
+        }
       }
     }
   } else {

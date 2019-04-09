@@ -24,7 +24,11 @@ module.exports = function(qbws) {
   //     });
   //   }
   // }); 
-  
+
+  let refreshRule = new schedule.RecurrenceRule();
+  refreshRule.hour = 21;
+
+
   var refresh = schedule.scheduleJob('0 21 * * *', async () => {
     let marketplaces = await Marketplace.find({});
     let promises = [];
@@ -41,7 +45,7 @@ module.exports = function(qbws) {
   });
 
   let rule = new schedule.RecurrenceRule();
-  rule.hour = new schedule.Range(0, 20);
+  rule.hour = new schedule.Range(0, 20, 2);
   rule.minute = 0;
 
   let test = schedule.scheduleJob(rule, function() {
