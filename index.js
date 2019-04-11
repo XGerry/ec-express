@@ -79,7 +79,7 @@ function childProcess() {
   api.setQBWS(qbws);
   events(io, qbws);
   app.use('/api', api.router);
+  app.use('/webhooks', webhooks.router);
   routes(app);
-  webhooks.route(app, qbws);
   require('./app/schedule')(qbws);
 }

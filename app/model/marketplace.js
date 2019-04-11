@@ -27,6 +27,10 @@ marketplaceSchema.methods.importOrders = async function(timecode) {
   return mongoose.model('Order').importOrders(cartOrders, this, timecode);
 }
 
+marketplaceSchema.methods.addOrders = async function(cartOrders, timecode) {
+	return mongoose.model('Order').importOrders(cartOrders, this, timecode);
+}
+
 marketplaceSchema.methods.getItems = async function() {
 	let marketplace = this;
 	let cartItems = await this.getCart().getItems(async function(cartItems) {

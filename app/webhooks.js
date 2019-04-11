@@ -1,74 +1,42 @@
 var request = require('request');
 var Order = require('./model/order');
 var Customer = require('./model/customer');
+var Marketplace = require('./model/marketplace');
 var Item = require('./model/item');
-var helpers = require('./helpers');
+let helpers = require('./helpers');
 var amazon = require('./amazon');
 var Settings = require('./model/settings');
 var mailer = require('./mailer');
 var rp = require('request-promise-native');
+let express = require('express');
+let slackbot = require('./slackbot');
+let router = express.Router();
 
-function updateOrderInfo(order, cartOrder) {
-  order.name = cartOrder.BillingFirstName + ' ' + cartOrder.BillingLastName;
-  order.cartOrder = cartOrder;
-  order.canadian = cartOrder.InvoiceNumberPrefix == 'CA-';
-  var itemList = [];
-  if (cartOrder.OrderItemList) {
-    cartOrder.OrderItemList.forEach(function(item) {
-      // TODO
-      var sku = item.ItemID.trim();
-      var findingItem = Item.findOne({sku: sku});
-      findingItem.then(function(doc) {
-      	if (doc) {
-        	doc.lastOrderDate = new Date(cartOrder.OrderDate);
-        	doc.save();
-      	}
-      });
-    });
-  }	
-  
-  return order.save();
-}
+router.get('/test', (req, res) => {
+	console.log('Received request');
+	res.send('Hello, world!');
+});
 
-function updateCustomerInfo(order, cartOrder) {
-  var email = cartOrder.BillingEmail;
-  Customer.findOne({email: email}, function(err, customer) {
-    if (err) {
-      console.log(err);
-    } else {
-      if (customer) {
-        updateCustomer(customer, order, cartOrder);
-      } else {
-        var newCustomer = new Customer();
-        newCustomer.email = email;
-        updateCustomer(newCustomer, order, cartOrder);
-      }
-    }
-  });
-}
+router.post('/order/new/:marketplaceId', async (req, res) => {
+	console.log('received webhook for new order');
+	let cartOrders = req.body;
+	let marketplace = await Marketplace.findOne({_id: req.params.marketplaceId});
+	if (!marketplace) {
+		return res.status(400).send('No marketplace found.');
+	}
+	helpers.setTimeCode();
+	await marketplace.addOrders(cartOrders, helpers.getTimeCode());
+	cartOrders.forEach(order => {
+		sendOrderToSlack(order, marketplace);
+	});
+	res.send('Done.');
+});
 
-function updateCustomer(customer, order, cartOrder) {
-  customer.firstname = cartOrder.BillingFirstName;
-  customer.lastname = cartOrder.BillingLastName;
-  customer.lastOrderDate = new Date(cartOrder.OrderDate);
-  customer.orders.push(order._id);
-  customer.save();
-}
+// OLD STUFF BELOW
 
-function orderBot(body) {
-	var options = {
-		url: 'https://hooks.slack.com/services/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',
-		method: 'POST',
-		json: true,
-		body: body
-	};
-	return rp(options);
-}
-
-function sendOrderToSlack(order) {
-	var canadian = order.InvoiceNumberPrefix == 'CA-';
-	var orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
-	var infoURL = 'https://www.ecstasycrafts.' + (canadian ? 'ca' : 'com') + '/admin/order_details.asp?orderid=' + order.OrderID;
+function sendOrderToSlack(order, marketplace) {
+	let orderId = order.InvoiceNumberPrefix + order.InvoiceNumber;
+	var infoURL = marketplace.url + '/admin/order_details.asp?orderid=' + order.OrderID;
 	var message = order.BillingFirstName + ' ' + order.BillingLastName;
 	message += ' placed an order for $' + order.OrderAmount.toFixed(2) + '.';
 	message += ' <'+infoURL+'|'+orderId+'>';
@@ -76,7 +44,7 @@ function sendOrderToSlack(order) {
 		message += ' - ' + order.BillingCompany + ' (Wholesale)';
 	}
 
-	orderBot({ text: message });
+	slackbot.orderBot({ text: message });
 }
 
 function sendCustomerToSlack(customer) {
@@ -116,188 +84,6 @@ function sendNewProductToSlack(product) {
 		}
 	};
 	request(options);
-}
-
-function packageSupportRequest(supportRequest) {
-	var text = 'New support request from ' + supportRequest.firstName + ' ' + supportRequest.lastName + '.';
-	var body = {
-		attachments: [{
-			fallback: text,
-			pretext: text,
-			fields: [{
-				title: 'Subject',
-				value: supportRequest.subject,
-				short: true
-			}, {
-				title: 'Country',
-				value: supportRequest.country,
-				short: true
-			}, {
-				title: 'Email',
-				value: supportRequest.email,
-				short: true
-			}, {
-				title: 'Phone',
-				value: supportRequest.phone,
-				short: true
-			}, {
-				title: 'Message',
-				value: supportRequest.message,
-				short: false
-			}]
-		}]
-	};
-
-	return body;
-}
-
-function packageWholesaleRequest(wholesaleRequest) {
-	var text = 'New wholesale application from ' + wholesaleRequest.companyName + '.\n';
-	text +='Full application was sent via email.';
-	var body = {
-		attachments: [{
-			fallback: text,
-			pretext: text,
-			fields: [{
-				title: 'First Name',
-				value: wholesaleRequest.firstName,
-				short: true
-			}, {
-				title: 'Last Name',
-				value: wholesaleRequest.lastName,
-				short: true
-			}, {
-				title: 'Company Name',
-				value: wholesaleRequest.companyName,
-				short: true
-			}, {
-				title: 'Email',
-				value: wholesaleRequest.email,
-				short: true
-			}, {
-				title: 'Phone',
-				value: wholesaleRequest.phone,
-				short: true
-			}, {
-				title: 'Country',
-				value: wholesaleRequest.country,
-				short: true
-			}]
-		}]
-	};
-
-	return body;
-}
-
-function getOrders() {
-	var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders', 'GET', false);
-	options.qs = {
-		orderstatus: 1,
-		limit: 1
-	};
-	request(options, function(err, response, body) {
-		console.log('got the orders');
-		adjustInventory(body);
-	});
-}
-
-function adjustInventory(cartOrders) {
-	cartOrders.forEach((order) => {
-		var canadian = order.InvoiceNumberPrefix == 'CA-';
-		var isAmazon = order.InvoiceNumberPrefix == 'AZ-';
-		var promises = [];
-		var savingItems = [];
-
-		order.OrderItemList.forEach((item) => {
-			var sku = item.ItemID.trim();
-			var findItem = Item.findOne({sku: sku});
-			var productUpdate = findItem.then((dbItem) => {
-				if (dbItem != null && dbItem.isOption) {
-					advancedOptionUpdate(dbItem, item.ItemUnitStock - item.ItemQuantity, !canadian);
-				} else if (dbItem != null && !dbItem.isOption) {
-					var oldStock = item.ItemUnitStock;
-					if (isAmazon) {
-						oldStock = dbItem.usStock; // just use the next best thing, amazon comes in as 0
-					}
-					var newStock = oldStock - item.ItemQuantity;
-					if (newStock < 0) {
-						newStock = 0;
-					}
-					var newProductStock = {
-						SKUInfo: {
-							SKU: dbItem.sku,
-							Stock: newStock
-						}
-					};
-					dbItem.stock = newStock;
-					dbItem.usStock = newStock;
-					dbItem.canStock = newStock;
-					dbItem.amazonStock = newStock;
-					savingItems.push(dbItem.save());
-					return newProductStock;
-				} else {
-					console.log('item not found: ' + sku);
-					console.log('order: ' + order.OrderID);
-					console.log('order: ' + order.InvoiceNumberPrefix + order.InvoiceNumber);
-				}
-				return null;
-			});
-			promises.push(productUpdate);
-
-			Promise.all(savingItems).then(savedItems => {
-			var skus = savedItems.map(item => {
-				return item.sku;
-			});
-			if (!amazon)
-				amazon.inventorySync(Item.find({sku: { $in: skus } })).then(response => console.log(response));
-			});
-
-		});
-
-		Promise.all(promises).then((productUpdates) => {
-			var index = productUpdates.indexOf(null);
-			while (index != -1) {
-				productUpdates.splice(index, 1);
-				index = productUpdates.indexOf(null);
-			}
-
-			var options = helpers.get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Products', 
-				'PUT', !canadian);
-			options.body = productUpdates;
-			request(options, function(err, response, body) {
-				console.log('saved items');
-				console.log(body);
-			});
-		});
-	});
-}
-
-function advancedOptionUpdate(dbItem, stock, canadian) {
-  var url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+dbItem.catalogId+'/AdvancedOptions/'+dbItem.optionId;
-  if (canadian) {
-  	url = 'https://apirest.3dcart.com/3dCartWebAPI/v1/Products/'+dbItem.catalogIdCan+'/AdvancedOptions/'+dbItem.optionIdCan; 
-  }
-
-  if (stock < 0) {
-  	stock = 0;
-  }
-
-	var options = helpers.get3DCartOptions(url, 'PUT', canadian);
-
-  options.body = {
-    AdvancedOptionStock: stock,
-    AdvancedOptionSufix: dbItem.sku
-  };
-
-  dbItem.stock = stock;
-  dbItem.usStock = stock;
-  dbItem.canStock = stock;
-
-  dbItem.save();
-
-  request(options, function(err, response, body) {
-  	console.log(body);
-  });
 }
 
 module.exports = {
@@ -381,15 +167,6 @@ module.exports = {
 				res.send('Received wholesale application.');
 			});
 		});
-
-		app.get('/webhooks/mailchimp', function(req, res) {
-			res.send('Received webhook notification');
-		});
-
-		app.post('/webhooks/mailchimp', function(req, res) {
-			console.log(req.body);
-			res.send('Received notification');
-		});
 	},
-	orderBot: orderBot
+	router: router
 }

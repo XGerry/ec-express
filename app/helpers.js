@@ -9,7 +9,7 @@ var Order = require('./model/order');
 var Settings = require('./model/settings');
 var Manifest = require('./model/manifest');
 var Customer = require('./model/customer');
-var webhooks = require('./webhooks');
+var slackbot = require('./slackbot.js');
 var Item = require('./model/item');
 var Address = require('./model/address');
 var PO = require('./model/purchaseOrder');
@@ -962,7 +962,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
               for (invoice of invoices) {
                 for (dbOrder of orders) {
                   if (dbOrder.orderId == invoice.RefNumber) {
-                    webhooks.orderBot({
+                    slackbot.orderBot({
                       text: "Error creating invoice! " + dbOrder.orderId + " has already been invoiced."
                     });
                     // update the invoice in quickbooks
@@ -978,7 +978,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             salesOrders.forEach(so => {
               orders.forEach(dbOrder => {
                 if (dbOrder.hold) {
-                  webhooks.orderBot({
+                  slackbot.orderBot({
                     text: 'Not creating invoice for ' + dbOrder.orderId + ' because it is on hold.'
                   });
                 } else if ((dbOrder.isBackorder == true && (dbOrder.originalOrder.orderId == so.RefNumber || dbOrder.parent.orderId == so.RefNumber)) ||
@@ -988,15 +988,15 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     xml2js(response, {explicitArray: false}).then(async obj => {
                       var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
                       if (errorCode == '3210') {
-                        webhooks.orderBot({
+                        slackbot.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Please check the invoice in QB."
                         });
                       } else if (errorCode == '3176') {
-                        webhooks.orderBot({
+                        slackbot.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Could not obtain the lock."
                         });
                       } else if (errorCode =='3070') {
-                        webhooks.orderBot({
+                        slackbot.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Order ID too long."
                         });
                       } else {
@@ -1005,7 +1005,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                           console.log(err);
                           console.log('Error calculating profit!');
                         });
-                        webhooks.orderBot({
+                        slackbot.orderBot({
                           text: "Successfully created invoice " + dbOrder.orderId + "."
                         });
                       }
@@ -1889,7 +1889,7 @@ async function generateSalesOrders(qbws) {
     console.log('Generating Report');
     let settings = await Settings.findOne({});
     let report = await getOrderReport(settings);
-    await webhooks.orderBot(getSlackOrderReport(report));
+    await slackbot.orderBot(getSlackOrderReport(report));
     settings.lastImports = [];
     delete settings.__v;
     await settings.save();

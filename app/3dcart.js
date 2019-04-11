@@ -14,7 +14,7 @@ var CustomOrder = require('./model/customOrder');
 var Settings = require('./model/settings');
 var Customer = require('./model/customer');
 var helpers = require('./helpers');
-var webhooks = require('./webhooks');
+var slackbot = require('./slackbot');
 var pixl = require('pixl-xml');
 var rp = require('request-promise-native');
 
@@ -498,7 +498,7 @@ function getOrders(query, qbws) {
       return findSettings.then(settings => {
         var orderReport = helpers.getOrderReport(settings);
         return orderReport.then((report) => {
-          webhooks.orderBot(helpers.getSlackOrderReport(report));
+          slackbot.orderBot(helpers.getSlackOrderReport(report));
           settings.lastImports = [];
           delete settings.__v;
           return settings.save();

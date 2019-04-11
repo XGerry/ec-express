@@ -756,7 +756,6 @@ function (args, responseCallback) {
   }
 
   var promises = [];
-  console.log(currentRequest.callbacks[0]);
   currentRequest.callbacks.forEach(callback => {
     promises.push(callback(response));
   });
@@ -793,7 +792,7 @@ module.exports = {
       soapServer = soap.listen(app, '/wsdl', qbws, xml);
 
       soapServer.log = function soapServerLog(type, data) {
-        serviceLog(type + ': ' + JSON.stringify(data));
+        //serviceLog(type + ': ' + JSON.stringify(data));
       }
 
       soapServer.on('headers', function(headers, methodName) {

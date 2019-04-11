@@ -27,9 +27,9 @@ module.exports = function(qbws) {
 
   let refreshRule = new schedule.RecurrenceRule();
   refreshRule.hour = 21;
+  refreshRule.minute = 0;
 
-
-  var refresh = schedule.scheduleJob('0 21 * * *', async () => {
+  var refresh = schedule.scheduleJob(refreshRule, async () => {
     let marketplaces = await Marketplace.find({});
     let promises = [];
     marketplaces.forEach(market => {
@@ -49,13 +49,14 @@ module.exports = function(qbws) {
   rule.minute = 0;
 
   let test = schedule.scheduleJob(rule, function() {
-    console.log('once an hour');
-    syncOrdersAndInventoryNew(qbws).then(() => {
-      console.log('Done the new inventory system.');
-    });
+    if (process.env.DEV_MODE == 'TRUE') {
+      console.log('Doing nothing because we are in DEV mode.');
+    } else {
+      syncOrdersAndInventoryNew(qbws).then(() => {
+        console.log('Done the new inventory system.');
+      });
+    }
   });
-
-  //test();
 }
 
 function syncOrdersAndInventory(qbws) {

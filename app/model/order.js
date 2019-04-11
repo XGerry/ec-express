@@ -1033,6 +1033,10 @@ orderSchema.methods.refreshFrom3DCart = async function() {
   }
 }
 
+orderSchema.methods.getSlackText = function() {
+  
+}
+
 // helpers
 
 function getXMLRequest(request) {
