@@ -984,7 +984,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             } else if ((dbOrder.isBackorder == true && (dbOrder.originalOrder.orderId == so.RefNumber || dbOrder.parent.orderId == so.RefNumber)) ||
                       (so.RefNumber == dbOrder.orderId) && dbOrder.invoiced == false) {
               let invoiceRq = await dbOrder.createInvoiceRq(so);
-              qbws.addRequest(invoiceRq, response => {
+              qbws.addRequest(invoiceRq, async response => {
                 console.log(response); 
                 let obj = await xml2js(response, {explicitArray: false});
                 var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
