@@ -987,6 +987,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     console.log(response); 
                     xml2js(response, {explicitArray: false}).then(async obj => {
                       var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
+                      var errorMessage = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusMessage;
                       if (errorCode == '3210') {
                         slackbot.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Please check the invoice in QB."
@@ -998,6 +999,10 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                       } else if (errorCode =='3070') {
                         slackbot.orderBot({
                           text: "Error creating invoice! " + dbOrder.orderId + " Order ID too long."
+                        });
+                      } else if (errorCode =='3140') {
+                        slackbot.orderBot({
+                          text: "Error creating invoice! " + dbOrder.orderId + ": " + errorMessage 
                         });
                       } else {
                         dbOrder.invoiced = true;

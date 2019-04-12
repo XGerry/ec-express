@@ -790,6 +790,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
         // we found the item, now we need to remove it, so we don't find it again
         items.splice(i, 1);
         i--;
+        console.log(invoiceItems);
         break; // no need to continue
       }
     }
