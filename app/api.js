@@ -79,8 +79,9 @@ router.post('/batch/start/auto', (req, res) => {
 router.post('/batch/finish', (req, res) => {
   Batch.findOne({_id: req.body._id}).then(batch => {
     batch.finish(req.body, req.session.user).then(batch => {
-      res.json(batch);
+      console.log('finished the batch');
       helpers.createInvoicesFromSalesOrders(this.qbws, batch.orders);
+      res.json(batch);
       console.log('added the request for sales order check');
     }).catch(err => {
       console.log(err);
