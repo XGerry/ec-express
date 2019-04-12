@@ -1023,6 +1023,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
           }
         }
       });
+    } else {
+      console.log('Wrong type of request');
     }
   });    
 
