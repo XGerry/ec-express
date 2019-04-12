@@ -755,9 +755,11 @@ async function (args, responseCallback) {
       serviceLog('    Length of response received = ' + response.length);
   }
 
-  for (let i = 0; i < currentRequest.callbacks; i++) {
+  console.log('Running ' + currentRequest.callbacks.length + ' callbacks.');
+  for (let i = 0; i < currentRequest.callbacks.length; i++) {
     await currentRequest.callbacks[i](response);
   }
+  console.log('Done the callbacks.');
 
   // the requests in the queue may have changed
   if (req.length > 0) {
