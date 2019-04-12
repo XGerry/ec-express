@@ -1023,6 +1023,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                 }
               });
             }
+
+            return Promise.resolve('Done Adding Requests');
           });
         });
       }
