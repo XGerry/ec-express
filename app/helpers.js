@@ -947,8 +947,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
         if (!Array.isArray(salesOrders)) {
           salesOrders = [salesOrders];
         }
-        qbws.addRequest(getInvoiceRq(orders), xmlResponseInvoices => {
-          return xml2js(xmlResponseInvoices, {explicitArray: false}).then(async responseObjectInvoices => {
+        qbws.addRequest(getInvoiceRq(orders), async xmlResponseInvoices => {
+          await xml2js(xmlResponseInvoices, {explicitArray: false}).then(async responseObjectInvoices => {
             var invoiceRs = responseObjectInvoices.QBXML.QBXMLMsgsRs.InvoiceQueryRs;
             if (invoiceRs == undefined) {
               console.log('No invoices found - this is normal.');
