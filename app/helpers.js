@@ -1025,9 +1025,9 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     return 'done';
                   });
                   promises.push(rqPromise);
-                });
+                }
               });
-            }
+            });
             return Promise.all(promises);
           });
         });
