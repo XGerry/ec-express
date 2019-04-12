@@ -975,15 +975,16 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             console.log('checked the invoice!');
 
             // now proceed as normal
-            salesOrders.forEach(so => {
-              orders.forEach(dbOrder => {
+            for (so of salesOrders) {
+              for (dbOrder of orders) {
                 if (dbOrder.hold) {
                   slackbot.orderBot({
                     text: 'Not creating invoice for ' + dbOrder.orderId + ' because it is on hold.'
                   });
                 } else if ((dbOrder.isBackorder == true && (dbOrder.originalOrder.orderId == so.RefNumber || dbOrder.parent.orderId == so.RefNumber)) ||
                   (so.RefNumber == dbOrder.orderId) && dbOrder.invoiced == false) {
-                  qbws.addRequest(dbOrder.createInvoiceRq(so), response => {
+                  let invoiceRq = await dbOrder.createInvoiceRq(so);
+                  qbws.addRequest(invoiceRq, response => {
                     console.log(response); 
                     xml2js(response, {explicitArray: false}).then(async obj => {
                       var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
@@ -1020,8 +1021,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     });
                   });
                 }
-              });
-            });
+              }
+            }
           });
         });
       }
