@@ -778,6 +778,7 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
   lineItems.forEach(lineItem => {
     console.log(lineItem);
     for (let i = 0; i < items.length; i++) {
+      console.log(lineItem.ItemRef.FullName + ' vs. ' + items[i].item.sku);
       if (lineItem.ItemRef.FullName == items[i].item.sku) {
         invoiceItems.push({
           Quantity: items[i].pickedQuantity,
@@ -790,7 +791,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
         // we found the item, now we need to remove it, so we don't find it again
         items.splice(i, 1);
         i--;
-        console.log(invoiceItems);
         break; // no need to continue
       }
     }
