@@ -764,8 +764,9 @@ orderSchema.methods.calculateSalesTax = async function() {
   this.salesTax = salesTax * this.subtotal;
 }
 
-orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
+orderSchema.methods.createInvoiceRq = async function(qbSalesOrder) {
 	var invoiceItems = [];
+  await this.populate('items.item').execPopulate();
 
   var lineItems = qbSalesOrder.SalesOrderLineRet;
   if (!Array.isArray(lineItems)) {
@@ -778,7 +779,6 @@ orderSchema.methods.createInvoiceRq = function(qbSalesOrder) {
   lineItems.forEach(lineItem => {
     console.log(lineItem);
     for (let i = 0; i < items.length; i++) {
-      console.log(lineItem.ItemRef.FullName + ' vs. ' + items[i].item.sku);
       if (lineItem.ItemRef.FullName == items[i].item.sku) {
         invoiceItems.push({
           Quantity: items[i].pickedQuantity,
