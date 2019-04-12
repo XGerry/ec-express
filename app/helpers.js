@@ -967,7 +967,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     });
                     // update the invoice in quickbooks
                     
-                    await Order.update({_id: dbOrder._id}, {$set: {invoiced: true}});
+                    await Order.updateOne({_id: dbOrder._id}, {$set: {invoiced: true}});
                   }
                 }
               }
@@ -1005,6 +1005,9 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                           console.log(err);
                           console.log('Error calculating profit!');
                         });
+                        if (dbOrder.paid && !dbOrder.flags.paymentsApplied && dbOrder.invoiced) {
+                          dbOrder.applyPaymentsToQB(qbws);
+                        }
                         slackbot.orderBot({
                           text: "Successfully created invoice " + dbOrder.orderId + "."
                         });

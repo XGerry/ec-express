@@ -10,6 +10,7 @@ const Marketplace = require('./model/marketplace');
 const pug = require('pug');
 const mailer = require('./mailer');
 const CartMarketplace = require('./cartMarketplace');
+const helpers = require('./helpers');
 const path = require('path');
 const juice = require('juice');
 const fs = require('fs');
@@ -79,6 +80,7 @@ router.post('/batch/finish', (req, res) => {
   Batch.findOne({_id: req.body._id}).then(batch => {
     batch.finish(req.body, req.session.user).then(batch => {
       res.json(batch);
+      helpers.createInvoicesFromSalesOrders(this.qbws, batch.orders);
     }).catch(err => {
       console.log(err);
       res.status(500).send(err);

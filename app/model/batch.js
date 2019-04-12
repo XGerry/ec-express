@@ -198,6 +198,9 @@ batchSchema.methods.finish = async function(batch, user) {
 			order.isNew = false;
 			delete order.__v;
 			await order.save();
+
+			// automatically check for payments
+			order.checkPayment(); // do this asynchronously
 		} else {
 			console.log(order.orderId + ' - Not setting picked to true, because not enough items have been picked.');
 		}

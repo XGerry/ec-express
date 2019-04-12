@@ -532,10 +532,11 @@ function (args) {
     retVal = 'OK';
     if (connectionErrCounter < 5) {
       var promises = [];
-      finalCallbacks.forEach(cb => {
+      while (finalCallbacks.length > 0) {
+        let cb = finalCallbacks.pop();
         promises.push(cb());
-      });
-
+      }
+      
       Promise.all(promises).then((vals) => {
         console.log(vals);
         finalCallbacks = [];
