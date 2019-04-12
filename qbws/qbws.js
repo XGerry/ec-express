@@ -536,10 +536,9 @@ function (args) {
         let cb = finalCallbacks.pop();
         promises.push(cb());
       }
-      
+
       Promise.all(promises).then((vals) => {
         console.log(vals);
-        finalCallbacks = [];
         clearRequests();
       }).catch(err => {
         console.log(err);
