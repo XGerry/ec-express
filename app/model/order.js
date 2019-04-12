@@ -542,6 +542,7 @@ orderSchema.methods.createBackorder = async function() {
 }
 
 orderSchema.methods.invoiceTo3DCart = async function() {
+  await this.populate('items.item').execPopulate();
 	var cartOrder = {};
 	cartOrder.OrderItemList = [];
   cartOrder.ShipmentList = [{}];
@@ -559,10 +560,10 @@ orderSchema.methods.invoiceTo3DCart = async function() {
   cartOrder.ShipmentList[0].ShipmentShippedDate = this.shipDate;
   cartOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
   cartOrder.SalesTax = this.salesTax;
-
-  var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
-  options.body = cartOrder;
+  
+  await this.populate('marketplace').execPopulate();
   if (this.isCartOrder && !this.hold) {
+    await this.marketplace.getCart().put('Orders/'+this.cartOrder.OrderID, cartOrder);
     await rp(options);
     await this.updateOrderStatus(4); // shipped
   }
