@@ -976,7 +976,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
 
             // now proceed as normal
             for (so of salesOrders) {
-              for (dbOrder of orders) {
+              orders.forEach(async dbOrder => {
                 if (dbOrder.hold) {
                   slackbot.orderBot({
                     text: 'Not creating invoice for ' + dbOrder.orderId + ' because it is on hold.'
@@ -1021,7 +1021,7 @@ function createInvoicesFromSalesOrders(qbws, orders) {
                     });
                   });
                 }
-              }
+              });
             }
           });
         });
