@@ -81,6 +81,9 @@ router.post('/batch/finish', (req, res) => {
     batch.finish(req.body, req.session.user).then(batch => {
       helpers.createInvoicesFromSalesOrders(this.qbws, batch.orders);
       res.json(batch);
+      batch.orders.forEach(order => {
+        order.invoiceTo3DCart();
+      });
     }).catch(err => {
       console.log(err);
       res.status(500).send(err);
