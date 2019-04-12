@@ -81,6 +81,7 @@ router.post('/batch/finish', (req, res) => {
     batch.finish(req.body, req.session.user).then(batch => {
       res.json(batch);
       helpers.createInvoicesFromSalesOrders(this.qbws, batch.orders);
+      console.log('added the request for sales order check');
     }).catch(err => {
       console.log(err);
       res.status(500).send(err);
