@@ -735,7 +735,7 @@ function (args) {
 // 100 = Done. no more request to send
 // Less than zero  = Custom Error codes
 qbws.QBWebConnectorSvc.QBWebConnectorSvcSoap.receiveResponseXML =
-function (args, responseCallback) {
+async function (args, responseCallback) {
   var response = args.response,
       hresult = args.hresult,
       message = args.message,
@@ -755,25 +755,22 @@ function (args, responseCallback) {
       serviceLog('    Length of response received = ' + response.length);
   }
 
-  var promises = [];
-  currentRequest.callbacks.forEach(callback => {
-    promises.push(callback(response));
-  });
+  for (let i = 0; i < currentRequest.callbacks; i++) {
+    await currentRequest.callbacks[i](response);
+  }
 
-  Promise.all(promises).then(() => {
-    // the requests in the queue may have changed
-    if (req.length > 0) {
-      retVal = 50;
-    } else {
-      retVal = 100;
-    }
+  // the requests in the queue may have changed
+  if (req.length > 0) {
+    retVal = 50;
+  } else {
+    retVal = 100;
+  }
 
-    var returnObject = {
-      receiveResponseXMLResult: { string: retVal }
-    };
+  var returnObject = {
+    receiveResponseXMLResult: { string: retVal }
+  };
 
-    responseCallback(returnObject);
-  });
+  responseCallback(returnObject);
 };
 
 module.exports = {
