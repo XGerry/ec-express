@@ -977,7 +977,9 @@ function createInvoicesFromSalesOrders(qbws, orders) {
         console.log('checked the invoice!');
         for (let i = 0; i < salesOrders.length; i++) {
           for (let j = 0; j < orders.length; j++) {
-            if (orders[j].hold) {
+            let dbOrder = orders[j];
+            let so = salesOrders[i];
+            if (dbOrder.hold) {
               return slackbot.orderBot({
                 text: 'Not creating invoice for ' + dbOrder.orderId + ' because it is on hold.'
               });
