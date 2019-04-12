@@ -974,57 +974,61 @@ function createInvoicesFromSalesOrders(qbws, orders) {
             }
             console.log('checked the invoice!');
 
+            let promises = [];
             // now proceed as normal
-            for (so of salesOrders) {
-              orders.forEach(async dbOrder => {
+            salesOrders.forEach(so => {
+              orders.forEach(dbOrder => {
                 if (dbOrder.hold) {
                   slackbot.orderBot({
                     text: 'Not creating invoice for ' + dbOrder.orderId + ' because it is on hold.'
                   });
                 } else if ((dbOrder.isBackorder == true && (dbOrder.originalOrder.orderId == so.RefNumber || dbOrder.parent.orderId == so.RefNumber)) ||
                   (so.RefNumber == dbOrder.orderId) && dbOrder.invoiced == false) {
-                  let invoiceRq = await dbOrder.createInvoiceRq(so);
-                  qbws.addRequest(invoiceRq, response => {
-                    console.log(response); 
-                    xml2js(response, {explicitArray: false}).then(async obj => {
-                      var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
-                      var errorMessage = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusMessage;
-                      if (errorCode == '3210') {
-                        slackbot.orderBot({
-                          text: "Error creating invoice! " + dbOrder.orderId + " Please check the invoice in QB."
-                        });
-                      } else if (errorCode == '3176') {
-                        slackbot.orderBot({
-                          text: "Error creating invoice! " + dbOrder.orderId + " Could not obtain the lock."
-                        });
-                      } else if (errorCode =='3070') {
-                        slackbot.orderBot({
-                          text: "Error creating invoice! " + dbOrder.orderId + " Order ID too long."
-                        });
-                      } else if (errorCode =='3140') {
-                        slackbot.orderBot({
-                          text: "Error creating invoice! " + dbOrder.orderId + ": " + errorMessage 
-                        });
-                      } else {
-                        dbOrder.invoiced = true;
-                        dbOrder.calculateProfit().catch(err => {
-                          console.log(err);
-                          console.log('Error calculating profit!');
-                        });
-                        if (dbOrder.paid && !dbOrder.flags.paymentsApplied && dbOrder.invoiced) {
-                          dbOrder.applyPaymentsToQB(qbws);
+                  let invoiceRq = dbOrder.createInvoiceRq(so);
+                  let rqPromise = invoiceRq.then(rq => {
+                    qbws.addRequest(invoiceRq, response => {
+                      console.log(response); 
+                      xml2js(response, {explicitArray: false}).then(async obj => {
+                        var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
+                        var errorMessage = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusMessage;
+                        if (errorCode == '3210') {
+                          slackbot.orderBot({
+                            text: "Error creating invoice! " + dbOrder.orderId + " Please check the invoice in QB."
+                          });
+                        } else if (errorCode == '3176') {
+                          slackbot.orderBot({
+                            text: "Error creating invoice! " + dbOrder.orderId + " Could not obtain the lock."
+                          });
+                        } else if (errorCode =='3070') {
+                          slackbot.orderBot({
+                            text: "Error creating invoice! " + dbOrder.orderId + " Order ID too long."
+                          });
+                        } else if (errorCode =='3140') {
+                          slackbot.orderBot({
+                            text: "Error creating invoice! " + dbOrder.orderId + ": " + errorMessage 
+                          });
+                        } else {
+                          dbOrder.invoiced = true;
+                          dbOrder.calculateProfit().catch(err => {
+                            console.log(err);
+                            console.log('Error calculating profit!');
+                          });
+                          if (dbOrder.paid && !dbOrder.flags.paymentsApplied && dbOrder.invoiced) {
+                            dbOrder.applyPaymentsToQB(qbws);
+                          }
+                          slackbot.orderBot({
+                            text: "Successfully created invoice " + dbOrder.orderId + "."
+                          });
                         }
-                        slackbot.orderBot({
-                          text: "Successfully created invoice " + dbOrder.orderId + "."
-                        });
-                      }
+                      });
                     });
+                    return 'done';
                   });
-                }
+                  promises.push(rqPromise);
+                });
               });
             }
-
-            return Promise.resolve('Done Adding Requests');
+            return Promise.all(promises);
           });
         });
       }
