@@ -989,6 +989,8 @@ function createInvoicesFromSalesOrders(qbws, orders) {
               qbws.addRequest(invoiceRq, async response => {
                 console.log(response); 
                 let obj = await xml2js(response, {explicitArray: false});
+                if (!obj.QBXML.QBXMLMsgsRs.InvoiceAddRs)
+                  return 'Wrong Response';
                 var errorCode = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusCode;
                 var errorMessage = obj.QBXML.QBXMLMsgsRs.InvoiceAddRs.$.statusMessage;
                 if (errorCode == '3210') {
