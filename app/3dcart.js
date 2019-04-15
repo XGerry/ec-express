@@ -1028,6 +1028,7 @@ async function createItems(itemList) {
     canOptions.body = cartItemCan;
     promises.push(usOptions);
     promises.push(canOptions);
+    promises.push(Item.createItem(item));
   });
 
   for (let prom of promises) {

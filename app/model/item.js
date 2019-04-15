@@ -179,6 +179,22 @@ itemSchema.statics.getBaseOptions = function() {
   return this.find({hasOptions: true}).populate('children');
 }
 
+itemSchema.statics.createItem = async function(sheetItem) {
+  let dbItem = await this.findOne({sku: sheetItem.id});
+  if (dbItem) {
+    return 'Item already exists.';
+  }
+  let newItem = new Item();
+  newItem.sku = sheetItem.id;
+  newItem.name = sheetItem.name;
+  newItem.cost = sheetItem.cost;
+  newItem.usPrice = sheetItem.price;
+  newItem.manufacturerName = sheetItem.manufacturer;
+  newItem.hidden = true;
+  newItem.barcode = sheetItem.gtin;
+  return newItem.save();
+}
+
 itemSchema.statics.upsertFromMarketplace = async function(cartItem, marketplace) {
   let item = await this.findOne({sku: cartItem.SKUInfo.SKU.trim()});
   if (!item) {

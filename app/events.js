@@ -651,8 +651,13 @@
  		});
 
  		socket.on('createItemsInQuickbooks', (items, cb) => {
+ 			let promises = [];
  			items.forEach(item => {
  				qbws.addRequest(helpers.createItemRq(item));
+ 				promises.push(Item.createItem(item));
+ 			});
+ 			Promise.all(promises).then(responses => {
+ 				cb(responses);
  			});
  		});
 
