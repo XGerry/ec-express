@@ -105,31 +105,63 @@ append body
       .tab-pane.fade.show.active#info(role="tabpanel" aria-labelledby="info-tab")
         .row.pt-2
           .col-8
-            -
-              var pickedValue = 0;
-              pickedValue = order.items.reduce((total, item) => total += item.pickedQuantity * item.price, 0);
-              pickedValue += order.shippingCost;
-            table.table.table-sm
-              thead
-                tr
-                  th Name
-                  th Company Name
-                  th Email
-                  th Phone
-                  th Date
-                  th Picked Total
-                  th Grand Total
-                  th Sales Tax
-              tbody
-                tr
-                  td=order.customer.name
-                  td=order.customer.companyName
-                  td=order.customer.email
-                  td=order.customer.phone
-                  td=moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
-                  td='$' + (order.pickedTotal).toFixed(2)
-                  td='$' + (order.subtotal + order.salesTax).toFixed(2)
-                  td='$' + order.salesTax.toFixed(2)
+            .row
+              .col
+                -
+                  var pickedValue = 0;
+                  pickedValue = order.items.reduce((total, item) => total += item.pickedQuantity * item.price, 0);
+                  pickedValue += order.shippingCost;
+                table.table.table-sm
+                  thead
+                    tr
+                      th Name
+                      th Company Name
+                      th Customer Type
+                      th Email
+                      th Date
+                  tbody
+                    tr
+                      td=order.customer.name
+                      td=order.customer.companyName
+                      if order.customer.canadian
+                        if (order.customer.customerType == 0)
+                          td Retail
+                        else if (order.customer.customerType == 19)
+                          td Premier Member
+                        else if (order.customer.customerType == 22)
+                          td Crafter's Home
+                        else if (order.customer.customerType == 3)
+                          td Preferred Retail
+                        else
+                          td Wholesale
+                      else
+                        if (order.customer.customerType == 0)
+                          td Retail
+                        else if (order.customer.customerType == 18)
+                          td Premier Member
+                        else if (order.customer.customerType == 21)
+                          td Crafter's Home
+                        else if (order.customer.customerType == 3)
+                          td Preferred Retail
+                        else
+                          td Wholesale
+                      td=order.customer.email
+                      td=moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
+            .row
+              .col
+                table.table.table-sm
+                  thead
+                    tr
+                      th Picked Total
+                      th Sales Tax
+                      th Grand Total
+                      th Balance
+                  tbody
+                    tr
+                      td='$' + (order.pickedTotal).toFixed(2)
+                      td='$' + order.salesTax.toFixed(2)
+                      td='$' + (order.subtotal + order.salesTax).toFixed(2)
+                      td='$' + order.balance.toFixed(2)
           .col-lg-4
             .row
               .col
@@ -191,17 +223,18 @@ append body
             table.table.table-sm
               thead
                 tr
+                  th Phone
                   th Payment method
                   th Customer Type
                   th Original Value
                   th Order Total
                   th Order Profit
-                  th Open Balance
                   th Order Date
                   th Ordered
                   th Picked
               tbody
                 tr
+                  td=order.customer.phone
                   if (order.paymentMethod)
                     td= order.paymentMethod
                   else
@@ -234,7 +267,6 @@ append body
                     td= '$'+order.orderProfit.toFixed(2)
                   else
                     td N/A
-                  td='$'+order.balance.toFixed(2)
                   td= moment(order.orderDate).format('MMM Do, YYYY h:mm:ss a')
                   td= order.numberOfItems
                   td= order.numberOfItemsPicked
