@@ -17,23 +17,22 @@ append body
             th SKU
             th Name
             th Manufacturer
-            th Quantity Ordered
-            th Quantity Fulfilled
+            th Quantity Waiting
             th Stock
             th Order Number
             th Customer Name
           tbody
             each order in orders
               each item in order.items
-                tr(onclick="window.location='/orders/view/"+order._id+"'")
-                  td= item.item.sku
-                  td= item.item.name
-                  td= item.item.manufacturerName
-                  td= item.quantity
-                  td= item.pickedQuantity
-                  td= item.item.stock
-                  td= order.orderId
-                  td= order.customer.name
+                if (item.pickedQuantity < item.quantity)
+                  tr(onclick="window.location='/orders/view/"+order._id+"'")
+                    td= item.item.sku
+                    td= item.item.name
+                    td= item.item.manufacturerName
+                    td= item.quantity - item.pickedQuantity
+                    td= item.item.stock
+                    td= order.orderId
+                    td= order.customer.name
 
   script.
     let theOrders = !{JSON.stringify(orders)};
