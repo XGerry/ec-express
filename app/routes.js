@@ -383,6 +383,14 @@ module.exports = app => {
     });
   });
 
+  app.get('/reports/items-on-hold', verifyUser, async (req, res) => {
+    let orders = await Order.find({hold: true}).populate('items.item customer').sort('-orderDate').exec();
+    res.render('items-on-hold', {
+      user: req.session.user,
+      orders: orders
+    });
+  });
+
   app.get('/inventory', function(req, res) {
     res.render('inventory');
   });

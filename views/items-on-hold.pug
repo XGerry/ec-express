@@ -1,0 +1,69 @@
+extends templates/default
+
+append nav-items-right
+  button.btn.btn-outline-success.mr-2#downloadReport Download
+
+append head
+  title Items on Hold
+
+append body
+  .container-fluid
+    .row
+      .col
+        h2 Items to Order
+        p.lead Items that are on orders that are being held.
+        table.table.table-striped.table-hover#reportTable
+          thead
+            th SKU
+            th Name
+            th Manufacturer
+            th Quantity Ordered
+            th Quantity Fulfilled
+            th Stock
+            th Order Number
+            th Customer Name
+          tbody
+            each order in orders
+              each item in order.items
+                tr(onclick="window.location='/orders/view/"+order._id+"'")
+                  td= item.item.sku
+                  td= item.item.name
+                  td= item.item.manufacturerName
+                  td= item.quantity
+                  td= item.pickedQuantity
+                  td= item.item.stock
+                  td= order.orderId
+                  td= order.customer.name
+
+  script.
+    let theOrders = !{JSON.stringify(orders)};
+
+    $('#reportTable').DataTable({
+      pageLength: 300
+    });
+
+    $('#downloadReport').click(e => {
+      let file = 'sku,name,manufacturer,ordered,picked,orderId,customer\r\n';
+      theOrders.forEach(order => {
+        order.items.forEach(item => {
+          file += item.item.sku + ',';
+          file += item.item.name + ',';
+          file += item.item.manufacturerName + ',';
+          file += item.quantity + ',';
+          file += item.pickedQuantity + ',';
+          file += order.orderId + ',';
+          file += order.customer.name + ',';
+          file += '\r\n';
+        });
+      });
+
+      var blob = new Blob([file], { type: 'text/csv;charset=utf-8;' });
+      var a = document.createElement("a");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      var url = window.URL.createObjectURL(blob);
+      a.href = url;
+      a.download = "held-items-report-" + moment($('#fromDate').val()).utc().format('YYYY-MM-DD') + "-" + moment($('#toDate').val()).utc().format('YYYY-MM-DD') + ".csv";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
