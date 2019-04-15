@@ -55,8 +55,7 @@ body
 		.row
 			.col
 				h1= order.orderId
-				p Dear #[=order.customer.firstname], 
-				p Thank you for shopping at Ecstasy Crafts. 
+				p= message
 					if (order.shipDate)
 						|  Your order is scheduled to ship on #[=moment(order.shipDate).format('MMMM Do')].
 					if (order.paid)

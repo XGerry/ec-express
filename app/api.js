@@ -137,11 +137,12 @@ router.post('/qb/payments/:orderId', async (req, res) => {
   theOrder.applyPaymentsToQB(this.qbws);
 });
 
-router.get('/order/email/invoice/:orderId', async (req, res) => {
+router.put('/order/email/invoice/:orderId', async (req, res) => {
   let order = await Order.findOne({_id: req.params.orderId}).populate('customer items.item').exec();
   let emailContent = pug.renderFile(path.resolve(__dirname, '../views/emails/invoice.pug'), {
     order: order,
-    moment: require('moment')
+    moment: require('moment'),
+    message: req.body.message
   });
   let css = fs.readFileSync(path.resolve(__dirname, '../node_modules/bootstrap/dist/css/bootstrap.css'), 'utf8');
   let html = juice.inlineContent(emailContent, css);

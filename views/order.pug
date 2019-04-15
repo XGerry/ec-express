@@ -449,6 +449,23 @@ append body
           button.btn-primary.btn(type="button")#addCommentButton Save
           button.btn-secondary.btn(type="button" data-dismiss="modal") Cancel
 
+  #emailModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5 Email Invoice
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          .row
+            .col
+              label(for="#emailBody") Message
+              textarea.form-control(rows=5)#emailBody
+                = 'Dear ' + order.customer.firstname + ', \rattached is your invoice. Thank you for shopping at Ecstasy Crafts.' 
+        .modal-footer
+          button.btn-primary.btn(type="button")#sendEmail Send
+          button.btn-secondary.btn(type="button" data-dismiss="modal") Cancel
+
   #addPaymentModal.modal(tabindex="-1" role="dialog").fade
     .modal-dialog.modal-lg(role="document")
       .modal-content
@@ -492,7 +509,7 @@ append body
       if (theOrder.paid && theOrder.picked && theOrder.invoiced && !theOrder.hold && !theOrder.flags.emailSent && moment(theOrder.orderDate).isAfter('2019-03-05')) {
         let yes = confirm('Looks good! Would you like to email an invoice to the customer?');
         if (yes) {
-          sendEmail();
+          $('#emailModal').modal();
         }
       }
 
@@ -695,6 +712,10 @@ append body
 
       $('#emailInvoiceButton').click(e => {
         e.preventDefault();
+        $('#emailModal').modal();
+      });
+
+      $('#sendEmail').click(e => {
         sendEmail();
       });
 
@@ -789,12 +810,16 @@ append body
     }
 
     function sendEmail() {
+      $('#emailModal').modal('hide');
       let sendEmail = !theOrder.flags.emailSent;
       if (theOrder.flags.emailSent) {
         sendEmail = confirm('An invoice has already been emailed to the customer. Are you sure you want to send another?');
       }
       if (sendEmail) {
-        axios.get('/api/order/email/invoice/'+theOrder._id).then(response => {
+        let body = {
+          message: $('#emailBody').val()
+        };
+        axios.put('/api/order/email/invoice/'+theOrder._id, body).then(response => {
           $('#orderInfo').text('Email sent.');
           theOrder.flags.emailSent = true;
           setTimeout(() => {
