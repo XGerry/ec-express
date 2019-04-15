@@ -444,6 +444,17 @@ orderSchema.methods.updateOrderIn3DCart = function(order) {
       };
       oldOrder.OrderItemList.push(orderItem);
     });
+  } else {
+    oldOrder.OrderItemList = [];
+    this.items.forEach(item => {
+      var orderItem = {
+        ItemID: item.item.sku,
+        ItemQuantity: item.pickedQuantity,
+        ItemUnitPrice: item.price,
+        ItemDescription: item.item.name
+      };
+      oldOrder.OrderItemList.push(orderItem);
+    });
   }
   this.updateCustomer();
   var options = get3DCartOptions('https://apirest.3dcart.com/3dCartWebAPI/v1/Orders/'+this.cartOrder.OrderID, 'PUT', this.canadian);
@@ -560,7 +571,7 @@ orderSchema.methods.invoiceTo3DCart = async function() {
   cartOrder.ShipmentList[0].ShipmentShippedDate = this.shipDate;
   cartOrder.ShipmentList[0].ShipmentCost = this.shippingCost;
   cartOrder.SalesTax = this.salesTax;
-  
+
   await this.populate('marketplace').execPopulate();
   if (this.isCartOrder && !this.hold) {
     await this.marketplace.getCart().put('Orders/'+this.cartOrder.OrderID, cartOrder);
