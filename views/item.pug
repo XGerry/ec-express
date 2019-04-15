@@ -23,8 +23,8 @@ append nav-items-right
       a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Actions
       ul.dropdown-menu.dropdown-menu-right
         a(href="#").dropdown-item#salesMetricsButton Calculate Sales Metrics
-        a(href=item.usLink target="_blank").dropdown-item US Site
-        a(href=item.canLink, target="_blank").dropdown-item Canadian Site
+        for marketplace in marketplaces
+          a(href=item.marketplaceProperties.link.get(marketplace._id.toString()) target="_blank").dropdown-item= marketplace.name
         a#refreshFrom3DCart(href="#").dropdown-item Refresh from 3D Cart
         .dropdown-divider
         a#deleteItem(href="#").dropdown-item.bg-danger.text-white Delete Item
