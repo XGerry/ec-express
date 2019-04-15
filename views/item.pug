@@ -203,7 +203,9 @@ append body
 
       var orderedData = [];
       var today = moment();
-      var firstDay = moment(itemsOnOrders[0].date);
+      let firstDay = moment();
+      if (itemsOnOrders.length > 0)
+        firstDay = moment(itemsOnOrders[0].date);
       firstDay.startOf('day');
       var labels = [];
 

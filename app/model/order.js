@@ -26,7 +26,11 @@ var orderSchema = new mongoose.Schema({
 			type: Number,
 			default: 0
 		},
-		price: Number
+		price: Number,
+    reviewed: {
+      type: Boolean,
+      default: false
+    }
 	}],
   customer: {
     type: ObjectId,
