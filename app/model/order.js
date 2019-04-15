@@ -573,7 +573,6 @@ orderSchema.methods.invoiceTo3DCart = async function() {
   await this.populate('marketplace').execPopulate();
   if (this.isCartOrder && !this.hold) {
     await this.marketplace.getCart().put('Orders/'+this.cartOrder.OrderID, cartOrder);
-    await rp(options);
     await this.updateOrderStatus(4); // shipped
   }
 }
