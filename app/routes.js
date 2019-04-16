@@ -34,7 +34,7 @@ async function verifyUser(req, res, next) {
 module.exports = app => {
 	// for downloading the qwc file to hook up the web connector
   app.get('/connector', function(req, res) {
-    res.download(path.join(__dirname, '../qbws/ec-connector.qwc'), 'ec-connector.qwc')
+    res.download(path.join(__dirname, '../qbws/ec-connector.qwc'), 'ec-connector.qwc');
   });
 
   app.get('/customs', function(req, res) { // DEPRECATED
