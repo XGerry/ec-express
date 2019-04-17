@@ -389,8 +389,10 @@ orderSchema.methods.updateOrderStatus = async function(status) {
     await this.save();
     try {
       let response = await cart.put('Orders/'+this.cartOrder.OrderID, body);
+      console.log(response);
       return response;
     } catch(err) {
+      console.log(err);
       return Promise.resolve('Unable to move order in 3D Cart.');
     }
   } else {
