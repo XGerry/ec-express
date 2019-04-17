@@ -477,7 +477,7 @@ function addCustomerRow(customer) {
 	row.append(city);
 
 	row.click(function(e) {
-		setCustomerModalFieldsNew();
+		setCustomerFieldsNew();
 		$('#customerModal').modal();
 	});
 
