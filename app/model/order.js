@@ -384,10 +384,10 @@ orderSchema.methods.updateOrderStatus = async function(status) {
 		OrderStatusID: status
 	};
 
-  let cart = this.getCartMarketplace();
   if (this.isCartOrder)	{
     await this.save();
     try {
+      let cart = this.getCartMarketplace();
       let response = await cart.put('Orders/'+this.cartOrder.OrderID, body);
       console.log(response);
       return response;
