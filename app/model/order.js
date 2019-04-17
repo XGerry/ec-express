@@ -217,6 +217,8 @@ orderSchema.statics.importOrders = async function(cartOrders, marketplace, timec
         dbOrder.marketplace = marketplace;
         dbOrder.timecode = timecode;
         await dbOrder.updateFrom3DCart(cartOrder);
+      } else {
+        dbOrder.updateOrderStatus(8); // Queued
       }
     } else {
       let newOrder = new this();
