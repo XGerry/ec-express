@@ -477,11 +477,38 @@ function addCustomerRow(customer) {
 	row.append(city);
 
 	row.click(function(e) {
-		setCustomerModalFields(customer);
+		setCustomerModalFieldsNew();
 		$('#customerModal').modal();
 	});
 
 	$('#customerTableBody').append(row);
+}
+
+function setCustomerFieldsNew() {
+	$('#companyName').val(theCustomer.companyName);
+	$('#customerFirstName').val(theCustomer.firstname);
+	$('#customerLastName').val(theCustomer.lastname);
+	$('#customerEmailModal').val(theCustomer.email);
+	$('#customerPhone').val(theCustomer.phone);
+	$('#billingAddress').val(theCustomer.billingAddress);
+	$('#billingAddress2').val(theCustomer.billingAddress2);
+	$('#billingCity').val(theCustomer.billingCity);
+	$('#billingState').val(theCustomer.billingState);
+	$('#billingCountry').val(theCustomer.billingCountry);
+	$('#billingZip').val(theCustomer.billingZipCode);
+	$('#shipmentFirstName').val(theCustomer.shipmentFirstName);
+	$('#shipmentLastName').val(theCustomer.shipmentLastName);
+	$('#shipmentPhone').val(theCustomer.shipmentPhone);
+	$('#shipmentCompany').val(theCustomer.shipmentCompany);
+	$('#shippingAddress').val(theCustomer.shippingAddress);
+	$('#shippingAddress2').val(theCustomer.shippingAddress2);
+	$('#shippingCity').val(theCustomer.shippingCity);
+	$('#shippingState').val(theCustomer.shippingState);
+	$('#shippingCountry').val(theCustomer.shippingCountry);
+	$('#shippingZip').val(theCustomer.shippingZipCode);
+	$('#profileSelect').val(theCustomer.profile);
+	$('#websiteSelect').val(theCustomer.website);
+	$('#marketplaceSelect').val(theCustomer.marketplace);
 }
 
 function setCustomerModalFields(customer) {

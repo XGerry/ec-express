@@ -12,19 +12,6 @@ const Marketplace = require('./model/marketplace.js');
 const CartMarketplace = require('./cartMarketplace');
 
 module.exports = function(qbws) {
-  // var sync = schedule.scheduleJob('0 0-20/2 * *', () => { // 0 4,6,8,10,12,14,16,18,20
-  //   if (process.env.DEV_MODE == 'TRUE') {
-  //     // do nothing
-  //     console.log('Doing nothing because we are in DEV mode.');
-  //   } else {
-  //     //syncOrdersAndInventory(qbws);
-  //     console.log('Syncing inventory from scheduler...');
-  //     syncOrdersAndInventoryNew(qbws).then(() => {
-  //       console.log('Done the new inventory system.');
-  //     });
-  //   }
-  // }); 
-
   let refreshRule = new schedule.RecurrenceRule();
   refreshRule.hour = 21;
   refreshRule.minute = 0;
@@ -41,6 +28,7 @@ module.exports = function(qbws) {
       amazon.updateAllInventory().then(response => console.log(response));
       walmart.updateAllInventory().then(response => console.log(response));
       helpers.queryAllItems(qbws); // update from quickbooks
+      qbws.addFinalCallback(() => saveInventory());
     });
   });
 

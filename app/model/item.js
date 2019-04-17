@@ -40,10 +40,7 @@ var itemSchema = new mongoose.Schema({
 	location: String,
 	secondLocation: String,
 	barcode: String,
-	countryOfOrigin: {
-    type: String,
-    default: 'CN'
-  },
+	countryOfOrigin: String,
 	htcCode: {
     type: String,
     default: '9503000090'
@@ -254,6 +251,10 @@ itemSchema.methods.updateFrom3DCart = async function(cartItem, marketplace) {
 
   if (cartItem.ExtraField8 != '' && cartItem.ExtraField8 != undefined) {
     this.barcode = cartItem.ExtraField8;
+  }
+
+  if (cartItem.ExtraField9 != '' && cartItem.ExtraField9 != undefined) {
+    this.countryOfOrigin = cartItem.ExtraField9;
   }
 
   if (cartItem.GTIN) {
