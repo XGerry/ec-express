@@ -29,6 +29,17 @@ mixin itemRow(item, order, dbOrder)
         else
           = '$0.00'
 
+append right-sidebar
+  .pt-4.mx-3.d-flex.justify-content-between
+    h5 Comments
+    button.btn.btn-primary.btn-sm(data-target="#addCustomerCommentModal" data-toggle="modal")
+      i.far.fa-plus.fa-fw
+  .pt-2.ml-2
+    each comment in order.customer.comments
+      .card.mt-2.py-0
+        .card-body.p-2=comment.comment
+        .card-footer.p-2=comment.user.username + ' - ' + moment(comment.date).format('MMM Do, YYYY')
+
 append nav-items-right
   li.dropdown.nav-item
     a.nav-link.dropdown-toggle(href="#" aria-haspopup="true" data-toggle="dropdown") Payments
@@ -483,6 +494,21 @@ append body
           button.btn-primary.btn(type="button")#addCommentButton Save
           button.btn-secondary.btn(type="button" data-dismiss="modal") Cancel
 
+  #addCustomerCommentModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5.mb-0 New Comment on Customer
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          .row
+            .col
+              textarea.form-control#userCustomerComment
+        .modal-footer
+          button.btn-primary.btn(type="button")#addCustomerCommentButton Save
+          button.btn-secondary.btn(type="button" data-dismiss="modal") Cancel
+
   #emailModal.modal(tabindex="-1" role="dialog").fade
     .modal-dialog.modal-lg(role="document")
       .modal-content
@@ -599,6 +625,15 @@ append body
           location.reload();
         });
       });
+
+      $('#addCustomerCommentButton').click(e => {
+        axios.post('/api/customer/'+theOrder.customer._id+'/comment', {
+          comment: $('#userCustomerComment').val()
+        }).then(response => {
+          location.reload();
+        });
+      });
+
 
       $('#fileInput').on('change', e => {
         console.log('file change');

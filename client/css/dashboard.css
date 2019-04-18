@@ -132,3 +132,85 @@ table tbody tr.rush {
   max-height: 500px;
   overflow-y: scroll;
 }
+
+#wrapper {
+  padding-left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+#wrapper.left-toggled {
+  padding-left: 250px;
+}
+
+#wrapper.right-toggled {
+  padding-right: 250px;
+}
+
+#wrapper.left-toggled #left-sidebar {
+  width: 250px;
+}
+
+#wrapper.right-toggled #right-sidebar {
+  width: 250px;
+}
+
+#wrapper.right-toggled #right-sidebar-toggler {
+  right: 225px;
+}
+
+#right-sidebar {
+  right: 250px;
+  margin-right: -250px;
+  background: #F8F9FA;
+  box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar-slider {
+  z-index: 1000;
+  position: fixed;
+  width: 0;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.sidebar-nav {
+  position: absolute;
+  top: 0;
+  width: 250px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#left-menu-toggle {
+  position: absolute;
+  margin: 20px;
+}
+
+#right-sidebar-toggler {
+  z-index: 2000;
+  position: fixed;
+  top: calc(50%);
+  right: 10px;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.btn-circle {
+  width: 50px;
+  height: 50px;
+  padding: 6px 0px;
+  border-radius: 30px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.42857;
+}

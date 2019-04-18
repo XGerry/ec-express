@@ -169,7 +169,7 @@ module.exports = app => {
   });
 
   app.get('/orders/view/:orderId', verifyUser, (req, res) => {
-    Order.findOne({_id: req.params.orderId}).populate('customer').populate('backorders').populate({
+    Order.findOne({_id: req.params.orderId}).populate('backorders').populate({
       path: 'items.item',
       model: 'Item',
       populate: {
@@ -178,7 +178,8 @@ module.exports = app => {
       }
     }).populate('userComments.user').then(order => {
       if (order) {
-        getCustomerType(order).then(() => {
+        getCustomerType(order).then(async () => {
+          await order.customer.populate('comments.user').execPopulate();
           res.render('order', {
             order: order,
             user: req.session.user
@@ -707,19 +708,24 @@ module.exports = app => {
     });
   });
 
-  app.get('/customer', (req, res) => {
-    Customer.findOne({_id: req.query.id}).populate('orders').then(async customer => {
-      if (customer) {
-        await customer.getCustomerFrom3DCart();
-        customer.getCustomerType().then(customer => {
-          res.render('customer', {
-            customer: customer
-          });
+  app.get('/customer/:customerId', verifyUser, async (req, res) => {
+    let customer = await Customer.findOne({_id: req.params.customerId}).populate('orders comments.user');
+    if (customer) {
+      await customer.getCustomerFrom3DCart();
+      customer.getCustomerType().then(customer => {
+        res.render('customer', {
+          customer: customer,
+          user: req.session.user
         });
-      } else {
-        res.redirect('/customers');
-      }
-    });
+      });
+    } else {
+      res.redirect('/customers');
+    }
+  });
+
+  app.get('/customer', (req, res) => {
+    let id = req.query.id;
+    res.redirect('/customer/'+id);
   });
 
   app.get('/customer-cart/:id', (req, res) => {

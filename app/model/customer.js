@@ -35,7 +35,14 @@ var customerSchema = new mongoose.Schema({
 	shippingZipCode: String,
 	customerType: Number,
 	customerId: Number, // 3D Cart customer id
-	comments: String,
+	comments: [{
+    comment: String,
+    date: Date,
+    user: {
+      type: ObjectId,
+      ref: 'User'
+    }
+  }],
   defaultSite: {
     type: String,
     enum: ['us', 'can'],
@@ -267,6 +274,15 @@ customerSchema.methods.addCustomerRq = async function(order, requestID) {
   var xmlDoc = getXMLRequest(obj);
   var str = xmlDoc.end({'pretty' : true});
   return str;
+}
+
+customerSchema.methods.addComment = function(comment, userId) {
+  this.comments.push({
+    comment: comment,
+    date: new Date(),
+    user: userId
+  });
+  return this.save();
 }
 
 customerSchema.methods.createBillingAddress = function() {

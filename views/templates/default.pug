@@ -79,8 +79,15 @@ append body
 
 
       main(role="main").col-md-9.ml-sm-auto.col-lg-10.px-4
-        .d-flex.justify-content-between.flex-wrap.flax-md-nowrap.align-items-center.pt-3.pb-2.mb-3
-        block body
+        #wrapper
+          button.btn.btn-circle.btn-primary#right-sidebar-toggler
+            i#right-sidebar-icon.fal.fa-angle-left.fa-fw.fa-3x
+          .sidebar-slider#right-sidebar
+            .sidebar-nav
+              block right-sidebar
+          #page-content
+            .d-flex.justify-content-between.flex-wrap.flax-md-nowrap.align-items-center.pt-3.pb-2.mb-3
+            block body
     
     //footer.py-3.bg-dark.fixed-bottom.hide-printer
       .container

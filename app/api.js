@@ -132,9 +132,16 @@ router.post('/order/:orderId/comment', async (req, res) => {
   res.json(theOrder);
 });
 
+router.post('/customer/:customerId/comment', async (req, res) => {
+  let theCustomer = await Customer.findOne({_id: req.params.customerId});
+  await theCustomer.addComment(req.body.comment, req.session.user._id);
+  res.json(theCustomer);
+});
+
 router.post('/qb/payments/:orderId', async (req, res) => {
   let theOrder = await Order.findOne({_id: req.params.orderId});
   theOrder.applyPaymentsToQB(this.qbws);
+  res.json(theOrder);
 });
 
 router.put('/order/email/invoice/:orderId', async (req, res) => {
