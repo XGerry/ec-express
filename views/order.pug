@@ -380,8 +380,8 @@ append body
                   th Method
                   th ID
               tbody
-                each payment in order.payments
-                  tr
+                each payment, index in order.payments
+                  tr(onclick="showPayment('"+index+"')")
                     td='$'+payment.amount.toFixed(2)
                     td=payment.type
                     td=payment.reference
@@ -532,11 +532,37 @@ append body
           button.btn-primary.btn(type="button")#savePaymentButton Save
           button.btn-secondary.btn(type="button" data-dismiss="modal")#cancelPaymentButton Cancel
 
+  #showPaymentModal.modal(tabindex="-1" role="dialog").fade
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5 Payment
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          .row
+            .col
+              label Amount
+              p.mb-0#paymentAmountModal
+            .col
+              label Type
+              p.mb-0#paymentTypeModal
+            .col
+              label Reference Code (Optional)
+              p.mb-0#paymentReferenceModal
+            .col
+              label Method
+              p.mb-0#paymentMethodModal
+        .modal-footer
+          button.btn-danger.btn(type="button")#deletePaymentButton Delete
+          button.btn-secondary.btn(type="button" data-dismiss="modal") Cancel
+
   script.
     var socket = io();
     var theOrder = !{JSON.stringify(order)};
     var theItem;
     var addingItem = false;
+    let paymentIndex = -1;
     console.log(theOrder);
 
     $(document).ready(e => {
@@ -653,12 +679,7 @@ append body
       });
 
       $('#saveOrderButton').click(e => {
-        saveOrderProperties();
-        recalculateTotal();
-        socket.emit('updateOrder', theOrder, response => {
-          console.log(response);
-          location.reload();
-        });
+        saveOrder();
       });
 
       $('#updateQuickbooks').click(e => {
@@ -939,6 +960,33 @@ append body
       theOrder.orderValue = 0;
       theOrder.items.forEach(item => {
         theOrder.orderValue += (item.quantity * item.price);
+      });
+    }
+
+    function showPayment(i) {
+      paymentIndex = i;
+      $('#paymentAmountModal').text('$' + theOrder.payments[i].amount.toFixed(2));
+      $('#paymentMethodModal').text(theOrder.payments[i].method);
+      $('#paymentReferenceModal').text(theOrder.payments[i].reference);
+      $('#paymentTypeModal').text(theOrder.payments[i].type);
+      $('#showPaymentModal').modal();
+    }
+
+    $('#deletePaymentButton').click(e => {
+      if (paymentIndex < 0) return;
+      let yes = confirm('Are you sure you want to remove the payment from EC-Express. This will not remove the payment from Quickbooks if it has been previously applied.');
+      if (yes) {
+        theOrder.payments.splice(paymentIndex, 1);
+        saveOrder();
+      }
+    });
+
+    function saveOrder() {
+      saveOrderProperties();
+      recalculateTotal();
+      socket.emit('updateOrder', theOrder, response => {
+        console.log(response);
+        location.reload();
       });
     }
 
